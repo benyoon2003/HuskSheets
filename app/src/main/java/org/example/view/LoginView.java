@@ -60,10 +60,11 @@ public class LoginView extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
-                System.out.println("Username: " + username);
-                System.out.println("Password: " + password);
-
-                // Add logic here to send the credentials to the backend for authentication
+                if (validateInput(username, password)) {
+                    authenticateUser(username, password);
+                } else {
+                    JOptionPane.showMessageDialog(panel, "Username and password cannot be empty");
+                }
             }
         });
 
@@ -72,9 +73,46 @@ public class LoginView extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
-                createAccount(username, password);
+                if (validateInput(username, password)) {
+                    createAccount(username, password);
+                } else {
+                    JOptionPane.showMessageDialog(panel, "Username and password cannot be empty");
+                }
             }
         });
+    }
+
+    private boolean validateInput(String username, String password) {
+        return !username.isEmpty() && !password.isEmpty();
+    }
+
+    private void authenticateUser(String username, String password) {
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            String json = String.format("{\"username\": \"%s\", \"password\": \"%s\"}", username, password);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:8080/api/authenticate"))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                JOptionPane.showMessageDialog(this, "Login successful!");
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        new MainGUI().setVisible(true);
+                    }
+                });
+                this.dispose(); // Close the login window
+            } else {
+                JOptionPane.showMessageDialog(this, "Failed to login: " + response.body());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error occurred: " + e.getMessage());
+        }
     }
 
     private void createAccount(String username, String password) {

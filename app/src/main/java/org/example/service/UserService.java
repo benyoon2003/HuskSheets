@@ -1,6 +1,6 @@
 package org.example.service;
 
-import org.example.model.User;
+import org.example.model.AppUser;
 import org.example.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public void registerUser(User user) throws Exception {
+    public void registerUser(AppUser user) throws Exception {
         logger.info("Attempting to register user: {}", user.getUsername());
 
         if (userRepository.findById(user.getUsername()).isPresent()) {
@@ -28,7 +28,7 @@ public class UserService {
         logger.info("User registered successfully: {}", user.getUsername());
     }
 
-    public User findUserByUsername(String username) {
+    public AppUser findUserByUsername(String username) {
         logger.info("Looking for user by username: {}", username);
         return userRepository.findById(username).orElse(null);
     }

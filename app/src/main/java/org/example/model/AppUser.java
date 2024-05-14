@@ -2,9 +2,11 @@ package org.example.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
-public class User {
+@Table(name = "users") // Ensure the table name is not a reserved keyword
+public class AppUser {
 
     @Id
     private String username;
