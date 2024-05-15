@@ -1,13 +1,16 @@
 package org.example.view;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class MainGUI extends JFrame {
 
-    private JTextArea[][] cells;
+    private JTextField[][] cells;
 
     public MainGUI() {
         setTitle("Main GUI");
@@ -43,10 +46,12 @@ public class MainGUI extends JFrame {
         JPanel gridPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
-        cells = new JTextArea[100][100];
+        // Update grid size to 100x100
+        int gridSize = 100;
+        cells = new JTextField[gridSize][gridSize];
 
         // Create column labels
-        for (int col = 0; col < 100; col++) {
+        for (int col = 0; col < gridSize; col++) {
             JLabel label = new JLabel(String.valueOf(col + 1), SwingConstants.CENTER);
             gbc.gridx = col + 1;
             gbc.gridy = 0;
@@ -54,16 +59,49 @@ public class MainGUI extends JFrame {
         }
 
         // Create row labels and cells
-        for (int row = 0; row < 100; row++) {
+        for (int row = 0; row < gridSize; row++) {
             JLabel label = new JLabel(String.valueOf(row + 1), SwingConstants.CENTER);
             gbc.gridx = 0;
             gbc.gridy = row + 1;
             gridPanel.add(label, gbc);
 
-            for (int col = 0; col < 100; col++) {
-                cells[row][col] = new JTextArea();
-                cells[row][col].setRows(1);
+            for (int col = 0; col < gridSize; col++) {
+                cells[row][col] = new JTextField();
                 cells[row][col].setColumns(10);
+                cells[row][col].setBorder(LineBorder.createGrayLineBorder());
+                cells[row][col].setFont(new Font("Arial", Font.PLAIN, 12));
+
+                // Align text to the right for numeric values
+                cells[row][col].setHorizontalAlignment(JTextField.RIGHT);
+
+                final int finalRow = row;
+                final int finalCol = col;
+                // Add DocumentListener to adjust alignment when text is entered
+                cells[finalRow][finalCol].getDocument().addDocumentListener(new DocumentListener() {
+                    @Override
+                    public void insertUpdate(DocumentEvent e) {
+                        alignText(cells[finalRow][finalCol]);
+                    }
+
+                    @Override
+                    public void removeUpdate(DocumentEvent e) {
+                        alignText(cells[finalRow][finalCol]);
+                    }
+
+                    @Override
+                    public void changedUpdate(DocumentEvent e) {
+                        alignText(cells[finalRow][finalCol]);
+                    }
+
+                    private void alignText(JTextField textField) {
+                        if (textField.getText().matches("\\d+")) {
+                            textField.setHorizontalAlignment(JTextField.RIGHT);
+                        } else {
+                            textField.setHorizontalAlignment(JTextField.LEFT);
+                        }
+                    }
+                });
+
                 gbc.gridx = col + 1;
                 gbc.gridy = row + 1;
                 gridPanel.add(cells[row][col], gbc);
@@ -72,7 +110,14 @@ public class MainGUI extends JFrame {
 
         // Add scroll bars
         JScrollPane scrollPane = new JScrollPane(gridPanel);
+        scrollPane.setPreferredSize(new Dimension(800, 600));
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         add(scrollPane, BorderLayout.CENTER);
+
+        // Set visibility and pack components
+        setVisible(true);
+        pack();
     }
 
     private class ToolbarButtonListener implements ActionListener {
@@ -103,4 +148,3 @@ public class MainGUI extends JFrame {
         });
     }
 }
-
