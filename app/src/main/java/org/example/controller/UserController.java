@@ -26,6 +26,7 @@ public class UserController implements IUserController {
         sheetView.addController(this);
         appUser = new AppUser();
         homeView = new HomeView();
+        homeView.addController(this);
     }
 
     @Override
@@ -57,6 +58,12 @@ public class UserController implements IUserController {
     @Override
     public void setCurrentSheet(ISheetView sheetView) {
         this.sheetView = sheetView;
+    }
+
+    @Override
+    public void createNewSheet() {
+        this.sheetView = new SheetView();
+        this.sheetView.makeVisible();
     }
 
 

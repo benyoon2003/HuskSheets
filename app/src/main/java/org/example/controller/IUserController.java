@@ -14,4 +14,6 @@ public interface IUserController {
   boolean isUserCreated(String username, String password);
 
   void setCurrentSheet(ISheetView sheetView);
+
+  void createNewSheet();
 }
