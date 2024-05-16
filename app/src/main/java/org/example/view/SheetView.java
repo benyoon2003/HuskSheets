@@ -1,5 +1,6 @@
 package org.example.view;
 
+import org.example.controller.IUserController;
 import org.example.model.Cell;
 import org.example.model.Spreadsheet;
 
@@ -12,8 +13,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-public class SheetView extends JFrame {
+public class SheetView extends JFrame implements ISheetView {
   private Spreadsheet cells;
+  private IUserController controller;
 
   public SheetView(){
     this.cells = new Spreadsheet();
@@ -91,11 +93,20 @@ public class SheetView extends JFrame {
     add(scrollPane, BorderLayout.CENTER);
 
     // Set visibility and pack components
-    setVisible(true);
     pack();
 
 
 
+  }
+
+  @Override
+  public void addController(IUserController controller) {
+    this.controller = controller;
+  }
+
+  @Override
+  public void makeVisible() {
+    this.setVisible(true);
   }
 
   private class ToolbarButtonListener implements ActionListener {

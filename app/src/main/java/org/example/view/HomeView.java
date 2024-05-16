@@ -1,6 +1,8 @@
 package org.example.view;
 
 
+import org.example.controller.IUserController;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,10 +14,13 @@ import java.nio.charset.StandardCharsets;
 
 
 
-public class HomeView extends JFrame {
+public class HomeView extends JFrame implements IHomeView {
 
   private JButton createSheet;
-  public HomeView(){
+
+  private IUserController controller;
+
+  public HomeView() {
     setTitle("Main GUI");
     setExtendedState(JFrame.MAXIMIZED_BOTH);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -30,7 +35,6 @@ public class HomeView extends JFrame {
   private void placeComponents(JPanel panel) {
     panel.setLayout(null);
 
-
     JLabel spreadheetsLabel = new JLabel("Spreadsheets:");
     spreadheetsLabel.setBounds(50, 50, 100, 25);
     panel.add(spreadheetsLabel);
@@ -39,14 +43,26 @@ public class HomeView extends JFrame {
     createSheet.setBounds(50, 70, 200, 25);
     panel.add(createSheet);
 
-
     createSheet.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        new SheetView().setVisible(true);
-
+       controller.createNewSheet();
       }
     });
   }
 
+  @Override
+  public void addController(IUserController controller) {
+    this.controller = controller;
+  }
+
+  @Override
+  public void makeVisible() {
+    this.setVisible(true);
+  }
+
+  @Override
+  public void disposeHomePage() {
+    this.dispose();
+  }
 }

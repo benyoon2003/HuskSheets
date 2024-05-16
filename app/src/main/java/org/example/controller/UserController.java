@@ -1,48 +1,73 @@
 package org.example.controller;
 
 import org.example.model.AppUser;
-import org.example.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.example.model.IAppUser;
+import org.example.view.HomeView;
+import org.example.view.IHomeView;
+import org.example.view.ILoginView;
+import org.example.view.ISheetView;
+import org.example.view.LoginView;
+import org.example.view.SheetView;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public class UserController implements IUserController {
 
-@RestController
-@RequestMapping("/api")
-public class UserController {
+    private ILoginView loginPage;
 
-    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private ISheetView sheetView;
 
-    @Autowired
-    private UserService userService;
+    private IHomeView homeView;
+    private IAppUser appUser;
 
-    @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody AppUser user) {
-        logger.info("Received request to register user: {}", user.getUsername());
 
-        try {
-            userService.registerUser(user);
-            logger.info("User registered successfully: {}", user.getUsername());
-            return ResponseEntity.ok("User registered successfully");
-        } catch (Exception e) {
-            logger.error("Error registering user: {}", user.getUsername(), e);
-            return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
+    public UserController() {
+        loginPage = new LoginView();
+        loginPage.addController(this);
+        sheetView = new SheetView();
+        sheetView.addController(this);
+        appUser = new AppUser();
+        homeView = new HomeView();
+        homeView.addController(this);
+    }
+
+    @Override
+    public boolean isUserAuthenticationComplete(String username, String password) {
+        if (validateInput(username, password)) {
+            String message = this.appUser.authenticateUser(username, password);
+            this.loginPage.displayErrorBox(message);
+            if (message.equals("Login successful!")) {
+                this.homeView.makeVisible();
+                this.loginPage.disposeLoginPage();
+            }
+            return true;
+        } else {
+            return false;
         }
     }
 
-    @PostMapping("/authenticate")
-    public ResponseEntity<?> authenticateUser(@RequestBody AppUser user) {
-        logger.info("Received request to authenticate user: {}", user.getUsername());
-
-        AppUser foundUser = userService.findUserByUsername(user.getUsername());
-        if (foundUser != null && foundUser.getPassword().equals(user.getPassword())) {
-            logger.info("User authenticated successfully: {}", user.getUsername());
-            return ResponseEntity.ok("Login successful");
+    @Override
+    public boolean isUserCreated(String username, String password) {
+        if (validateInput(username, password)) {
+            String message = this.appUser.createAccount(username, password);
+            this.loginPage.displayErrorBox(message);
+            return true;
         } else {
-            logger.warn("Authentication failed for user: {}", user.getUsername());
-            return ResponseEntity.status(401).body("Invalid credentials");
+            return false;
         }
+    }
+
+    @Override
+    public void setCurrentSheet(ISheetView sheetView) {
+        this.sheetView = sheetView;
+    }
+
+    @Override
+    public void createNewSheet() {
+        this.sheetView = new SheetView();
+        this.sheetView.makeVisible();
+    }
+
+
+    private boolean validateInput(String username, String password) {
+        return !username.isEmpty() && !password.isEmpty();
     }
 }
