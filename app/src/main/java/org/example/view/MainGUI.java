@@ -1,5 +1,7 @@
 package org.example.view;
 
+import org.example.controller.IUserController;
+
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
@@ -8,9 +10,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class MainGUI extends JFrame {
+public class MainGUI extends JFrame implements IMainGUI {
 
     private JTextField[][] cells;
+    private IUserController controller;
 
     public MainGUI() {
         setTitle("Main GUI");
@@ -115,9 +118,18 @@ public class MainGUI extends JFrame {
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Set visibility and pack components
-        setVisible(true);
+        //pack components
+
         pack();
+    }
+
+    public void makeVisible() {
+        this.setVisible(true);
+    }
+
+    @Override
+    public void addController(IUserController controller) {
+        this.controller = controller;
     }
 
     private class ToolbarButtonListener implements ActionListener {
@@ -139,12 +151,4 @@ public class MainGUI extends JFrame {
         }
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new MainGUI().setVisible(true);
-            }
-        });
-    }
 }

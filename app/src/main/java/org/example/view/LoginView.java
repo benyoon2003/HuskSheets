@@ -1,5 +1,7 @@
 package org.example.view;
 
+import org.example.controller.IUserController;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,12 +11,14 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 
-public class LoginView extends JFrame {
+public class LoginView extends JFrame implements ILoginView {
 
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton loginButton;
     private JButton createAccountButton;
+
+    private IUserController controller;
 
     public LoginView() {
         setTitle("Login");
@@ -26,6 +30,20 @@ public class LoginView extends JFrame {
         placeComponents(panel);
 
         add(panel);
+        this.setVisible(true);
+    }
+
+    public void disposeLoginPage() {
+        this.dispose();
+    }
+
+    public void addController(IUserController controller) {
+        this.controller = controller;
+    }
+
+    @Override
+    public void displayErrorBox(Object message) {
+        JOptionPane.showMessageDialog(this, message);
     }
 
     private void placeComponents(JPanel panel) {
@@ -60,9 +78,7 @@ public class LoginView extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
-                if (validateInput(username, password)) {
-                    authenticateUser(username, password);
-                } else {
+                if (!controller.isUserAuthenticationComplete(username, password)) {
                     JOptionPane.showMessageDialog(panel, "Username and password cannot be empty");
                 }
             }
@@ -73,76 +89,11 @@ public class LoginView extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
-                if (validateInput(username, password)) {
-                    createAccount(username, password);
-                } else {
+                if (!controller.isUserCreated(username, password)) {
                     JOptionPane.showMessageDialog(panel, "Username and password cannot be empty");
                 }
             }
         });
     }
 
-    private boolean validateInput(String username, String password) {
-        return !username.isEmpty() && !password.isEmpty();
-    }
-
-    private void authenticateUser(String username, String password) {
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            String json = String.format("{\"username\": \"%s\", \"password\": \"%s\"}", username, password);
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:8080/api/authenticate"))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200) {
-                JOptionPane.showMessageDialog(this, "Login successful!");
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        new MainGUI().setVisible(true);
-                    }
-                });
-                this.dispose(); // Close the login window
-            } else {
-                JOptionPane.showMessageDialog(this, "Failed to login: " + response.body());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error occurred: " + e.getMessage());
-        }
-    }
-
-    private void createAccount(String username, String password) {
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            String json = String.format("{\"username\": \"%s\", \"password\": \"%s\"}", username, password);
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:8080/api/register"))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            if (response.statusCode() == 200) {
-                JOptionPane.showMessageDialog(this, "Account created successfully!");
-            } else {
-                JOptionPane.showMessageDialog(this, "Failed to create account: " + response.body());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error occurred: " + e.getMessage());
-        }
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new LoginView().setVisible(true);
-            }
-        });
-    }
 }
