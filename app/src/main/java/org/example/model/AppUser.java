@@ -1,7 +1,5 @@
 package org.example.model;
 
-import org.example.view.MainGUI;
-
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -11,7 +9,6 @@ import java.nio.charset.StandardCharsets;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.swing.*;
 
 @Entity
 @Table(name = "users") // Ensure the table name is not a reserved keyword

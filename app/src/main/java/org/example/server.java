@@ -4,9 +4,7 @@ import org.example.model.AppUser;
 import org.example.model.IAppUser;
 import org.example.service.UserService;
 import org.example.view.ILoginView;
-import org.example.view.IMainGUI;
 
-import org.example.view.MainGUI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,11 +22,6 @@ public class server {
   @Autowired
   private UserService userService;
 
-  private ILoginView loginPage;
-
-  private IMainGUI mainPage;
-
-  private IAppUser appUser;
 
 
   @PostMapping("/register")
@@ -52,7 +45,6 @@ public class server {
     AppUser foundUser = userService.findUserByUsername(user.getUsername());
     if (foundUser != null && foundUser.getPassword().equals(user.getPassword())) {
       logger.info("User authenticated successfully: {}", user.getUsername());
-      new MainGUI();
       return ResponseEntity.ok("Login successful");
     } else {
       logger.warn("Authentication failed for user: {}", user.getUsername());

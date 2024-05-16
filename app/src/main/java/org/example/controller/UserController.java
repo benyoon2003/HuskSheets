@@ -1,37 +1,31 @@
 package org.example.controller;
 
-import com.sun.tools.javac.Main;
-
 import org.example.model.AppUser;
 import org.example.model.IAppUser;
-import org.example.service.UserService;
+import org.example.view.HomeView;
+import org.example.view.IHomeView;
 import org.example.view.ILoginView;
-import org.example.view.IMainGUI;
+import org.example.view.ISheetView;
 import org.example.view.LoginView;
-import org.example.view.MainGUI;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.swing.*;
+import org.example.view.SheetView;
 
 public class UserController implements IUserController {
 
     private ILoginView loginPage;
 
-    private IMainGUI mainPage;
+    private ISheetView sheetView;
 
+    private IHomeView homeView;
     private IAppUser appUser;
+
 
     public UserController() {
         loginPage = new LoginView();
         loginPage.addController(this);
-        mainPage = new MainGUI();
-        mainPage.addController(this);
+        sheetView = new SheetView();
+        sheetView.addController(this);
         appUser = new AppUser();
+        homeView = new HomeView();
     }
 
     @Override
@@ -40,7 +34,7 @@ public class UserController implements IUserController {
             String message = this.appUser.authenticateUser(username, password);
             this.loginPage.displayErrorBox(message);
             if (message.equals("Login successful!")) {
-                this.mainPage.makeVisible();
+                this.homeView.makeVisible();
                 this.loginPage.disposeLoginPage();
             }
             return true;
@@ -58,6 +52,11 @@ public class UserController implements IUserController {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public void setCurrentSheet(ISheetView sheetView) {
+        this.sheetView = sheetView;
     }
 
 
