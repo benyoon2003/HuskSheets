@@ -102,7 +102,7 @@ public class LoginView extends JFrame {
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        new MainGUI().setVisible(true);
+                        new HomeView().setVisible(true);
                     }
                 });
                 this.dispose(); // Close the login window
