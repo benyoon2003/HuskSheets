@@ -8,20 +8,10 @@ import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-
-import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
-import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
 
 public class SheetView extends JFrame implements ISheetView {
   private Spreadsheet cells;
@@ -37,7 +27,7 @@ public class SheetView extends JFrame implements ISheetView {
     setup();
   }
 
-  private void setup() {
+  private void setup(){
     setTitle("Main GUI");
     setExtendedState(JFrame.MAXIMIZED_BOTH);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -70,58 +60,33 @@ public class SheetView extends JFrame implements ISheetView {
 
 
     //create grid
-//
-//    int rows = this.cells.getRows();
-//    int cols = this.cells.getCols();
 
-//    JPanel gridPanel = new JPanel(new GridLayout(rows+1, cols+1, 0, 0));
-//
-//    //print blank cell
-//    gridPanel.add(new JLabel());
-//    // Create column labels
-//    for (int c = 0; c < cols; c++) {
-//      JLabel label = new JLabel(String.valueOf(c + 1), SwingConstants.CENTER);
-//      gridPanel.add(label);
-//    }
-//    for (int r = 0; r < rows; r++) {
-//      JLabel label2 = new JLabel(String.valueOf(r + 1), SwingConstants.CENTER);
-//      gridPanel.add(label2);
-//
-//      for (Cell cell : this.cells.getCells().get(r)) {
-//        JTextField textField = new JTextField(cell.getValue());
-//        textField.setPreferredSize(new Dimension(cell.getWidth(), cell.getHeight()));
-//        gridPanel.add(textField);
-//      }
-//    }
+    int rows = this.cells.getRows();
+    int cols = this.cells.getCols();
 
-    JTable table;
-    DefaultTableModel tableModel;
+    JPanel gridPanel = new JPanel(new GridLayout(rows+1, cols+1, 0, 0));
 
-    // Variables to track the starting and ending cell of the selection
-    int startRow, startColumn, endRow, endColumn;
-    Object[][] data = {
-            {"Kundan Kumar Jha", "4031", "CSE"},
-            {"Anand Jha", "6014", "IT"},
-            {"Anand Jha", "6014", "IT"}
-    };
+    //print blank cell
+    gridPanel.add(new JLabel());
+    // Create column labels
+    for (int c = 0; c < cols; c++) {
+      JLabel label = new JLabel(String.valueOf(c + 1), SwingConstants.CENTER);
+      gridPanel.add(label);
+    }
+    for (int r = 0; r < rows; r++) {
+      JLabel label2 = new JLabel(String.valueOf(r + 1), SwingConstants.CENTER);
+      gridPanel.add(label2);
 
-    // Column Names
-    String[] columnNames = {"Name", "Roll Number", "Department"};
+      for (Cell cell : this.cells.getCells().get(r)) {
+        JTextField textField = new JTextField(cell.getValue());
+        textField.setPreferredSize(new Dimension(cell.getWidth(), cell.getHeight()));
+        gridPanel.add(textField);
+      }
+    }
 
-    // Create table model
-    tableModel = new DefaultTableModel(data, columnNames);
-
-    // Create JTable with the model
-    table = new JTable(tableModel);
-
-    // Disable row selection
-    table.setRowSelectionAllowed(false);
-
-    // Add mouse listener to handle cell selection
-
-    add(table, BorderLayout.CENTER);
+    add(gridPanel, BorderLayout.CENTER);
     // Add scroll bars
-    JScrollPane scrollPane = new JScrollPane(table);
+    JScrollPane scrollPane = new JScrollPane(gridPanel);
     scrollPane.setPreferredSize(new Dimension(800, 600));
     scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
     scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -129,7 +94,6 @@ public class SheetView extends JFrame implements ISheetView {
 
     // Set visibility and pack components
     pack();
-
 
 
 
