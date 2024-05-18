@@ -102,6 +102,7 @@ public class SheetView extends JFrame implements ISheetView {
     Object[][] data = {
             {"Kundan Kumar Jha", "4031", "CSE"},
             {"Anand Jha", "6014", "IT"},
+            {},
             {"Anand Jha", "6014", "IT"}
     };
 
@@ -113,13 +114,38 @@ public class SheetView extends JFrame implements ISheetView {
 
     // Create JTable with the model
     table = new JTable(tableModel);
+    table.setSelectionMode(MULTIPLE_INTERVAL_SELECTION);
 
-    // Disable row selection
-    table.setRowSelectionAllowed(false);
+    table.setCellSelectionEnabled(true);
 
-    // Add mouse listener to handle cell selection
+    table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+      @Override
+      public void valueChanged(ListSelectionEvent e) {
+        int[] selectedRows = table.getSelectedRows();
+        int[] selectedColumns = table.getSelectedColumns();
+
+        // Display selected cells
+        StringBuilder selectedCells = new StringBuilder();
+        System.out.println("ROWS: ");
+        for (int row : selectedRows) {
+          System.out.println(row);
+        }
+        System.out.println("COLS: ");
+        for (int column : selectedColumns) {
+          System.out.println(column);
+        }
+      }
+    });
+
+    for (int row = 0; row < table.getRowCount(); row++) {
+      for (int col = 0; col < table.getColumnCount(); col++) {
+        System.out.println(table.getSelectedRow() + ", " + table.getSelectedColumn());
+      }
+    }
+
 
     add(table, BorderLayout.CENTER);
+
     // Add scroll bars
     JScrollPane scrollPane = new JScrollPane(table);
     scrollPane.setPreferredSize(new Dimension(800, 600));
@@ -129,8 +155,6 @@ public class SheetView extends JFrame implements ISheetView {
 
     // Set visibility and pack components
     pack();
-
-
 
 
   }
