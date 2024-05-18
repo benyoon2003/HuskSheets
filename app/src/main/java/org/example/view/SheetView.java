@@ -10,6 +10,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
@@ -68,46 +70,33 @@ public class SheetView extends JFrame implements ISheetView {
 
     add(toolbar, BorderLayout.NORTH);
 
-
-    //create grid
-//
-//    int rows = this.cells.getRows();
-//    int cols = this.cells.getCols();
-
-//    JPanel gridPanel = new JPanel(new GridLayout(rows+1, cols+1, 0, 0));
-//
-//    //print blank cell
-//    gridPanel.add(new JLabel());
-//    // Create column labels
-//    for (int c = 0; c < cols; c++) {
-//      JLabel label = new JLabel(String.valueOf(c + 1), SwingConstants.CENTER);
-//      gridPanel.add(label);
-//    }
-//    for (int r = 0; r < rows; r++) {
-//      JLabel label2 = new JLabel(String.valueOf(r + 1), SwingConstants.CENTER);
-//      gridPanel.add(label2);
-//
-//      for (Cell cell : this.cells.getCells().get(r)) {
-//        JTextField textField = new JTextField(cell.getValue());
-//        textField.setPreferredSize(new Dimension(cell.getWidth(), cell.getHeight()));
-//        gridPanel.add(textField);
-//      }
-//    }
-
     JTable table;
     DefaultTableModel tableModel;
 
     // Variables to track the starting and ending cell of the selection
-    int startRow, startColumn, endRow, endColumn;
-    Object[][] data = {
-            {"Kundan Kumar Jha", "4031", "CSE"},
-            {"Anand Jha", "6014", "IT"},
-            {},
-            {"Anand Jha", "6014", "IT"}
-    };
+//    int startRow, startColumn, endRow, endColumn;
+//    Object[][] data = {
+//            {"Kundan Kumar Jha", "4031", "CSE"},
+//            {"Anand Jha", "6014", "IT"},
+//            {},
+//            {"Anand Jha", "6014", "IT"}
+//    };
+//
+//    // Column Names
+//    String[] columnNames = {"Name", "Roll Number", "Department"};
 
+
+    //get data and set column names
+    Object[][] data = this.cells.getCellStringsObject();
+
+    Cell[][] cellRef = this.cells.getCellsObject();
     // Column Names
-    String[] columnNames = {"Name", "Roll Number", "Department"};
+
+    String[] columnNames = new String[this.cells.getCols()];
+
+    for(int i = 0; i < this.cells.getCols(); i++){
+      columnNames[i] = String.valueOf(i+1);
+    }
 
     // Create table model
     tableModel = new DefaultTableModel(data, columnNames);
@@ -115,9 +104,9 @@ public class SheetView extends JFrame implements ISheetView {
     // Create JTable with the model
     table = new JTable(tableModel);
     table.setSelectionMode(MULTIPLE_INTERVAL_SELECTION);
-
+    table.setAutoResizeMode(0);
     table.setCellSelectionEnabled(true);
-
+    table.setShowGrid(true);
     table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
       @Override
       public void valueChanged(ListSelectionEvent e) {
@@ -134,6 +123,19 @@ public class SheetView extends JFrame implements ISheetView {
         for (int column : selectedColumns) {
           System.out.println(column);
         }
+
+
+        //update cellRef
+      }
+    });
+
+    table.getModel().addTableModelListener(new TableModelListener() {
+      @Override
+      public void tableChanged(TableModelEvent e) {
+        int selRow = table.getSelectedRow();
+        int selCol = table.getSelectedColumn();
+        String val = String.valueOf(table.getValueAt(selRow, selCol));
+        cellRef[selRow][selCol].setValue(val);
       }
     });
 
