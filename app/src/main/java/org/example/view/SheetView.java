@@ -6,28 +6,36 @@ import org.example.model.Spreadsheet;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+
+import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 
 public class SheetView extends JFrame implements ISheetView {
   private Spreadsheet cells;
   private IUserController controller;
 
-  public SheetView(){
+  private static final int rowSize = 100;
+  private static final int colSize = 100;
+
+  public SheetView() {
     this.cells = new Spreadsheet();
     setup();
   }
 
-  public SheetView(Spreadsheet openSheet){
+  public SheetView(Spreadsheet openSheet) {
     this.cells = openSheet;
     setup();
   }
 
-  private void setup(){
+  private void setup() {
     setTitle("Main GUI");
     setExtendedState(JFrame.MAXIMIZED_BOTH);
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -38,7 +46,6 @@ public class SheetView extends JFrame implements ISheetView {
     JButton copyButton = new JButton("Copy");
     JButton pasteButton = new JButton("Paste");
     JButton saveButton = new JButton("Save");
-
 
     toolbar.add(cutButton);
     toolbar.add(copyButton);
@@ -58,35 +65,90 @@ public class SheetView extends JFrame implements ISheetView {
 
     add(toolbar, BorderLayout.NORTH);
 
+    JTable table;
 
-    //create grid
+    // Get data and set column names
+    Object[][] data = this.cells.getCellStringsObject();
+    Cell[][] cellRef = this.cells.getCellsObject();
 
-    int rows = this.cells.getRows();
-    int cols = this.cells.getCols();
-
-    JPanel gridPanel = new JPanel(new GridLayout(rows+1, cols+1, 0, 0));
-
-    //print blank cell
-    gridPanel.add(new JLabel());
-    // Create column labels
-    for (int c = 0; c < cols; c++) {
-      JLabel label = new JLabel(String.valueOf(c + 1), SwingConstants.CENTER);
-      gridPanel.add(label);
+    String[] columnNames = new String[this.cells.getCols() + 1];
+    columnNames[0] = ""; // Empty first column
+    for (int i = 1; i <= 100; i++) {
+      columnNames[i] = String.valueOf((char) ('A' + (i - 1) % 26)) + (i - 1) / 26; // Generate column labels (A, B, ..., Z, AA, AB, ...)
     }
-    for (int r = 0; r < rows; r++) {
-      JLabel label2 = new JLabel(String.valueOf(r + 1), SwingConstants.CENTER);
-      gridPanel.add(label2);
 
-      for (Cell cell : this.cells.getCells().get(r)) {
-        JTextField textField = new JTextField(cell.getValue());
-        textField.setPreferredSize(new Dimension(cell.getWidth(), cell.getHeight()));
-        gridPanel.add(textField);
+    // Custom table model with row labels
+    DefaultTableModel tableModel = new DefaultTableModel(data, columnNames) {
+      @Override
+      public boolean isCellEditable(int row, int column) {
+        // Make the first column non-editable (for row labels)
+        return column != 0;
       }
+    };
+
+    // Add row labels
+    for (int i = 0; i < rowSize; i++) {
+      tableModel.setValueAt(i + 1, i, 0); // Set row label values
     }
 
-    add(gridPanel, BorderLayout.CENTER);
+    // Create JTable with the model
+    table = new JTable(tableModel);
+    table.setSelectionMode(MULTIPLE_INTERVAL_SELECTION);
+    table.setAutoResizeMode(0);
+
+    table.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
+      @Override
+      public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        setHorizontalAlignment(SwingConstants.CENTER); // Align labels to the center
+        return this;
+      }
+    });
+
+    table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+    table.setCellSelectionEnabled(true);
+    table.setShowGrid(true);
+
+    ListSelectionListener cellSelectionListener = new ListSelectionListener() {
+      @Override
+      public void valueChanged(ListSelectionEvent e) {
+        if (!e.getValueIsAdjusting()) {
+          int[] selectedRows = table.getSelectedRows();
+          int[] selectedColumns = table.getSelectedColumns();
+
+          if (selectedRows.length > 0 && selectedColumns.length > 0) {
+            int startRow = selectedRows[0];
+            int endRow = selectedRows[selectedRows.length - 1];
+            int startColumn = selectedColumns[0];
+            int endColumn = selectedColumns[selectedColumns.length - 1];
+
+            System.out.println("Selected range: (" + (startRow+1) + ", " + startColumn + ") to (" + (endRow+1)+ ", " + endColumn + ")");
+            // Additional logic for handling cell selection range
+          }
+        }
+      }
+    };
+
+    table.getSelectionModel().addListSelectionListener(cellSelectionListener);
+    table.getColumnModel().getSelectionModel().addListSelectionListener(cellSelectionListener);
+
+    table.getModel().addTableModelListener(new TableModelListener() {
+      @Override
+      public void tableChanged(TableModelEvent e) {
+        int selRow = table.getSelectedRow();
+        int selCol = table.getSelectedColumn();
+        if (selRow != -1 && selCol != -1) {
+          String val = String.valueOf(table.getValueAt(selRow, selCol));
+          cellRef[selRow][selCol].setValue(val);
+          System.out.println("New Val: " + val);
+        }
+      }
+    });
+
+    add(table, BorderLayout.CENTER);
+
     // Add scroll bars
-    JScrollPane scrollPane = new JScrollPane(gridPanel);
+    JScrollPane scrollPane = new JScrollPane(table);
     scrollPane.setPreferredSize(new Dimension(800, 600));
     scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
     scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -94,9 +156,6 @@ public class SheetView extends JFrame implements ISheetView {
 
     // Set visibility and pack components
     pack();
-
-
-
   }
 
   @Override
