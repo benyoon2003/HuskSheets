@@ -6,35 +6,31 @@ import org.example.model.Spreadsheet;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
-import static javax.swing.ListSelectionModel.SINGLE_SELECTION;
 
 public class SheetView extends JFrame implements ISheetView {
   private Spreadsheet cells;
   private IUserController controller;
 
-  public SheetView(){
+  private static final int rowSize = 100;
+  private static final int colSize = 100;
+
+  public SheetView() {
     this.cells = new Spreadsheet();
     setup();
   }
 
-  public SheetView(Spreadsheet openSheet){
+  public SheetView(Spreadsheet openSheet) {
     this.cells = openSheet;
     setup();
   }
@@ -50,7 +46,6 @@ public class SheetView extends JFrame implements ISheetView {
     JButton copyButton = new JButton("Copy");
     JButton pasteButton = new JButton("Paste");
     JButton saveButton = new JButton("Save");
-
 
     toolbar.add(cutButton);
     toolbar.add(copyButton);
@@ -71,80 +66,84 @@ public class SheetView extends JFrame implements ISheetView {
     add(toolbar, BorderLayout.NORTH);
 
     JTable table;
-    DefaultTableModel tableModel;
 
-    // Variables to track the starting and ending cell of the selection
-//    int startRow, startColumn, endRow, endColumn;
-//    Object[][] data = {
-//            {"Kundan Kumar Jha", "4031", "CSE"},
-//            {"Anand Jha", "6014", "IT"},
-//            {},
-//            {"Anand Jha", "6014", "IT"}
-//    };
-//
-//    // Column Names
-//    String[] columnNames = {"Name", "Roll Number", "Department"};
-
-
-    //get data and set column names
+    // Get data and set column names
     Object[][] data = this.cells.getCellStringsObject();
-
     Cell[][] cellRef = this.cells.getCellsObject();
-    // Column Names
 
-    String[] columnNames = new String[this.cells.getCols()];
-
-    for(int i = 0; i < this.cells.getCols(); i++){
-      columnNames[i] = String.valueOf(i+1);
+    String[] columnNames = new String[this.cells.getCols() + 1];
+    columnNames[0] = ""; // Empty first column
+    for (int i = 1; i <= 100; i++) {
+      columnNames[i] = String.valueOf((char) ('A' + (i - 1) % 26)) + (i - 1) / 26; // Generate column labels (A, B, ..., Z, AA, AB, ...)
     }
 
-    // Create table model
-    tableModel = new DefaultTableModel(data, columnNames);
+    // Custom table model with row labels
+    DefaultTableModel tableModel = new DefaultTableModel(data, columnNames) {
+      @Override
+      public boolean isCellEditable(int row, int column) {
+        // Make the first column non-editable (for row labels)
+        return column != 0;
+      }
+    };
+
+    // Add row labels
+    for (int i = 0; i < rowSize; i++) {
+      tableModel.setValueAt(i + 1, i, 0); // Set row label values
+    }
 
     // Create JTable with the model
     table = new JTable(tableModel);
     table.setSelectionMode(MULTIPLE_INTERVAL_SELECTION);
     table.setAutoResizeMode(0);
-    table.setCellSelectionEnabled(true);
-    table.setShowGrid(true);
-    table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+    table.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
       @Override
-      public void valueChanged(ListSelectionEvent e) {
-        int[] selectedRows = table.getSelectedRows();
-        int[] selectedColumns = table.getSelectedColumns();
-
-        // Display selected cells
-        StringBuilder selectedCells = new StringBuilder();
-        System.out.println("ROWS: ");
-        for (int row : selectedRows) {
-          System.out.println(row);
-        }
-        System.out.println("COLS: ");
-        for (int column : selectedColumns) {
-          System.out.println(column);
-        }
-
-
-        //update cellRef
+      public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        setHorizontalAlignment(SwingConstants.CENTER); // Align labels to the center
+        return this;
       }
     });
+
+    table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+    table.setCellSelectionEnabled(true);
+    table.setShowGrid(true);
+
+    ListSelectionListener cellSelectionListener = new ListSelectionListener() {
+      @Override
+      public void valueChanged(ListSelectionEvent e) {
+        if (!e.getValueIsAdjusting()) {
+          int[] selectedRows = table.getSelectedRows();
+          int[] selectedColumns = table.getSelectedColumns();
+
+          if (selectedRows.length > 0 && selectedColumns.length > 0) {
+            int startRow = selectedRows[0];
+            int endRow = selectedRows[selectedRows.length - 1];
+            int startColumn = selectedColumns[0];
+            int endColumn = selectedColumns[selectedColumns.length - 1];
+
+            System.out.println("Selected range: (" + (startRow+1) + ", " + startColumn + ") to (" + (endRow+1)+ ", " + endColumn + ")");
+            // Additional logic for handling cell selection range
+          }
+        }
+      }
+    };
+
+    table.getSelectionModel().addListSelectionListener(cellSelectionListener);
+    table.getColumnModel().getSelectionModel().addListSelectionListener(cellSelectionListener);
 
     table.getModel().addTableModelListener(new TableModelListener() {
       @Override
       public void tableChanged(TableModelEvent e) {
         int selRow = table.getSelectedRow();
         int selCol = table.getSelectedColumn();
-        String val = String.valueOf(table.getValueAt(selRow, selCol));
-        cellRef[selRow][selCol].setValue(val);
+        if (selRow != -1 && selCol != -1) {
+          String val = String.valueOf(table.getValueAt(selRow, selCol));
+          cellRef[selRow][selCol].setValue(val);
+          System.out.println("New Val: " + val);
+        }
       }
     });
-
-    for (int row = 0; row < table.getRowCount(); row++) {
-      for (int col = 0; col < table.getColumnCount(); col++) {
-        System.out.println(table.getSelectedRow() + ", " + table.getSelectedColumn());
-      }
-    }
-
 
     add(table, BorderLayout.CENTER);
 
@@ -157,8 +156,6 @@ public class SheetView extends JFrame implements ISheetView {
 
     // Set visibility and pack components
     pack();
-
-
   }
 
   @Override
