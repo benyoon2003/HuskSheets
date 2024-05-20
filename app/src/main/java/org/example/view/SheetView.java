@@ -1,8 +1,12 @@
 package org.example.view;
 
 import org.example.controller.IUserController;
+import org.example.controller.UserController;
 import org.example.model.Cell;
 import org.example.model.Spreadsheet;
+import org.example.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -25,7 +29,9 @@ public class SheetView extends JFrame implements ISheetView {
   private static final int rowSize = 100;
   private static final int colSize = 100;
 
-  public SheetView() {
+ private static final Logger logger = LoggerFactory.getLogger(SheetView.class);
+
+  public SheetView()  {
     this.cells = new Spreadsheet();
     setup();
   }
@@ -53,14 +59,14 @@ public class SheetView extends JFrame implements ISheetView {
     toolbar.add(saveButton);
 
     // Create dropdown menu for statistical calculations
-    JComboBox<String> statsDropdown = new JComboBox<>(new String[]{"Mean", "Median", "Mode"});
+    JComboBox<String> statsDropdown = new JComboBox<>(new String[] { "Mean", "Median", "Mode" });
     toolbar.add(statsDropdown);
 
     // Add action listeners for buttons and dropdown
-    cutButton.addActionListener(new SheetView.ToolbarButtonListener());
-    copyButton.addActionListener(new SheetView.ToolbarButtonListener());
-    pasteButton.addActionListener(new SheetView.ToolbarButtonListener());
-    saveButton.addActionListener(new SheetView.ToolbarButtonListener());
+    cutButton.addActionListener(new SheetView.ToolbarButtonListener(this));
+    copyButton.addActionListener(new SheetView.ToolbarButtonListener(this));
+    pasteButton.addActionListener(new SheetView.ToolbarButtonListener(this));
+    saveButton.addActionListener(new SheetView.ToolbarButtonListener(this));
     statsDropdown.addActionListener(new SheetView.StatsDropdownListener());
 
     add(toolbar, BorderLayout.NORTH);
@@ -146,7 +152,8 @@ public class SheetView extends JFrame implements ISheetView {
     add(scrollPane, BorderLayout.CENTER);
 
     // Set visibility and pack components
-    pack();
+//    pack();
+
   }
 
   @Override
@@ -159,16 +166,36 @@ public class SheetView extends JFrame implements ISheetView {
     this.setVisible(true);
   }
 
+  private void save(String path) {
+    try {
+      this.controller.saveSheet(this.cells, path);
+      logger.info("Saved spreadsheet");
+    } catch (Exception e) {
+      logger.info("Could not save spreadsheet: {}", e.getMessage());
+    }
+
   @Override
   public void displayMessage(String s) {
     JOptionPane.showMessageDialog(this, s);
   }
 
   private class ToolbarButtonListener implements ActionListener {
+    private SheetView view;
+
+    ToolbarButtonListener(SheetView view) {
+      this.view = view;
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
       String command = e.getActionCommand();
       // Handle cut, copy, paste, and save actions here
+      JOptionPane.showMessageDialog(SheetView.this, command + " button clicked");
+
+      if (command == "Save") {
+        this.view.save("./example.xml");
+      }
+      
       controller.handleToolbar(command);
     }
   }

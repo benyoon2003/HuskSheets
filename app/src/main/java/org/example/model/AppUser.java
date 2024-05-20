@@ -18,6 +18,8 @@ public class AppUser implements IAppUser {
     private String username;
     private String password;
 
+    private String uri = "http://localhost:8080/api";// "https://husksheets.fly.dev/api/v1";
+
     // Getters and Setters
     public String getUsername() {
         return username;
@@ -44,28 +46,28 @@ public class AppUser implements IAppUser {
             HttpClient client = HttpClient.newHttpClient();
             String json = String.format("{\"username\": \"%s\", \"password\": \"%s\"}", username, password);
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:8080/api/authenticate"))
+                    .uri(new URI(uri + "/authenticate"))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 200) {
                 return "Login successful!";
-//                SwingUtilities.invokeLater(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        new MainGUI().setVisible(true);
-//                    }
-//                });
-//                this.dispose(); // Close the login window
+                // SwingUtilities.invokeLater(new Runnable() {
+                // @Override
+                // public void run() {
+                // new MainGUI().setVisible(true);
+                // }
+                // });
+                // this.dispose(); // Close the login window
             } else {
                 return "Failed to login: " + response.body();
-                //JOptionPane.showMessageDialog(this, "Failed to login: " + response.body());
+                // JOptionPane.showMessageDialog(this, "Failed to login: " + response.body());
             }
         } catch (Exception e) {
             e.printStackTrace();
             return "Error occurred: " + e.getMessage();
-//            JOptionPane.showMessageDialog(this, "Error occurred: " + e.getMessage());
+            // JOptionPane.showMessageDialog(this, "Error occurred: " + e.getMessage());
         }
     }
 
@@ -74,7 +76,7 @@ public class AppUser implements IAppUser {
             HttpClient client = HttpClient.newHttpClient();
             String json = String.format("{\"username\": \"%s\", \"password\": \"%s\"}", username, password);
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:8080/api/register"))
+                    .uri(new URI(uri + "/register"))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
                     .build();
