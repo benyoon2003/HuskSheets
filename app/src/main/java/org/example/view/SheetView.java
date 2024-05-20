@@ -173,6 +173,7 @@ public class SheetView extends JFrame implements ISheetView {
     } catch (Exception e) {
       logger.info("Could not save spreadsheet: {}", e.getMessage());
     }
+  }
 
   @Override
   public void displayMessage(String s) {
