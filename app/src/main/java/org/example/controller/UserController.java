@@ -1,7 +1,12 @@
 package org.example.controller;
 
+import java.beans.XMLEncoder;
+import java.io.File;
+import java.io.FileOutputStream;
+
 import org.example.model.AppUser;
 import org.example.model.IAppUser;
+import org.example.model.Spreadsheet;
 import org.example.view.HomeView;
 import org.example.view.IHomeView;
 import org.example.view.ILoginView;
@@ -17,7 +22,6 @@ public class UserController implements IUserController {
 
     private IHomeView homeView;
     private IAppUser appUser;
-
 
     public UserController() {
         loginPage = new LoginView();
@@ -62,10 +66,24 @@ public class UserController implements IUserController {
 
     @Override
     public void createNewSheet() {
-        this.sheetView = new SheetView();
+        // this.sheetView = new SheetView();
         this.sheetView.makeVisible();
     }
 
+    @Override
+    public void saveSheet(Spreadsheet sheet, String path) {
+        try {
+            FileOutputStream fos = new FileOutputStream(new File(path));
+            XMLEncoder encoder = new XMLEncoder(fos);
+            encoder.writeObject(sheet);
+            encoder.close();
+            fos.close();
+        } catch (Exception e) {
+
+        }
+
+        return;
+    }
 
     private boolean validateInput(String username, String password) {
         return !username.isEmpty() && !password.isEmpty();

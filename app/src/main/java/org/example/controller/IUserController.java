@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import org.example.model.AppUser;
+import org.example.model.Spreadsheet;
 import org.example.view.ISheetView;
 import org.example.view.SheetView;
 import org.springframework.http.ResponseEntity;
@@ -16,4 +17,6 @@ public interface IUserController {
   void setCurrentSheet(ISheetView sheetView);
 
   void createNewSheet();
+
+  void saveSheet(Spreadsheet sheet, String path);
 }
