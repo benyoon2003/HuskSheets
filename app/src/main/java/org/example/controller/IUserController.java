@@ -16,4 +16,10 @@ public interface IUserController {
   void setCurrentSheet(ISheetView sheetView);
 
   void createNewSheet();
+
+  void handleToolbar(String command);
+
+  void handleStatsDropdown(String selectedStat);
+
+  void selectedCells(int[] selectedRows, int[] selectedColumns);
 }
