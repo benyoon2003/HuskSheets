@@ -67,7 +67,7 @@ public class UserController implements IUserController {
 
     @Override
     public void createNewSheet() {
-        // this.sheetView = new SheetView();
+        this.sheetView = new SheetView();
         this.sheetView.addController(this);
         this.sheetView.makeVisible();
     }
