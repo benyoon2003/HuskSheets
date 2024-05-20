@@ -14,6 +14,8 @@ import org.example.view.ISheetView;
 import org.example.view.LoginView;
 import org.example.view.SheetView;
 
+import javax.swing.*;
+
 public class UserController implements IUserController {
 
     private ILoginView loginPage;
@@ -26,8 +28,6 @@ public class UserController implements IUserController {
     public UserController() {
         loginPage = new LoginView();
         loginPage.addController(this);
-        sheetView = new SheetView();
-        sheetView.addController(this);
         appUser = new AppUser();
         homeView = new HomeView();
         homeView.addController(this);
@@ -62,11 +62,13 @@ public class UserController implements IUserController {
     @Override
     public void setCurrentSheet(ISheetView sheetView) {
         this.sheetView = sheetView;
+        this.sheetView.addController(this);
     }
 
     @Override
     public void createNewSheet() {
         // this.sheetView = new SheetView();
+        this.sheetView.addController(this);
         this.sheetView.makeVisible();
     }
 
@@ -84,6 +86,30 @@ public class UserController implements IUserController {
 
         return;
     }
+  
+    @Override
+    public void handleToolbar(String command) {
+        this.sheetView.displayMessage(command + " button clicked");
+    }
+
+    @Override
+    public void handleStatsDropdown(String selectedStat) {
+        this.sheetView.displayMessage(selectedStat + " selected");
+    }
+
+    @Override
+    public void selectedCells(int[] selectedRows, int[] selectedColumns) {
+        if (selectedRows.length > 0 && selectedColumns.length > 0) {
+            int startRow = selectedRows[0];
+            int endRow = selectedRows[selectedRows.length - 1];
+            int startColumn = selectedColumns[0];
+            int endColumn = selectedColumns[selectedColumns.length - 1];
+
+            System.out.println("Selected range: (" + (startRow+1) + ", " + startColumn + ") to (" + (endRow+1)+ ", " + endColumn + ")");
+            // Additional logic for handling cell selection range
+        }
+    }
+
 
     private boolean validateInput(String username, String password) {
         return !username.isEmpty() && !password.isEmpty();

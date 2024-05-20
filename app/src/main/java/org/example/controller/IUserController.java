@@ -19,4 +19,10 @@ public interface IUserController {
   void createNewSheet();
 
   void saveSheet(Spreadsheet sheet, String path);
+  
+  void handleToolbar(String command);
+
+  void handleStatsDropdown(String selectedStat);
+
+  void selectedCells(int[] selectedRows, int[] selectedColumns);
 }

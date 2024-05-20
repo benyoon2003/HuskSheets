@@ -121,16 +121,7 @@ public class SheetView extends JFrame implements ISheetView {
         if (!e.getValueIsAdjusting()) {
           int[] selectedRows = table.getSelectedRows();
           int[] selectedColumns = table.getSelectedColumns();
-
-          if (selectedRows.length > 0 && selectedColumns.length > 0) {
-            int startRow = selectedRows[0];
-            int endRow = selectedRows[selectedRows.length - 1];
-            int startColumn = selectedColumns[0];
-            int endColumn = selectedColumns[selectedColumns.length - 1];
-
-            System.out.println("Selected range: (" + (startRow+1) + ", " + startColumn + ") to (" + (endRow+1)+ ", " + endColumn + ")");
-            // Additional logic for handling cell selection range
-          }
+          controller.selectedCells(selectedRows, selectedColumns);
         }
       }
     };
@@ -182,6 +173,10 @@ public class SheetView extends JFrame implements ISheetView {
     } catch (Exception e) {
       logger.info("Could not save spreadsheet: {}", e.getMessage());
     }
+
+  @Override
+  public void displayMessage(String s) {
+    JOptionPane.showMessageDialog(this, s);
   }
 
   private class ToolbarButtonListener implements ActionListener {
@@ -200,6 +195,8 @@ public class SheetView extends JFrame implements ISheetView {
       if (command == "Save") {
         this.view.save("./example.xml");
       }
+      
+      controller.handleToolbar(command);
     }
   }
 
@@ -209,7 +206,7 @@ public class SheetView extends JFrame implements ISheetView {
       JComboBox<String> comboBox = (JComboBox<String>) e.getSource();
       String selectedStat = (String) comboBox.getSelectedItem();
       // Handle statistical calculation here
-      JOptionPane.showMessageDialog(SheetView.this, selectedStat + " selected");
+      controller.handleStatsDropdown(selectedStat);
     }
   }
 }
