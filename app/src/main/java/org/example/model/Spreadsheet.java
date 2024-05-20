@@ -13,7 +13,7 @@ public class Spreadsheet {
     ArrayList<ArrayList<Cell>> temp_grid = new ArrayList<>();
 
     for(int i = 0; i < 100; i++){
-      columns.add(new Cell());
+      columns.add(new Cell("test"));
     }
     for(int i = 0; i < 100; i++){
 
@@ -35,4 +35,26 @@ public class Spreadsheet {
     return this.grid;
   }
 
+  public Cell[][] getCellsObject() {
+    Cell[][] retObject = new Cell[this.getRows()][this.getCols()];
+    for(int r = 0; r < this.getRows(); r++){
+      ArrayList<Cell> row = this.grid.get(r);
+      for(int c = 0; c < this.getCols(); c++){
+        retObject[r][c] = row.get(c);
+      }
+    }
+    return retObject;
+  }
+
+
+  public String[][] getCellStringsObject() {
+    String[][] retObject = new String[this.getRows()][this.getCols()];
+    for(int r = 0; r < this.getRows(); r++){
+      ArrayList<Cell> row = this.grid.get(r);
+      for(int c = 0; c < this.getCols(); c++){
+        retObject[r][c] = row.get(c).getValue();
+      }
+    }
+    return retObject;
+  }
 }
