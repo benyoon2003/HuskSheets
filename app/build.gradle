@@ -4,6 +4,7 @@ plugins {
     id 'org.springframework.boot' version '2.7.1'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'application'
+    id 'jacoco' // Add Jacoco plugin
 }
 
 group = 'com.yourcompany'
@@ -30,6 +31,13 @@ dependencies {
 
     // Use JUnit Jupiter for testing.
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        
+    // Mockito for mocking
+    testImplementation 'org.mockito:mockito-core:3.11.2'
+    testImplementation 'org.mockito:mockito-junit-jupiter:3.11.2'
+        
+    // JUnit
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.1'
 }
 
 application {
@@ -43,7 +51,26 @@ java {
     }
 }
 
-tasks.named('test') {
-    // Use JUnit Platform for unit tests.
+// Configure Jacoco plugin for code coverage
+jacoco {
+    toolVersion = "0.8.7"
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+test {
     useJUnitPlatform()
+    systemProperty 'java.awt.headless', 'true'
+}
+
+// Ensure Jacoco report is generated after running tests
+tasks.named('test') {
+    useJUnitPlatform()
+    finalizedBy jacocoTestReport
 }
