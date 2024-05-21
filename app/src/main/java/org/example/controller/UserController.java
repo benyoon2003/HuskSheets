@@ -110,8 +110,7 @@ public class UserController implements IUserController {
         }
     }
 
-
-    private boolean validateInput(String username, String password) {
+    protected boolean validateInput(String username, String password) {
         return !username.isEmpty() && !password.isEmpty();
     }
 }
