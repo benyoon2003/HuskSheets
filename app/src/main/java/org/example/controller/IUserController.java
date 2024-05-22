@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import org.example.model.AppUser;
+import org.example.model.SelectedCells;
 import org.example.model.Spreadsheet;
 import org.example.view.ILoginView;
 import org.example.view.ISheetView;
@@ -26,5 +27,5 @@ public interface IUserController {
 
   void handleStatsDropdown(String selectedStat);
 
-  void selectedCells(int[] selectedRows, int[] selectedColumns);
+  SelectedCells selectedCells(int[] selectedRows, int[] selectedColumns);
 }

@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.example.model.AppUser;
 import org.example.model.IAppUser;
+import org.example.model.SelectedCells;
 import org.example.model.Spreadsheet;
 import org.example.view.HomeView;
 import org.example.view.IHomeView;
@@ -102,7 +103,7 @@ public class UserController implements IUserController {
     }
 
     @Override
-    public void selectedCells(int[] selectedRows, int[] selectedColumns) {
+    public SelectedCells selectedCells(int[] selectedRows, int[] selectedColumns) {
         if (selectedRows.length > 0 && selectedColumns.length > 0) {
             int startRow = selectedRows[0];
             int endRow = selectedRows[selectedRows.length - 1];
@@ -112,8 +113,11 @@ public class UserController implements IUserController {
             System.out.println("Selected range: (" + (startRow+1) + ", " +
                     startColumn + ") to (" + (endRow+1)+ ", " + endColumn + ")");
             // Additional logic for handling cell selection range
-            return List.of(startRow + 1, startColumn, endRow+1, endColumn);
+            return new SelectedCells(startRow+1,
+                    endRow+1, startColumn, endColumn);
         }
+        return new SelectedCells(-1,
+                -1, -1, -1);
     }
 
 

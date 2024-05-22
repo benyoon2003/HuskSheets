@@ -4,6 +4,7 @@ import org.aspectj.lang.annotation.Before;
 import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.Default;
 import org.example.model.AppUser;
 import org.example.model.IAppUser;
+import org.example.model.SelectedCells;
 import org.example.view.IHomeView;
 import org.example.view.ILoginView;
 import org.example.view.ISheetView;
@@ -71,6 +72,12 @@ public class UserControllerTest {
 
   @Test
   public void testHandleStatsDropdown() {
+  }
+
+  //TODO: Not sure how we will implement this
+  @Test
+  public void testSelectedCells() {
+
   }
 
 }
