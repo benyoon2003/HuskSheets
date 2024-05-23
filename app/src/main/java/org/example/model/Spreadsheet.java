@@ -55,128 +55,121 @@ public class Spreadsheet implements ISpreadsheet {
         }
         return retObject;
     }
+    @Override
+    public String evaluateFormula(String formula) {
+        if (!formula.startsWith("=")) {
+            return formula;
+        }
 
-    // Method to evaluate formulas
-public String evaluateFormula(String formula) {
-    if (!formula.startsWith("=")) {
-        return formula;
+        // Remove the initial "="
+        formula = formula.substring(1);
+
+        try {
+            // Handle special operations
+            if (formula.contains("<>")) {
+                String[] parts = formula.split("<>");
+                return compareNotEqual(parts[0].trim(), parts[1].trim());
+            } else if (formula.contains("<")) {
+                String[] parts = formula.split("<");
+                return compareLess(parts[0].trim(), parts[1].trim());
+            } else if (formula.contains(">")) {
+                String[] parts = formula.split(">");
+                return compareGreater(parts[0].trim(), parts[1].trim());
+            } else if (formula.contains("=")) {
+                String[] parts = formula.split("=");
+                return compareEqual(parts[0].trim(), parts[1].trim());
+            } else if (formula.contains("&")) {
+                String[] parts = formula.split("&");
+                return andOperation(parts[0].trim(), parts[1].trim());
+            } else if (formula.contains("|")) {
+                String[] parts = formula.split("\\|");
+                return orOperation(parts[0].trim(), parts[1].trim());
+            } else if (formula.contains(":")) {
+                String[] parts = formula.split(":");
+                return rangeOperation(parts[0].trim(), parts[1].trim());
+            } else {
+                // For simplicity, handle basic arithmetic operations
+                ScriptEngineManager manager = new ScriptEngineManager();
+                ScriptEngine engine = manager.getEngineByName("JavaScript");
+                Object result = engine.eval(formula);
+                return result.toString();
+            }
+        } catch (ScriptException e) {
+            e.printStackTrace();
+            return "Error";
+        }
     }
 
-    // Remove the initial "="
-    formula = formula.substring(1);
-
-    // For simplicity, handle basic arithmetic operations
-    try {
-        ScriptEngineManager manager = new ScriptEngineManager();
-        ScriptEngine engine = manager.getEngineByName("JavaScript");
-        Object result = engine.eval(formula);
-        return result.toString();
-    } catch (ScriptException e) {
-        e.printStackTrace();
-        return "Error";
+    private String compareLess(String x, String y) {
+        try {
+            double a = Double.parseDouble(x);
+            double b = Double.parseDouble(y);
+            return a < b ? "1" : "0";
+        } catch (NumberFormatException e) {
+            return "Error";
+        }
     }
-}
 
+    private String compareGreater(String x, String y) {
+        try {
+            double a = Double.parseDouble(x);
+            double b = Double.parseDouble(y);
+            return a > b ? "1" : "0";
+        } catch (NumberFormatException e) {
+            return "Error";
+        }
+    }
 
-    private String evaluateArithmetic(String formula) {
-        // This is a very basic evaluator and doesn't handle precedence or complex expressions
-        Stack<Double> values = new Stack<>();
-        Stack<Character> ops = new Stack<>();
-
-        for (int i = 0; i < formula.length(); i++) {
-            char ch = formula.charAt(i);
-            if (Character.isDigit(ch) || ch == '.') {
-                StringBuilder sb = new StringBuilder();
-                while (i < formula.length() && (Character.isDigit(formula.charAt(i)) || formula.charAt(i) == '.')) {
-                    sb.append(formula.charAt(i++));
-                }
-                values.push(Double.parseDouble(sb.toString()));
-                i--;
-            } else if (ch == '+' || ch == '-' || ch == '*' || ch == '/') {
-                while (!ops.isEmpty() && hasPrecedence(ch, ops.peek())) {
-                    values.push(applyOp(ops.pop(), values.pop(), values.pop()));
-                }
-                ops.push(ch);
+    private String compareEqual(String x, String y) {
+        try {
+            double a = Double.parseDouble(x);
+            double b = Double.parseDouble(y);
+            return a == b ? "1" : "0";
+        } catch (NumberFormatException e) {
+            if (x.equals(y)) {
+                return "1";
+            } else {
+                return "0";
             }
         }
-
-        while (!ops.isEmpty()) {
-            values.push(applyOp(ops.pop(), values.pop(), values.pop()));
-        }
-
-        return String.valueOf(values.pop());
     }
 
-    private boolean hasPrecedence(char op1, char op2) {
-        if ((op1 == '*' || op1 == '/') && (op2 == '+' || op2 == '-')) {
-            return false;
-        }
-        return true;
-    }
-
-    private double applyOp(char op, double b, double a) {
-        switch (op) {
-            case '+':
-                return a + b;
-            case '-':
-                return a - b;
-            case '*':
-                return a * b;
-            case '/':
-                if (b == 0) {
-                    throw new UnsupportedOperationException("Cannot divide by zero");
-                }
-                return a / b;
-        }
-        return 0;
-    }
-
-    private String evaluateSumFunction(String formula) {
-        // Extract the cell range from the SUM function
-        int startIndex = formula.indexOf('(') + 1;
-        int endIndex = formula.indexOf(')');
-        String range = formula.substring(startIndex, endIndex);
-        String[] cells = range.split(":");
-
-        if (cells.length != 2) {
-            throw new IllegalArgumentException("Invalid range for SUM function");
-        }
-
-        String startCell = cells[0];
-        String endCell = cells[1];
-
-        int startRow = getRowIndex(startCell);
-        int startCol = getColIndex(startCell);
-        int endRow = getRowIndex(endCell);
-        int endCol = getColIndex(endCell);
-
-        double sum = 0;
-        for (int i = startRow; i <= endRow; i++) {
-            for (int j = startCol; j <= endCol; j++) {
-                String cellValue = grid.get(i).get(j).getValue();
-                if (!cellValue.startsWith("=")) {
-                    try {
-                        sum += Double.parseDouble(cellValue);
-                    } catch (NumberFormatException ignored) {
-                    }
-                }
+    private String compareNotEqual(String x, String y) {
+        try {
+            double a = Double.parseDouble(x);
+            double b = Double.parseDouble(y);
+            return a != b ? "1" : "0";
+        } catch (NumberFormatException e) {
+            if (!x.equals(y)) {
+                return "1";
+            } else {
+                return "0";
             }
         }
-        return String.valueOf(sum);
     }
 
-    private int getRowIndex(String cellRef) {
-        // Assuming cellRef format is like $A1
-        return Integer.parseInt(cellRef.replaceAll("[^0-9]", "")) - 1;
-    }
-
-    private int getColIndex(String cellRef) {
-        // Assuming cellRef format is like $A1
-        String colRef = cellRef.replaceAll("[^A-Z]", "").toUpperCase();
-        int colIndex = 0;
-        for (int i = 0; i < colRef.length(); i++) {
-            colIndex = colIndex * 26 + (colRef.charAt(i) - 'A' + 1);
+    private String andOperation(String x, String y) {
+        try {
+            double a = Double.parseDouble(x);
+            double b = Double.parseDouble(y);
+            return (a != 0 && b != 0) ? "1" : "0";
+        } catch (NumberFormatException e) {
+            return "Error";
         }
-        return colIndex - 1;
+    }
+
+    private String orOperation(String x, String y) {
+        try {
+            double a = Double.parseDouble(x);
+            double b = Double.parseDouble(y);
+            return (a != 0 || b != 0) ? "1" : "0";
+        } catch (NumberFormatException e) {
+            return "Error";
+        }
+    }
+
+    private String rangeOperation(String x, String y) {
+        // Implement range logic here if needed
+        return "Error"; // Placeholder
     }
 }
