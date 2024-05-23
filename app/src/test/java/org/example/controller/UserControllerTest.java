@@ -1,78 +1,83 @@
 package org.example.controller;
 
+import org.aspectj.lang.annotation.Before;
+import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.Default;
+import org.example.model.AppUser;
+import org.example.model.IAppUser;
+import org.example.model.SelectedCells;
+import org.example.view.IHomeView;
+import org.example.view.ILoginView;
+import org.example.view.ISheetView;
+import org.example.view.SheetView;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
-import java.io.File;
-
-import org.example.model.Spreadsheet;
-import org.example.view.ISheetView;
-
-// Tests for the UserController class
 public class UserControllerTest {
-    private MockUserController controller;
 
-    @BeforeEach
-    public void init() {
-        controller = new MockUserController();
-    }
+  private IUserController controller;
+  private ILoginView loginViewMock;
 
-    @Test
-    public void testIsUserAuthenticationComplete() {
-        String username = "user", password = "password";
-        assertTrue(this.controller.isUserAuthenticationComplete(username, password));
-    }
+  private IHomeView homeViewMock;
 
-    @Test
-    public void testIsUserAuthenticationCompleteEmptyUsername() {
-        String username = "", password = "password";
-        assertFalse(this.controller.isUserAuthenticationComplete(username, password));
-    }
+  private IAppUser appUser;
 
-    @Test
-    public void testIsUserAuthenticationCompleteEmptyPassword() {
-        String username = "user", password = "";
-        assertFalse(this.controller.isUserAuthenticationComplete(username, password));
-    }
+  private ISheetView sheetView;
 
-    @Test
-    public void testIsUserCreated() {
-        String username = "user", password = "password";
-        assertTrue(this.controller.isUserCreated(username, password));
-    }
+  @BeforeEach
+  public void setUp() {
+    loginViewMock = mock(ILoginView.class);
+    homeViewMock = mock(IHomeView.class);
+    this.appUser = new AppUser();
+    controller = new UserController(loginViewMock, homeViewMock, appUser);
+    sheetView = mock(ISheetView.class);
+  }
 
-    @Test
-    public void testIsUserCreatedEmptyUsername() {
-        String username = "", password = "password";
-        assertFalse(this.controller.isUserCreated(username, password));
-    }
+  @Test
+  public void testIsUserAuthenticationComplete() {
+    assertTrue(controller.isUserAuthenticationComplete("test", "test"));
+    assertFalse(controller.isUserAuthenticationComplete("", "1"));
+    assertFalse(controller.isUserAuthenticationComplete("e", ""));
+  }
 
-    @Test
-    public void testIsUserCreatedEmptyPassword() {
-        String username = "user", password = "";
-        assertFalse(this.controller.isUserCreated(username, password));
-    }
+  @Test
+  public void testIsUserCreated() {
+    appUser.createAccount("test1", "test1");
+    assertTrue(controller.isUserCreatedSuccessfully("test1", "test1"));
+    assertFalse(controller.isUserCreatedSuccessfully("", "123"));
+  }
 
-    @Test
-    public void testCreateNewSheet() {
-        this.controller.createNewSheet();
-        ISheetView sheetView = this.controller.getSheetView();
+  @Test
+  public void testSetCurrentSheetAndGetCurrentSheet() {
+    controller.setCurrentSheet(sheetView);
+    assertEquals(controller.getCurrentSheet(), sheetView);
+  }
 
-        assertNotNull(sheetView);
-    }
+  @Test
+  public void testCreateNewSheet() {
+    ISheetView newSheet = mock(ISheetView.class);
+    controller.createNewSheet(newSheet);
+    assertEquals(controller.getCurrentSheet(), newSheet);
+  }
 
-    @Test
-    public void testSaveSheet() {
-        Spreadsheet sheet = new Spreadsheet();
-        String path = "./test.xml";
+  //TODO: Test saveSheet in future since it is a Bonus feature
 
-        this.controller.saveSheet(sheet, path);
+  @Test
+  public void testHandleToolbar() {
+  }
 
-        File f = new File(path);
-        assertTrue(f.exists());
+  @Test
+  public void testHandleStatsDropdown() {
+  }
 
-        f.delete();
-    }
+  //TODO: Not sure how we will implement this
+  @Test
+  public void testSelectedCells() {
+
+  }
+
 }

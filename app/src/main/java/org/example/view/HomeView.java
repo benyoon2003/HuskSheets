@@ -46,7 +46,7 @@ public class HomeView extends JFrame implements IHomeView {
     createSheet.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
-       controller.createNewSheet();
+       controller.createNewSheet(new SheetView());
       }
     });
   }

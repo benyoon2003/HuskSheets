@@ -3,9 +3,11 @@ package org.example.controller;
 import java.beans.XMLEncoder;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.List;
 
 import org.example.model.AppUser;
 import org.example.model.IAppUser;
+import org.example.model.SelectedCells;
 import org.example.model.Spreadsheet;
 import org.example.view.HomeView;
 import org.example.view.IHomeView;
@@ -23,11 +25,11 @@ public class UserController implements IUserController {
     private IHomeView homeView;
     private IAppUser appUser;
 
-    public UserController() {
-        loginPage = new LoginView();
+    public UserController(ILoginView loginView, IHomeView homeView, IAppUser appUser) {
+        this.loginPage = loginView;
         loginPage.addController(this);
-        appUser = new AppUser();
-        homeView = new HomeView();
+        this.appUser = appUser;
+        this.homeView = homeView;
         homeView.addController(this);
     }
 
@@ -47,7 +49,7 @@ public class UserController implements IUserController {
     }
 
     @Override
-    public boolean isUserCreated(String username, String password) {
+    public boolean isUserCreatedSuccessfully(String username, String password) {
         if (validateInput(username, password)) {
             String message = this.appUser.createAccount(username, password);
             this.loginPage.displayErrorBox(message);
@@ -63,10 +65,13 @@ public class UserController implements IUserController {
         this.sheetView.addController(this);
     }
 
+    public ISheetView getCurrentSheet() {
+        return this.sheetView;
+    }
+
     @Override
-    public void createNewSheet() {
-        this.sheetView = new SheetView();
-        this.sheetView.addController(this);
+    public void createNewSheet(ISheetView sheetView) {
+        this.setCurrentSheet(sheetView);
         this.sheetView.makeVisible();
     }
 
@@ -96,16 +101,21 @@ public class UserController implements IUserController {
     }
 
     @Override
-    public void selectedCells(int[] selectedRows, int[] selectedColumns) {
+    public SelectedCells selectedCells(int[] selectedRows, int[] selectedColumns) {
         if (selectedRows.length > 0 && selectedColumns.length > 0) {
             int startRow = selectedRows[0];
             int endRow = selectedRows[selectedRows.length - 1];
             int startColumn = selectedColumns[0];
             int endColumn = selectedColumns[selectedColumns.length - 1];
 
-            System.out.println("Selected range: (" + (startRow+1) + ", " + startColumn + ") to (" + (endRow+1)+ ", " + endColumn + ")");
+            System.out.println("Selected range: (" + (startRow+1) + ", " +
+                    startColumn + ") to (" + (endRow+1)+ ", " + endColumn + ")");
             // Additional logic for handling cell selection range
+            return new SelectedCells(startRow+1,
+                    endRow+1, startColumn, endColumn);
         }
+        return new SelectedCells(-1,
+                -1, -1, -1);
     }
 
     protected boolean validateInput(String username, String password) {
