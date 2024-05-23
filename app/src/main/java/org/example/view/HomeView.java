@@ -1,68 +1,94 @@
 package org.example.view;
 
-
 import org.example.controller.IUserController;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-
-
+import java.io.File;
+import java.util.List;
 
 public class HomeView extends JFrame implements IHomeView {
 
-  private JButton createSheet;
+    private JButton createSheet;
+    private JComboBox<String> openSheetDropdown;
+    private JButton openSheetButton;
+    private IUserController controller;
 
-  private IUserController controller;
+    public HomeView() {
+        setTitle("Main GUI");
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-  public HomeView() {
-    setTitle("Main GUI");
-    setExtendedState(JFrame.MAXIMIZED_BOTH);
-    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        JPanel panel = new JPanel();
+        placeComponents(panel);
+        add(panel);
+    }
 
-    JPanel panel = new JPanel();
+    private void placeComponents(JPanel panel) {
+        panel.setLayout(null);
 
-    placeComponents(panel);
+        JLabel spreadheetsLabel = new JLabel("Spreadsheets:");
+        spreadheetsLabel.setBounds(50, 50, 100, 25);
+        panel.add(spreadheetsLabel);
 
-    add(panel);
-  }
+        createSheet = new JButton("Create Spreadsheet");
+        createSheet.setBounds(50, 70, 200, 25);
+        panel.add(createSheet);
 
-  private void placeComponents(JPanel panel) {
-    panel.setLayout(null);
+        openSheetDropdown = new JComboBox<>();
+        openSheetDropdown.setBounds(50, 110, 200, 25);
+        panel.add(openSheetDropdown);
 
-    JLabel spreadheetsLabel = new JLabel("Spreadsheets:");
-    spreadheetsLabel.setBounds(50, 50, 100, 25);
-    panel.add(spreadheetsLabel);
+        openSheetButton = new JButton("Open Spreadsheet");
+        openSheetButton.setBounds(50, 150, 200, 25);
+        panel.add(openSheetButton);
 
-    createSheet = new JButton("Create Spreadsheet");
-    createSheet.setBounds(50, 70, 200, 25);
-    panel.add(createSheet);
+        createSheet.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controller.createNewSheet();
+            }
+        });
 
-    createSheet.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-       controller.createNewSheet();
-      }
-    });
-  }
+        openSheetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedSheet = (String) openSheetDropdown.getSelectedItem();
+                if (selectedSheet != null) {
+                    System.out.println("Opening sheet: " + selectedSheet); // Debug statement
+                    controller.openSheet("./sheets/" + selectedSheet);
+                }
+            }
+        });
+    }
 
-  @Override
-  public void addController(IUserController controller) {
-    this.controller = controller;
-  }
+    @Override
+    public void updateSavedSheets() {
+        if (controller != null) {
+            List<String> savedSheets = controller.getSavedSheets();
+            System.out.println("Updating dropdown with saved sheets: " + savedSheets); // Debug statement
+            openSheetDropdown.removeAllItems();
+            for (String sheet : savedSheets) {
+                openSheetDropdown.addItem(sheet);
+            }
+        }
+    }
 
-  @Override
-  public void makeVisible() {
-    this.setVisible(true);
-  }
+    @Override
+    public void addController(IUserController controller) {
+        this.controller = controller;
+        updateSavedSheets(); // Call updateSavedSheets() after setting the controller
+    }
 
-  @Override
-  public void disposeHomePage() {
-    this.dispose();
-  }
+    @Override
+    public void makeVisible() {
+        this.setVisible(true);
+        updateSavedSheets(); // Ensure the dropdown is updated whenever the view is made visible
+    }
+
+    @Override
+    public void disposeHomePage() {
+        this.dispose();
+    }
 }

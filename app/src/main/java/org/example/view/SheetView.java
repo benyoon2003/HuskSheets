@@ -16,12 +16,14 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 
 public class SheetView extends JFrame implements ISheetView {
     private Spreadsheet cells;
     private IUserController controller;
+    private JButton backButton;
 
     private static final int rowSize = 100;
     private static final int colSize = 100;
@@ -39,7 +41,7 @@ public class SheetView extends JFrame implements ISheetView {
     }
 
     private void setup() {
-        setTitle("Main GUI");
+        setTitle("Spreadsheet");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -49,11 +51,13 @@ public class SheetView extends JFrame implements ISheetView {
         JButton copyButton = new JButton("Copy");
         JButton pasteButton = new JButton("Paste");
         JButton saveButton = new JButton("Save");
+        backButton = new JButton("Back");
 
         toolbar.add(cutButton);
         toolbar.add(copyButton);
         toolbar.add(pasteButton);
         toolbar.add(saveButton);
+        toolbar.add(backButton);
 
         // Create dropdown menu for statistical calculations
         JComboBox<String> statsDropdown = new JComboBox<>(new String[]{"Mean", "Median", "Mode"});
@@ -64,6 +68,15 @@ public class SheetView extends JFrame implements ISheetView {
         copyButton.addActionListener(new ToolbarButtonListener(this));
         pasteButton.addActionListener(new ToolbarButtonListener(this));
         saveButton.addActionListener(new ToolbarButtonListener(this));
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+                IHomeView homeView = controller.getHomeView();
+                homeView.updateSavedSheets(); // Update the dropdown before making it visible
+                homeView.makeVisible();
+            }
+        });
         statsDropdown.addActionListener(new StatsDropdownListener());
 
         add(toolbar, BorderLayout.NORTH);
@@ -147,10 +160,6 @@ public class SheetView extends JFrame implements ISheetView {
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         add(scrollPane, BorderLayout.CENTER);
-
-        // Set visibility and pack components
-//    pack();
-
     }
 
     @Override
@@ -195,7 +204,12 @@ public class SheetView extends JFrame implements ISheetView {
             JOptionPane.showMessageDialog(SheetView.this, command + " button clicked");
 
             if (command.equals("Save")) {
-                this.view.save("./example.xml");
+                JFileChooser fileChooser = new JFileChooser();
+                int returnValue = fileChooser.showSaveDialog(null);
+                if (returnValue == JFileChooser.APPROVE_OPTION) {
+                    File selectedFile = fileChooser.getSelectedFile();
+                    this.view.save(selectedFile.getAbsolutePath());
+                }
             }
 
             controller.handleToolbar(command);
