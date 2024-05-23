@@ -88,28 +88,28 @@ public class Spreadsheet implements ISpreadsheet{
 //
 //  }
 
-  private List<Float> listOfSelectedCells(ISelectedCells selectedCells) {
-    ArrayList<Float> listOfSelectedFloat = new ArrayList<>();
-    for (int row = selectedCells.getStartRow(); row <= selectedCells.getEndRow(); row++) {
-      for (int col = selectedCells.getStartCol(); col <= selectedCells.getEndCol(); col++) {
-        try {
-          listOfSelectedFloat.add(Float.parseFloat(grid.get(row).get(col).getValue()));
-        }
-        catch (NullPointerException ignored) {
-          listOfSelectedFloat.add((float) 0);
-        }
-        catch (NumberFormatException ignored) {
-          try {
-            listOfSelectedFloat.add((float) Integer.parseInt(grid.get(row).get(col).getValue()));
-          }
-          catch (NumberFormatException ign) {
-            throw new IllegalArgumentException("Cannot perform statistical calculation on String");
-          }
-        }
-      }
-    }
-    return listOfSelectedFloat;
-  }
+//  private List<Float> listOfSelectedCells(ISelectedCells selectedCells) {
+//    ArrayList<Float> listOfSelectedFloat = new ArrayList<>();
+//    for (int row = selectedCells.getStartRow(); row <= selectedCells.getEndRow(); row++) {
+//      for (int col = selectedCells.getStartCol(); col <= selectedCells.getEndCol(); col++) {
+//        try {
+//          listOfSelectedFloat.add(Float.parseFloat(grid.get(row).get(col).getValue()));
+//        }
+//        catch (NullPointerException ignored) {
+//          listOfSelectedFloat.add((float) 0);
+//        }
+//        catch (NumberFormatException ignored) {
+//          try {
+//            listOfSelectedFloat.add((float) Integer.parseInt(grid.get(row).get(col).getValue()));
+//          }
+//          catch (NumberFormatException ign) {
+//            throw new IllegalArgumentException("Cannot perform statistical calculation on String");
+//          }
+//        }
+//      }
+//    }
+//    return listOfSelectedFloat;
+//  }
 
 
 }
