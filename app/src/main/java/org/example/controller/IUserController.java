@@ -1,7 +1,9 @@
 package org.example.controller;
 
 import org.example.model.AppUser;
+import org.example.model.SelectedCells;
 import org.example.model.Spreadsheet;
+import org.example.view.ILoginView;
 import org.example.view.ISheetView;
 import org.example.view.SheetView;
 import org.springframework.http.ResponseEntity;
@@ -12,11 +14,12 @@ public interface IUserController {
 
   boolean isUserAuthenticationComplete(String username, String password);
 
-  boolean isUserCreated(String username, String password);
+  boolean isUserCreatedSuccessfully(String username, String password);
 
   void setCurrentSheet(ISheetView sheetView);
+  ISheetView getCurrentSheet();
 
-  void createNewSheet();
+  void createNewSheet(ISheetView sheetView);
 
   void saveSheet(Spreadsheet sheet, String path);
   
@@ -24,5 +27,5 @@ public interface IUserController {
 
   void handleStatsDropdown(String selectedStat);
 
-  void selectedCells(int[] selectedRows, int[] selectedColumns);
+  SelectedCells selectedCells(int[] selectedRows, int[] selectedColumns);
 }

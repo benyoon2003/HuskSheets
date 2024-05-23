@@ -89,7 +89,7 @@ public class LoginView extends JFrame implements ILoginView {
             public void actionPerformed(ActionEvent e) {
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
-                if (!controller.isUserCreated(username, password)) {
+                if (!controller.isUserCreatedSuccessfully(username, password)) {
                     JOptionPane.showMessageDialog(panel, "Username and password cannot be empty");
                 }
             }
