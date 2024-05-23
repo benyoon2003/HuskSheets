@@ -1,13 +1,15 @@
 package org.example.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-public class Spreadsheet {
+public class Spreadsheet implements ISpreadsheet{
   //2d Array list to represent spreadsheet;
   private ArrayList<ArrayList<Cell>> grid;
 
 
-  public Spreadsheet(){
+  public Spreadsheet() {
 
     ArrayList<Cell> columns = new ArrayList<Cell>();
     ArrayList<ArrayList<Cell>> temp_grid = new ArrayList<>();
@@ -57,4 +59,57 @@ public class Spreadsheet {
     }
     return retObject;
   }
+
+  //MAY NOT NEED TO BE IMPLEMENTED
+//  public void performMedianCalc(ISelectedCells selectedCells) {
+//    //System.out.println(grid.get(selectedCells.getStartRow()).get(selectedCells.getStartCol()).getValue());
+//    List<Float> listOfSelectedCell = this.listOfSelectedCells(selectedCells);
+//    Collections.sort(listOfSelectedCell);
+//    float median;
+//    int length = listOfSelectedCell.size();
+//    System.out.println(length);
+//    if (length % 2 == 0) {
+//      median = (listOfSelectedCell.get(length / 2 - 1) + listOfSelectedCell.get(length / 2)) / 2.0f;
+//    } else {
+//      median = listOfSelectedCell.get(length / 2);
+//    }
+//    grid.get(selectedCells.getEndRow() + 1).set(
+//            selectedCells.getEndCol(), new Cell("= " + median));
+//    System.out.println(median);
+//  }
+//
+//  public void performMeanCalc(ISelectedCells selectedCells) {
+//
+//
+//  }
+//
+//  public void performModeCalc(ISelectedCells selectedCells) {
+//
+//
+//  }
+
+//  private List<Float> listOfSelectedCells(ISelectedCells selectedCells) {
+//    ArrayList<Float> listOfSelectedFloat = new ArrayList<>();
+//    for (int row = selectedCells.getStartRow(); row <= selectedCells.getEndRow(); row++) {
+//      for (int col = selectedCells.getStartCol(); col <= selectedCells.getEndCol(); col++) {
+//        try {
+//          listOfSelectedFloat.add(Float.parseFloat(grid.get(row).get(col).getValue()));
+//        }
+//        catch (NullPointerException ignored) {
+//          listOfSelectedFloat.add((float) 0);
+//        }
+//        catch (NumberFormatException ignored) {
+//          try {
+//            listOfSelectedFloat.add((float) Integer.parseInt(grid.get(row).get(col).getValue()));
+//          }
+//          catch (NumberFormatException ign) {
+//            throw new IllegalArgumentException("Cannot perform statistical calculation on String");
+//          }
+//        }
+//      }
+//    }
+//    return listOfSelectedFloat;
+//  }
+
+
 }

@@ -2,6 +2,8 @@ package org.example.view;
 
 import org.example.controller.IUserController;
 import org.example.model.Cell;
+import org.example.model.ISpreadsheet;
+import org.example.model.ReadOnlySpreadSheet;
 import org.example.model.Spreadsheet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +23,7 @@ import java.io.File;
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 
 public class SheetView extends JFrame implements ISheetView {
-    private Spreadsheet cells;
+    private final ReadOnlySpreadSheet cells;
     private IUserController controller;
     private JButton backButton;
 
@@ -30,12 +32,8 @@ public class SheetView extends JFrame implements ISheetView {
 
     private static final Logger logger = LoggerFactory.getLogger(SheetView.class);
 
-    public SheetView() {
-        this.cells = new Spreadsheet();
-        setup();
-    }
 
-    public SheetView(Spreadsheet openSheet) {
+    public SheetView(ISpreadsheet openSheet) {
         this.cells = openSheet;
         setup();
     }
@@ -146,6 +144,7 @@ public class SheetView extends JFrame implements ISheetView {
                 int selCol = table.getSelectedColumn();
                 if (selRow != -1 && selCol != -1) {
                     String val = String.valueOf(table.getValueAt(selRow, selCol));
+                    controller.changeSpreadSheetValueAt(selRow, selCol, val);
                     cellRef[selRow][selCol].setValue(val);
                     System.out.println("New Val: " + val);
                 }

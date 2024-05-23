@@ -11,6 +11,9 @@ import java.util.List;
 
 import org.example.model.AppUser;
 import org.example.model.IAppUser;
+import org.example.model.ISelectedCells;
+import org.example.model.ISpreadsheet;
+import org.example.model.ReadOnlySpreadSheet;
 import org.example.model.SelectedCells;
 import org.example.model.Spreadsheet;
 import org.example.view.IHomeView;
@@ -26,12 +29,18 @@ public class UserController implements IUserController {
     private IHomeView homeView;
     private IAppUser appUser;
 
-    public UserController(ILoginView loginView, IHomeView homeView, IAppUser appUser) {
+    private ISpreadsheet spreadsheetModel;
+
+    private ISelectedCells selectedCells;
+
+    public UserController(ILoginView loginView, IHomeView homeView,
+                          IAppUser appUser, ISpreadsheet spreadsheetModel) {
         this.loginPage = loginView;
         loginPage.addController(this);
         this.appUser = appUser;
         this.homeView = homeView;
         homeView.addController(this);
+        this.spreadsheetModel = spreadsheetModel;
     }
 
     @Override
@@ -71,13 +80,15 @@ public class UserController implements IUserController {
     }
 
     @Override
-    public void createNewSheet(ISheetView sheetView) {
+    public void createNewSheet() {
+        this.spreadsheetModel = new Spreadsheet();
+        this.sheetView = new SheetView(this.spreadsheetModel);
         this.setCurrentSheet(sheetView);
         this.sheetView.makeVisible();
     }
 
     @Override
-    public void saveSheet(Spreadsheet sheet, String path) {
+    public void saveSheet(ReadOnlySpreadSheet sheet, String path) {
         try {
             if (!path.endsWith(".xml")) {
                 path += ".xml"; // Ensure the file has a .xml extension
@@ -106,11 +117,30 @@ public class UserController implements IUserController {
 
     @Override
     public void handleStatsDropdown(String selectedStat) {
-        this.sheetView.displayMessage(selectedStat + " selected");
+//        //TODO: Need to create extra row or column if entirety is selected
+//        if (selectedCells.getStartRow() != -1) {
+//            switch (selectedStat) {
+//                case "Median":
+//                    this.spreadsheetModel.performMedianCalc(selectedCells);
+//                    break;
+//                case "Mean":
+//                    this.spreadsheetModel.performMeanCalc(selectedCells);
+//                    break;
+//                case "Mode":
+//                    this.spreadsheetModel.performModeCalc(selectedCells);
+//                    break;
+//                default:
+//                    break;
+//            }
+//        }
+//        else {
+//            sheetView.displayMessage("Select cells to perform" +
+//                    "statistical calculations");
+//        }
     }
 
     @Override
-    public SelectedCells selectedCells(int[] selectedRows, int[] selectedColumns) {
+    public void selectedCells(int[] selectedRows, int[] selectedColumns) {
         if (selectedRows.length > 0 && selectedColumns.length > 0) {
             int startRow = selectedRows[0];
             int endRow = selectedRows[selectedRows.length - 1];
@@ -120,11 +150,14 @@ public class UserController implements IUserController {
             System.out.println("Selected range: (" + (startRow+1) + ", " +
                     startColumn + ") to (" + (endRow+1)+ ", " + endColumn + ")");
             // Additional logic for handling cell selection range
-            return new SelectedCells(startRow+1,
+
+            this.selectedCells = new SelectedCells(startRow+1,
                     endRow+1, startColumn, endColumn);
         }
-        return new SelectedCells(-1,
-                -1, -1, -1);
+        else {
+            this.selectedCells = new SelectedCells(-1,
+                    -1, -1, -1);
+        }
     }
 
     @Override
@@ -178,6 +211,12 @@ public class UserController implements IUserController {
     @Override
     public IHomeView getHomeView() {
         return this.homeView;
+    }
+
+    @Override
+    public void changeSpreadSheetValueAt(int selRow, int selCol, String val) {
+        this.spreadsheetModel.getCellsObject()[selRow][selCol].setValue(val);
+
     }
 
     private boolean validateInput(String username, String password) {
