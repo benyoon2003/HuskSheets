@@ -2,17 +2,27 @@ package org.example.controller;
 
 import org.example.model.AppUser;
 import org.example.model.IAppUser;
+import org.example.view.HomeView;
+import org.example.view.IHomeView;
+import org.example.view.ILoginView;
 import org.example.view.ISheetView;
+import org.example.view.LoginView;
 import org.example.view.MockSheetView;
 
 // A mock version of the UserController class used for testing
 public class MockUserController extends UserController {
-    private IAppUser appUser;
+    private ILoginView loginPage;
     private ISheetView sheetView;
+    private IHomeView homeView;
+    private IAppUser appUser;
+
+    public MockUserController(ILoginView loginView, IHomeView homeView, IAppUser appUser) {
+        super(loginView, homeView, appUser);
+        this.sheetView = new MockSheetView();
+    }
 
     public MockUserController() {
-        this.appUser = new AppUser();
-        this.sheetView = new MockSheetView();
+        this(new LoginView(), new HomeView(), new AppUser());
     }
 
     @Override
@@ -25,7 +35,7 @@ public class MockUserController extends UserController {
     }
 
     @Override
-    public boolean isUserCreated(String username, String password) {
+    public boolean isUserCreatedSuccessfully(String username, String password) {
         if (validateInput(username, password)) {
             String result = this.appUser.createAccount(username, password);
             return result != null;
@@ -35,14 +45,8 @@ public class MockUserController extends UserController {
     }
 
     @Override
-    public void setCurrentSheet(ISheetView sheetView) {
-        return;
-    }
-
-    @Override
-    public void createNewSheet() {
-        this.sheetView = new MockSheetView();
-        this.sheetView.addController(this);
+    public void createNewSheet(ISheetView sheetView) {
+        this.setCurrentSheet(sheetView);
     }
 
     @Override
@@ -52,11 +56,6 @@ public class MockUserController extends UserController {
 
     @Override
     public void handleStatsDropdown(String selectedStat) {
-        return;
-    }
-
-    @Override
-    public void selectedCells(int[] selectedRows, int[] selectedColumns) {
         return;
     }
 
