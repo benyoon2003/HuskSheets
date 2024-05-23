@@ -62,4 +62,8 @@ public class MockUserController extends UserController {
     ISheetView getSheetView() {
         return this.sheetView;
     }
+
+    private boolean validateInput(String username, String password) {
+        return !username.isEmpty() && !password.isEmpty();
+    }
 }

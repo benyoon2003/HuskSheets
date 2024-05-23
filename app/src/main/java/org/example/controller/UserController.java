@@ -1,15 +1,18 @@
 package org.example.controller;
 
+import java.beans.XMLDecoder;
 import java.beans.XMLEncoder;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import org.example.model.AppUser;
 import org.example.model.IAppUser;
 import org.example.model.SelectedCells;
 import org.example.model.Spreadsheet;
-import org.example.view.HomeView;
 import org.example.view.IHomeView;
 import org.example.view.ILoginView;
 import org.example.view.ISheetView;
@@ -19,9 +22,7 @@ import org.example.view.SheetView;
 public class UserController implements IUserController {
 
     private ILoginView loginPage;
-
     private ISheetView sheetView;
-
     private IHomeView homeView;
     private IAppUser appUser;
 
@@ -78,18 +79,26 @@ public class UserController implements IUserController {
     @Override
     public void saveSheet(Spreadsheet sheet, String path) {
         try {
-            FileOutputStream fos = new FileOutputStream(new File(path));
+            if (!path.endsWith(".xml")) {
+                path += ".xml"; // Ensure the file has a .xml extension
+            }
+            File file = new File(path);
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+            FileOutputStream fos = new FileOutputStream(file);
             XMLEncoder encoder = new XMLEncoder(fos);
             encoder.writeObject(sheet);
             encoder.close();
             fos.close();
+            System.out.println("Saved sheet to path: " + file.getAbsolutePath()); // Debug statement
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
-
-        return;
     }
-  
+    
+    
+
     @Override
     public void handleToolbar(String command) {
         this.sheetView.displayMessage(command + " button clicked");
@@ -118,7 +127,60 @@ public class UserController implements IUserController {
                 -1, -1, -1);
     }
 
-    protected boolean validateInput(String username, String password) {
+    @Override
+    public void openSheet(String path) {
+        try {
+            if (!path.endsWith(".xml")) {
+                path += ".xml"; // Ensure the file has a .xml extension
+            }
+            File file = new File(path);
+            if (file.exists()) {
+                FileInputStream fis = new FileInputStream(file);
+                XMLDecoder decoder = new XMLDecoder(fis);
+                Spreadsheet sheet = (Spreadsheet) decoder.readObject();
+                decoder.close();
+                fis.close();
+    
+                this.sheetView = new SheetView(sheet);
+                this.sheetView.addController(this);
+                this.sheetView.makeVisible();
+                this.homeView.disposeHomePage();
+                System.out.println("Opened sheet from path: " + file.getAbsolutePath()); // Debug statement
+            } else {
+                System.out.println("File not found: " + file.getAbsolutePath()); // Debug statement
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    
+
+    @Override
+    public List<String> getSavedSheets() {
+        List<String> sheets = new ArrayList<>();
+        File folder = new File("sheets");
+        if (!folder.exists()) {
+            folder.mkdirs(); // Ensure the directory exists
+        }
+        if (folder.isDirectory()) {
+            for (File file : folder.listFiles()) {
+                if (file.isFile() && file.getName().endsWith(".xml")) {
+                    sheets.add(file.getName());
+                }
+            }
+        }
+        System.out.println("Found saved sheets: " + sheets); // Debug statement
+        return sheets;
+    }
+    
+
+    @Override
+    public IHomeView getHomeView() {
+        return this.homeView;
+    }
+
+    private boolean validateInput(String username, String password) {
         return !username.isEmpty() && !password.isEmpty();
     }
 }
