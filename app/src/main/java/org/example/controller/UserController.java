@@ -7,9 +7,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 
 import org.example.model.AppUser;
 import org.example.model.IAppUser;
@@ -128,14 +125,13 @@ public class UserController implements IUserController {
             int startColumn = selectedColumns[0];
             int endColumn = selectedColumns[selectedColumns.length - 1];
 
-            System.out.println("Selected range: (" + (startRow+1) + ", " +
-                    startColumn + ") to (" + (endRow+1)+ ", " + endColumn + ")");
+            System.out.println("Selected range: (" + (startRow + 1) + ", " +
+                    startColumn + ") to (" + (endRow + 1) + ", " + endColumn + ")");
             // Additional logic for handling cell selection range
 
-            this.selectedCells = new SelectedCells(startRow+1,
-                    endRow+1, startColumn, endColumn);
-        }
-        else {
+            this.selectedCells = new SelectedCells(startRow + 1,
+                    endRow + 1, startColumn, endColumn);
+        } else {
             this.selectedCells = new SelectedCells(-1,
                     -1, -1, -1);
         }
@@ -198,23 +194,10 @@ public class UserController implements IUserController {
         }
         this.spreadsheetModel.getCellsObject()[selRow][selCol].setValue(val);
     }
-    
 
     @Override
     public String evaluateFormula(String formula) {
-        if (formula.startsWith("=")) {
-            try {
-                String expression = formula.substring(1).trim(); // Remove the '=' sign
-                ScriptEngineManager manager = new ScriptEngineManager();
-                ScriptEngine engine = manager.getEngineByName("JavaScript");
-                Object result = engine.eval(expression);
-                return result.toString();
-            } catch (ScriptException e) {
-                e.printStackTrace();
-                return "Error";
-            }
-        }
-        return formula;
+        return this.spreadsheetModel.evaluateFormula(formula);
     }
 
     private boolean validateInput(String username, String password) {

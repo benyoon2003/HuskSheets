@@ -1,9 +1,6 @@
 package org.example.model;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
-
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -55,6 +52,7 @@ public class Spreadsheet implements ISpreadsheet {
         }
         return retObject;
     }
+
     @Override
     public String evaluateFormula(String formula) {
         if (!formula.startsWith("=")) {
@@ -62,20 +60,20 @@ public class Spreadsheet implements ISpreadsheet {
         }
 
         // Remove the initial "="
-        formula = formula.substring(1);
+        formula = formula.substring(1).trim();
 
         try {
             // Handle special operations
             if (formula.contains("<>")) {
                 String[] parts = formula.split("<>");
                 return compareNotEqual(parts[0].trim(), parts[1].trim());
-            } else if (formula.contains("<")) {
+            } else if (formula.contains("<") && !formula.contains("=")) {
                 String[] parts = formula.split("<");
                 return compareLess(parts[0].trim(), parts[1].trim());
-            } else if (formula.contains(">")) {
+            } else if (formula.contains(">") && !formula.contains("=")) {
                 String[] parts = formula.split(">");
                 return compareGreater(parts[0].trim(), parts[1].trim());
-            } else if (formula.contains("=")) {
+            } else if (formula.contains("=") && !formula.contains("<") && !formula.contains(">")) {
                 String[] parts = formula.split("=");
                 return compareEqual(parts[0].trim(), parts[1].trim());
             } else if (formula.contains("&")) {
@@ -169,7 +167,32 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     private String rangeOperation(String x, String y) {
-        // Implement range logic here if needed
-        return "Error"; // Placeholder
+        // Assuming x and y are cell references like A1, B2, etc.
+        int startRow = Integer.parseInt(x.replaceAll("[^0-9]", ""));
+        int endRow = Integer.parseInt(y.replaceAll("[^0-9]", ""));
+        String startCol = x.replaceAll("[0-9]", "");
+        String endCol = y.replaceAll("[0-9]", "");
+
+        if (startRow > endRow || startCol.compareTo(endCol) > 0) {
+            return "Error";
+        }
+
+        StringBuilder rangeResult = new StringBuilder();
+        for (int i = startRow; i <= endRow; i++) {
+            for (char c = startCol.charAt(0); c <= endCol.charAt(0); c++) {
+                String cellValue = getCellValue("" + c + i);
+                if (cellValue == null) {
+                    return "Error";
+                }
+                rangeResult.append(cellValue).append(" ");
+            }
+        }
+        return rangeResult.toString().trim();
+    }
+
+    private String getCellValue(String cellRef) {
+        // Implement logic to retrieve the value from the spreadsheet
+        // This is just a placeholder
+        return "Value"; // Placeholder
     }
 }
