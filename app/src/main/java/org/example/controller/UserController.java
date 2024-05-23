@@ -5,9 +5,11 @@ import java.beans.XMLEncoder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-
 import java.util.ArrayList;
 import java.util.List;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 import org.example.model.AppUser;
 import org.example.model.IAppUser;
@@ -36,7 +38,7 @@ public class UserController implements IUserController {
     public UserController(ILoginView loginView, IHomeView homeView,
                           IAppUser appUser, ISpreadsheet spreadsheetModel) {
         this.loginPage = loginView;
-        loginPage.addController(this);
+        loginView.addController(this);
         this.appUser = appUser;
         this.homeView = homeView;
         homeView.addController(this);
@@ -107,8 +109,6 @@ public class UserController implements IUserController {
             e.printStackTrace();
         }
     }
-    
-    
 
     @Override
     public void handleToolbar(String command) {
@@ -117,26 +117,7 @@ public class UserController implements IUserController {
 
     @Override
     public void handleStatsDropdown(String selectedStat) {
-//        //TODO: Need to create extra row or column if entirety is selected
-//        if (selectedCells.getStartRow() != -1) {
-//            switch (selectedStat) {
-//                case "Median":
-//                    this.spreadsheetModel.performMedianCalc(selectedCells);
-//                    break;
-//                case "Mean":
-//                    this.spreadsheetModel.performMeanCalc(selectedCells);
-//                    break;
-//                case "Mode":
-//                    this.spreadsheetModel.performModeCalc(selectedCells);
-//                    break;
-//                default:
-//                    break;
-//            }
-//        }
-//        else {
-//            sheetView.displayMessage("Select cells to perform" +
-//                    "statistical calculations");
-//        }
+        // TODO: Implement statistical calculations if needed
     }
 
     @Override
@@ -173,7 +154,7 @@ public class UserController implements IUserController {
                 Spreadsheet sheet = (Spreadsheet) decoder.readObject();
                 decoder.close();
                 fis.close();
-    
+
                 this.sheetView = new SheetView(sheet);
                 this.sheetView.addController(this);
                 this.sheetView.makeVisible();
@@ -186,8 +167,6 @@ public class UserController implements IUserController {
             e.printStackTrace();
         }
     }
-    
-    
 
     @Override
     public List<String> getSavedSheets() {
@@ -206,7 +185,6 @@ public class UserController implements IUserController {
         System.out.println("Found saved sheets: " + sheets); // Debug statement
         return sheets;
     }
-    
 
     @Override
     public IHomeView getHomeView() {
@@ -215,8 +193,28 @@ public class UserController implements IUserController {
 
     @Override
     public void changeSpreadSheetValueAt(int selRow, int selCol, String val) {
+        if (val.startsWith("=")) {
+            val = evaluateFormula(val);
+        }
         this.spreadsheetModel.getCellsObject()[selRow][selCol].setValue(val);
+    }
+    
 
+    @Override
+    public String evaluateFormula(String formula) {
+        if (formula.startsWith("=")) {
+            try {
+                String expression = formula.substring(1).trim(); // Remove the '=' sign
+                ScriptEngineManager manager = new ScriptEngineManager();
+                ScriptEngine engine = manager.getEngineByName("JavaScript");
+                Object result = engine.eval(expression);
+                return result.toString();
+            } catch (ScriptException e) {
+                e.printStackTrace();
+                return "Error";
+            }
+        }
+        return formula;
     }
 
     private boolean validateInput(String username, String password) {

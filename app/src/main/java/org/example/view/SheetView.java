@@ -4,7 +4,6 @@ import org.example.controller.IUserController;
 import org.example.model.Cell;
 import org.example.model.ISpreadsheet;
 import org.example.model.ReadOnlySpreadSheet;
-import org.example.model.Spreadsheet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +30,6 @@ public class SheetView extends JFrame implements ISheetView {
     private static final int colSize = 100;
 
     private static final Logger logger = LoggerFactory.getLogger(SheetView.class);
-
 
     public SheetView(ISpreadsheet openSheet) {
         this.cells = openSheet;
@@ -146,10 +144,16 @@ public class SheetView extends JFrame implements ISheetView {
                     String val = String.valueOf(table.getValueAt(selRow, selCol));
                     controller.changeSpreadSheetValueAt(selRow, selCol, val);
                     cellRef[selRow][selCol].setValue(val);
+                    if (cellRef[selRow][selCol].isFormula()) {
+                        String result = controller.evaluateFormula(val);
+                        cellRef[selRow][selCol].setValue(result);
+                        table.setValueAt(result, selRow, selCol); // Ensure the table updates with the result
+                    }
                     System.out.println("New Val: " + val);
                 }
             }
         });
+        
 
         add(table, BorderLayout.CENTER);
 
