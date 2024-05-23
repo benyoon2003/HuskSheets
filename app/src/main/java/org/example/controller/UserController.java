@@ -16,8 +16,6 @@ import org.example.view.ISheetView;
 import org.example.view.LoginView;
 import org.example.view.SheetView;
 
-import javax.swing.*;
-
 public class UserController implements IUserController {
 
     private ILoginView loginPage;
@@ -120,8 +118,7 @@ public class UserController implements IUserController {
                 -1, -1, -1);
     }
 
-
-    private boolean validateInput(String username, String password) {
+    protected boolean validateInput(String username, String password) {
         return !username.isEmpty() && !password.isEmpty();
     }
 }
