@@ -147,7 +147,8 @@ public class SheetView extends JFrame implements ISheetView {
                 if (selRow != -1 && selCol != -1) {
                     String val = String.valueOf(table.getValueAt(selRow, selCol));
                     cellRef[selRow][selCol].setValue(val);
-                    System.out.println("New Val: " + val);
+                    cellRef[selRow][selCol].parseValue();
+                    System.out.println("New Val: " + cellRef[selRow][selCol].getValue());
                 }
             }
         });

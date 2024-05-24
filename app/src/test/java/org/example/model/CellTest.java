@@ -1,6 +1,11 @@
 package org.example.model;
 
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CellTest {
@@ -30,5 +35,14 @@ public class CellTest {
     public void testGetValue() {
         Cell cell = new Cell("InitialValue");
         assertEquals("InitialValue", cell.getValue(), "getValue should return the current value of the cell");
+    }
+
+    @Test
+    public void testTokenize(){
+        Cell cell = new Cell("4 + 7");
+        String[] tokens = {"4", "+", "7"};
+        List<String> tokenArrayList = Arrays.asList(tokens);
+        assertEquals(tokenArrayList, cell.tokenize());
+
     }
 }
