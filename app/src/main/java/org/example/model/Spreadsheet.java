@@ -90,6 +90,20 @@ public class Spreadsheet implements ISpreadsheet {
             } else if (formula.contains(":")) {
                 String[] parts = formula.split(":");
                 return rangeOperation(parts[0].trim(), parts[1].trim());
+            } else if (formula.startsWith("IF(")) {
+                return evaluateIF(formula.substring(3, formula.length() - 1));
+            } else if (formula.startsWith("SUM(")) {
+                return evaluateSUM(formula.substring(4, formula.length() - 1));
+            } else if (formula.startsWith("MIN(")) {
+                return evaluateMIN(formula.substring(4, formula.length() - 1));
+            } else if (formula.startsWith("MAX(")) {
+                return evaluateMAX(formula.substring(4, formula.length() - 1));
+            } else if (formula.startsWith("AVG(")) {
+                return evaluateAVG(formula.substring(4, formula.length() - 1));
+            } else if (formula.startsWith("CONCAT(")) {
+                return evaluateCONCAT(formula.substring(7, formula.length() - 1));
+            } else if (formula.startsWith("DEBUG(")) {
+                return evaluateDEBUG(formula.substring(6, formula.length() - 1));
             } else {
                 // For simplicity, handle basic arithmetic operations
                 ScriptEngineManager manager = new ScriptEngineManager();
@@ -221,17 +235,110 @@ public class Spreadsheet implements ISpreadsheet {
         int startCol = getColumn(startCell);
         int endCol = getColumn(endCell);
 
-        if (startRow == -1 || endRow == -1 || startCol == -1 || endCol == -1) {
+        // Check if the range is valid
+        if (startRow > endRow || startCol > endCol || startRow == -1 || endRow == -1 || startCol == -1 || endCol == -1) {
             return "Error";
         }
 
         StringBuilder rangeResult = new StringBuilder();
         for (int row = startRow; row <= endRow; row++) {
             for (int col = startCol; col <= endCol; col++) {
-                rangeResult.append(getCellValue(row, col)).append(" ");
+                String cellValue = getCellValue(row, col);
+                if (cellValue.isEmpty()) {
+                    cellValue = "0"; // Treat empty cells as 0
+                }
+                rangeResult.append(cellValue).append(" ");
             }
         }
         System.out.println("Range Result: " + rangeResult.toString().trim());
         return rangeResult.toString().trim();
+    }
+
+    private String evaluateIF(String parameters) {
+        String[] parts = parameters.split(",");
+        if (parts.length != 3) {
+            return "Error";
+        }
+        String condition = parts[0].trim();
+        String trueResult = parts[1].trim();
+        String falseResult = parts[2].trim();
+
+        try {
+            double conditionValue = Double.parseDouble(condition);
+            return conditionValue != 0 ? trueResult : falseResult;
+        } catch (NumberFormatException e) {
+            return "Error";
+        }
+    }
+
+    private String evaluateSUM(String parameters) {
+        String[] parts = parameters.split(",");
+        double sum = 0;
+        try {
+            for (String part : parts) {
+                sum += Double.parseDouble(part.trim());
+            }
+            return String.valueOf(sum);
+        } catch (NumberFormatException e) {
+            return "Error";
+        }
+    }
+
+    private String evaluateMIN(String parameters) {
+        String[] parts = parameters.split(",");
+        double min = Double.MAX_VALUE;
+        try {
+            for (String part : parts) {
+                double value = Double.parseDouble(part.trim());
+                if (value < min) {
+                    min = value;
+                }
+            }
+            return String.valueOf(min);
+        } catch (NumberFormatException e) {
+            return "Error";
+        }
+    }
+
+    private String evaluateMAX(String parameters) {
+        String[] parts = parameters.split(",");
+        double max = Double.MIN_VALUE;
+        try {
+            for (String part : parts) {
+                double value = Double.parseDouble(part.trim());
+                if (value > max) {
+                    max = value;
+                }
+            }
+            return String.valueOf(max);
+        } catch (NumberFormatException e) {
+            return "Error";
+        }
+    }
+
+    private String evaluateAVG(String parameters) {
+        String[] parts = parameters.split(",");
+        double sum = 0;
+        try {
+            for (String part : parts) {
+                sum += Double.parseDouble(part.trim());
+            }
+            return String.valueOf(sum / parts.length);
+        } catch (NumberFormatException e) {
+            return "Error";
+        }
+    }
+
+    private String evaluateCONCAT(String parameters) {
+        String[] parts = parameters.split(",");
+        StringBuilder result = new StringBuilder();
+        for (String part : parts) {
+            result.append(part.trim());
+        }
+        return result.toString();
+    }
+
+    private String evaluateDEBUG(String parameter) {
+        return parameter.trim();
     }
 }
