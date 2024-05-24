@@ -218,19 +218,35 @@ public class SheetView extends JFrame implements ISheetView {
         @Override
         public void actionPerformed(ActionEvent e) {
             String command = e.getActionCommand();
-            // Handle cut, copy, paste, and save actions here
-            JOptionPane.showMessageDialog(SheetView.this, command + " button clicked");
 
-            if (command.equals("Save")) {
+            if (command.equals("Cut")) {
+                int selRow = view.yourTable.getSelectedRow();
+                int selCol = view.yourTable.getSelectedColumn();
+                if (selRow != -1 && selCol != -1 && selCol != 0) {
+                    view.getController().cutCell(selRow, selCol - 1);
+                }
+            } else if (command.equals("Copy")) {
+                int selRow = view.yourTable.getSelectedRow();
+                int selCol = view.yourTable.getSelectedColumn();
+                if (selRow != -1 && selCol != -1 && selCol != 0) {
+                    view.getController().copyCell(selRow, selCol - 1);
+                }
+            } else if (command.equals("Paste")) {
+                int selRow = view.yourTable.getSelectedRow();
+                int selCol = view.yourTable.getSelectedColumn();
+                if (selRow != -1 && selCol != -1 && selCol != 0) {
+                    view.getController().pasteCell(selRow, selCol - 1);
+                }
+            } else if (command.equals("Save")) {
                 JFileChooser fileChooser = new JFileChooser();
                 int returnValue = fileChooser.showSaveDialog(null);
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
                     this.view.save(selectedFile.getAbsolutePath());
                 }
+            } else {
+                view.getController().handleToolbar(command);
             }
-
-            controller.handleToolbar(command);
         }
     }
 

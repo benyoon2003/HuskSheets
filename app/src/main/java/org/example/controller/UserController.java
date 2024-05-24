@@ -30,6 +30,9 @@ public class UserController implements IUserController {
 
     private ISelectedCells selectedCells;
 
+    private String clipboardContent = "";
+    private boolean isCutOperation = false;
+
     public UserController(ILoginView loginView, IHomeView homeView,
                           IAppUser appUser, ISpreadsheet spreadsheetModel) {
         this.loginPage = loginView;
@@ -198,6 +201,32 @@ public class UserController implements IUserController {
     @Override
     public String evaluateFormula(String formula) {
         return this.spreadsheetModel.evaluateFormula(formula);
+    }
+
+    @Override
+    public void cutCell(int selRow, int selCol) {
+        this.clipboardContent = this.spreadsheetModel.getCellValue(selRow, selCol);
+        this.spreadsheetModel.setCellValue(selRow, selCol, "");
+        this.sheetView.updateTable();
+        this.isCutOperation = true;
+    }
+
+    @Override
+    public void copyCell(int selRow, int selCol) {
+        this.clipboardContent = this.spreadsheetModel.getCellValue(selRow, selCol);
+        this.isCutOperation = false;
+    }
+
+    @Override
+    public void pasteCell(int selRow, int selCol) {
+        if (!clipboardContent.isEmpty()) {
+            this.spreadsheetModel.setCellValue(selRow, selCol, clipboardContent);
+            if (isCutOperation) {
+                clipboardContent = "";
+                isCutOperation = false;
+            }
+            this.sheetView.updateTable();
+        }
     }
 
     private boolean validateInput(String username, String password) {
