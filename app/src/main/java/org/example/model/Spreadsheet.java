@@ -83,6 +83,21 @@ public class Spreadsheet implements ISpreadsheet {
                 return evaluateMAX(formula.substring(4, formula.length() - 1));
             }
 
+            // Handle AVG operation
+            if (formula.startsWith("AVG(")) {
+                return evaluateAVG(formula.substring(4, formula.length() - 1));
+            }
+
+            // Handle CONCAT operation
+            if (formula.startsWith("CONCAT(")) {
+                return evaluateCONCAT(formula.substring(7, formula.length() - 1));
+            }
+
+            // Handle DEBUG operation
+            if (formula.startsWith("DEBUG(")) {
+                return evaluateDEBUG(formula.substring(6, formula.length() - 1));
+            }
+
             // Handle special operations
             if (formula.contains("<>")) {
                 String[] parts = formula.split("<>");
@@ -185,6 +200,42 @@ public class Spreadsheet implements ISpreadsheet {
         }
     }
 
+    private String evaluateAVG(String args) {
+        String[] parts = args.split(",");
+        double sum = 0;
+        int count = 0;
+
+        try {
+            for (String part : parts) {
+                double value = getNumericValue(part.trim());
+                sum += value;
+                count++;
+            }
+            return count > 0 ? String.valueOf(sum / count) : "Error";
+        } catch (NumberFormatException e) {
+            return "Error";
+        }
+    }
+
+    private String evaluateCONCAT(String args) {
+        String[] parts = args.split(",");
+        StringBuilder result = new StringBuilder();
+
+        for (String part : parts) {
+            String stringValue = getStringValue(part.trim());
+            if (stringValue.startsWith("\"") && stringValue.endsWith("\"")) {
+                stringValue = stringValue.substring(1, stringValue.length() - 1);
+            }
+            result.append(stringValue);
+        }
+
+        return result.toString();
+    }
+
+    private String evaluateDEBUG(String args) {
+        return getStringValue(args.trim());
+    }
+
     private double getNumericValue(String reference) throws NumberFormatException {
         if (reference.matches("[A-Za-z]+[0-9]+")) { // Check if it's a cell reference
             int row = getRow(reference);
@@ -193,6 +244,16 @@ public class Spreadsheet implements ISpreadsheet {
             return Double.parseDouble(cellValue);
         } else {
             return Double.parseDouble(reference); // Otherwise, it's a direct numeric value
+        }
+    }
+
+    private String getStringValue(String reference) {
+        if (reference.matches("[A-Za-z]+[0-9]+")) { // Check if it's a cell reference
+            int row = getRow(reference);
+            int col = getColumn(reference);
+            return getCellValue(row, col);
+        } else {
+            return reference; // Otherwise, it's a direct string value
         }
     }
 
