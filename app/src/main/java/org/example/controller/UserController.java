@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.example.model.AppUser;
 import org.example.model.IAppUser;
 import org.example.model.ISelectedCells;
 import org.example.model.ISpreadsheet;
@@ -18,7 +17,6 @@ import org.example.model.Spreadsheet;
 import org.example.view.IHomeView;
 import org.example.view.ILoginView;
 import org.example.view.ISheetView;
-import org.example.view.LoginView;
 import org.example.view.SheetView;
 
 public class UserController implements IUserController {
@@ -189,11 +187,13 @@ public class UserController implements IUserController {
 
     @Override
     public void changeSpreadSheetValueAt(int selRow, int selCol, String val) {
+        this.spreadsheetModel.setCellValue(selRow, selCol, val);
         if (val.startsWith("=")) {
             val = evaluateFormula(val);
         }
-        this.spreadsheetModel.getCellsObject()[selRow][selCol].setValue(val);
-    }
+        this.spreadsheetModel.setCellValue(selRow, selCol, val);
+        this.sheetView.updateTable(); // Update the table view after changing the value
+    }    
 
     @Override
     public String evaluateFormula(String formula) {

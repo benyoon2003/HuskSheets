@@ -13,7 +13,7 @@ public class Spreadsheet implements ISpreadsheet {
         for (int i = 0; i < 100; i++) {
             ArrayList<Cell> row = new ArrayList<>();
             for (int j = 0; j < 100; j++) {
-                row.add(new Cell("test"));
+                row.add(new Cell(""));
             }
             grid.add(row);
         }
@@ -60,7 +60,7 @@ public class Spreadsheet implements ISpreadsheet {
         }
 
         // Remove the initial "="
-        formula = formula.substring(1).trim();
+        formula = formula.substring(1);
 
         try {
             // Handle special operations
@@ -166,33 +166,50 @@ public class Spreadsheet implements ISpreadsheet {
         }
     }
 
-    private String rangeOperation(String x, String y) {
-        // Assuming x and y are cell references like A1, B2, etc.
-        int startRow = Integer.parseInt(x.replaceAll("[^0-9]", ""));
-        int endRow = Integer.parseInt(y.replaceAll("[^0-9]", ""));
-        String startCol = x.replaceAll("[0-9]", "");
-        String endCol = y.replaceAll("[0-9]", "");
+    private String rangeOperation(String startCell, String endCell) {
+        int startRow = getRow(startCell);
+        int endRow = getRow(endCell);
+        int startCol = getColumn(startCell);
+        int endCol = getColumn(endCell);
 
-        if (startRow > endRow || startCol.compareTo(endCol) > 0) {
+        if (startRow == -1 || endRow == -1 || startCol == -1 || endCol == -1) {
             return "Error";
         }
 
         StringBuilder rangeResult = new StringBuilder();
-        for (int i = startRow; i <= endRow; i++) {
-            for (char c = startCol.charAt(0); c <= endCol.charAt(0); c++) {
-                String cellValue = getCellValue("" + c + i);
-                if (cellValue == null) {
-                    return "Error";
-                }
-                rangeResult.append(cellValue).append(" ");
+        for (int row = startRow; row <= endRow; row++) {
+            for (int col = startCol; col <= endCol; col++) {
+                rangeResult.append(getCellValue(row, col)).append(" ");
             }
         }
+        System.out.println("Range Result: " + rangeResult.toString().trim());
         return rangeResult.toString().trim();
     }
 
-    private String getCellValue(String cellRef) {
-        // Implement logic to retrieve the value from the spreadsheet
-        // This is just a placeholder
-        return "Value"; // Placeholder
+    private int getRow(String cell) {
+        try {
+            return Integer.parseInt(cell.replaceAll("[^0-9]", "")) - 1;
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
+    private int getColumn(String cell) {
+        String col = cell.replaceAll("[^A-Z]", "");
+        int column = 0;
+        for (int i = 0; i < col.length(); i++) {
+            column = column * 26 + (col.charAt(i) - 'A' + 1);
+        }
+        return column - 1;
+    }
+
+    @Override
+    public void setCellValue(int row, int col, String value) {
+        this.grid.get(row).get(col).setValue(value);
+    }
+
+    @Override
+    public String getCellValue(int row, int col) {
+        return this.grid.get(row).get(col).getValue();
     }
 }
