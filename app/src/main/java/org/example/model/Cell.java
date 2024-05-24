@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Cell {
-
   private String value;
 
   public Cell() {
@@ -140,4 +139,7 @@ public class Cell {
     this.setValue(newVal);
   }
 
+  public boolean isFormula() {
+    return this.value.startsWith("=");
+  }
 }

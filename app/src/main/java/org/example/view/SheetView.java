@@ -2,7 +2,8 @@ package org.example.view;
 
 import org.example.controller.IUserController;
 import org.example.model.Cell;
-import org.example.model.Spreadsheet;
+import org.example.model.ISpreadsheet;
+import org.example.model.ReadOnlySpreadSheet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,22 +22,19 @@ import java.io.File;
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 
 public class SheetView extends JFrame implements ISheetView {
-    private Spreadsheet cells;
+    private final ReadOnlySpreadSheet cells;
     private IUserController controller;
     private JButton backButton;
+    private JTable yourTable;
+    private boolean isUpdatingTable = false;
 
     private static final int rowSize = 100;
     private static final int colSize = 100;
 
     private static final Logger logger = LoggerFactory.getLogger(SheetView.class);
 
-    public SheetView() {
-        this.cells = new Spreadsheet();
-        setup();
-    }
-
-    public SheetView(Spreadsheet openSheet) {
-        this.cells = openSheet;
+    public SheetView(ISpreadsheet openSheet) {
+        this.cells = new ReadOnlySpreadSheet(openSheet.getCellsObject());
         setup();
     }
 
@@ -89,8 +87,8 @@ public class SheetView extends JFrame implements ISheetView {
 
         String[] columnNames = new String[this.cells.getCols() + 1];
         columnNames[0] = ""; // Empty first column
-        for (int i = 1; i <= 100; i++) {
-            columnNames[i] = String.valueOf((char) ('A' + (i - 1) % 26)) + (i - 1) / 26; // Generate column labels (A, B, ..., Z, AA, AB, ...)
+        for (int i = 1; i <= this.cells.getCols(); i++) {
+            columnNames[i] = String.valueOf((char) ('A' + (i - 1) % 26)) + ((i - 1) / 26); // Generate column labels (A, B, ..., Z, AA, AB, ...)
         }
 
         // Custom table model with row labels
@@ -109,8 +107,9 @@ public class SheetView extends JFrame implements ISheetView {
 
         // Create JTable with the model
         table = new JTable(tableModel);
+        this.yourTable = table; // Set the yourTable variable
         table.setSelectionMode(MULTIPLE_INTERVAL_SELECTION);
-        table.setAutoResizeMode(0);
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
         table.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
@@ -142,13 +141,16 @@ public class SheetView extends JFrame implements ISheetView {
         table.getModel().addTableModelListener(new TableModelListener() {
             @Override
             public void tableChanged(TableModelEvent e) {
-                int selRow = table.getSelectedRow();
-                int selCol = table.getSelectedColumn();
-                if (selRow != -1 && selCol != -1) {
-                    String val = String.valueOf(table.getValueAt(selRow, selCol));
-                    cellRef[selRow][selCol].setValue(val);
-                    cellRef[selRow][selCol].parseValue();
-                    System.out.println("New Val: " + cellRef[selRow][selCol].getValue());
+                if (!isUpdatingTable) {
+                    int selRow = e.getFirstRow();
+                    int selCol = e.getColumn();
+                    if (selRow != -1 && selCol != -1 && selCol != 0) {
+                        String val = String.valueOf(table.getValueAt(selRow, selCol));
+                        cellRef[selRow][selCol].setValue(val);
+                        cellRef[selRow][selCol].parseValue();
+                        System.out.println("New Val: " + cellRef[selRow][selCol].getValue());
+                        controller.changeSpreadSheetValueAt(selRow, selCol - 1, val);
+                    }
                 }
             }
         });
@@ -168,6 +170,24 @@ public class SheetView extends JFrame implements ISheetView {
         this.controller = controller;
     }
 
+    public void updateTable() {
+        isUpdatingTable = true;
+        JTable table = getTable();
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        String[][] data = this.cells.getCellStringsObject();
+        for (int row = 0; row < data.length; row++) {
+            for (int col = 0; col < data[row].length; col++) {
+                model.setValueAt(data[row][col], row, col + 1);
+            }
+        }
+        model.fireTableDataChanged();
+        isUpdatingTable = false;
+    }
+
+    private JTable getTable() {
+        return yourTable;
+    }
+
     public IUserController getController() {
         return this.controller;
     }
@@ -182,7 +202,7 @@ public class SheetView extends JFrame implements ISheetView {
             this.controller.saveSheet(this.cells, path);
             logger.info("Saved spreadsheet");
         } catch (Exception e) {
-            logger.info("Could not save spreadsheet: {}", e.getMessage());
+            logger.error("Could not save spreadsheet: {}", e.getMessage());
         }
     }
 

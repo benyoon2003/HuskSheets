@@ -5,18 +5,18 @@ import java.beans.XMLEncoder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import org.example.model.AppUser;
 import org.example.model.IAppUser;
+import org.example.model.ISelectedCells;
+import org.example.model.ISpreadsheet;
+import org.example.model.ReadOnlySpreadSheet;
 import org.example.model.SelectedCells;
 import org.example.model.Spreadsheet;
 import org.example.view.IHomeView;
 import org.example.view.ILoginView;
 import org.example.view.ISheetView;
-import org.example.view.LoginView;
 import org.example.view.SheetView;
 
 public class UserController implements IUserController {
@@ -26,12 +26,18 @@ public class UserController implements IUserController {
     private IHomeView homeView;
     private IAppUser appUser;
 
-    public UserController(ILoginView loginView, IHomeView homeView, IAppUser appUser) {
+    private ISpreadsheet spreadsheetModel;
+
+    private ISelectedCells selectedCells;
+
+    public UserController(ILoginView loginView, IHomeView homeView,
+                          IAppUser appUser, ISpreadsheet spreadsheetModel) {
         this.loginPage = loginView;
-        loginPage.addController(this);
+        loginView.addController(this);
         this.appUser = appUser;
         this.homeView = homeView;
         homeView.addController(this);
+        this.spreadsheetModel = spreadsheetModel;
     }
 
     @Override
@@ -71,13 +77,15 @@ public class UserController implements IUserController {
     }
 
     @Override
-    public void createNewSheet(ISheetView sheetView) {
+    public void createNewSheet() {
+        this.spreadsheetModel = new Spreadsheet();
+        this.sheetView = new SheetView(this.spreadsheetModel);
         this.setCurrentSheet(sheetView);
         this.sheetView.makeVisible();
     }
 
     @Override
-    public void saveSheet(Spreadsheet sheet, String path) {
+    public void saveSheet(ReadOnlySpreadSheet sheet, String path) {
         try {
             if (!path.endsWith(".xml")) {
                 path += ".xml"; // Ensure the file has a .xml extension
@@ -96,8 +104,6 @@ public class UserController implements IUserController {
             e.printStackTrace();
         }
     }
-    
-    
 
     @Override
     public void handleToolbar(String command) {
@@ -106,25 +112,27 @@ public class UserController implements IUserController {
 
     @Override
     public void handleStatsDropdown(String selectedStat) {
-        this.sheetView.displayMessage(selectedStat + " selected");
+        // TODO: Implement statistical calculations if needed
     }
 
     @Override
-    public SelectedCells selectedCells(int[] selectedRows, int[] selectedColumns) {
+    public void selectedCells(int[] selectedRows, int[] selectedColumns) {
         if (selectedRows.length > 0 && selectedColumns.length > 0) {
             int startRow = selectedRows[0];
             int endRow = selectedRows[selectedRows.length - 1];
             int startColumn = selectedColumns[0];
             int endColumn = selectedColumns[selectedColumns.length - 1];
 
-            System.out.println("Selected range: (" + (startRow+1) + ", " +
-                    startColumn + ") to (" + (endRow+1)+ ", " + endColumn + ")");
+            System.out.println("Selected range: (" + (startRow + 1) + ", " +
+                    startColumn + ") to (" + (endRow + 1) + ", " + endColumn + ")");
             // Additional logic for handling cell selection range
-            return new SelectedCells(startRow+1,
-                    endRow+1, startColumn, endColumn);
+
+            this.selectedCells = new SelectedCells(startRow + 1,
+                    endRow + 1, startColumn, endColumn);
+        } else {
+            this.selectedCells = new SelectedCells(-1,
+                    -1, -1, -1);
         }
-        return new SelectedCells(-1,
-                -1, -1, -1);
     }
 
     @Override
@@ -140,7 +148,7 @@ public class UserController implements IUserController {
                 Spreadsheet sheet = (Spreadsheet) decoder.readObject();
                 decoder.close();
                 fis.close();
-    
+
                 this.sheetView = new SheetView(sheet);
                 this.sheetView.addController(this);
                 this.sheetView.makeVisible();
@@ -153,8 +161,6 @@ public class UserController implements IUserController {
             e.printStackTrace();
         }
     }
-    
-    
 
     @Override
     public List<String> getSavedSheets() {
@@ -173,11 +179,25 @@ public class UserController implements IUserController {
         System.out.println("Found saved sheets: " + sheets); // Debug statement
         return sheets;
     }
-    
 
     @Override
     public IHomeView getHomeView() {
         return this.homeView;
+    }
+
+    @Override
+    public void changeSpreadSheetValueAt(int selRow, int selCol, String val) {
+        this.spreadsheetModel.setCellValue(selRow, selCol, val);
+        if (val.startsWith("=")) {
+            val = evaluateFormula(val);
+        }
+        this.spreadsheetModel.setCellValue(selRow, selCol, val);
+        this.sheetView.updateTable(); // Update the table view after changing the value
+    }    
+
+    @Override
+    public String evaluateFormula(String formula) {
+        return this.spreadsheetModel.evaluateFormula(formula);
     }
 
     private boolean validateInput(String username, String password) {
