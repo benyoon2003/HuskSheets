@@ -218,8 +218,13 @@ public class Spreadsheet implements ISpreadsheet {
     private String rangeOperation(String startCell, String endCell) {
         int startRow = getRow(startCell);
         int endRow = getRow(endCell);
-        int startCol = getColumn(startCell);
-        int endCol = getColumn(endCell);
+        int startCol = getColumn(startCell) + 1;
+        int endCol = getColumn(endCell) + 1;
+
+        System.out.println(startRow);
+        System.out.println(endRow);
+        System.out.println(startCol);
+        System.out.println(endCol);
 
         if (startRow == -1 || endRow == -1 || startCol == -1 || endCol == -1) {
             return "Error";
@@ -228,7 +233,7 @@ public class Spreadsheet implements ISpreadsheet {
         StringBuilder rangeResult = new StringBuilder();
         for (int row = startRow; row <= endRow; row++) {
             for (int col = startCol; col <= endCol; col++) {
-                rangeResult.append(getCellValue(row, col)).append(" ");
+                rangeResult.append(getCellValue(row, col)).append(",");
             }
         }
         System.out.println("Range Result: " + rangeResult.toString().trim());
