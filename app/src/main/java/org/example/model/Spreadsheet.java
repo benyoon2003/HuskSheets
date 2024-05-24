@@ -1,6 +1,8 @@
 package org.example.model;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -63,40 +65,8 @@ public class Spreadsheet implements ISpreadsheet {
         formula = formula.substring(1);
 
         try {
-            // Handle IF operation
-            if (formula.startsWith("IF(")) {
-                return evaluateIF(formula.substring(3, formula.length() - 1));
-            }
-
-            // Handle SUM operation
-            if (formula.startsWith("SUM(")) {
-                return evaluateSUM(formula.substring(4, formula.length() - 1));
-            }
-
-            // Handle MIN operation
-            if (formula.startsWith("MIN(")) {
-                return evaluateMIN(formula.substring(4, formula.length() - 1));
-            }
-
-            // Handle MAX operation
-            if (formula.startsWith("MAX(")) {
-                return evaluateMAX(formula.substring(4, formula.length() - 1));
-            }
-
-            // Handle AVG operation
-            if (formula.startsWith("AVG(")) {
-                return evaluateAVG(formula.substring(4, formula.length() - 1));
-            }
-
-            // Handle CONCAT operation
-            if (formula.startsWith("CONCAT(")) {
-                return evaluateCONCAT(formula.substring(7, formula.length() - 1));
-            }
-
-            // Handle DEBUG operation
-            if (formula.startsWith("DEBUG(")) {
-                return evaluateDEBUG(formula.substring(6, formula.length() - 1));
-            }
+            // Replace cell references with their values
+            formula = replaceCellReferences(formula);
 
             // Handle special operations
             if (formula.contains("<>")) {
@@ -133,128 +103,48 @@ public class Spreadsheet implements ISpreadsheet {
         }
     }
 
-    private String evaluateIF(String args) {
-        String[] parts = args.split(",");
-        if (parts.length != 3) {
-            return "Error";
+    private String replaceCellReferences(String formula) {
+        Pattern pattern = Pattern.compile("[A-Za-z]+[0-9]+");
+        Matcher matcher = pattern.matcher(formula);
+        StringBuffer result = new StringBuffer();
+
+        while (matcher.find()) {
+            String cellReference = matcher.group();
+            int row = getRow(cellReference);
+            int col = getColumn(cellReference);
+            String cellValue = getCellValue(row, col);
+            matcher.appendReplacement(result, cellValue);
         }
-
-        String condition = parts[0].trim();
-        String trueValue = parts[1].trim();
-        String falseValue = parts[2].trim();
-
-        try {
-            double conditionValue = getNumericValue(condition);
-            return conditionValue != 0 ? trueValue : falseValue;
-        } catch (NumberFormatException e) {
-            return "Error";
-        }
-    }
-
-    private String evaluateSUM(String args) {
-        String[] parts = args.split(",");
-        double sum = 0;
-
-        try {
-            for (String part : parts) {
-                double value = getNumericValue(part.trim());
-                sum += value;
-            }
-            return String.valueOf(sum);
-        } catch (NumberFormatException e) {
-            return "Error";
-        }
-    }
-
-    private String evaluateMIN(String args) {
-        String[] parts = args.split(",");
-        double min = Double.MAX_VALUE;
-
-        try {
-            for (String part : parts) {
-                double value = getNumericValue(part.trim());
-                if (value < min) {
-                    min = value;
-                }
-            }
-            return String.valueOf(min);
-        } catch (NumberFormatException e) {
-            return "Error";
-        }
-    }
-
-    private String evaluateMAX(String args) {
-        String[] parts = args.split(",");
-        double max = Double.MIN_VALUE;
-
-        try {
-            for (String part : parts) {
-                double value = getNumericValue(part.trim());
-                if (value > max) {
-                    max = value;
-                }
-            }
-            return String.valueOf(max);
-        } catch (NumberFormatException e) {
-            return "Error";
-        }
-    }
-
-    private String evaluateAVG(String args) {
-        String[] parts = args.split(",");
-        double sum = 0;
-        int count = 0;
-
-        try {
-            for (String part : parts) {
-                double value = getNumericValue(part.trim());
-                sum += value;
-                count++;
-            }
-            return count > 0 ? String.valueOf(sum / count) : "Error";
-        } catch (NumberFormatException e) {
-            return "Error";
-        }
-    }
-
-    private String evaluateCONCAT(String args) {
-        String[] parts = args.split(",");
-        StringBuilder result = new StringBuilder();
-
-        for (String part : parts) {
-            String stringValue = getStringValue(part.trim());
-            if (stringValue.startsWith("\"") && stringValue.endsWith("\"")) {
-                stringValue = stringValue.substring(1, stringValue.length() - 1);
-            }
-            result.append(stringValue);
-        }
+        matcher.appendTail(result);
 
         return result.toString();
     }
 
-    private String evaluateDEBUG(String args) {
-        return getStringValue(args.trim());
-    }
-
-    private double getNumericValue(String reference) throws NumberFormatException {
-        if (reference.matches("[A-Za-z]+[0-9]+")) { // Check if it's a cell reference
-            int row = getRow(reference);
-            int col = getColumn(reference);
-            String cellValue = getCellValue(row, col);
-            return Double.parseDouble(cellValue);
-        } else {
-            return Double.parseDouble(reference); // Otherwise, it's a direct numeric value
+    private int getRow(String cell) {
+        try {
+            return Integer.parseInt(cell.replaceAll("[^0-9]", "")) - 1;
+        } catch (NumberFormatException e) {
+            return -1;
         }
     }
 
-    private String getStringValue(String reference) {
-        if (reference.matches("[A-Za-z]+[0-9]+")) { // Check if it's a cell reference
-            int row = getRow(reference);
-            int col = getColumn(reference);
-            return getCellValue(row, col);
-        } else {
-            return reference; // Otherwise, it's a direct string value
+    private int getColumn(String cell) {
+        String col = cell.replaceAll("[^A-Z]", "").toUpperCase();
+        int column = 0;
+        for (int i = 0; i < col.length(); i++) {
+            column = column * 26 + (col.charAt(i) - 'A' + 1);
         }
+        return column - 1;
+    }
+
+    @Override
+    public void setCellValue(int row, int col, String value) {
+        this.grid.get(row).get(col).setValue(value);
+    }
+
+    @Override
+    public String getCellValue(int row, int col) {
+        return this.grid.get(row).get(col).getValue();
     }
 
     private String compareLess(String x, String y) {
@@ -343,32 +233,5 @@ public class Spreadsheet implements ISpreadsheet {
         }
         System.out.println("Range Result: " + rangeResult.toString().trim());
         return rangeResult.toString().trim();
-    }
-
-    private int getRow(String cell) {
-        try {
-            return Integer.parseInt(cell.replaceAll("[^0-9]", "")) - 1;
-        } catch (NumberFormatException e) {
-            return -1;
-        }
-    }
-
-    private int getColumn(String cell) {
-        String col = cell.replaceAll("[^A-Z]", "").toUpperCase();
-        int column = 0;
-        for (int i = 0; i < col.length(); i++) {
-            column = column * 26 + (col.charAt(i) - 'A' + 1);
-        }
-        return column - 1;
-    }
-
-    @Override
-    public void setCellValue(int row, int col, String value) {
-        this.grid.get(row).get(col).setValue(value);
-    }
-
-    @Override
-    public String getCellValue(int row, int col) {
-        return this.grid.get(row).get(col).getValue();
     }
 }
