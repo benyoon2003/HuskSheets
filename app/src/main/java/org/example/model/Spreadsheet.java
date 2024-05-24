@@ -68,6 +68,11 @@ public class Spreadsheet implements ISpreadsheet {
                 return evaluateIF(formula.substring(3, formula.length() - 1));
             }
 
+            // Handle SUM operation
+            if (formula.startsWith("SUM(")) {
+                return evaluateSUM(formula.substring(4, formula.length() - 1));
+            }
+
             // Handle special operations
             if (formula.contains("<>")) {
                 String[] parts = formula.split("<>");
@@ -116,6 +121,21 @@ public class Spreadsheet implements ISpreadsheet {
         try {
             double conditionValue = getNumericValue(condition);
             return conditionValue != 0 ? trueValue : falseValue;
+        } catch (NumberFormatException e) {
+            return "Error";
+        }
+    }
+
+    private String evaluateSUM(String args) {
+        String[] parts = args.split(",");
+        double sum = 0;
+
+        try {
+            for (String part : parts) {
+                double value = getNumericValue(part.trim());
+                sum += value;
+            }
+            return String.valueOf(sum);
         } catch (NumberFormatException e) {
             return "Error";
         }
