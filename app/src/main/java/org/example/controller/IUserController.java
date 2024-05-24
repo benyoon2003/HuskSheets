@@ -1,28 +1,27 @@
 package org.example.controller;
 
-
 import org.example.model.AppUser;
 import org.example.model.ISpreadsheet;
 import org.example.model.ReadOnlySpreadSheet;
 import org.example.model.SelectedCells;
-import org.example.model.Spreadsheet;
 import org.example.view.IHomeView;
 import org.example.view.ILoginView;
 import org.example.view.ISheetView;
-import org.example.model.Spreadsheet;
 
 import java.util.List;
 
 public interface IUserController {
     boolean isUserAuthenticationComplete(String username, String password);
 
+    boolean isUserCreatedSuccessfully(String username, String password);
+
+    void setCurrentSheet(ISheetView sheetView);
+
+    ISheetView getCurrentSheet();
+
+    void createNewSheet();
+
     void saveSheet(ReadOnlySpreadSheet sheet, String path);
-  boolean isUserCreatedSuccessfully(String username, String password);
-
-  void setCurrentSheet(ISheetView sheetView);
-  ISheetView getCurrentSheet();
-
-  void createNewSheet();
 
     void handleToolbar(String command);
 
@@ -34,7 +33,15 @@ public interface IUserController {
 
     List<String> getSavedSheets();
 
-    IHomeView getHomeView(); // Add this method
+    IHomeView getHomeView();
 
-  void changeSpreadSheetValueAt(int selRow, int selCol, String val);
+    void changeSpreadSheetValueAt(int selRow, int selCol, String val);
+
+    String evaluateFormula(String formula);
+
+    void cutCell(int selRow, int selCol);
+
+    void copyCell(int selRow, int selCol);
+
+    void pasteCell(int selRow, int selCol);
 }

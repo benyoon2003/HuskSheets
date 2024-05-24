@@ -24,7 +24,7 @@ public class HomeView extends JFrame implements IHomeView {
         placeComponents(panel);
         add(panel);
     }
-
+    // Test
     private void placeComponents(JPanel panel) {
         panel.setLayout(null);
 
