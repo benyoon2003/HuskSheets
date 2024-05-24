@@ -73,6 +73,16 @@ public class Spreadsheet implements ISpreadsheet {
                 return evaluateSUM(formula.substring(4, formula.length() - 1));
             }
 
+            // Handle MIN operation
+            if (formula.startsWith("MIN(")) {
+                return evaluateMIN(formula.substring(4, formula.length() - 1));
+            }
+
+            // Handle MAX operation
+            if (formula.startsWith("MAX(")) {
+                return evaluateMAX(formula.substring(4, formula.length() - 1));
+            }
+
             // Handle special operations
             if (formula.contains("<>")) {
                 String[] parts = formula.split("<>");
@@ -136,6 +146,40 @@ public class Spreadsheet implements ISpreadsheet {
                 sum += value;
             }
             return String.valueOf(sum);
+        } catch (NumberFormatException e) {
+            return "Error";
+        }
+    }
+
+    private String evaluateMIN(String args) {
+        String[] parts = args.split(",");
+        double min = Double.MAX_VALUE;
+
+        try {
+            for (String part : parts) {
+                double value = getNumericValue(part.trim());
+                if (value < min) {
+                    min = value;
+                }
+            }
+            return String.valueOf(min);
+        } catch (NumberFormatException e) {
+            return "Error";
+        }
+    }
+
+    private String evaluateMAX(String args) {
+        String[] parts = args.split(",");
+        double max = Double.MIN_VALUE;
+
+        try {
+            for (String part : parts) {
+                double value = getNumericValue(part.trim());
+                if (value > max) {
+                    max = value;
+                }
+            }
+            return String.valueOf(max);
         } catch (NumberFormatException e) {
             return "Error";
         }
