@@ -63,6 +63,11 @@ public class Spreadsheet implements ISpreadsheet {
         formula = formula.substring(1);
 
         try {
+            // Handle IF operation
+            if (formula.startsWith("IF(")) {
+                return evaluateIF(formula.substring(3, formula.length() - 1));
+            }
+
             // Handle special operations
             if (formula.contains("<>")) {
                 String[] parts = formula.split("<>");
@@ -95,6 +100,35 @@ public class Spreadsheet implements ISpreadsheet {
         } catch (ScriptException e) {
             e.printStackTrace();
             return "Error";
+        }
+    }
+
+    private String evaluateIF(String args) {
+        String[] parts = args.split(",");
+        if (parts.length != 3) {
+            return "Error";
+        }
+
+        String condition = parts[0].trim();
+        String trueValue = parts[1].trim();
+        String falseValue = parts[2].trim();
+
+        try {
+            double conditionValue = getNumericValue(condition);
+            return conditionValue != 0 ? trueValue : falseValue;
+        } catch (NumberFormatException e) {
+            return "Error";
+        }
+    }
+
+    private double getNumericValue(String reference) throws NumberFormatException {
+        if (reference.matches("[A-Za-z]+[0-9]+")) { // Check if it's a cell reference
+            int row = getRow(reference);
+            int col = getColumn(reference);
+            String cellValue = getCellValue(row, col);
+            return Double.parseDouble(cellValue);
+        } else {
+            return Double.parseDouble(reference); // Otherwise, it's a direct numeric value
         }
     }
 
@@ -195,7 +229,7 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     private int getColumn(String cell) {
-        String col = cell.replaceAll("[^A-Z]", "");
+        String col = cell.replaceAll("[^A-Z]", "").toUpperCase();
         int column = 0;
         for (int i = 0; i < col.length(); i++) {
             column = column * 26 + (col.charAt(i) - 'A' + 1);
