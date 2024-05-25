@@ -78,7 +78,7 @@ public class UserController implements IUserController {
 
     @Override
     public void createNewSheet() {
-        this.spreadsheetModel = new Spreadsheet();
+        this.spreadsheetModel = new Spreadsheet("untitled");
         this.sheetView = new SheetView(this.spreadsheetModel);
         this.setCurrentSheet(sheetView);
         this.sheetView.makeVisible();

@@ -12,7 +12,7 @@ public class SpreadsheetTest {
 
     @BeforeEach
     public void setUp() {
-        spreadsheet = new Spreadsheet();
+        spreadsheet = new Spreadsheet("untitled");
     }
 
     @Test

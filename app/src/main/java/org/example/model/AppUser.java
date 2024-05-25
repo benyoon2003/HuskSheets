@@ -5,10 +5,12 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "users") // Ensure the table name is not a reserved keyword
@@ -19,6 +21,11 @@ public class AppUser implements IAppUser {
     private String password;
 
     private String uri = "http://localhost:8080/api";// "https://husksheets.fly.dev/api/v1";
+
+    @Transient
+    private List<Spreadsheet> published;
+    @Transient
+    private List<Spreadsheet> subscribed;
 
     // Getters and Setters
     public String getUsername() {
@@ -41,6 +48,21 @@ public class AppUser implements IAppUser {
 
     }
 
+    public List<Spreadsheet> getPublished(){
+        return this.published;
+    }
+
+    public List<Spreadsheet> getSubscribed(){
+        return this.subscribed;
+    }
+
+    public void addPublished(Spreadsheet sheet){
+        this.published.add(sheet);
+    }
+
+    public void addSubscribed(Spreadsheet sheet){
+        this.subscribed.add(sheet);
+    }
     public String authenticateUser(String username, String password) {
         try {
             HttpClient client = HttpClient.newHttpClient();
@@ -53,21 +75,13 @@ public class AppUser implements IAppUser {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 200) {
                 return "Login successful!";
-                // SwingUtilities.invokeLater(new Runnable() {
-                // @Override
-                // public void run() {
-                // new MainGUI().setVisible(true);
-                // }
-                // });
-                // this.dispose(); // Close the login window
+
             } else {
                 return "Failed to login: " + response.body();
-                // JOptionPane.showMessageDialog(this, "Failed to login: " + response.body());
             }
         } catch (Exception e) {
             e.printStackTrace();
             return "Error occurred: " + e.getMessage();
-            // JOptionPane.showMessageDialog(this, "Error occurred: " + e.getMessage());
         }
     }
 
@@ -92,5 +106,4 @@ public class AppUser implements IAppUser {
             return "Error occurred: " + e.getMessage();
         }
     }
-
 }

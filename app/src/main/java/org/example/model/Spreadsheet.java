@@ -7,8 +7,10 @@ import javax.script.ScriptException;
 
 public class Spreadsheet implements ISpreadsheet {
     private ArrayList<ArrayList<Cell>> grid;
+    private String name;
 
-    public Spreadsheet() {
+    public Spreadsheet(String name) {
+        this.name = name;
         grid = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             ArrayList<Cell> row = new ArrayList<>();
@@ -19,6 +21,9 @@ public class Spreadsheet implements ISpreadsheet {
         }
     }
 
+    public String getName(){
+        return this.name;
+    }
     public int getRows() {
         return this.grid.size();
     }
