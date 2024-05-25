@@ -192,15 +192,10 @@ public class UserController implements IUserController {
     public void changeSpreadSheetValueAt(int selRow, int selCol, String val) {
         this.spreadsheetModel.setCellValue(selRow, selCol, val);
         if (val.startsWith("=")) {
-            val = evaluateFormula(val);
+            val = this.spreadsheetModel.evaluateFormula(val);
         }
         this.spreadsheetModel.setCellValue(selRow, selCol, val);
         this.sheetView.updateTable(); // Update the table view after changing the value
-    }    
-
-    @Override
-    public String evaluateFormula(String formula) {
-        return this.spreadsheetModel.evaluateFormula(formula);
     }
 
     @Override
@@ -227,6 +222,11 @@ public class UserController implements IUserController {
             }
             this.sheetView.updateTable();
         }
+    }
+
+    @Override
+    public String evaluateFormula(String formula) {
+        return this.spreadsheetModel.evaluateFormula(formula);
     }
 
     private boolean validateInput(String username, String password) {
