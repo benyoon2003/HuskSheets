@@ -65,7 +65,13 @@ public class Spreadsheet implements ISpreadsheet {
         formula = formula.substring(1);
 
         try {
-            // Replace cell references with their values
+            // Handle range formulas separately
+            if (formula.contains(":")) {
+                String[] parts = formula.split(":");
+                return rangeOperation(parts[0].trim(), parts[1].trim());
+            }
+
+            // Replace other cell references with their values
             formula = replaceCellReferences(formula);
 
             // Handle special operations
@@ -87,9 +93,6 @@ public class Spreadsheet implements ISpreadsheet {
             } else if (formula.contains("|")) {
                 String[] parts = formula.split("\\|");
                 return orOperation(parts[0].trim(), parts[1].trim());
-            } else if (formula.contains(":")) {
-                String[] parts = formula.split(":");
-                return rangeOperation(parts[0].trim(), parts[1].trim());
             } else if (formula.startsWith("IF(")) {
                 return evaluateIF(formula.substring(3, formula.length() - 1));
             } else if (formula.startsWith("SUM(")) {
@@ -118,37 +121,49 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     private String replaceCellReferences(String formula) {
-        Pattern pattern = Pattern.compile("[A-Za-z]+[0-9]+");
-        Matcher matcher = pattern.matcher(formula);
-        StringBuffer result = new StringBuffer();
+        // Split the formula by whitespace to handle individual parts
+        String[] parts = formula.split(" ");
+        StringBuilder result = new StringBuilder();
 
-        while (matcher.find()) {
-            String cellReference = matcher.group();
-            int row = getRow(cellReference);
-            int col = getColumn(cellReference);
-            String cellValue = getCellValue(row, col);
-            matcher.appendReplacement(result, cellValue);
+        for (String part : parts) {
+            if (part.matches("[A-Za-z]+[0-9]+:[A-Za-z]+[0-9]+")) {
+                // If part is a range reference, do not replace it
+                result.append(part).append(" ");
+            } else if (part.matches("[A-Za-z]+[0-9]+")) {
+                // Replace cell reference with its value
+                int row = getRow(part);
+                int col = getColumn(part);
+                String cellValue = getCellValue(row, col);
+                result.append(cellValue).append(" ");
+            } else {
+                // If part is not a cell reference, just append it
+                result.append(part).append(" ");
+            }
         }
-        matcher.appendTail(result);
 
-        return result.toString();
+        return result.toString().trim();
     }
 
     private int getRow(String cell) {
         try {
-            return Integer.parseInt(cell.replaceAll("[^0-9]", "")) - 1;
+            int row = Integer.parseInt(cell.replaceAll("[^0-9]", "")) - 1;
+            System.out.println("Debug: cell = " + cell + ", row = " + row);
+            return row;
         } catch (NumberFormatException e) {
+            System.out.println("Debug: Error parsing row for cell = " + cell);
             return -1;
         }
     }
 
     private int getColumn(String cell) {
-        String col = cell.replaceAll("[^A-Z]", "").toUpperCase();
+        String col = cell.replaceAll("[0-9]", "").toUpperCase();
         int column = 0;
         for (int i = 0; i < col.length(); i++) {
             column = column * 26 + (col.charAt(i) - 'A' + 1);
         }
-        return column - 1;
+        column--; // Adjusting from 1-based to 0-based index
+        System.out.println("Debug: cell = " + cell + ", column = " + column);
+        return column;
     }
 
     @Override
@@ -235,8 +250,13 @@ public class Spreadsheet implements ISpreadsheet {
         int startCol = getColumn(startCell);
         int endCol = getColumn(endCell);
 
+        // Debug statements to print the row and column values
+        System.out.println("Debug: startCell = " + startCell + ", endCell = " + endCell);
+        System.out.println("Debug: startRow = " + startRow + ", endRow = " + endRow);
+        System.out.println("Debug: startCol = " + startCol + ", endCol = " + endCol);
+
         // Check if the range is valid
-        if (startRow > endRow || startCol > endCol || startRow == -1 || endRow == -1 || startCol == -1 || endCol == -1) {
+        if (startRow == -1 || endRow == -1 || startCol == -1 || endCol == -1 || startRow > endRow || startCol > endCol) {
             return "Error";
         }
 
