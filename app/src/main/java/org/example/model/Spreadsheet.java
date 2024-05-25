@@ -121,49 +121,37 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     private String replaceCellReferences(String formula) {
-        // Split the formula by whitespace to handle individual parts
-        String[] parts = formula.split(" ");
-        StringBuilder result = new StringBuilder();
+        Pattern pattern = Pattern.compile("[A-Za-z]+[0-9]+");
+        Matcher matcher = pattern.matcher(formula);
+        StringBuffer result = new StringBuffer();
 
-        for (String part : parts) {
-            if (part.matches("[A-Za-z]+[0-9]+:[A-Za-z]+[0-9]+")) {
-                // If part is a range reference, do not replace it
-                result.append(part).append(" ");
-            } else if (part.matches("[A-Za-z]+[0-9]+")) {
-                // Replace cell reference with its value
-                int row = getRow(part);
-                int col = getColumn(part);
-                String cellValue = getCellValue(row, col);
-                result.append(cellValue).append(" ");
-            } else {
-                // If part is not a cell reference, just append it
-                result.append(part).append(" ");
-            }
+        while (matcher.find()) {
+            String cellReference = matcher.group();
+            int row = getRow(cellReference);
+            int col = getColumn(cellReference);
+            String cellValue = getCellValue(row, col);
+            matcher.appendReplacement(result, cellValue);
         }
+        matcher.appendTail(result);
 
-        return result.toString().trim();
+        return result.toString();
     }
 
     private int getRow(String cell) {
         try {
-            int row = Integer.parseInt(cell.replaceAll("[^0-9]", "")) - 1;
-            System.out.println("Debug: cell = " + cell + ", row = " + row);
-            return row;
+            return Integer.parseInt(cell.replaceAll("[^0-9]", "")) - 1;
         } catch (NumberFormatException e) {
-            System.out.println("Debug: Error parsing row for cell = " + cell);
             return -1;
         }
     }
 
     private int getColumn(String cell) {
-        String col = cell.replaceAll("[0-9]", "").toUpperCase();
+        String col = cell.replaceAll("[^A-Z]", "").toUpperCase();
         int column = 0;
         for (int i = 0; i < col.length(); i++) {
             column = column * 26 + (col.charAt(i) - 'A' + 1);
         }
-        column--; // Adjusting from 1-based to 0-based index
-        System.out.println("Debug: cell = " + cell + ", column = " + column);
-        return column;
+        return column - 1;
     }
 
     @Override
@@ -268,8 +256,13 @@ public class Spreadsheet implements ISpreadsheet {
         int startCol = getColumn(startCell);
         int endCol = getColumn(endCell);
 
+        System.out.println(startRow);
+        System.out.println(endRow);
+        System.out.println(startCol);
+        System.out.println(endCol);
+
         // Check if the range is valid
-        if (startRow == -1 || endRow == -1 || startCol == -1 || endCol == -1 || startRow > endRow || startCol > endCol) {
+        if (startRow > endRow || startCol > endCol || startRow == -1 || endRow == -1 || startCol == -1 || endCol == -1) {
             return "Error";
         }
 
