@@ -37,7 +37,7 @@ public interface IUserController {
 
     void changeSpreadSheetValueAt(int selRow, int selCol, String val);
 
-    String evaluateFormula(String formula);
+    String evaluateFormula(String formula); // Add this line
 
     void cutCell(int selRow, int selCol);
 
