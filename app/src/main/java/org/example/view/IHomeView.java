@@ -10,4 +10,6 @@ public interface IHomeView {
     void disposeHomePage();
     
     void updateSavedSheets(); // Add this method
+
+    void openSheet(String absolutePath);
 }
