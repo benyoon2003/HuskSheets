@@ -21,6 +21,15 @@ public class Spreadsheet implements ISpreadsheet {
         }
     }
 
+    public Spreadsheet(ArrayList<ArrayList<Cell>> grid) {
+        this();
+        for (ArrayList<Cell> row : grid) {
+            for (Cell c : row) {
+                this.grid.get(c.getRow()).get(c.getCol()).setValue(c.getValue());
+            }
+        }
+    }
+
     public int getRows() {
         return this.grid.size();
     }
