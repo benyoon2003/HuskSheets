@@ -213,11 +213,6 @@ public class UserController implements IUserController {
         }
     }
 
-    @Override
-    public String evaluateFormula(String formula) {
-        return this.spreadsheetModel.evaluateFormula(formula);
-    }
-
     private boolean validateInput(String username, String password) {
         return !username.isEmpty() && !password.isEmpty();
     }
