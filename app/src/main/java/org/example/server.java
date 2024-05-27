@@ -59,7 +59,7 @@ public class server {
   }
 
 
-  @GetMapping("/publishers")
+  @GetMapping("/getPublishers")
   public ResponseEntity<?> getPublishers() {
     logger.info("Received request to get publishers");
 
@@ -67,7 +67,7 @@ public class server {
 
     if(publishers.size() > 0){
       logger.info("Publishers found");
-      return ResponseEntity.ok("Success");
+      return ResponseEntity.ok(publishers);
     } else {
       logger.warn("No publishers found");
       return ResponseEntity.status(401).body("No publishers found");
@@ -86,7 +86,7 @@ public class server {
     return ResponseEntity.ok("Sheet created successfully");
   }
 
-  @PostMapping("/sheets")
+  @PostMapping("/getSheets")
   public ResponseEntity<?> getSheets(@RequestBody AppUser user) {
     logger.info("Received request to get sheets");
 
