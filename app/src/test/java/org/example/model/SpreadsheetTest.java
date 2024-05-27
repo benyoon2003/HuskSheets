@@ -20,9 +20,9 @@ public class SpreadsheetTest {
         assertEquals(100, spreadsheet.getRows(), "Constructor should initialize 100 rows");
         assertEquals(100, spreadsheet.getCols(), "Constructor should initialize 100 columns");
 
-        ArrayList<ArrayList<Cell>> cells = spreadsheet.getCells();
-        for (ArrayList<Cell> row : cells) {
-            for (Cell cell : row) {
+        ArrayList<ArrayList<ICell>> cells = spreadsheet.getCells();
+        for (ArrayList<ICell> row : cells) {
+            for (ICell cell : row) {
                 assertEquals("test", cell.getValue(), "Constructor should initialize all cells with value 'test'");
             }
         }
@@ -40,17 +40,17 @@ public class SpreadsheetTest {
 
     @Test
     public void testGetCells() {
-        ArrayList<ArrayList<Cell>> cells = spreadsheet.getCells();
+        ArrayList<ArrayList<ICell>> cells = spreadsheet.getCells();
         assertEquals(100, cells.size(), "getCells should return 100 rows");
 
-        for (ArrayList<Cell> row : cells) {
+        for (ArrayList<ICell> row : cells) {
             assertEquals(100, row.size(), "Each row should have 100 columns");
         }
     }
 
     @Test
     public void testGetCellsObject() {
-        Cell[][] cellsObject = spreadsheet.getCellsObject();
+        ICell[][] cellsObject = spreadsheet.getCellsObject();
         assertEquals(100, cellsObject.length, "getCellsObject should return a 2D array with 100 rows");
         assertEquals(100, cellsObject[0].length, "Each row in the 2D array should have 100 columns");
 

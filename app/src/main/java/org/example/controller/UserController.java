@@ -6,7 +6,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 import javax.xml.parsers.*;
@@ -42,6 +44,8 @@ public class UserController implements IUserController {
 
     private String clipboardContent = "";
     private boolean isCutOperation = false;
+
+    private boolean openRecentSheetAllowed = false;
 
     public UserController(ILoginView loginView, IHomeView homeView,
             IAppUser appUser, ISpreadsheet spreadsheetModel, IHome home) {
@@ -158,12 +162,37 @@ public class UserController implements IUserController {
         }
         if (folder.isDirectory()) {
             for (File file : folder.listFiles()) {
-                if (file.isFile() && file.getName().endsWith(".xml")) {
-                    sheets.add(file.getName());
+                if (file.isFile() && file.getName().equals("saveHistory.xml")) {
+                    try {
+                        // Parse the XML file
+                        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+                        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+                        Document doc = docBuilder.parse(file);
+
+                        // Get the root element
+                        Element rootElement = doc.getDocumentElement();
+
+                        // Get a list of all <file> elements
+                        NodeList fileList = rootElement.getElementsByTagName("file");
+
+                        // Iterate through each <file> element
+                        for (int i = 0; i < fileList.getLength(); i++) {
+                            Node fileNode = fileList.item(i);
+                            if (fileNode.getNodeType() == Node.ELEMENT_NODE) {
+                                Element fileElement = (Element) fileNode;
+                                sheets.add(fileElement.getTextContent().trim() + ".xml");
+                            }
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
-        System.out.println("Found saved sheets: " + sheets); // Debug statement
+        for (String sheet : sheets) {
+            System.out.println("Found saved sheets: " + sheet); // Debug statement
+        }
         return sheets;
     }
 
@@ -211,6 +240,69 @@ public class UserController implements IUserController {
             }
             this.sheetView.updateTable();
         }
+    }
+
+    @Override
+    public void updateRecentlySavedSheets(String path) {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+
+            // Check if the XML file exists within the directory
+            File directory = new File("sheets");
+            File file = new File(directory, "saveHistory.xml");
+            if (!file.exists()) {
+
+
+                // Create a new Document
+                Document document = builder.newDocument();
+
+                // Create root element
+                Element root = document.createElement("paths");
+                document.appendChild(root);
+
+                // Write to XML file
+                TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                Transformer transformer = transformerFactory.newTransformer();
+                DOMSource source = new DOMSource(document);
+
+                // Specify your local file path
+                StreamResult result = new StreamResult("sheets/saveHistory.xml");
+                transformer.transform(source, result);
+
+            }
+
+            Document doc = builder.parse(file);
+
+            // Get the root element
+            Element rootElement = doc.getDocumentElement();
+
+            // Create a new <file> element with the new content
+            Element newFileElement = doc.createElement("file");
+            newFileElement.appendChild(doc.createTextNode(path));
+
+            // Insert the new <file> element at the top of the root element's children
+            Node firstChild = rootElement.getFirstChild();
+            if (firstChild != null) {
+                rootElement.insertBefore(newFileElement, firstChild);
+            } else {
+                rootElement.appendChild(newFileElement);
+            }
+
+            // Write the modified document back to the file
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(file);
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.transform(source, result);
+
+            System.out.println("XML file updated successfully.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     private boolean validateInput(String username, String password) {

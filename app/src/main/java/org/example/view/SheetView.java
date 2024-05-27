@@ -2,6 +2,7 @@ package org.example.view;
 
 import org.example.controller.IUserController;
 import org.example.model.Cell;
+import org.example.model.ICell;
 import org.example.model.ISpreadsheet;
 import org.example.model.ReadOnlySpreadSheet;
 import org.slf4j.Logger;
@@ -83,10 +84,10 @@ public class SheetView extends JFrame implements ISheetView {
 
         // Get data and set column names
         Object[][] data = new Object[rowSize][colSize];//this.cells.getCellStringsObject();
-        Cell[][] cellRef = this.cells.getCellsObject();
+        ICell[][] cellRef = this.cells.getCellsObject();
 
-        for (Cell[] row : cellRef) {
-            for (Cell c : row) {
+        for (ICell[] row : cellRef) {
+            for (ICell c : row) {
                 data[c.getRow()][c.getCol()] = c.getValue();
             }
         }
@@ -205,6 +206,7 @@ public class SheetView extends JFrame implements ISheetView {
 
     public void save(String path) {
         try {
+            this.controller.updateRecentlySavedSheets(path);
             this.controller.saveSheet(this.cells, path);
             System.out.println("Saved spreadsheet '" + path + ".xml'");
         } catch (Exception e) {

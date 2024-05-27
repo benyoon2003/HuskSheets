@@ -3,6 +3,8 @@ package org.example.view;
 import org.example.controller.IUserController;
 
 import javax.swing.*;
+
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -39,6 +41,15 @@ public class HomeView extends JFrame implements IHomeView {
 
         openSheetDropdown = new JComboBox<>();
         openSheetDropdown.setBounds(50, 110, 200, 25);
+        openSheetDropdown.addItem("");
+        openSheetDropdown.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (openSheetDropdown.getSelectedItem() != "") {
+                    controller.openSheet((String) openSheetDropdown.getSelectedItem());
+                }
+            }
+        });
         panel.add(openSheetDropdown);
 
         openSheetButton = new JButton("Open Spreadsheet");
@@ -70,6 +81,7 @@ public class HomeView extends JFrame implements IHomeView {
             List<String> savedSheets = controller.getSavedSheets();
             System.out.println("Updating dropdown with saved sheets: " + savedSheets); // Debug statement
             openSheetDropdown.removeAllItems();
+            openSheetDropdown.addItem("");
             for (String sheet : savedSheets) {
                 openSheetDropdown.addItem(sheet);
             }

@@ -8,12 +8,12 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 public class Spreadsheet implements ISpreadsheet {
-    private ArrayList<ArrayList<Cell>> grid;
+    private ArrayList<ArrayList<ICell>> grid;
 
     public Spreadsheet() {
         grid = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
-            ArrayList<Cell> row = new ArrayList<>();
+            ArrayList<ICell> row = new ArrayList<>();
             for (int j = 0; j < 100; j++) {
                 row.add(new Cell(""));
             }
@@ -21,10 +21,10 @@ public class Spreadsheet implements ISpreadsheet {
         }
     }
 
-    public Spreadsheet(ArrayList<ArrayList<Cell>> grid) {
+    public Spreadsheet(ArrayList<ArrayList<ICell>> grid) {
         this();
-        for (ArrayList<Cell> row : grid) {
-            for (Cell c : row) {
+        for (ArrayList<ICell> row : grid) {
+            for (ICell c : row) {
                 this.grid.get(c.getRow()).get(c.getCol()).setValue(c.getValue());
             }
         }
@@ -38,14 +38,14 @@ public class Spreadsheet implements ISpreadsheet {
         return this.grid.get(0).size();
     }
 
-    public ArrayList<ArrayList<Cell>> getCells() {
+    public ArrayList<ArrayList<ICell>> getCells() {
         return this.grid;
     }
 
-    public Cell[][] getCellsObject() {
-        Cell[][] retObject = new Cell[this.getRows()][this.getCols()];
+    public ICell[][] getCellsObject() {
+        ICell[][] retObject = new ICell[this.getRows()][this.getCols()];
         for (int r = 0; r < this.getRows(); r++) {
-            ArrayList<Cell> row = this.grid.get(r);
+            ArrayList<ICell> row = this.grid.get(r);
             for (int c = 0; c < this.getCols(); c++) {
                 retObject[r][c] = row.get(c);
             }
@@ -56,7 +56,7 @@ public class Spreadsheet implements ISpreadsheet {
     public String[][] getCellStringsObject() {
         String[][] retObject = new String[this.getRows()][this.getCols()];
         for (int r = 0; r < this.getRows(); r++) {
-            ArrayList<Cell> row = this.grid.get(r);
+            ArrayList<ICell> row = this.grid.get(r);
             for (int c = 0; c < this.getCols(); c++) {
                 retObject[r][c] = row.get(c).getValue();
             }

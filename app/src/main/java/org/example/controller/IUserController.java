@@ -9,6 +9,7 @@ import org.example.view.ILoginView;
 import org.example.view.ISheetView;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IUserController {
     boolean isUserAuthenticationComplete(String username, String password);
@@ -44,4 +45,6 @@ public interface IUserController {
     void copyCell(int selRow, int selCol);
 
     void pasteCell(int selRow, int selCol);
+
+    void updateRecentlySavedSheets(String path);
 }

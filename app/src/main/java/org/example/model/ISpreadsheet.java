@@ -5,8 +5,8 @@ import java.util.ArrayList;
 public interface ISpreadsheet {
     int getRows();
     int getCols();
-    ArrayList<ArrayList<Cell>> getCells();
-    Cell[][] getCellsObject();
+    ArrayList<ArrayList<ICell>> getCells();
+    ICell[][] getCellsObject();
     String[][] getCellStringsObject();
     String evaluateFormula(String formula);
     void setCellValue(int row, int col, String value);

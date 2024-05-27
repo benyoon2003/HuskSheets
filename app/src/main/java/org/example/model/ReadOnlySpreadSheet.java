@@ -1,9 +1,9 @@
 package org.example.model;
 
 public class ReadOnlySpreadSheet {
-    private final Cell[][] cells;
+    private final ICell[][] cells;
 
-    public ReadOnlySpreadSheet(Cell[][] cells) {
+    public ReadOnlySpreadSheet(ICell[][] cells) {
         this.cells = cells;
     }
 
@@ -15,7 +15,7 @@ public class ReadOnlySpreadSheet {
         return cells[0].length;
     }
 
-    public Cell[][] getCellsObject() {
+    public ICell[][] getCellsObject() {
         return cells;
     }
 

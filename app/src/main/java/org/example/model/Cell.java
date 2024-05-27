@@ -1,6 +1,6 @@
 package org.example.model;
 
-public class Cell {
+public class Cell implements ICell {
     private String value;
     private int row;
     private int col;
@@ -38,7 +38,4 @@ public class Cell {
         this.col = col;
     }
 
-    public boolean isFormula() {
-        return this.value.startsWith("=");
-    }
 }

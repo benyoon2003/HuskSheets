@@ -37,13 +37,13 @@ public class Home implements IHome {
             }
 
             // Create 2D cell array
-            ArrayList<ArrayList<Cell>> cellArray = new ArrayList<>();
+            ArrayList<ArrayList<ICell>> cellArray = new ArrayList<>();
 
             // Initialize cells
             for (int i = 0; i <= maxRow; i++) {
-                ArrayList<Cell> row = new ArrayList<>();
+                ArrayList<ICell> row = new ArrayList<>();
                 for (int j = 0; j <= maxCol; j++) {
-                    Cell c = new Cell();
+                    ICell c = new Cell();
                     c.setRow(i);
                     c.setCol(j);
                     row.add(c);
