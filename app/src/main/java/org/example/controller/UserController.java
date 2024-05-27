@@ -8,7 +8,16 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+
+import javax.xml.parsers.*;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.*;
+import javax.xml.transform.stream.*;
+
+import org.w3c.dom.*;
+
 import org.example.model.IAppUser;
+import org.example.model.IHome;
 import org.example.model.ISelectedCells;
 import org.example.model.ISpreadsheet;
 import org.example.model.ReadOnlySpreadSheet;
@@ -25,16 +34,21 @@ public class UserController implements IUserController {
     private ISheetView sheetView;
     private IHomeView homeView;
     private IAppUser appUser;
+    private IHome home;
 
     private ISpreadsheet spreadsheetModel;
 
     private ISelectedCells selectedCells;
 
+    private String clipboardContent = "";
+    private boolean isCutOperation = false;
+
     public UserController(ILoginView loginView, IHomeView homeView,
-                          IAppUser appUser, ISpreadsheet spreadsheetModel) {
+            IAppUser appUser, ISpreadsheet spreadsheetModel, IHome home) {
         this.loginPage = loginView;
         loginView.addController(this);
         this.appUser = appUser;
+        this.home = home;
         this.homeView = homeView;
         homeView.addController(this);
         this.spreadsheetModel = spreadsheetModel;
@@ -87,19 +101,7 @@ public class UserController implements IUserController {
     @Override
     public void saveSheet(ReadOnlySpreadSheet sheet, String path) {
         try {
-            if (!path.endsWith(".xml")) {
-                path += ".xml"; // Ensure the file has a .xml extension
-            }
-            File file = new File(path);
-            if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdirs();
-            }
-            FileOutputStream fos = new FileOutputStream(file);
-            XMLEncoder encoder = new XMLEncoder(fos);
-            encoder.writeObject(sheet);
-            encoder.close();
-            fos.close();
-            System.out.println("Saved sheet to path: " + file.getAbsolutePath()); // Debug statement
+            this.home.saveSheet(sheet, path);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -138,25 +140,10 @@ public class UserController implements IUserController {
     @Override
     public void openSheet(String path) {
         try {
-            if (!path.endsWith(".xml")) {
-                path += ".xml"; // Ensure the file has a .xml extension
-            }
-            File file = new File(path);
-            if (file.exists()) {
-                FileInputStream fis = new FileInputStream(file);
-                XMLDecoder decoder = new XMLDecoder(fis);
-                Spreadsheet sheet = (Spreadsheet) decoder.readObject();
-                decoder.close();
-                fis.close();
-
-                this.sheetView = new SheetView(sheet);
-                this.sheetView.addController(this);
-                this.sheetView.makeVisible();
-                this.homeView.disposeHomePage();
-                System.out.println("Opened sheet from path: " + file.getAbsolutePath()); // Debug statement
-            } else {
-                System.out.println("File not found: " + file.getAbsolutePath()); // Debug statement
-            }
+            this.spreadsheetModel = this.home.readXML(path);
+            this.sheetView = new SheetView(spreadsheetModel);
+            this.sheetView.makeVisible();
+            this.setCurrentSheet(sheetView);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -187,17 +174,43 @@ public class UserController implements IUserController {
 
     @Override
     public void changeSpreadSheetValueAt(int selRow, int selCol, String val) {
-        this.spreadsheetModel.setCellValue(selRow, selCol, val);
+        // this.spreadsheetModel.setCellValue(selRow, selCol, val);
         if (val.startsWith("=")) {
-            val = evaluateFormula(val);
+            val = this.spreadsheetModel.evaluateFormula(val);
         }
         this.spreadsheetModel.setCellValue(selRow, selCol, val);
         this.sheetView.updateTable(); // Update the table view after changing the value
-    }    
+    }
 
     @Override
     public String evaluateFormula(String formula) {
         return this.spreadsheetModel.evaluateFormula(formula);
+    }
+
+    @Override
+    public void cutCell(int selRow, int selCol) {
+        this.clipboardContent = this.spreadsheetModel.getCellValue(selRow, selCol);
+        this.spreadsheetModel.setCellValue(selRow, selCol, "");
+        this.sheetView.updateTable();
+        this.isCutOperation = true;
+    }
+
+    @Override
+    public void copyCell(int selRow, int selCol) {
+        this.clipboardContent = this.spreadsheetModel.getCellValue(selRow, selCol);
+        this.isCutOperation = false;
+    }
+
+    @Override
+    public void pasteCell(int selRow, int selCol) {
+        if (!clipboardContent.isEmpty()) {
+            this.spreadsheetModel.setCellValue(selRow, selCol, clipboardContent);
+            if (isCutOperation) {
+                clipboardContent = "";
+                isCutOperation = false;
+            }
+            this.sheetView.updateTable();
+        }
     }
 
     private boolean validateInput(String username, String password) {

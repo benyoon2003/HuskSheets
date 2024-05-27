@@ -58,7 +58,7 @@ public class SheetView extends JFrame implements ISheetView {
         toolbar.add(backButton);
 
         // Create dropdown menu for statistical calculations
-        JComboBox<String> statsDropdown = new JComboBox<>(new String[]{"Mean", "Median", "Mode"});
+        JComboBox<String> statsDropdown = new JComboBox<>(new String[] { "Mean", "Median", "Mode" });
         toolbar.add(statsDropdown);
 
         // Add action listeners for buttons and dropdown
@@ -82,13 +82,20 @@ public class SheetView extends JFrame implements ISheetView {
         JTable table;
 
         // Get data and set column names
-        Object[][] data = this.cells.getCellStringsObject();
+        Object[][] data = new Object[rowSize][colSize];//this.cells.getCellStringsObject();
         Cell[][] cellRef = this.cells.getCellsObject();
 
-        String[] columnNames = new String[this.cells.getCols() + 1];
+        for (Cell[] row : cellRef) {
+            for (Cell c : row) {
+                data[c.getRow()][c.getCol()] = c.getValue();
+            }
+        }
+
+        String[] columnNames = new String[colSize + 1];
         columnNames[0] = ""; // Empty first column
-        for (int i = 1; i <= this.cells.getCols(); i++) {
-            columnNames[i] = String.valueOf((char) ('A' + (i - 1) % 26)) + ((i - 1) / 26); // Generate column labels (A, B, ..., Z, AA, AB, ...)
+        for (int i = 1; i <= colSize; i++) {
+            columnNames[i] = String.valueOf((char) ('A' + (i - 1) % 26)) + ((i - 1) / 26); // Generate column labels (A,
+                                                                                           // B, ..., Z, AA, AB, ...)
         }
 
         // Custom table model with row labels
@@ -113,7 +120,8 @@ public class SheetView extends JFrame implements ISheetView {
 
         table.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                    boolean hasFocus, int row, int column) {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 setHorizontalAlignment(SwingConstants.CENTER); // Align labels to the center
                 return this;
@@ -194,15 +202,20 @@ public class SheetView extends JFrame implements ISheetView {
 
     @Override
     public void makeVisible() {
+        this.updateTable();
         this.setVisible(true);
     }
 
     public void save(String path) {
         try {
             this.controller.saveSheet(this.cells, path);
-            logger.info("Saved spreadsheet");
+            System.out.println("Saved spreadsheet '" + path + ".xml'");
         } catch (Exception e) {
+<<<<<<< HEAD
             logger.error("Could not save spreadsheet: {}", e.getMessage());
+=======
+            System.out.println("Could not save spreadsheet: " + e.getMessage());
+>>>>>>> 10edf95b5319ca1ac66c4d76cd54e2a689ae8c2e
         }
     }
 
@@ -221,19 +234,35 @@ public class SheetView extends JFrame implements ISheetView {
         @Override
         public void actionPerformed(ActionEvent e) {
             String command = e.getActionCommand();
-            // Handle cut, copy, paste, and save actions here
-            JOptionPane.showMessageDialog(SheetView.this, command + " button clicked");
 
-            if (command.equals("Save")) {
+            if (command.equals("Cut")) {
+                int selRow = view.yourTable.getSelectedRow();
+                int selCol = view.yourTable.getSelectedColumn();
+                if (selRow != -1 && selCol != -1 && selCol != 0) {
+                    view.getController().cutCell(selRow, selCol - 1);
+                }
+            } else if (command.equals("Copy")) {
+                int selRow = view.yourTable.getSelectedRow();
+                int selCol = view.yourTable.getSelectedColumn();
+                if (selRow != -1 && selCol != -1 && selCol != 0) {
+                    view.getController().copyCell(selRow, selCol - 1);
+                }
+            } else if (command.equals("Paste")) {
+                int selRow = view.yourTable.getSelectedRow();
+                int selCol = view.yourTable.getSelectedColumn();
+                if (selRow != -1 && selCol != -1 && selCol != 0) {
+                    view.getController().pasteCell(selRow, selCol - 1);
+                }
+            } else if (command.equals("Save")) {
                 JFileChooser fileChooser = new JFileChooser();
                 int returnValue = fileChooser.showSaveDialog(null);
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = fileChooser.getSelectedFile();
                     this.view.save(selectedFile.getAbsolutePath());
                 }
+            } else {
+                view.getController().handleToolbar(command);
             }
-
-            controller.handleToolbar(command);
         }
     }
 

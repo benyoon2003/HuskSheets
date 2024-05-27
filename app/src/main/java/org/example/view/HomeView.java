@@ -25,6 +25,7 @@ public class HomeView extends JFrame implements IHomeView {
         add(panel);
     }
 
+    // Test
     private void placeComponents(JPanel panel) {
         panel.setLayout(null);
 
@@ -51,18 +52,17 @@ public class HomeView extends JFrame implements IHomeView {
             }
         });
 
-        openSheetButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String selectedSheet = (String) openSheetDropdown.getSelectedItem();
-                if (selectedSheet != null) {
-                    System.out.println("Opening sheet: " + selectedSheet); // Debug statement
-                    controller.openSheet("./sheets/" + selectedSheet);
-                }
-            }
-        });
+        openSheetButton.addActionListener(new OpenSheetListener(this));
     }
 
+    @Override
+    public void openSheet(String path) {
+        try {
+            this.controller.openSheet(path);
+        } catch (Exception e) {
+            System.out.println("Could not load spreadsheet: " + e.getMessage());
+        }
+    }
 
     @Override
     public void updateSavedSheets() {
@@ -91,5 +91,23 @@ public class HomeView extends JFrame implements IHomeView {
     @Override
     public void disposeHomePage() {
         this.dispose();
+    }
+
+    private class OpenSheetListener implements ActionListener {
+        private IHomeView view;
+
+        OpenSheetListener(IHomeView view) {
+            this.view = view;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser fileChooser = new JFileChooser();
+            int returnValue = fileChooser.showOpenDialog(null);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                this.view.openSheet(selectedFile.getAbsolutePath());
+            }
+        }
     }
 }

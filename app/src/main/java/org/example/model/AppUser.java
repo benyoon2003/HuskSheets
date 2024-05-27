@@ -63,6 +63,7 @@ public class AppUser implements IAppUser {
     public void addSubscribed(Spreadsheet sheet){
         this.subscribed.add(sheet);
     }
+
     public String authenticateUser(String username, String password) {
         try {
             HttpClient client = HttpClient.newHttpClient();
