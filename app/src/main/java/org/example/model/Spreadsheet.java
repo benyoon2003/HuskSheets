@@ -1,11 +1,18 @@
 package org.example.model;
 
 import java.util.ArrayList;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+@Entity
 public class Spreadsheet implements ISpreadsheet {
+
+    @Id
+    private long id;
     private ArrayList<ArrayList<Cell>> grid;
     private String name;
 
