@@ -95,7 +95,7 @@ public class SheetView extends JFrame implements ISheetView {
         columnNames[0] = ""; // Empty first column
         for (int i = 1; i <= colSize; i++) {
             columnNames[i] = String.valueOf((char) ('A' + (i - 1) % 26)) + ((i - 1) / 26); // Generate column labels (A,
-                                                                                           // B, ..., Z, AA, AB, ...)
+            // B, ..., Z, AA, AB, ...)
         }
 
         // Custom table model with row labels
@@ -121,7 +121,7 @@ public class SheetView extends JFrame implements ISheetView {
         table.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                    boolean hasFocus, int row, int column) {
+                                                           boolean hasFocus, int row, int column) {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 setHorizontalAlignment(SwingConstants.CENTER); // Align labels to the center
                 return this;
@@ -154,9 +154,6 @@ public class SheetView extends JFrame implements ISheetView {
                     int selCol = e.getColumn();
                     if (selRow != -1 && selCol != -1 && selCol != 0) {
                         String val = String.valueOf(table.getValueAt(selRow, selCol));
-                        cellRef[selRow][selCol].setValue(val);
-                        cellRef[selRow][selCol].parseValue();
-                        System.out.println("New Val: " + cellRef[selRow][selCol].getValue());
                         controller.changeSpreadSheetValueAt(selRow, selCol - 1, val);
                     }
                 }
@@ -211,11 +208,7 @@ public class SheetView extends JFrame implements ISheetView {
             this.controller.saveSheet(this.cells, path);
             System.out.println("Saved spreadsheet '" + path + ".xml'");
         } catch (Exception e) {
-<<<<<<< HEAD
-            logger.error("Could not save spreadsheet: {}", e.getMessage());
-=======
             System.out.println("Could not save spreadsheet: " + e.getMessage());
->>>>>>> 10edf95b5319ca1ac66c4d76cd54e2a689ae8c2e
         }
     }
 
