@@ -40,7 +40,7 @@ public class HomeView extends JFrame implements IHomeView {
         panel.add(createSheet);
 
         openSheetDropdown = new JComboBox<>();
-        openSheetDropdown.setBounds(50, 110, 200, 25);
+        openSheetDropdown.setBounds(50, 110, 400, 25);
         openSheetDropdown.addItem("");
         openSheetDropdown.addActionListener(new ActionListener() {
             @Override
