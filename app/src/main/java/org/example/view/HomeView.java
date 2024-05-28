@@ -98,7 +98,7 @@ public class HomeView extends JFrame implements IHomeView {
     @Override
     public void openSheetFromServer(String path) {
         try {
-            this.controller.openSheetFromServer(path);
+            this.controller.openSheet(path);
         } catch (Exception e) {
             System.out.println("Could not load spreadsheet from server: " + e.getMessage());
         }
