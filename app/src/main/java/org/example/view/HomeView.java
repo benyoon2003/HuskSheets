@@ -56,7 +56,17 @@ public class HomeView extends JFrame implements IHomeView {
             }
         });
 
-        openSheetButton.addActionListener(new OpenSheetListener(this));
+        openSheetButton.addActionListener(new ActionListener() { // Update this block
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedSheet = (String) openSheetDropdown.getSelectedItem();
+                if (selectedSheet != null) {
+                    controller.openSheet("sheets/" + selectedSheet);
+                } else {
+                    JOptionPane.showMessageDialog(panel, "No sheet selected to open");
+                }
+            }
+        });
 
         deleteSheetButton.addActionListener(new ActionListener() { // Add this block
             @Override
@@ -109,21 +119,21 @@ public class HomeView extends JFrame implements IHomeView {
         this.dispose();
     }
 
-    private class OpenSheetListener implements ActionListener {
-        private IHomeView view;
+    // private class OpenSheetListener implements ActionListener {
+    //     private IHomeView view;
 
-        OpenSheetListener(IHomeView view) {
-            this.view = view;
-        }
+    //     OpenSheetListener(IHomeView view) {
+    //         this.view = view;
+    //     }
 
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            JFileChooser fileChooser = new JFileChooser();
-            int returnValue = fileChooser.showOpenDialog(null);
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = fileChooser.getSelectedFile();
-                this.view.openSheet(selectedFile.getAbsolutePath());
-            }
-        }
-    }
+    //     @Override
+    //     public void actionPerformed(ActionEvent e) {
+    //         JFileChooser fileChooser = new JFileChooser();
+    //         int returnValue = fileChooser.showOpenDialog(null);
+    //         if (returnValue == JFileChooser.APPROVE_OPTION) {
+    //             File selectedFile = fileChooser.getSelectedFile();
+    //             this.view.openSheet(selectedFile.getAbsolutePath());
+    //         }
+    //     }
+    // }
 }
