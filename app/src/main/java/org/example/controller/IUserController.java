@@ -33,7 +33,7 @@ public interface IUserController {
 
     List<String> getSavedSheets();
 
-    void deleteSheet(String path); // Add this line
+    void deleteSheet(String path);
 
     IHomeView getHomeView();
 
@@ -46,4 +46,10 @@ public interface IUserController {
     void copyCell(int selRow, int selCol);
 
     void pasteCell(int selRow, int selCol);
+
+    void saveSheetToServer(ReadOnlySpreadSheet sheet, String name);
+
+    void deleteSheetFromServer(String name);
+
+
 }

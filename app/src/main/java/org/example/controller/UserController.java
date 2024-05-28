@@ -1,19 +1,13 @@
 package org.example.controller;
 
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.*;
-import javax.xml.transform.stream.*;
-
-import org.w3c.dom.*;
 
 import org.example.model.IAppUser;
 import org.example.model.IHome;
@@ -43,7 +37,7 @@ public class UserController implements IUserController {
     private boolean isCutOperation = false;
 
     public UserController(ILoginView loginView, IHomeView homeView,
-            IAppUser appUser, ISpreadsheet spreadsheetModel, IHome home) {
+                          IAppUser appUser, ISpreadsheet spreadsheetModel, IHome home) {
         this.loginPage = loginView;
         loginView.addController(this);
         this.appUser = appUser;
@@ -104,6 +98,43 @@ public class UserController implements IUserController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void saveSheetToServer(ReadOnlySpreadSheet sheet, String name) {
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            String json = convertSheetToJson(sheet, name);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:8080/api/saveSheet"))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                System.out.println("Sheet saved to server successfully!");
+            } else {
+                System.out.println("Failed to save sheet to server: " + response.body());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String convertSheetToJson(ReadOnlySpreadSheet sheet, String name) {
+        StringBuilder json = new StringBuilder();
+        json.append("{\"name\":\"").append(name).append("\", \"content\":\"");
+
+        String[][] values = sheet.getCellStringsObject();
+        for (int i = 0; i < sheet.getRows(); i++) {
+            for (int j = 0; j < sheet.getCols(); j++) {
+                if (values[i][j] != null && !values[i][j].isEmpty()) {
+                    json.append(values[i][j].replace("\n", "\\n").replace("\"", "\\\"")).append(",");
+                }
+            }
+        }
+        json.append("\"}");
+        return json.toString();
     }
 
     @Override
@@ -179,13 +210,32 @@ public class UserController implements IUserController {
     }
 
     @Override
+    public void deleteSheetFromServer(String name) {
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:8080/api/deleteSheet/" + name))
+                    .DELETE()
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                System.out.println("Sheet deleted from server successfully!");
+                this.homeView.updateSavedSheets(); // Update the dropdown
+            } else {
+                System.out.println("Failed to delete sheet from server: " + response.body());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public IHomeView getHomeView() {
         return this.homeView;
     }
 
     @Override
     public void changeSpreadSheetValueAt(int selRow, int selCol, String val) {
-        // this.spreadsheetModel.setCellValue(selRow, selCol, val);
         if (val.startsWith("=")) {
             val = this.spreadsheetModel.evaluateFormula(val);
         }
