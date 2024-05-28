@@ -81,4 +81,18 @@ public class server {
       return ResponseEntity.status(500).body(null);
     }
   }
+
+  @DeleteMapping("/deleteSheet/{name}")
+  public ResponseEntity<?> deleteSheet(@PathVariable String name) {
+      logger.info("Received request to delete sheet: {}", name);
+  
+      try {
+          sheetRepository.deleteById(name);
+          logger.info("Sheet deleted successfully: {}", name);
+          return ResponseEntity.ok("Sheet deleted successfully");
+      } catch (Exception e) {
+          logger.error("Error deleting sheet: {}", name, e);
+          return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
+      }
+  }
 }
