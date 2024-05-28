@@ -1,4 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<java version="11.0.17" class="java.beans.XMLDecoder">
- <object class="org.example.model.Spreadsheet"/>
-</java>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<sheet>
+    <cell col="0" row="0">6</cell>
+    <cell col="0" row="1">7</cell>
+    <cell col="0" row="2">8</cell>
+    <cell col="0" row="3">9</cell>
+    <cell col="0" row="4">10</cell>
+    <cell col="0" row="5">11</cell>
+    <cell col="0" row="6">12</cell>
+    <cell col="0" row="7">13</cell>
+</sheet>

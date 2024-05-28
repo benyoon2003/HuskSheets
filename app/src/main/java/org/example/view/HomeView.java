@@ -13,6 +13,7 @@ public class HomeView extends JFrame implements IHomeView {
     private JButton createSheet;
     private JComboBox<String> openSheetDropdown;
     private JButton openSheetButton;
+    private JButton deleteSheetButton; // Add this line
     private IUserController controller;
 
     public HomeView() {
@@ -25,7 +26,6 @@ public class HomeView extends JFrame implements IHomeView {
         add(panel);
     }
 
-    // Test
     private void placeComponents(JPanel panel) {
         panel.setLayout(null);
 
@@ -45,6 +45,10 @@ public class HomeView extends JFrame implements IHomeView {
         openSheetButton.setBounds(50, 150, 200, 25);
         panel.add(openSheetButton);
 
+        deleteSheetButton = new JButton("Delete Spreadsheet"); // Add this line
+        deleteSheetButton.setBounds(50, 190, 200, 25); // Add this line
+        panel.add(deleteSheetButton); // Add this line
+
         createSheet.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -52,7 +56,29 @@ public class HomeView extends JFrame implements IHomeView {
             }
         });
 
-        openSheetButton.addActionListener(new OpenSheetListener(this));
+        openSheetButton.addActionListener(new ActionListener() { // Update this block
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedSheet = (String) openSheetDropdown.getSelectedItem();
+                if (selectedSheet != null) {
+                    controller.openSheet("sheets/" + selectedSheet);
+                } else {
+                    JOptionPane.showMessageDialog(panel, "No sheet selected to open");
+                }
+            }
+        });
+
+        deleteSheetButton.addActionListener(new ActionListener() { // Add this block
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedSheet = (String) openSheetDropdown.getSelectedItem();
+                if (selectedSheet != null) {
+                    controller.deleteSheet(selectedSheet);
+                } else {
+                    JOptionPane.showMessageDialog(panel, "No sheet selected to delete");
+                }
+            }
+        });
     }
 
     @Override
@@ -93,21 +119,21 @@ public class HomeView extends JFrame implements IHomeView {
         this.dispose();
     }
 
-    private class OpenSheetListener implements ActionListener {
-        private IHomeView view;
+    // private class OpenSheetListener implements ActionListener {
+    //     private IHomeView view;
 
-        OpenSheetListener(IHomeView view) {
-            this.view = view;
-        }
+    //     OpenSheetListener(IHomeView view) {
+    //         this.view = view;
+    //     }
 
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            JFileChooser fileChooser = new JFileChooser();
-            int returnValue = fileChooser.showOpenDialog(null);
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = fileChooser.getSelectedFile();
-                this.view.openSheet(selectedFile.getAbsolutePath());
-            }
-        }
-    }
+    //     @Override
+    //     public void actionPerformed(ActionEvent e) {
+    //         JFileChooser fileChooser = new JFileChooser();
+    //         int returnValue = fileChooser.showOpenDialog(null);
+    //         if (returnValue == JFileChooser.APPROVE_OPTION) {
+    //             File selectedFile = fileChooser.getSelectedFile();
+    //             this.view.openSheet(selectedFile.getAbsolutePath());
+    //         }
+    //     }
+    // }
 }
