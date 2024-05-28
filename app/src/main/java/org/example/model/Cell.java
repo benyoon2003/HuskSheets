@@ -38,6 +38,7 @@ public class Cell {
         this.col = col;
     }
 
+    // checks whether user is typing in a formula in a cell
     public boolean isFormula() {
         return this.value.startsWith("=");
     }
