@@ -1,8 +1,6 @@
 package org.example.controller;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -10,15 +8,6 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Base64;
 
 import org.example.model.IAppUser;
 import org.example.model.IHome;
@@ -223,6 +212,26 @@ public class UserController implements IUserController {
     }
 
     @Override
+    public void deleteSheetFromServer(String name) {
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:8080/api/deleteSheet/" + name))
+                    .DELETE()
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                System.out.println("Sheet deleted from server successfully!");
+                this.homeView.updateSavedSheets(); // Update the dropdown
+            } else {
+                System.out.println("Failed to delete sheet from server: " + response.body());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public IHomeView getHomeView() {
         return this.homeView;
     }
@@ -269,64 +278,5 @@ public class UserController implements IUserController {
 
     private boolean validateInput(String username, String password) {
         return !username.isEmpty() && !password.isEmpty();
-    }
-
-    @Override
-    public void saveSheetToServer(ReadOnlySpreadSheet sheet, String filename) {
-        try {
-            // Save the sheet locally first
-            String localPath = filename;
-            this.saveSheet(sheet, localPath);
-
-            // Convert the file to Base64 for transmission
-            Path path = Paths.get(localPath);
-            byte[] fileBytes = Files.readAllBytes(path);
-            String fileContent = Base64.getEncoder().encodeToString(fileBytes);
-
-            // Create the HTTP request
-            HttpClient client = HttpClient.newHttpClient();
-            String json = String.format("{\"filename\": \"%s\", \"content\": \"%s\"}", filename, fileContent);
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI(SERVER_URI + "/save"))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(json))
-                    .build();
-
-            // Send the request and handle the response
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() != 200) {
-                throw new RuntimeException("Failed to save sheet to server: " + response.body());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void openSheetFromServer(String filename) {
-        try {
-            // Create the HTTP request
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI(SERVER_URI + "/open?filename=" + filename))
-                    .GET()
-                    .build();
-
-            // Send the request and handle the response
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
-                String fileContent = response.body();
-                byte[] fileBytes = Base64.getDecoder().decode(fileContent);
-                Path path = Paths.get("sheets/" + filename);
-                Files.write(path, fileBytes);
-
-                // Open the sheet locally
-                openSheet(path.toString());
-            } else {
-                throw new RuntimeException("Failed to open sheet from server: " + response.body());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

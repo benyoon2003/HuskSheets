@@ -14,7 +14,6 @@ public class HomeView extends JFrame implements IHomeView {
     private JComboBox<String> openSheetDropdown;
     private JButton openSheetButton;
     private JButton deleteSheetButton; // Add this line
-    private JButton openSheetFromServerButton;
     private IUserController controller;
 
     public HomeView() {
@@ -49,10 +48,6 @@ public class HomeView extends JFrame implements IHomeView {
         deleteSheetButton = new JButton("Delete Spreadsheet"); // Add this line
         deleteSheetButton.setBounds(50, 190, 200, 25); // Add this line
         panel.add(deleteSheetButton); // Add this line
-
-        openSheetFromServerButton = new JButton("Open Spreadsheet from Server");
-        openSheetFromServerButton.setBounds(50, 210, 200, 25);
-        panel.add(openSheetFromServerButton);
 
         createSheet.addActionListener(new ActionListener() {
             @Override
