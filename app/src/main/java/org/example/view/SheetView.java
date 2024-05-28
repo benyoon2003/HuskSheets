@@ -19,10 +19,10 @@ import java.io.File;
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 
 public class SheetView extends JFrame implements ISheetView {
-    private final ReadOnlySpreadSheet cells;
+    final ReadOnlySpreadSheet cells;
     private IUserController controller;
     private JButton backButton;
-    private JTable yourTable;
+    JTable yourTable;
     private boolean isUpdatingTable = false;
 
     private static final int rowSize = 100;
@@ -53,7 +53,7 @@ public class SheetView extends JFrame implements ISheetView {
         toolbar.add(backButton);
 
         // Create dropdown menu for statistical calculations
-        JComboBox<String> statsDropdown = new JComboBox<>(new String[] { "Mean", "Median", "Mode" });
+        JComboBox<String> statsDropdown = new JComboBox<>(new String[]{"Mean", "Median", "Mode"});
         toolbar.add(statsDropdown);
 
         // Add action listeners for buttons and dropdown
@@ -90,7 +90,7 @@ public class SheetView extends JFrame implements ISheetView {
         columnNames[0] = ""; // Empty first column
         for (int i = 1; i <= colSize; i++) {
             columnNames[i] = String.valueOf((char) ('A' + (i - 1) % 26)) + ((i - 1) / 26); // Generate column labels (A,
-                                                                                           // B, ..., Z, AA, AB, ...)
+            // B, ..., Z, AA, AB, ...)
         }
 
         // Custom table model with row labels
@@ -116,7 +116,7 @@ public class SheetView extends JFrame implements ISheetView {
         table.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                    boolean hasFocus, int row, int column) {
+                                                           boolean hasFocus, int row, int column) {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 setHorizontalAlignment(SwingConstants.CENTER); // Align labels to the center
                 return this;
@@ -249,7 +249,7 @@ public class SheetView extends JFrame implements ISheetView {
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE,
                         null,
-                        new Object[] { "Save Locally", "Save to Server" },
+                        new Object[]{"Save Locally", "Save to Server"},
                         "Save Locally");
 
                 if (option == JOptionPane.YES_OPTION) {
@@ -260,8 +260,12 @@ public class SheetView extends JFrame implements ISheetView {
                         this.view.save(selectedFile.getAbsolutePath());
                     }
                 } else if (option == JOptionPane.NO_OPTION) {
-                    // Save to server functionality (not implemented yet)
-                    JOptionPane.showMessageDialog(null, "Save to server option selected. (Feature not implemented yet)");
+                    String name = JOptionPane.showInputDialog("Enter a name for the sheet:");
+                    if (name != null && !name.trim().isEmpty()) {
+                        this.view.getController().saveSheetToServer(this.view.cells, name);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Sheet name cannot be empty.");
+                    }
                 }
             } else {
                 view.getController().handleToolbar(command);

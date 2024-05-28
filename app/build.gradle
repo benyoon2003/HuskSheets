@@ -29,6 +29,9 @@ dependencies {
     // H2 Database
     implementation 'com.h2database:h2'
 
+    // Protocol Buffers
+    implementation 'com.google.protobuf:protobuf-java:3.21.12'
+
     // Use JUnit Jupiter for testing.
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
         

@@ -4,7 +4,8 @@ import org.example.model.AppUser;
 import org.example.model.IAppUser;
 import org.example.model.SheetDTO;
 import org.example.service.UserService;
-import org.example.view.ILoginView;
+import org.example.model.Sheet;
+import org.example.repository.SheetRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,8 @@ import java.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 public class server {
@@ -29,6 +32,9 @@ public class server {
 
   @Autowired
   private UserService userService;
+
+  @Autowired
+  private SheetRepository sheetRepository;
 
   @PostMapping("/register")
   public ResponseEntity<?> registerUser(@RequestBody AppUser user) {
@@ -58,27 +64,30 @@ public class server {
     }
   }
 
-  @PostMapping("/save")
-  public ResponseEntity<?> saveSheet(@RequestBody SheetDTO sheetDTO) {
+  @PostMapping("/saveSheet")
+  public ResponseEntity<?> saveSheet(@RequestBody Sheet sheet) {
+    logger.info("Received request to save sheet: {}", sheet.getName());
+
     try {
-      byte[] fileBytes = Base64.getDecoder().decode(sheetDTO.getContent());
-      Path path = Paths.get("sheets/" + sheetDTO.getFilename());
-      Files.write(path, fileBytes);
+      sheetRepository.save(sheet);
+      logger.info("Sheet saved successfully: {}", sheet.getName());
       return ResponseEntity.ok("Sheet saved successfully");
     } catch (Exception e) {
-      return ResponseEntity.status(500).body("Error saving sheet: " + e.getMessage());
+      logger.error("Error saving sheet: {}", sheet.getName(), e);
+      return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
     }
   }
 
-  @GetMapping("/open")
-  public ResponseEntity<?> openSheet(@RequestParam String filename) {
+  @GetMapping("/getSheets")
+  public ResponseEntity<List<Sheet>> getSheets() {
+    logger.info("Received request to get all sheets");
+
     try {
-      Path path = Paths.get("sheets/" + filename);
-      byte[] fileBytes = Files.readAllBytes(path);
-      String fileContent = Base64.getEncoder().encodeToString(fileBytes);
-      return ResponseEntity.ok(fileContent);
+      List<Sheet> sheets = sheetRepository.findAll();
+      return ResponseEntity.ok(sheets);
     } catch (Exception e) {
-      return ResponseEntity.status(500).body("Error opening sheet: " + e.getMessage());
+      logger.error("Error getting sheets", e);
+      return ResponseEntity.status(500).body(null);
     }
   }
 }
