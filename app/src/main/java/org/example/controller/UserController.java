@@ -167,6 +167,18 @@ public class UserController implements IUserController {
     }
 
     @Override
+    public void deleteSheet(String path) {
+        File file = new File("sheets/" + path);
+        if (file.exists()) {
+            file.delete();
+            this.homeView.updateSavedSheets();
+            System.out.println("Deleted sheet: " + path); // Debug statement
+        } else {
+            System.out.println("Sheet not found: " + path); // Debug statement
+        }
+    }
+
+    @Override
     public IHomeView getHomeView() {
         return this.homeView;
     }
