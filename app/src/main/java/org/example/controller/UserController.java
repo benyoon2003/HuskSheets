@@ -5,6 +5,11 @@ import java.beans.XMLEncoder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,6 +109,43 @@ public class UserController implements IUserController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void saveSheetToServer(ReadOnlySpreadSheet sheet, String name) {
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            String json = convertSheetToJson(sheet, name);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:8080/api/saveSheet"))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                System.out.println("Sheet saved to server successfully!");
+            } else {
+                System.out.println("Failed to save sheet to server: " + response.body());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String convertSheetToJson(ReadOnlySpreadSheet sheet, String name) {
+        StringBuilder json = new StringBuilder();
+        json.append("{\"name\":\"").append(name).append("\", \"content\":\"");
+
+        String[][] values = sheet.getCellStringsObject();
+        for (int i = 0; i < sheet.getRows(); i++) {
+            for (int j = 0; j < sheet.getCols(); j++) {
+                if (values[i][j] != null && !values[i][j].isEmpty()) {
+                    json.append(values[i][j].replace("\n", "\\n").replace("\"", "\\\"")).append(",");
+                }
+            }
+        }
+        json.append("\"}");
+        return json.toString();
     }
 
     @Override
