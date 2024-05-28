@@ -13,6 +13,7 @@ public class HomeView extends JFrame implements IHomeView {
     private JButton createSheet;
     private JComboBox<String> openSheetDropdown;
     private JButton openSheetButton;
+    private JButton openSheetFromServerButton;
     private IUserController controller;
 
     public HomeView() {
@@ -45,6 +46,10 @@ public class HomeView extends JFrame implements IHomeView {
         openSheetButton.setBounds(50, 150, 200, 25);
         panel.add(openSheetButton);
 
+        openSheetFromServerButton = new JButton("Open Spreadsheet from Server");
+        openSheetFromServerButton.setBounds(50, 210, 200, 25);
+        panel.add(openSheetFromServerButton);
+
         createSheet.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -53,6 +58,8 @@ public class HomeView extends JFrame implements IHomeView {
         });
 
         openSheetButton.addActionListener(new OpenSheetListener(this));
+        
+        openSheetFromServerButton.addActionListener(new OpenSheetFromServerListener(this));
     }
 
     @Override
@@ -61,6 +68,15 @@ public class HomeView extends JFrame implements IHomeView {
             this.controller.openSheet(path);
         } catch (Exception e) {
             System.out.println("Could not load spreadsheet: " + e.getMessage());
+        }
+    }
+    
+    @Override
+    public void openSheetFromServer(String path) {
+        try {
+            this.controller.openSheetFromServer(path);
+        } catch (Exception e) {
+            System.out.println("Could not load spreadsheet from server: " + e.getMessage());
         }
     }
 
@@ -107,6 +123,24 @@ public class HomeView extends JFrame implements IHomeView {
             if (returnValue == JFileChooser.APPROVE_OPTION) {
                 File selectedFile = fileChooser.getSelectedFile();
                 this.view.openSheet(selectedFile.getAbsolutePath());
+            }
+        }
+    }
+
+    private class OpenSheetFromServerListener implements ActionListener {
+        private IHomeView view;
+
+        OpenSheetFromServerListener(IHomeView view) {
+            this.view = view;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JFileChooser fileChooser = new JFileChooser();
+            int returnValue = fileChooser.showOpenDialog(null);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                this.view.openSheetFromServer(selectedFile.getAbsolutePath());
             }
         }
     }

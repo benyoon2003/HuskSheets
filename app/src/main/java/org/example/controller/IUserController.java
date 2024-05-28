@@ -44,4 +44,8 @@ public interface IUserController {
     void copyCell(int selRow, int selCol);
 
     void pasteCell(int selRow, int selCol);
+
+    void saveSheetToServer(ReadOnlySpreadSheet sheet, String filename);
+
+    void openSheetFromServer(String filename);
 }
