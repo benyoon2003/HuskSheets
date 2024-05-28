@@ -1,4 +1,2 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<java version="11.0.17" class="java.beans.XMLDecoder">
- <object class="org.example.model.Spreadsheet"/>
-</java>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<sheet/>

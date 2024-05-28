@@ -8,7 +8,6 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import javax.xml.parsers.*;
 import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
@@ -165,6 +164,18 @@ public class UserController implements IUserController {
         }
         System.out.println("Found saved sheets: " + sheets); // Debug statement
         return sheets;
+    }
+
+    @Override
+    public void deleteSheet(String path) {
+        File file = new File("sheets/" + path);
+        if (file.exists()) {
+            file.delete();
+            this.homeView.updateSavedSheets();
+            System.out.println("Deleted sheet: " + path); // Debug statement
+        } else {
+            System.out.println("Sheet not found: " + path); // Debug statement
+        }
     }
 
     @Override

@@ -13,6 +13,7 @@ public class HomeView extends JFrame implements IHomeView {
     private JButton createSheet;
     private JComboBox<String> openSheetDropdown;
     private JButton openSheetButton;
+    private JButton deleteSheetButton; // Add this line
     private IUserController controller;
 
     public HomeView() {
@@ -25,7 +26,6 @@ public class HomeView extends JFrame implements IHomeView {
         add(panel);
     }
 
-    // Test
     private void placeComponents(JPanel panel) {
         panel.setLayout(null);
 
@@ -45,6 +45,10 @@ public class HomeView extends JFrame implements IHomeView {
         openSheetButton.setBounds(50, 150, 200, 25);
         panel.add(openSheetButton);
 
+        deleteSheetButton = new JButton("Delete Spreadsheet"); // Add this line
+        deleteSheetButton.setBounds(50, 190, 200, 25); // Add this line
+        panel.add(deleteSheetButton); // Add this line
+
         createSheet.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -53,6 +57,18 @@ public class HomeView extends JFrame implements IHomeView {
         });
 
         openSheetButton.addActionListener(new OpenSheetListener(this));
+
+        deleteSheetButton.addActionListener(new ActionListener() { // Add this block
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedSheet = (String) openSheetDropdown.getSelectedItem();
+                if (selectedSheet != null) {
+                    controller.deleteSheet(selectedSheet);
+                } else {
+                    JOptionPane.showMessageDialog(panel, "No sheet selected to delete");
+                }
+            }
+        });
     }
 
     @Override

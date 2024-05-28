@@ -33,11 +33,13 @@ public interface IUserController {
 
     List<String> getSavedSheets();
 
+    void deleteSheet(String path); // Add this line
+
     IHomeView getHomeView();
 
     void changeSpreadSheetValueAt(int selRow, int selCol, String val);
 
-    String evaluateFormula(String formula); // Add this line
+    String evaluateFormula(String formula);
 
     void cutCell(int selRow, int selCol);
 
