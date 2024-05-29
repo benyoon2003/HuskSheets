@@ -1,7 +1,9 @@
 package org.example.controller;
 
 import org.example.model.AppUser;
+import org.example.model.IAppUser;
 import org.example.model.ISpreadsheet;
+import org.example.model.Publisher;
 import org.example.model.ReadOnlySpreadSheet;
 import org.example.model.SelectedCells;
 import org.example.view.IHomeView;
@@ -44,4 +46,6 @@ public interface IUserController {
     void copyCell(int selRow, int selCol);
 
     void pasteCell(int selRow, int selCol);
+
+  IAppUser getUser();
 }

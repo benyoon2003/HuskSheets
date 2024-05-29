@@ -1,11 +1,15 @@
 package org.example.view;
 
 import org.example.controller.IUserController;
+import org.example.controller.ServerEndpoint;
+import org.example.model.Publisher;
+import org.example.model.Spreadsheet;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 public class HomeView extends JFrame implements IHomeView {
@@ -14,8 +18,10 @@ public class HomeView extends JFrame implements IHomeView {
     private JComboBox<String> openSheetDropdown;
     private JButton openSheetButton;
     private IUserController controller;
+    private ServerEndpoint se;
 
     public HomeView() {
+        this.se = new ServerEndpoint();
         setTitle("Main GUI");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -53,6 +59,14 @@ public class HomeView extends JFrame implements IHomeView {
         });
 
         openSheetButton.addActionListener(new OpenSheetListener(this));
+
+
+        JLabel serverSheets = new JLabel("Saved to Cloud:");
+        serverSheets.setBounds(50, 200, 100, 25);
+        panel.add(serverSheets);
+
+        ArrayList<Spreadsheet> userSheets = this.se.getSheets((Publisher) this.controller.getUser());
+
     }
 
     @Override
@@ -64,6 +78,9 @@ public class HomeView extends JFrame implements IHomeView {
         }
     }
 
+    public void openSheet(Spreadsheet sheet) {
+
+    }
     @Override
     public void updateSavedSheets() {
         if (controller != null) {

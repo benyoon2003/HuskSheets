@@ -14,6 +14,7 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;
 
+import org.example.model.Publisher;
 import org.w3c.dom.*;
 
 import org.example.model.IAppUser;
@@ -42,6 +43,7 @@ public class UserController implements IUserController {
 
     private String clipboardContent = "";
     private boolean isCutOperation = false;
+
 
     public UserController(ILoginView loginView, IHomeView homeView,
             IAppUser appUser, ISpreadsheet spreadsheetModel, IHome home) {
@@ -92,7 +94,7 @@ public class UserController implements IUserController {
 
     @Override
     public void createNewSheet() {
-        this.spreadsheetModel = new Spreadsheet("untitled");
+        this.spreadsheetModel = new Spreadsheet();
         this.sheetView = new SheetView(this.spreadsheetModel);
         this.setCurrentSheet(sheetView);
         this.sheetView.makeVisible();
@@ -211,6 +213,11 @@ public class UserController implements IUserController {
             }
             this.sheetView.updateTable();
         }
+    }
+
+    @Override
+    public IAppUser getUser() {
+        return this.appUser;
     }
 
     private boolean validateInput(String username, String password) {

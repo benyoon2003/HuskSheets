@@ -60,7 +60,7 @@ public class Home implements IHome {
                 cellArray.get(row).get(col).setValue(value);
             }
 
-            return new Spreadsheet(cellArray);
+            return new Spreadsheet(path, cellArray);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
