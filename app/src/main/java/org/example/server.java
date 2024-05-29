@@ -77,7 +77,7 @@ public class server {
       List<Sheet> sheets = sheetRepository.findAll();
       return ResponseEntity.ok(sheets);
     } catch (Exception e) {
-      logger.error("Error getting sheets", e);
+      logger.error("Error getting sheets", e); // add time stamps
       return ResponseEntity.status(500).body(null);
     }
   }
