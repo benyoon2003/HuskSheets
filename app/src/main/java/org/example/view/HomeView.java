@@ -5,15 +5,21 @@ import org.example.controller.IUserController;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.List;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class HomeView extends JFrame implements IHomeView {
 
     private JButton createSheet;
     private JComboBox<String> openSheetDropdown;
     private JButton openSheetButton;
-    private JButton deleteSheetButton; // Add this line
+    private JButton deleteSheetButton;
     private IUserController controller;
 
     public HomeView() {
@@ -45,9 +51,9 @@ public class HomeView extends JFrame implements IHomeView {
         openSheetButton.setBounds(50, 150, 200, 25);
         panel.add(openSheetButton);
 
-        deleteSheetButton = new JButton("Delete Spreadsheet"); // Add this line
-        deleteSheetButton.setBounds(50, 190, 200, 25); // Add this line
-        panel.add(deleteSheetButton); // Add this line
+        deleteSheetButton = new JButton("Delete Spreadsheet");
+        deleteSheetButton.setBounds(50, 190, 200, 25);
+        panel.add(deleteSheetButton);
 
         createSheet.addActionListener(new ActionListener() {
             @Override
@@ -56,7 +62,7 @@ public class HomeView extends JFrame implements IHomeView {
             }
         });
 
-        openSheetButton.addActionListener(new ActionListener() { // Update this block
+        openSheetButton.addActionListener(new ActionListener() { 
             @Override
             public void actionPerformed(ActionEvent e) {
                 String selectedSheet = (String) openSheetDropdown.getSelectedItem();
@@ -68,17 +74,74 @@ public class HomeView extends JFrame implements IHomeView {
             }
         });
 
-        deleteSheetButton.addActionListener(new ActionListener() { // Add this block
+        deleteSheetButton.addActionListener(new ActionListener() { 
             @Override
             public void actionPerformed(ActionEvent e) {
                 String selectedSheet = (String) openSheetDropdown.getSelectedItem();
                 if (selectedSheet != null) {
-                    controller.deleteSheet(selectedSheet);
+                    int option = JOptionPane.showOptionDialog(
+                            null,
+                            "Choose where to delete the sheet from:",
+                            "Delete Option",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.QUESTION_MESSAGE,
+                            null,
+                            new Object[]{"Delete Locally", "Delete from Server"},
+                            "Delete Locally");
+
+                    if (option == JOptionPane.YES_OPTION) {
+                        controller.deleteSheet(selectedSheet);
+                    } else if (option == JOptionPane.NO_OPTION) {
+                        String sheetToDeleteFromServer = getSheetToDeleteFromServer();
+                        if (sheetToDeleteFromServer != null) {
+                            controller.deleteSheetFromServer(sheetToDeleteFromServer);
+                        }
+                    }
                 } else {
                     JOptionPane.showMessageDialog(panel, "No sheet selected to delete");
                 }
             }
         });
+    }
+
+    private String getSheetToDeleteFromServer() {
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:8080/api/getSheets"))
+                    .header("Content-Type", "application/json")
+                    .GET()
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                String responseBody = response.body();
+                JSONArray sheetsArray = new JSONArray(responseBody);
+                List<String> sheetNames = new ArrayList<>();
+                for (int i = 0; i < sheetsArray.length(); i++) {
+                    JSONObject sheetObject = sheetsArray.getJSONObject(i);
+                    sheetNames.add(sheetObject.getString("name"));
+                }
+
+                String[] sheetArray = sheetNames.toArray(new String[0]);
+                return (String) JOptionPane.showInputDialog(
+                        null,
+                        "Select a sheet to delete from the server:",
+                        "Delete Sheet from Server",
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        sheetArray,
+                        sheetArray[0]);
+
+            } else {
+                JOptionPane.showMessageDialog(null, "Failed to retrieve sheets from server.");
+                return null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error occurred: " + e.getMessage());
+            return null;
+        }
     }
 
     @Override
@@ -103,7 +166,7 @@ public class HomeView extends JFrame implements IHomeView {
     public void updateSavedSheets() {
         if (controller != null) {
             List<String> savedSheets = controller.getSavedSheets();
-            System.out.println("Updating dropdown with saved sheets: " + savedSheets); // Debug statement
+            System.out.println("Updating dropdown with saved sheets: " + savedSheets);
             openSheetDropdown.removeAllItems();
             for (String sheet : savedSheets) {
                 openSheetDropdown.addItem(sheet);
@@ -114,35 +177,17 @@ public class HomeView extends JFrame implements IHomeView {
     @Override
     public void addController(IUserController controller) {
         this.controller = controller;
-        updateSavedSheets(); // Call updateSavedSheets() after setting the controller
+        updateSavedSheets();
     }
 
     @Override
     public void makeVisible() {
         this.setVisible(true);
-        updateSavedSheets(); // Ensure the dropdown is updated whenever the view is made visible
+        updateSavedSheets();
     }
 
     @Override
     public void disposeHomePage() {
         this.dispose();
     }
-
-    // private class OpenSheetListener implements ActionListener {
-    //     private IHomeView view;
-
-    //     OpenSheetListener(IHomeView view) {
-    //         this.view = view;
-    //     }
-
-    //     @Override
-    //     public void actionPerformed(ActionEvent e) {
-    //         JFileChooser fileChooser = new JFileChooser();
-    //         int returnValue = fileChooser.showOpenDialog(null);
-    //         if (returnValue == JFileChooser.APPROVE_OPTION) {
-    //             File selectedFile = fileChooser.getSelectedFile();
-    //             this.view.openSheet(selectedFile.getAbsolutePath());
-    //         }
-    //     }
-    // }
 }

@@ -32,6 +32,9 @@ dependencies {
     // Protocol Buffers
     implementation 'com.google.protobuf:protobuf-java:3.21.12'
 
+    // org.json dependency
+    implementation 'org.json:json:20210307'
+
     // Use JUnit Jupiter for testing.
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
         

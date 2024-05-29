@@ -39,7 +39,7 @@ public class UserController implements IUserController {
     private boolean isCutOperation = false;
 
     public UserController(ILoginView loginView, IHomeView homeView,
-            IAppUser appUser, ISpreadsheet spreadsheetModel, IHome home) {
+                          IAppUser appUser, ISpreadsheet spreadsheetModel, IHome home) {
         this.loginPage = loginView;
         loginView.addController(this);
         this.appUser = appUser;
