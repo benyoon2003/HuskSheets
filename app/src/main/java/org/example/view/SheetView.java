@@ -87,7 +87,7 @@ public class SheetView extends JFrame implements ISheetView {
         JTable table;
 
         // Get data and set column names
-        Object[][] data = new Object[rowSize][colSize];
+        Object[][] data = new Object[rowSize][colSize];//this.cells.getCellStringsObject();
         Cell[][] cellRef = this.cells.getCellsObject();
 
         for (Cell[] row : cellRef) {
@@ -368,7 +368,7 @@ public class SheetView extends JFrame implements ISheetView {
     }
 
     private String replaceCellReferences(String formula) {
-        Pattern pattern = Pattern.compile("[A-Z]+[0-9]+");
+        Pattern pattern = Pattern.compile("\\$[A-Z]+[0-9]+");
         Matcher matcher = pattern.matcher(formula);
         StringBuffer result = new StringBuffer();
 
@@ -584,3 +584,4 @@ public class SheetView extends JFrame implements ISheetView {
         return parameter.trim();
     }
 }
+
