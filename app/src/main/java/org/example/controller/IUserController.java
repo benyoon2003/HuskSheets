@@ -54,4 +54,8 @@ public interface IUserController {
     String handleReferencingCell(int row, int col, String data);    
     
     String getFormula(int row, int col); // New method declaration
+
+    int getSelectedRowZeroIndex();
+
+    int getSelectedColZeroIndex();
 }
