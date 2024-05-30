@@ -249,12 +249,13 @@ public class UserController implements IUserController {
     public void changeSpreadSheetValueAt(int selRow, int selCol, String val) {
         this.spreadsheetModel.setCellRawdata(selRow, selCol, val);
         if (val.startsWith("=")) {
+            this.spreadsheetModel.setCellValue(selRow, selCol, val); // Store the formula
             val = this.spreadsheetModel.evaluateFormula(val);
         }
         this.spreadsheetModel.setCellValue(selRow, selCol, val);
         this.sheetView.updateTable(); // Update the table view after changing the value
     }
-
+    
     @Override
     public String evaluateFormula(String formula) {
         return this.spreadsheetModel.evaluateFormula(formula);
@@ -284,6 +285,11 @@ public class UserController implements IUserController {
             }
             this.sheetView.updateTable();
         }
+    }
+
+    @Override
+    public String getFormula(int row, int col) {
+        return this.spreadsheetModel.getCellFormula(row, col);
     }
 
     private boolean validateInput(String username, String password) {

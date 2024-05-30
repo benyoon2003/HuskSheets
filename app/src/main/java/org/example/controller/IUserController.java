@@ -51,5 +51,7 @@ public interface IUserController {
 
     void deleteSheetFromServer(String name);
 
-    String handleReferencingCell(int row, int col, String data);
+    String handleReferencingCell(int row, int col, String data);    
+    
+    String getFormula(int row, int col); // New method declaration
 }

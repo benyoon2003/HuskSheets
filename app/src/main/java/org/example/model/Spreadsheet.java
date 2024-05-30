@@ -145,6 +145,11 @@ public class Spreadsheet implements ISpreadsheet {
         this.grid.get(row).get(col).setRawData(val);
     }
 
+    @Override
+    public String getCellFormula(int row, int col) {
+        return this.grid.get(row).get(col).getFormula();
+    }    
+
     private String parseOperations(String formula) {
         if (formula.contains("<>")) {
             String[] parts = formula.split("<>");
@@ -364,7 +369,12 @@ public class Spreadsheet implements ISpreadsheet {
         String[] parts = parameters.split(",");
         StringBuilder result = new StringBuilder();
         for (String part : parts) {
-            result.append(part.trim());
+            // Remove double quotes from around the string parts
+            String trimmedPart = part.trim();
+            if (trimmedPart.startsWith("\"") && trimmedPart.endsWith("\"")) {
+                trimmedPart = trimmedPart.substring(1, trimmedPart.length() - 1);
+            }
+            result.append(trimmedPart);
         }
         return result.toString();
     }

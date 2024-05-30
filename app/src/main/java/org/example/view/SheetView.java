@@ -27,6 +27,7 @@ public class SheetView extends JFrame implements ISheetView {
     private JButton backButton;
     JTable yourTable;
     private boolean isUpdatingTable = false;
+    private JTextField formulaTextField;
 
     private static final int rowSize = 100;
     private static final int colSize = 100;
@@ -50,6 +51,10 @@ public class SheetView extends JFrame implements ISheetView {
         JButton pasteButton = new JButton("Paste");
         JButton saveButton = new JButton("Save");
         backButton = new JButton("Back");
+        formulaTextField = new JTextField(20);
+        formulaTextField.setEditable(false);
+        toolbar.add(new JLabel("Formula:"));
+        toolbar.add(formulaTextField);
 
         toolbar.add(cutButton);
         toolbar.add(copyButton);
@@ -57,11 +62,7 @@ public class SheetView extends JFrame implements ISheetView {
         toolbar.add(saveButton);
         toolbar.add(backButton);
 
-        // Create dropdown menu for statistical calculations
-        JComboBox<String> statsDropdown = new JComboBox<>(new String[]{"Mean", "Median", "Mode"});
-        toolbar.add(statsDropdown);
-
-        // Add action listeners for buttons and dropdown
+        // Add action listeners for buttons
         cutButton.addActionListener(new ToolbarButtonListener(this));
         copyButton.addActionListener(new ToolbarButtonListener(this));
         pasteButton.addActionListener(new ToolbarButtonListener(this));
@@ -75,14 +76,13 @@ public class SheetView extends JFrame implements ISheetView {
                 homeView.makeVisible();
             }
         });
-        statsDropdown.addActionListener(new StatsDropdownListener());
 
         add(toolbar, BorderLayout.NORTH);
 
         JTable table;
 
         // Get data and set column names
-        Object[][] data = new Object[rowSize][colSize];//this.cells.getCellStringsObject();
+        Object[][] data = new Object[rowSize][colSize];
         Cell[][] cellRef = this.cells.getCellsObject();
 
         for (Cell[] row : cellRef) {
@@ -131,19 +131,36 @@ public class SheetView extends JFrame implements ISheetView {
         table.setCellSelectionEnabled(true);
         table.setShowGrid(true);
 
-        ListSelectionListener cellSelectionListener = new ListSelectionListener() {
+        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
                     int[] selectedRows = table.getSelectedRows();
                     int[] selectedColumns = table.getSelectedColumns();
                     controller.selectedCells(selectedRows, selectedColumns);
+
+                    if (selectedRows.length == 1 && selectedColumns.length == 1) {
+                        String formula = controller.getFormula(selectedRows[0], selectedColumns[0] - 1);
+                        formulaTextField.setText(formula);
+                    }
                 }
             }
-        };
+        });
+        table.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    int[] selectedRows = table.getSelectedRows();
+                    int[] selectedColumns = table.getSelectedColumns();
+                    controller.selectedCells(selectedRows, selectedColumns);
 
-        table.getSelectionModel().addListSelectionListener(cellSelectionListener);
-        table.getColumnModel().getSelectionModel().addListSelectionListener(cellSelectionListener);
+                    if (selectedRows.length == 1 && selectedColumns.length == 1) {
+                        String formula = controller.getFormula(selectedRows[0], selectedColumns[0] - 1);
+                        formulaTextField.setText(formula);
+                    }
+                }
+            }
+        });
 
         table.getModel().addTableModelListener(new TableModelListener() {
             @Override
@@ -153,7 +170,7 @@ public class SheetView extends JFrame implements ISheetView {
                     int selCol = e.getColumn();
                     if (selRow != -1 && selCol != -1 && selCol != 0) {
                         String val = String.valueOf(table.getValueAt(selRow, selCol));
-                        controller.changeSpreadSheetValueAt(selRow, selCol - 1, val);
+                        controller.changeSpreadSheetValueAt(selRow, selCol - 1, val); // Store the formula
                     }
                 }
             }
@@ -285,16 +302,6 @@ public class SheetView extends JFrame implements ISheetView {
             } else {
                 view.getController().handleToolbar(command);
             }
-        }
-    }
-
-    class StatsDropdownListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            JComboBox<String> comboBox = (JComboBox<String>) e.getSource();
-            String selectedStat = (String) comboBox.getSelectedItem();
-            // Handle statistical calculation here
-            controller.handleStatsDropdown(selectedStat);
         }
     }
 }
