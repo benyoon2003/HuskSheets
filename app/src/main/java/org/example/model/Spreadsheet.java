@@ -74,55 +74,17 @@ public class Spreadsheet implements ISpreadsheet {
         formula = formula.substring(1);
 
         try {
-
-            if (formula.contains(":")) {
-                String[] parts = formula.split(":");
-                return rangeOperation(parts[0].trim(), parts[1].trim());
-            }
-
             // Replace cell references with their values
             formula = replaceCellReferences(formula);
 
-            // Handle special operations
-            if (formula.contains("<>")) {
-                String[] parts = formula.split("<>");
-                return compareNotEqual(parts[0].trim(), parts[1].trim());
-            } else if (formula.contains("<") && !formula.contains("=")) {
-                String[] parts = formula.split("<");
-                return compareLess(parts[0].trim(), parts[1].trim());
-            } else if (formula.contains(">") && !formula.contains("=")) {
-                String[] parts = formula.split(">");
-                return compareGreater(parts[0].trim(), parts[1].trim());
-            } else if (formula.contains("=") && !formula.contains("<") && !formula.contains(">")) {
-                String[] parts = formula.split("=");
-                return compareEqual(parts[0].trim(), parts[1].trim());
-            } else if (formula.contains("&")) {
-                String[] parts = formula.split("&");
-                return andOperation(parts[0].trim(), parts[1].trim());
-            } else if (formula.contains("|")) {
-                String[] parts = formula.split("\\|");
-                return orOperation(parts[0].trim(), parts[1].trim());
-            } else if (formula.startsWith("IF(")) {
-                return evaluateIF(formula.substring(3, formula.length() - 1));
-            } else if (formula.startsWith("SUM(")) {
-                return evaluateSUM(formula.substring(4, formula.length() - 1));
-            } else if (formula.startsWith("MIN(")) {
-                return evaluateMIN(formula.substring(4, formula.length() - 1));
-            } else if (formula.startsWith("MAX(")) {
-                return evaluateMAX(formula.substring(4, formula.length() - 1));
-            } else if (formula.startsWith("AVG(")) {
-                return evaluateAVG(formula.substring(4, formula.length() - 1));
-            } else if (formula.startsWith("CONCAT(")) {
-                return evaluateCONCAT(formula.substring(7, formula.length() - 1));
-            } else if (formula.startsWith("DEBUG(")) {
-                return evaluateDEBUG(formula.substring(6, formula.length() - 1));
-            } else {
-                // For simplicity, handle basic arithmetic operations
-                ScriptEngineManager manager = new ScriptEngineManager();
-                ScriptEngine engine = manager.getEngineByName("JavaScript");
-                Object result = engine.eval(formula);
-                return result.toString();
-            }
+            // Handle operations that need to be parsed before evaluation
+            formula = parseOperations(formula);
+
+            // For simplicity, handle basic arithmetic operations using JavaScript engine
+            ScriptEngineManager manager = new ScriptEngineManager();
+            ScriptEngine engine = manager.getEngineByName("JavaScript");
+            Object result = engine.eval(formula);
+            return result.toString();
         } catch (ScriptException e) {
             e.printStackTrace();
             return "Error";
@@ -130,7 +92,7 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     private String replaceCellReferences(String formula) {
-        Pattern pattern = Pattern.compile("[A-Za-z]+[0-9]+");
+        Pattern pattern = Pattern.compile("\\$[A-Z]+[0-9]+");
         Matcher matcher = pattern.matcher(formula);
         StringBuffer result = new StringBuffer();
 
@@ -173,23 +135,61 @@ public class Spreadsheet implements ISpreadsheet {
         return this.grid.get(row).get(col).getValue();
     }
 
-//    public String getGridCoord(int row, int col) {
-//        row += 1;
-//        col += 1;
-//
-//        // Convert column number to alphabetical representation
-//        StringBuilder colLabel = new StringBuilder();
-//        while (col > 0) {
-//            col -= 1;
-//            colLabel.insert(0, (char) (col % 26 + 'A'));
-//            col /= 26;
-//        }
-//
-//        // Concatenate row and column labels
-//        String gridLabel = colLabel.toString() + String.format("%02d", row);
-//
-//        return gridLabel;
-//    }
+    @Override
+    public String getCellRawdata(int row, int col) {
+        return this.grid.get(row).get(col).getRawdata();
+    }
+
+    @Override
+    public void setCellRawdata(int row, int col, String val) {
+        this.grid.get(row).get(col).setRawData(val);
+    }
+
+    @Override
+    public String getCellFormula(int row, int col) {
+        return this.grid.get(row).get(col).getFormula();
+    }    
+
+    private String parseOperations(String formula) {
+        if (formula.contains("<>")) {
+            String[] parts = formula.split("<>");
+            return compareNotEqual(parts[0].trim(), parts[1].trim());
+        } else if (formula.contains("<") && !formula.contains("=")) {
+            String[] parts = formula.split("<");
+            return compareLess(parts[0].trim(), parts[1].trim());
+        } else if (formula.contains(">") && !formula.contains("=")) {
+            String[] parts = formula.split(">");
+            return compareGreater(parts[0].trim(), parts[1].trim());
+        } else if (formula.contains("=") && !formula.contains("<") && !formula.contains(">")) {
+            String[] parts = formula.split("=");
+            return compareEqual(parts[0].trim(), parts[1].trim());
+        } else if (formula.contains("&")) {
+            String[] parts = formula.split("&");
+            return andOperation(parts[0].trim(), parts[1].trim());
+        } else if (formula.contains("|")) {
+            String[] parts = formula.split("\\|");
+            return orOperation(parts[0].trim(), parts[1].trim());
+        } else if (formula.contains(":")) {
+            String[] parts = formula.split(":");
+            return rangeOperation(parts[0].trim(), parts[1].trim());
+        } else if (formula.startsWith("IF(")) {
+            return evaluateIF(formula.substring(3, formula.length() - 1));
+        } else if (formula.startsWith("SUM(")) {
+            return evaluateSUM(formula.substring(4, formula.length() - 1));
+        } else if (formula.startsWith("MIN(")) {
+            return evaluateMIN(formula.substring(4, formula.length() - 1));
+        } else if (formula.startsWith("MAX(")) {
+            return evaluateMAX(formula.substring(4, formula.length() - 1));
+        } else if (formula.startsWith("AVG(")) {
+            return evaluateAVG(formula.substring(4, formula.length() - 1));
+        } else if (formula.startsWith("CONCAT(")) {
+            return evaluateCONCAT(formula.substring(7, formula.length() - 1));
+        } else if (formula.startsWith("DEBUG(")) {
+            return evaluateDEBUG(formula.substring(6, formula.length() - 1));
+        }
+
+        return formula;
+    }
 
     private String compareLess(String x, String y) {
         try {
@@ -265,11 +265,6 @@ public class Spreadsheet implements ISpreadsheet {
         int startCol = getColumn(startCell);
         int endCol = getColumn(endCell);
 
-        System.out.println(startRow);
-        System.out.println(endRow);
-        System.out.println(startCol);
-        System.out.println(endCol);
-
         // Check if the range is valid
         if (startRow > endRow || startCol > endCol || startRow == -1 || endRow == -1 || startCol == -1 || endCol == -1) {
             return "Error";
@@ -278,16 +273,13 @@ public class Spreadsheet implements ISpreadsheet {
         StringBuilder rangeResult = new StringBuilder();
         for (int row = startRow; row <= endRow; row++) {
             for (int col = startCol; col <= endCol; col++) {
-//                String cellCoord = this.getGridCoord(row, col);
-                String cellValue = this.getCellValue(row, col);
+                String cellValue = getCellValue(row, col);
                 if (!cellValue.isEmpty()) {
                     rangeResult.append(cellValue).append(",");
                 }
-                System.out.println(cellValue);
             }
         }
-        System.out.println("Range Result: " + rangeResult.toString().trim());
-        return rangeResult.toString().substring(0, rangeResult.length() - 1);
+        return rangeResult.length() > 0 ? rangeResult.substring(0, rangeResult.length() - 1) : "";
     }
 
     private String evaluateIF(String parameters) {
@@ -308,6 +300,14 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     private String evaluateSUM(String parameters) {
+        if (parameters.contains(":")) {
+            String[] rangeParts = parameters.split(":");
+            String rangeValues = rangeOperation(rangeParts[0].trim(), rangeParts[1].trim());
+            if (rangeValues.equals("Error")) {
+                return "Error";
+            }
+            parameters = rangeValues;
+        }
         String[] parts = parameters.split(",");
         double sum = 0;
         try {
@@ -369,7 +369,12 @@ public class Spreadsheet implements ISpreadsheet {
         String[] parts = parameters.split(",");
         StringBuilder result = new StringBuilder();
         for (String part : parts) {
-            result.append(part.trim());
+            // Remove double quotes from around the string parts
+            String trimmedPart = part.trim();
+            if (trimmedPart.startsWith("\"") && trimmedPart.endsWith("\"")) {
+                trimmedPart = trimmedPart.substring(1, trimmedPart.length() - 1);
+            }
+            result.append(trimmedPart);
         }
         return result.toString();
     }

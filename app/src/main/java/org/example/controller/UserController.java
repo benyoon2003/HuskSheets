@@ -155,16 +155,38 @@ public class UserController implements IUserController {
             int startColumn = selectedColumns[0];
             int endColumn = selectedColumns[selectedColumns.length - 1];
 
-            System.out.println("Selected range: (" + (startRow + 1) + ", " +
-                    startColumn + ") to (" + (endRow + 1) + ", " + endColumn + ")");
             // Additional logic for handling cell selection range
 
             this.selectedCells = new SelectedCells(startRow + 1,
                     endRow + 1, startColumn, endColumn);
+
+            System.out.println("Selected range: (" + (selectedCells.getStartRow()) + ", " +
+                    selectedCells.getStartCol() + ") to (" + (selectedCells.getEndRow()) + ", " + selectedCells.getEndCol() + ")");
+
+            if (this.singleCellSelected(this.selectedCells)) {
+                this.sheetView.changeFormulaTextField(this.spreadsheetModel.getCellRawdata(
+                        this.selectedCells.getStartRow() - 1, this.selectedCells.getStartCol() - 1));
+            }
         } else {
             this.selectedCells = new SelectedCells(-1,
                     -1, -1, -1);
         }
+    }
+
+    public int getSelectedRowZeroIndex() {
+        System.out.println("ROWINDEX:" + selectedCells.getStartRow());
+        return selectedCells.getStartRow() - 1;
+    }
+
+    public int getSelectedColZeroIndex() {
+        System.out.println("COLINDEX:" + selectedCells.getStartCol());
+        return selectedCells.getStartCol() - 1;
+    }
+
+    private boolean singleCellSelected(ISelectedCells selectedCells) {
+        System.out.println("Single cell selected");
+        return selectedCells.getStartRow() == selectedCells.getEndRow() &&
+                selectedCells.getStartCol() == selectedCells.getEndCol();
     }
 
     @Override
@@ -230,19 +252,32 @@ public class UserController implements IUserController {
     }
 
     @Override
+    public String handleReferencingCell(int row, int col, String data) {
+        String rawdata = this.spreadsheetModel.getCellRawdata(row, col);
+        if (rawdata.startsWith("=")) {
+            return this.spreadsheetModel.evaluateFormula(rawdata);
+        }
+        else {
+            return data;
+        }
+    }
+
+    @Override
     public IHomeView getHomeView() {
         return this.homeView;
     }
 
     @Override
     public void changeSpreadSheetValueAt(int selRow, int selCol, String val) {
+        this.spreadsheetModel.setCellRawdata(selRow, selCol, val);
         if (val.startsWith("=")) {
+            this.spreadsheetModel.setCellValue(selRow, selCol, val); // Store the formula
             val = this.spreadsheetModel.evaluateFormula(val);
         }
         this.spreadsheetModel.setCellValue(selRow, selCol, val);
         this.sheetView.updateTable(); // Update the table view after changing the value
     }
-
+    
     @Override
     public String evaluateFormula(String formula) {
         return this.spreadsheetModel.evaluateFormula(formula);
@@ -250,7 +285,7 @@ public class UserController implements IUserController {
 
     @Override
     public void cutCell(int selRow, int selCol) {
-        this.clipboardContent = this.spreadsheetModel.getCellValue(selRow, selCol);
+        this.clipboardContent = this.spreadsheetModel.getCellRawdata(selRow, selCol);
         this.spreadsheetModel.setCellValue(selRow, selCol, "");
         this.sheetView.updateTable();
         this.isCutOperation = true;
@@ -258,7 +293,7 @@ public class UserController implements IUserController {
 
     @Override
     public void copyCell(int selRow, int selCol) {
-        this.clipboardContent = this.spreadsheetModel.getCellValue(selRow, selCol);
+        this.clipboardContent = this.spreadsheetModel.getCellRawdata(selRow, selCol);
         this.isCutOperation = false;
     }
 
@@ -272,6 +307,11 @@ public class UserController implements IUserController {
             }
             this.sheetView.updateTable();
         }
+    }
+
+    @Override
+    public String getFormula(int row, int col) {
+        return this.spreadsheetModel.getCellFormula(row, col);
     }
 
     private boolean validateInput(String username, String password) {
