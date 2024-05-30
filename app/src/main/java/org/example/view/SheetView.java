@@ -131,7 +131,7 @@ public class SheetView extends JFrame implements ISheetView {
         table.setCellSelectionEnabled(true);
         table.setShowGrid(true);
 
-        ListSelectionListener cellSelectionListener = new ListSelectionListener() {
+        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
@@ -145,10 +145,22 @@ public class SheetView extends JFrame implements ISheetView {
                     }
                 }
             }
-        };
+        });
+        table.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    int[] selectedRows = table.getSelectedRows();
+                    int[] selectedColumns = table.getSelectedColumns();
+                    controller.selectedCells(selectedRows, selectedColumns);
 
-        table.getSelectionModel().addListSelectionListener(cellSelectionListener);
-        table.getColumnModel().getSelectionModel().addListSelectionListener(cellSelectionListener);
+                    if (selectedRows.length == 1 && selectedColumns.length == 1) {
+                        String formula = controller.getFormula(selectedRows[0], selectedColumns[0] - 1);
+                        formulaTextField.setText(formula);
+                    }
+                }
+            }
+        });
 
         table.getModel().addTableModelListener(new TableModelListener() {
             @Override
@@ -158,7 +170,7 @@ public class SheetView extends JFrame implements ISheetView {
                     int selCol = e.getColumn();
                     if (selRow != -1 && selCol != -1 && selCol != 0) {
                         String val = String.valueOf(table.getValueAt(selRow, selCol));
-                        controller.changeSpreadSheetValueAt(selRow, selCol - 1, val);
+                        controller.changeSpreadSheetValueAt(selRow, selCol - 1, val); // Store the formula
                     }
                 }
             }

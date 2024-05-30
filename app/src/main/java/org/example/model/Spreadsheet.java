@@ -148,7 +148,7 @@ public class Spreadsheet implements ISpreadsheet {
     @Override
     public String getCellFormula(int row, int col) {
         return this.grid.get(row).get(col).getFormula();
-    }
+    }    
 
     private String parseOperations(String formula) {
         if (formula.contains("<>")) {
