@@ -18,18 +18,18 @@ public class ServerEndpoint {
     return "Basic " + Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
   }
 
-//  public static void main(String[] args) throws Exception {
-//    register("team2");
-//    getPublishers();
-  //createSheet("team2", "exampleSheet");
+  public static void main(String[] args) throws Exception {
+    register("team2");
+    getPublishers();
+    createSheet("team2", "exampleSheet");
+    getSheets("team2");
+//    deleteSheet("team2", "exampleSheet");
 //    getSheets("team2");
-  //deleteSheet("team2", "exampleSheet");
-  //getSheets("team2");
-//    updatePublished("team2", "exampleSheet", "NEW3");
-//    getUpdatesForSubscription("team2", "exampleSheet", "1");
-//    updateSubscription("team2", "exampleSheet", "NEW");
-//    getUpdatesForPublished("team2", "exampleSheet", "3");
-//  }
+    updatePublished("team2", "exampleSheet", "NEW3");
+    getUpdatesForSubscription("team2", "exampleSheet", "1");
+    updateSubscription("team2", "exampleSheet", "NEW");
+    getUpdatesForPublished("team2", "exampleSheet", "3");
+  }
 
 
   /**
@@ -79,7 +79,7 @@ public class ServerEndpoint {
    * @param sheet
    * @throws Exception
    */
-  private static void createSheet(String publisher, String sheet) throws Exception {
+  public static void createSheet(String publisher, String sheet) throws Exception {
     String url = BASE_URL + "createSheet";
     HttpClient client = HttpClient.newBuilder().build();
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\"}", publisher, sheet);
@@ -102,7 +102,7 @@ public class ServerEndpoint {
    * @param publisher
    * @throws Exception
    */
-  private static void getSheets(String publisher) throws Exception {
+  public static String getSheets(String publisher) throws Exception {
     String url = BASE_URL + "getSheets";
     HttpClient client = HttpClient.newBuilder().build();
     String json = String.format("{\"publisher\":\"%s\"}", publisher);
@@ -115,6 +115,7 @@ public class ServerEndpoint {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
     System.out.println("Get Sheets Response: " + response.body());
+    return response.body();
   }
 
   /**
@@ -125,7 +126,7 @@ public class ServerEndpoint {
    * @param sheet
    * @throws Exception
    */
-  private static void deleteSheet(String publisher, String sheet) throws Exception {
+  public static void deleteSheet(String publisher, String sheet) throws Exception {
     String url = BASE_URL + "deleteSheet";
     HttpClient client = HttpClient.newBuilder().build();
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\"}", publisher, sheet);
@@ -152,7 +153,7 @@ public class ServerEndpoint {
    * @param id
    * @throws Exception
    */
-  private static void getUpdatesForSubscription(String publisher, String sheet, String id) throws Exception {
+  public static void getUpdatesForSubscription(String publisher, String sheet, String id) throws Exception {
     String url = BASE_URL + "getUpdatesForSubscription";
     HttpClient client = HttpClient.newBuilder().build();
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"id\":\"%s\"}", publisher, sheet, id);
@@ -179,7 +180,7 @@ public class ServerEndpoint {
    * @param id
    * @throws Exception
    */
-  private static void getUpdatesForPublished(String publisher, String sheet, String id) throws Exception {
+  public static void getUpdatesForPublished(String publisher, String sheet, String id) throws Exception {
     String url = BASE_URL + "getUpdatesForPublished";
     HttpClient client = HttpClient.newBuilder().build();
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"id\":\"%s\"}", publisher, sheet, id);
@@ -203,7 +204,7 @@ public class ServerEndpoint {
    * @param payload
    * @throws Exception
    */
-  private static void updatePublished(String publisher, String sheet, String payload) throws Exception {
+  public static void updatePublished(String publisher, String sheet, String payload) throws Exception {
     String url = BASE_URL + "updatePublished";
     HttpClient client = HttpClient.newBuilder().build();
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"payload\":\"%s\"}", publisher, sheet, payload);
@@ -228,7 +229,7 @@ public class ServerEndpoint {
    * @param payload
    * @throws Exception
    */
-  private static void updateSubscription(String publisher, String sheet, String payload) throws Exception {
+  public static void updateSubscription(String publisher, String sheet, String payload) throws Exception {
     String url = BASE_URL + "updateSubscription";
     HttpClient client = HttpClient.newBuilder().build();
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"payload\":\"%s\"}", publisher, sheet, payload);

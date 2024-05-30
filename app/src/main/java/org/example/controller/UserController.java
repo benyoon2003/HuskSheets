@@ -9,17 +9,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.example.model.IAppUser;
-import org.example.model.IHome;
-import org.example.model.ISelectedCells;
-import org.example.model.ISpreadsheet;
-import org.example.model.ReadOnlySpreadSheet;
-import org.example.model.SelectedCells;
-import org.example.model.Spreadsheet;
+import org.example.model.*;
 import org.example.view.IHomeView;
 import org.example.view.ILoginView;
 import org.example.view.ISheetView;
 import org.example.view.SheetView;
+import org.json.JSONObject;
 
 public class UserController implements IUserController {
 
@@ -84,13 +79,18 @@ public class UserController implements IUserController {
     }
 
     @Override
-    public void createNewSheet() {
-        this.spreadsheetModel = new Spreadsheet();
+    public void createNewSheet(String name) {
+        try {
+            ServerEndpoint.createSheet("team2", name);
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+        this.spreadsheetModel = new Spreadsheet(name);
         this.sheetView = new SheetView(this.spreadsheetModel);
         this.setCurrentSheet(sheetView);
-        this.sheetView.makeVisible();
-    }
 
+ this.sheetView.makeVisible();
+    }
     @Override
     public void saveSheet(ReadOnlySpreadSheet sheet, String path) {
         try {
@@ -195,6 +195,30 @@ public class UserController implements IUserController {
         }
         System.out.println("Found saved sheets: " + sheets); // Debug statement
         return sheets;
+    }
+
+    public List<String> getServerSheets() {
+        List<String> sheets = new ArrayList<>();
+        try {
+            String response = ServerEndpoint.getSheets("team2");
+            System.out.println(response);
+            sheets = Result.getSheets(response);
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+        return sheets;
+    }
+
+    @Override
+    public void openServerSheet(String selectedSheet) {
+        try {
+            this.spreadsheetModel = this.home.readPayload(this.appUser, selectedSheet);
+            this.sheetView = new SheetView(spreadsheetModel);
+            this.sheetView.makeVisible();
+            this.setCurrentSheet(sheetView);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

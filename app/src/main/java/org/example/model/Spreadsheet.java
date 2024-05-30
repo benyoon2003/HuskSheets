@@ -9,8 +9,9 @@ import javax.script.ScriptException;
 
 public class Spreadsheet implements ISpreadsheet {
     private ArrayList<ArrayList<Cell>> grid;
+    private String name;
 
-    public Spreadsheet() {
+    public Spreadsheet(String name) {
         grid = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             ArrayList<Cell> row = new ArrayList<>();
@@ -19,10 +20,12 @@ public class Spreadsheet implements ISpreadsheet {
             }
             grid.add(row);
         }
+
+        this.name = name;
     }
 
-    public Spreadsheet(ArrayList<ArrayList<Cell>> grid) {
-        this();
+    public Spreadsheet(ArrayList<ArrayList<Cell>> grid, String name) {
+        this(name);
         for (ArrayList<Cell> row : grid) {
             for (Cell c : row) {
                 this.grid.get(c.getRow()).get(c.getCol()).setValue(c.getValue());

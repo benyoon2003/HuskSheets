@@ -60,11 +60,22 @@ public class Home implements IHome {
                 cellArray.get(row).get(col).setValue(value);
             }
 
-            return new Spreadsheet(cellArray);
+            return new Spreadsheet(cellArray, path);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public Spreadsheet readPayload(IAppUser user, String sheetName){
+        try {
+            String response = ServerEndpoint.getSheets(user.getUsername());
+
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override

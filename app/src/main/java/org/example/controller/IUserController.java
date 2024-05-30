@@ -19,7 +19,7 @@ public interface IUserController {
 
     ISheetView getCurrentSheet();
 
-    void createNewSheet();
+    void createNewSheet(String name);
 
     void saveSheet(ReadOnlySpreadSheet sheet, String path);
 
@@ -54,4 +54,8 @@ public interface IUserController {
     String handleReferencingCell(int row, int col, String data);    
     
     String getFormula(int row, int col); // New method declaration
+
+    List<String> getServerSheets();
+
+    void openServerSheet(String selectedSheet);
 }
