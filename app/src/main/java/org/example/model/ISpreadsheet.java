@@ -10,5 +10,6 @@ public interface ISpreadsheet {
     String[][] getCellStringsObject();
     String evaluateFormula(String formula);
     void setCellValue(int row, int col, String value);
-    String getCellValue(int row, int col);  // Add this line
+    String getCellValue(int row, int col);
+    String getCellFormula(int row, int col); // Add this line
 }

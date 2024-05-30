@@ -51,5 +51,5 @@ public interface IUserController {
 
     void deleteSheetFromServer(String name);
 
-
+    String getFormula(int row, int col); // New method declaration
 }

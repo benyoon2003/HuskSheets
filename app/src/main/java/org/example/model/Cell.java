@@ -2,6 +2,7 @@ package org.example.model;
 
 public class Cell {
     private String value;
+    private String formula;
 
     private String rawdata;
     private int row;
@@ -9,11 +10,15 @@ public class Cell {
 
     public Cell() {
         this.value = "";
+        this.formula = "";
     }
 
     public Cell(String value) {
-        super();
+        this();
         this.value = value;
+        if (value.startsWith("=")) {
+            this.formula = value;
+        }
     }
 
     public void setRawData(String rawdata) {
@@ -30,6 +35,11 @@ public class Cell {
 
     public void setValue(String value) {
         this.value = value;
+        if (value.startsWith("=")) {
+            this.formula = value;
+        } else {
+            this.formula = "";
+        }
     }
 
     public int getRow() {
@@ -48,7 +58,14 @@ public class Cell {
         this.col = col;
     }
 
-    // checks whether user is typing in a formula in a cell
+    public String getFormula() {
+        return this.formula;
+    }
+
+    public void setFormula(String formula) {
+        this.formula = formula;
+    }
+
     public boolean isFormula() {
         return this.value.startsWith("=");
     }
