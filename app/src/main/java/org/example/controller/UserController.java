@@ -230,12 +230,24 @@ public class UserController implements IUserController {
     }
 
     @Override
+    public String handleReferencingCell(int row, int col, String data) {
+        String rawdata = this.spreadsheetModel.getCellRawdata(row, col);
+        if (rawdata.startsWith("=")) {
+            return this.spreadsheetModel.evaluateFormula(rawdata);
+        }
+        else {
+            return data;
+        }
+    }
+
+    @Override
     public IHomeView getHomeView() {
         return this.homeView;
     }
 
     @Override
     public void changeSpreadSheetValueAt(int selRow, int selCol, String val) {
+        this.spreadsheetModel.setCellRawdata(selRow, selCol, val);
         if (val.startsWith("=")) {
             val = this.spreadsheetModel.evaluateFormula(val);
         }
@@ -250,7 +262,7 @@ public class UserController implements IUserController {
 
     @Override
     public void cutCell(int selRow, int selCol) {
-        this.clipboardContent = this.spreadsheetModel.getCellValue(selRow, selCol);
+        this.clipboardContent = this.spreadsheetModel.getCellRawdata(selRow, selCol);
         this.spreadsheetModel.setCellValue(selRow, selCol, "");
         this.sheetView.updateTable();
         this.isCutOperation = true;
@@ -258,7 +270,7 @@ public class UserController implements IUserController {
 
     @Override
     public void copyCell(int selRow, int selCol) {
-        this.clipboardContent = this.spreadsheetModel.getCellValue(selRow, selCol);
+        this.clipboardContent = this.spreadsheetModel.getCellRawdata(selRow, selCol);
         this.isCutOperation = false;
     }
 
