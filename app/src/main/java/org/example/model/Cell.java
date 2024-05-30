@@ -9,10 +9,12 @@ public class Cell {
 
     public Cell() {
         this.value = "";
+        this.rawdata = "";
     }
 
     public Cell(String value) {
         super();
+        this.rawdata = "";
         this.value = value;
     }
 

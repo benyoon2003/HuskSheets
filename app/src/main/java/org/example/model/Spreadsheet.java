@@ -135,6 +135,16 @@ public class Spreadsheet implements ISpreadsheet {
         return this.grid.get(row).get(col).getValue();
     }
 
+    @Override
+    public String getCellRawdata(int row, int col) {
+        return this.grid.get(row).get(col).getRawdata();
+    }
+
+    @Override
+    public void setCellRawdata(int row, int col, String val) {
+        this.grid.get(row).get(col).setRawData(val);
+    }
+
     private String parseOperations(String formula) {
         if (formula.contains("<>")) {
             String[] parts = formula.split("<>");
