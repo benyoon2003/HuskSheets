@@ -10,4 +10,6 @@ public interface ISheetView {
     void displayMessage(String s);
     
     void updateTable(); // Add this method
+
+    void changeFormulaTextField(String rawdata);
 }
