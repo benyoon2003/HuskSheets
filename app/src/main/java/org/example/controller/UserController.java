@@ -230,12 +230,18 @@ public class UserController implements IUserController {
     }
 
     @Override
+    public String handleReferencingCell(int row, int col, String data) {
+        if (this.raw);
+    }
+
+    @Override
     public IHomeView getHomeView() {
         return this.homeView;
     }
 
     @Override
     public void changeSpreadSheetValueAt(int selRow, int selCol, String val) {
+        
         if (val.startsWith("=")) {
             val = this.spreadsheetModel.evaluateFormula(val);
         }

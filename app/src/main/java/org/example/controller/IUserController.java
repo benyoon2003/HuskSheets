@@ -51,5 +51,5 @@ public interface IUserController {
 
     void deleteSheetFromServer(String name);
 
-
+    String handleReferencingCell(int row, int col, String data);
 }
