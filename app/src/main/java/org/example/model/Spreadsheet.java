@@ -136,6 +136,16 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     @Override
+    public String getCellRawdata(int row, int col) {
+        return this.grid.get(row).get(col).getRawdata();
+    }
+
+    @Override
+    public void setCellRawdata(int row, int col, String val) {
+        this.grid.get(row).get(col).setRawData(val);
+    }
+
+    @Override
     public String getCellFormula(int row, int col) {
         return this.grid.get(row).get(col).getFormula();
     }

@@ -12,4 +12,8 @@ public interface ISpreadsheet {
     void setCellValue(int row, int col, String value);
     String getCellValue(int row, int col);
     String getCellFormula(int row, int col); // Add this line
+
+    void setCellRawdata(int selRow, int selCol, String val);
+
+    String getCellRawdata(int row, int col);
 }

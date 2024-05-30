@@ -10,11 +10,13 @@ public class Cell {
 
     public Cell() {
         this.value = "";
+        this.rawdata = "";
         this.formula = "";
     }
 
     public Cell(String value) {
         this();
+        this.rawdata = "";
         this.value = value;
         if (value.startsWith("=")) {
             this.formula = value;
