@@ -94,7 +94,7 @@ public class UserController implements IUserController {
     @Override
     public void saveSheet(ReadOnlySpreadSheet sheet, String path) {
         try {
-            this.home.saveSheet(sheet, path);
+            this.home.writeXML(sheet, path);
         } catch (Exception e) {
             e.printStackTrace();
         }

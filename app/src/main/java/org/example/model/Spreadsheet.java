@@ -9,6 +9,8 @@ import javax.script.ScriptException;
 
 public class Spreadsheet implements ISpreadsheet {
     private ArrayList<ArrayList<Cell>> grid;
+    private String[] functions = new String[] { "IF", "SUM", "MIN", "MAX", "AVG", "CONCAT", "DEBUG" };
+    private String[] arith = new String[] {"+", "-", "*", "/"};
 
     public Spreadsheet() {
         grid = new ArrayList<>();
@@ -74,16 +76,18 @@ public class Spreadsheet implements ISpreadsheet {
         formula = formula.substring(1);
 
         try {
+            // Handle operations that need to be parsed before evaluation
+            formula = parseOperations(formula);
             // Replace cell references with their values
             formula = replaceCellReferences(formula);
 
-            // Handle operations that need to be parsed before evaluation
-            formula = parseOperations(formula);
-
             // For simplicity, handle basic arithmetic operations using JavaScript engine
-            ScriptEngineManager manager = new ScriptEngineManager();
-            ScriptEngine engine = manager.getEngineByName("JavaScript");
-            Object result = engine.eval(formula);
+            Object result = formula;
+            if (containsArith((String) result)) {
+                ScriptEngineManager manager = new ScriptEngineManager();
+                ScriptEngine engine = manager.getEngineByName("JavaScript");
+                result = engine.eval(formula);
+            }
             return result.toString();
         } catch (ScriptException e) {
             e.printStackTrace();
@@ -91,6 +95,7 @@ public class Spreadsheet implements ISpreadsheet {
         }
     }
 
+    // Replace cell references with their values
     private String replaceCellReferences(String formula) {
         Pattern pattern = Pattern.compile("\\$[A-Z]+[0-9]+");
         Matcher matcher = pattern.matcher(formula);
@@ -125,6 +130,28 @@ public class Spreadsheet implements ISpreadsheet {
         return column - 1;
     }
 
+    // If this cell contains a function value, return it
+    private String getFunction(String cell) {
+        for (String func : functions) {
+            if (cell.contains(func)) {
+                return func;
+            }
+        }
+
+        return "";
+    }
+
+    // Returns whether or not this cell contains a basic arithmetic operation
+    private boolean containsArith(String cell) {
+        for (String op : arith) {
+            if (cell.contains(op)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     @Override
     public void setCellValue(int row, int col, String value) {
         this.grid.get(row).get(col).setValue(value);
@@ -148,7 +175,7 @@ public class Spreadsheet implements ISpreadsheet {
     @Override
     public String getCellFormula(int row, int col) {
         return this.grid.get(row).get(col).getFormula();
-    }    
+    }
 
     private String parseOperations(String formula) {
         if (formula.contains("<>")) {
@@ -260,13 +287,19 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     private String rangeOperation(String startCell, String endCell) {
+        String func = getFunction(startCell);
+        if (func != "") {
+            startCell = startCell.substring(startCell.indexOf('(') + 1);
+        }
+
         int startRow = getRow(startCell);
         int endRow = getRow(endCell);
         int startCol = getColumn(startCell);
         int endCol = getColumn(endCell);
 
         // Check if the range is valid
-        if (startRow > endRow || startCol > endCol || startRow == -1 || endRow == -1 || startCol == -1 || endCol == -1) {
+        if (startRow > endRow || startCol > endCol || startRow == -1 || endRow == -1 || startCol == -1
+                || endCol == -1) {
             return "Error";
         }
 
@@ -279,7 +312,17 @@ public class Spreadsheet implements ISpreadsheet {
                 }
             }
         }
-        return rangeResult.length() > 0 ? rangeResult.substring(0, rangeResult.length() - 1) : "";
+
+        if (rangeResult.length() == 0) {
+            return "";
+        }
+
+        String result = rangeResult.substring(0, rangeResult.length() - 1);
+        if (func != "") {
+            result = func + "(" + result + ")";
+            return parseOperations(result);
+        }
+        return result;
     }
 
     private String evaluateIF(String parameters) {
