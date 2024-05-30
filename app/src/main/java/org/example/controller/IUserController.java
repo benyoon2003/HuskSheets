@@ -35,8 +35,6 @@ public interface IUserController {
 
     void deleteSheet(String path);
 
-    void deleteSheetFromServer(String name);
-
     IHomeView getHomeView();
 
     void changeSpreadSheetValueAt(int selRow, int selCol, String val);

@@ -33,8 +33,6 @@ public class UserController implements IUserController {
 
     private ISelectedCells selectedCells;
 
-    private static final String SERVER_URI = "http://localhost:8080/api";
-
     private String clipboardContent = "";
     private boolean isCutOperation = false;
 
