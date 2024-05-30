@@ -22,11 +22,12 @@ import java.io.File;
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 
 public class SheetView extends JFrame implements ISheetView {
-    private final ReadOnlySpreadSheet cells;
+    final ReadOnlySpreadSheet cells;
     private IUserController controller;
     private JButton backButton;
-    private JTable yourTable;
+    JTable yourTable;
     private boolean isUpdatingTable = false;
+    private JTextField formulaTextField;
 
     private static final int rowSize = 100;
     private static final int colSize = 100;
@@ -50,6 +51,10 @@ public class SheetView extends JFrame implements ISheetView {
         JButton pasteButton = new JButton("Paste");
         JButton saveButton = new JButton("Save");
         backButton = new JButton("Back");
+        formulaTextField = new JTextField(20);
+        formulaTextField.setEditable(false);
+        toolbar.add(new JLabel("Formula:"));
+        toolbar.add(formulaTextField);
 
         toolbar.add(cutButton);
         toolbar.add(copyButton);
@@ -57,11 +62,7 @@ public class SheetView extends JFrame implements ISheetView {
         toolbar.add(saveButton);
         toolbar.add(backButton);
 
-        // Create dropdown menu for statistical calculations
-        JComboBox<String> statsDropdown = new JComboBox<>(new String[] { "Mean", "Median", "Mode" });
-        toolbar.add(statsDropdown);
-
-        // Add action listeners for buttons and dropdown
+        // Add action listeners for buttons
         cutButton.addActionListener(new ToolbarButtonListener(this));
         copyButton.addActionListener(new ToolbarButtonListener(this));
         pasteButton.addActionListener(new ToolbarButtonListener(this));
@@ -75,14 +76,13 @@ public class SheetView extends JFrame implements ISheetView {
                 homeView.makeVisible();
             }
         });
-        statsDropdown.addActionListener(new StatsDropdownListener());
 
         add(toolbar, BorderLayout.NORTH);
 
         JTable table;
 
         // Get data and set column names
-        Object[][] data = new Object[rowSize][colSize];//this.cells.getCellStringsObject();
+        Object[][] data = new Object[rowSize][colSize];
         Cell[][] cellRef = this.cells.getCellsObject();
 
         for (Cell[] row : cellRef) {
@@ -94,8 +94,7 @@ public class SheetView extends JFrame implements ISheetView {
         String[] columnNames = new String[colSize + 1];
         columnNames[0] = ""; // Empty first column
         for (int i = 1; i <= colSize; i++) {
-            columnNames[i] = String.valueOf((char) ('A' + (i - 1) % 26)) + ((i - 1) / 26); // Generate column labels (A,
-            // B, ..., Z, AA, AB, ...)
+            columnNames[i] = getExcelColumnName(i); // Generate Excel-like column labels
         }
 
         // Custom table model with row labels
@@ -132,19 +131,36 @@ public class SheetView extends JFrame implements ISheetView {
         table.setCellSelectionEnabled(true);
         table.setShowGrid(true);
 
-        ListSelectionListener cellSelectionListener = new ListSelectionListener() {
+        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
                     int[] selectedRows = table.getSelectedRows();
                     int[] selectedColumns = table.getSelectedColumns();
                     controller.selectedCells(selectedRows, selectedColumns);
+
+                    if (selectedRows.length == 1 && selectedColumns.length == 1) {
+                        String formula = controller.getFormula(selectedRows[0], selectedColumns[0] - 1);
+                        formulaTextField.setText(formula);
+                    }
                 }
             }
-        };
+        });
+        table.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    int[] selectedRows = table.getSelectedRows();
+                    int[] selectedColumns = table.getSelectedColumns();
+                    controller.selectedCells(selectedRows, selectedColumns);
 
-        table.getSelectionModel().addListSelectionListener(cellSelectionListener);
-        table.getColumnModel().getSelectionModel().addListSelectionListener(cellSelectionListener);
+                    if (selectedRows.length == 1 && selectedColumns.length == 1) {
+                        String formula = controller.getFormula(selectedRows[0], selectedColumns[0] - 1);
+                        formulaTextField.setText(formula);
+                    }
+                }
+            }
+        });
 
         table.getModel().addTableModelListener(new TableModelListener() {
             @Override
@@ -154,7 +170,7 @@ public class SheetView extends JFrame implements ISheetView {
                     int selCol = e.getColumn();
                     if (selRow != -1 && selCol != -1 && selCol != 0) {
                         String val = String.valueOf(table.getValueAt(selRow, selCol));
-                        controller.changeSpreadSheetValueAt(selRow, selCol - 1, val);
+                        controller.changeSpreadSheetValueAt(selRow, selCol - 1, val); // Store the formula
                     }
                 }
             }
@@ -170,6 +186,17 @@ public class SheetView extends JFrame implements ISheetView {
         add(scrollPane, BorderLayout.CENTER);
     }
 
+    // Helper function to generate Excel-like column names
+    private String getExcelColumnName(int columnNumber) {
+        StringBuilder columnName = new StringBuilder();
+        while (columnNumber > 0) {
+            int remainder = (columnNumber - 1) % 26;
+            columnName.insert(0, (char) (remainder + 'A'));
+            columnNumber = (columnNumber - 1) / 26;
+        }
+        return columnName.toString();
+    }
+
     @Override
     public void addController(IUserController controller) {
         this.controller = controller;
@@ -182,7 +209,7 @@ public class SheetView extends JFrame implements ISheetView {
         String[][] data = this.cells.getCellStringsObject();
         for (int row = 0; row < data.length; row++) {
             for (int col = 0; col < data[row].length; col++) {
-                model.setValueAt(data[row][col], row, col + 1);
+                model.setValueAt(controller.handleReferencingCell(row, col, data[row][col]), row, col + 1);
             }
         }
         model.fireTableDataChanged();
@@ -247,25 +274,34 @@ public class SheetView extends JFrame implements ISheetView {
                     view.getController().pasteCell(selRow, selCol - 1);
                 }
             } else if (command.equals("Save")) {
-                JFileChooser fileChooser = new JFileChooser();
-                int returnValue = fileChooser.showSaveDialog(null);
-                if (returnValue == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = fileChooser.getSelectedFile();
-                    this.view.save(selectedFile.getAbsolutePath());
+                int option = JOptionPane.showOptionDialog(
+                        null,
+                        "Choose where to save the sheet:",
+                        "Save Option",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        new Object[]{"Save Locally", "Save to Server"},
+                        "Save Locally");
+
+                if (option == JOptionPane.YES_OPTION) {
+                    JFileChooser fileChooser = new JFileChooser();
+                    int returnValue = fileChooser.showSaveDialog(null);
+                    if (returnValue == JFileChooser.APPROVE_OPTION) {
+                        File selectedFile = fileChooser.getSelectedFile();
+                        this.view.save(selectedFile.getAbsolutePath());
+                    }
+                } else if (option == JOptionPane.NO_OPTION) {
+                    String name = JOptionPane.showInputDialog("Enter a name for the sheet:");
+                    if (name != null && !name.trim().isEmpty()) {
+                        this.view.getController().saveSheetToServer(this.view.cells, name);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Sheet name cannot be empty.");
+                    }
                 }
             } else {
                 view.getController().handleToolbar(command);
             }
-        }
-    }
-
-    class StatsDropdownListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            JComboBox<String> comboBox = (JComboBox<String>) e.getSource();
-            String selectedStat = (String) comboBox.getSelectedItem();
-            // Handle statistical calculation here
-            controller.handleStatsDropdown(selectedStat);
         }
     }
 }

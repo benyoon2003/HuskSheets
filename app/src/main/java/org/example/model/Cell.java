@@ -1,44 +1,74 @@
 package org.example.model;
 
 public class Cell {
-  private String value;
-  private int row;
-  private int col;
+    private String value;
+    private String formula;
 
-  public Cell() {
-    this.value = "";
-  }
+    private String rawdata;
+    private int row;
+    private int col;
 
-  public Cell(String value) {
-    super();
-    this.value = value;
-  }
+    public Cell() {
+        this.value = "";
+        this.rawdata = "";
+        this.formula = "";
+    }
 
-  public String getValue() {
-    return this.value;
-  }
+    public Cell(String value) {
+        this();
+        this.rawdata = "";
+        this.value = value;
+        if (value.startsWith("=")) {
+            this.formula = value;
+        }
+    }
 
-  public void setValue(String value) {
-    this.value = value;
-  }
+    public void setRawData(String rawdata) {
+        this.rawdata = rawdata;
+    }
 
-  public int getRow() {
-    return this.row;
-  }
+    public String getValue() {
+        return this.value;
+    }
 
-  public void setRow(int row) {
-    this.row = row;
-  }
+    public String getRawdata() {
+        return this.rawdata;
+    }
 
-  public int getCol() {
-    return this.col;
-  }
+    public void setValue(String value) {
+        this.value = value;
+        if (value.startsWith("=")) {
+            this.formula = value;
+        } else {
+            this.formula = "";
+        }
+    }
 
-  public void setCol(int col) {
-    this.col = col;
-  }
+    public int getRow() {
+        return this.row;
+    }
 
-  public boolean isFormula() {
-    return this.value.startsWith("=");
-  }
+    public void setRow(int row) {
+        this.row = row;
+    }
+
+    public int getCol() {
+        return this.col;
+    }
+
+    public void setCol(int col) {
+        this.col = col;
+    }
+
+    public String getFormula() {
+        return this.formula;
+    }
+
+    public void setFormula(String formula) {
+        this.formula = formula;
+    }
+
+    public boolean isFormula() {
+        return this.value.startsWith("=");
+    }
 }

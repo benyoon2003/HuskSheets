@@ -10,7 +10,6 @@ plugins {
 group = 'com.yourcompany'
 version = '1.0-SNAPSHOT'
 sourceCompatibility = '11'
-
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
@@ -28,6 +27,12 @@ dependencies {
     
     // H2 Database
     implementation 'com.h2database:h2'
+
+    // Protocol Buffers
+    implementation 'com.google.protobuf:protobuf-java:3.21.12'
+
+    // org.json dependency
+    implementation 'org.json:json:20210307'
 
     // Use JUnit Jupiter for testing.
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

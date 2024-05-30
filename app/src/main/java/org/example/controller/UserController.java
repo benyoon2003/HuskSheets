@@ -1,33 +1,20 @@
 package org.example.controller;
 
-import java.beans.XMLDecoder;
-import java.beans.XMLEncoder;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-
-import javax.xml.parsers.*;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.*;
-import javax.xml.transform.stream.*;
-
-import org.example.model.Publisher;
-import org.w3c.dom.*;
-
-import org.example.model.IAppUser;
-import org.example.model.IHome;
-import org.example.model.ISelectedCells;
-import org.example.model.ISpreadsheet;
-import org.example.model.ReadOnlySpreadSheet;
-import org.example.model.SelectedCells;
-import org.example.model.Spreadsheet;
+import org.example.model.*;
 import org.example.view.IHomeView;
 import org.example.view.ILoginView;
 import org.example.view.ISheetView;
 import org.example.view.SheetView;
+import org.json.JSONObject;
 
 public class UserController implements IUserController {
 
@@ -44,9 +31,8 @@ public class UserController implements IUserController {
     private String clipboardContent = "";
     private boolean isCutOperation = false;
 
-
     public UserController(ILoginView loginView, IHomeView homeView,
-            IAppUser appUser, ISpreadsheet spreadsheetModel, IHome home) {
+                          IAppUser appUser, ISpreadsheet spreadsheetModel, IHome home) {
         this.loginPage = loginView;
         loginView.addController(this);
         this.appUser = appUser;
@@ -93,13 +79,18 @@ public class UserController implements IUserController {
     }
 
     @Override
-    public void createNewSheet() {
-        this.spreadsheetModel = new Spreadsheet();
+    public void createNewSheet(String name) {
+        try {
+            ServerEndpoint.createSheet("team2", name);
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+        this.spreadsheetModel = new Spreadsheet(name);
         this.sheetView = new SheetView(this.spreadsheetModel);
         this.setCurrentSheet(sheetView);
-        this.sheetView.makeVisible();
-    }
 
+ this.sheetView.makeVisible();
+    }
     @Override
     public void saveSheet(ReadOnlySpreadSheet sheet, String path) {
         try {
@@ -107,6 +98,43 @@ public class UserController implements IUserController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void saveSheetToServer(ReadOnlySpreadSheet sheet, String name) {
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            String json = convertSheetToJson(sheet, name);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:8080/api/saveSheet"))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                System.out.println("Sheet saved to server successfully!");
+            } else {
+                System.out.println("Failed to save sheet to server: " + response.body());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String convertSheetToJson(ReadOnlySpreadSheet sheet, String name) {
+        StringBuilder json = new StringBuilder();
+        json.append("{\"name\":\"").append(name).append("\", \"content\":\"");
+
+        String[][] values = sheet.getCellStringsObject();
+        for (int i = 0; i < sheet.getRows(); i++) {
+            for (int j = 0; j < sheet.getCols(); j++) {
+                if (values[i][j] != null && !values[i][j].isEmpty()) {
+                    json.append(values[i][j].replace("\n", "\\n").replace("\"", "\\\"")).append(",");
+                }
+            }
+        }
+        json.append("\"}");
+        return json.toString();
     }
 
     @Override
@@ -169,6 +197,73 @@ public class UserController implements IUserController {
         return sheets;
     }
 
+    public List<String> getServerSheets() {
+        List<String> sheets = new ArrayList<>();
+        try {
+            String response = ServerEndpoint.getSheets("team2");
+            System.out.println(response);
+            sheets = Result.getSheets(response);
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+        return sheets;
+    }
+
+    @Override
+    public void openServerSheet(String selectedSheet) {
+        try {
+            this.spreadsheetModel = this.home.readPayload(this.appUser, selectedSheet);
+            this.sheetView = new SheetView(spreadsheetModel);
+            this.sheetView.makeVisible();
+            this.setCurrentSheet(sheetView);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void deleteSheet(String path) {
+        File file = new File("sheets/" + path);
+        if (file.exists()) {
+            file.delete();
+            this.homeView.updateSavedSheets();
+            System.out.println("Deleted sheet: " + path); // Debug statement
+        } else {
+            System.out.println("Sheet not found: " + path); // Debug statement
+        }
+    }
+
+    @Override
+    public void deleteSheetFromServer(String name) {
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:8080/api/deleteSheet/" + name))
+                    .DELETE()
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                System.out.println("Sheet deleted from server successfully!");
+                this.homeView.updateSavedSheets(); // Update the dropdown
+            } else {
+                System.out.println("Failed to delete sheet from server: " + response.body());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public String handleReferencingCell(int row, int col, String data) {
+        String rawdata = this.spreadsheetModel.getCellRawdata(row, col);
+        if (rawdata.startsWith("=")) {
+            return this.spreadsheetModel.evaluateFormula(rawdata);
+        }
+        else {
+            return data;
+        }
+    }
+
     @Override
     public IHomeView getHomeView() {
         return this.homeView;
@@ -176,14 +271,15 @@ public class UserController implements IUserController {
 
     @Override
     public void changeSpreadSheetValueAt(int selRow, int selCol, String val) {
-        // this.spreadsheetModel.setCellValue(selRow, selCol, val);
+        this.spreadsheetModel.setCellRawdata(selRow, selCol, val);
         if (val.startsWith("=")) {
+            this.spreadsheetModel.setCellValue(selRow, selCol, val); // Store the formula
             val = this.spreadsheetModel.evaluateFormula(val);
         }
         this.spreadsheetModel.setCellValue(selRow, selCol, val);
         this.sheetView.updateTable(); // Update the table view after changing the value
     }
-
+    
     @Override
     public String evaluateFormula(String formula) {
         return this.spreadsheetModel.evaluateFormula(formula);
@@ -191,7 +287,7 @@ public class UserController implements IUserController {
 
     @Override
     public void cutCell(int selRow, int selCol) {
-        this.clipboardContent = this.spreadsheetModel.getCellValue(selRow, selCol);
+        this.clipboardContent = this.spreadsheetModel.getCellRawdata(selRow, selCol);
         this.spreadsheetModel.setCellValue(selRow, selCol, "");
         this.sheetView.updateTable();
         this.isCutOperation = true;
@@ -199,7 +295,7 @@ public class UserController implements IUserController {
 
     @Override
     public void copyCell(int selRow, int selCol) {
-        this.clipboardContent = this.spreadsheetModel.getCellValue(selRow, selCol);
+        this.clipboardContent = this.spreadsheetModel.getCellRawdata(selRow, selCol);
         this.isCutOperation = false;
     }
 
@@ -216,8 +312,8 @@ public class UserController implements IUserController {
     }
 
     @Override
-    public IAppUser getUser() {
-        return this.appUser;
+    public String getFormula(int row, int col) {
+        return this.spreadsheetModel.getCellFormula(row, col);
     }
 
     private boolean validateInput(String username, String password) {

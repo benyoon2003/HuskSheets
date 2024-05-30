@@ -2,11 +2,9 @@ package org.example;
 
 import org.example.model.AppUser;
 import org.example.model.IAppUser;
-import org.example.model.Result;
-import org.example.model.Spreadsheet;
-import org.example.service.SheetService;
 import org.example.service.UserService;
-import org.example.view.ILoginView;
+import org.example.model.Sheet;
+import org.example.repository.SheetRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/api")
 public class server {
@@ -26,9 +23,9 @@ public class server {
 
   @Autowired
   private UserService userService;
-  private SheetService sheetService;
 
-
+  @Autowired
+  private SheetRepository sheetRepository;
 
   @PostMapping("/register")
   public ResponseEntity<?> registerUser(@RequestBody AppUser user) {
@@ -58,93 +55,44 @@ public class server {
     }
   }
 
-
-  @GetMapping("/getPublishers")
-  public ResponseEntity<?> getPublishers() {
-    logger.info("Received request to get publishers");
-
-    List<AppUser> publishers = userService.getPublishers();
-
-    if(publishers.size() > 0){
-      logger.info("Publishers found");
-      return ResponseEntity.ok(publishers);
-    } else {
-      logger.warn("No publishers found");
-      return ResponseEntity.status(401).body("No publishers found");
-    }
-  }
-
-  @PostMapping("/createSheet")
-  public ResponseEntity<?> createSheet(@RequestBody AppUser user, String name) {
-    logger.info("Received request to create sheet");
-
-    try{
-      Spreadsheet sheet = sheetService.createSheet(user, name);
-    } catch(Exception e){
-      return ResponseEntity.status(401).body("Sheet could not be created; already exists");
-    }
-    return ResponseEntity.ok("Sheet created successfully");
-  }
-
-  @PostMapping("/getSheets")
-  public ResponseEntity<?> getSheets(@RequestBody AppUser user) {
-    logger.info("Received request to get sheets");
+  @PostMapping("/saveSheet")
+  public ResponseEntity<?> saveSheet(@RequestBody Sheet sheet) {
+    logger.info("Received request to save sheet: {}", sheet.getName());
 
     try {
-      List<Spreadsheet> sheets = userService.getSheets(user);
-    } catch(Exception e){
-      return ResponseEntity.status(401).body("User has no sheets");
+      sheetRepository.save(sheet);
+      logger.info("Sheet saved successfully: {}", sheet.getName());
+      return ResponseEntity.ok("Sheet saved successfully");
+    } catch (Exception e) {
+      logger.error("Error saving sheet: {}", sheet.getName(), e);
+      return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
     }
-    return ResponseEntity.ok("sheets returned");
   }
 
-  @DeleteMapping("/deleteSheet")
-  public ResponseEntity<?> deleteSheet(@RequestBody AppUser user, Spreadsheet sheet) {
-    logger.info("Received request to delete sheet");
+  @GetMapping("/getSheets")
+  public ResponseEntity<List<Sheet>> getSheets() {
+    logger.info("Received request to get all sheets");
 
     try {
-      boolean deleted = sheetService.deleteSheet(user, sheet);
-      if (deleted) {
-        return ResponseEntity.ok("Sheet deleted successfully");
-      } else {
-        return ResponseEntity.ok("Failed to delete sheet");
+      List<Sheet> sheets = sheetRepository.findAll();
+      return ResponseEntity.ok(sheets);
+    } catch (Exception e) {
+      logger.error("Error getting sheets", e); // add time stamps
+      return ResponseEntity.status(500).body(null);
+    }
+  }
+
+  @DeleteMapping("/deleteSheet/{name}")
+  public ResponseEntity<?> deleteSheet(@PathVariable String name) {
+      logger.info("Received request to delete sheet: {}", name);
+  
+      try {
+          sheetRepository.deleteById(name);
+          logger.info("Sheet deleted successfully: {}", name);
+          return ResponseEntity.ok("Sheet deleted successfully");
+      } catch (Exception e) {
+          logger.error("Error deleting sheet: {}", name, e);
+          return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
       }
-    } catch(Exception e){
-      return ResponseEntity.status(401).body("Sheet cannot be deleted");
-    }
   }
-
-//  @PostMapping("/getUpdatesForSubscription")
-//  public ResponseEntity<Result<?> getUpdatesForSubscription(@RequestBody Argument argument) {
-//    logger.info("Received request to get updates for subscription");
-//
-//    List<Spreadsheet> updates = sheetService.getUpdatesForSubscription(argument);
-//    return ResponseEntity.ok(new Result<>(true, updates, null));
-//  }
-
-
-//  @PostMapping("/getUpdatesForPublished")
-//  public ResponseEntity<Result<List<Spreadsheet>>> getUpdatesForPublished(@RequestBody Argument argument) {
-//    logger.info("Received request to get updates for published sheets");
-//
-//    List<Spreadsheet> updates = sheetService.getUpdatesForPublished(argument);
-//    return ResponseEntity.ok(new Result<>(true, updates, null));
-//  }
-//
-//  @PutMapping("/updatePublished")
-//  public ResponseEntity<Result<Spreadsheet>> updatePublished(@RequestBody Argument argument) {
-//    logger.info("Received request to update published sheet");
-//
-//    Spreadsheet updatedSheet = sheetService.updatePublished(argument);
-//    return ResponseEntity.ok(new Result<>(true, updatedSheet, "Published sheet updated successfully"));
-//  }
-//
-//  @PutMapping("/updateSubscription")
-//  public ResponseEntity<Result<Spreadsheet>> updateSubscription(@RequestBody Argument argument) {
-//    logger.info("Received request to update subscription");
-//
-//    Spreadsheet updatedSheet = sheetService.updateSubscription(argument);
-//    return ResponseEntity.ok(new Result<>(true, updatedSheet, "Subscription updated successfully"));
-//  }
-
 }

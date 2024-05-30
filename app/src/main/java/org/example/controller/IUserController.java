@@ -1,9 +1,7 @@
 package org.example.controller;
 
 import org.example.model.AppUser;
-import org.example.model.IAppUser;
 import org.example.model.ISpreadsheet;
-import org.example.model.Publisher;
 import org.example.model.ReadOnlySpreadSheet;
 import org.example.model.SelectedCells;
 import org.example.view.IHomeView;
@@ -21,7 +19,7 @@ public interface IUserController {
 
     ISheetView getCurrentSheet();
 
-    void createNewSheet();
+    void createNewSheet(String name);
 
     void saveSheet(ReadOnlySpreadSheet sheet, String path);
 
@@ -35,11 +33,13 @@ public interface IUserController {
 
     List<String> getSavedSheets();
 
+    void deleteSheet(String path);
+
     IHomeView getHomeView();
 
     void changeSpreadSheetValueAt(int selRow, int selCol, String val);
 
-    String evaluateFormula(String formula); // Add this line
+    String evaluateFormula(String formula);
 
     void cutCell(int selRow, int selCol);
 
@@ -47,5 +47,15 @@ public interface IUserController {
 
     void pasteCell(int selRow, int selCol);
 
-  IAppUser getUser();
+    void saveSheetToServer(ReadOnlySpreadSheet sheet, String name);
+
+    void deleteSheetFromServer(String name);
+
+    String handleReferencingCell(int row, int col, String data);    
+    
+    String getFormula(int row, int col); // New method declaration
+
+    List<String> getServerSheets();
+
+    void openServerSheet(String selectedSheet);
 }
