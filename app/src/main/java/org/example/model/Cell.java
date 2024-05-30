@@ -2,6 +2,8 @@ package org.example.model;
 
 public class Cell {
     private String value;
+
+    private String rawdata;
     private int row;
     private int col;
 
@@ -14,8 +16,16 @@ public class Cell {
         this.value = value;
     }
 
+    public void setRawData(String rawdata) {
+        this.rawdata = rawdata;
+    }
+
     public String getValue() {
         return this.value;
+    }
+
+    public String getRawdata() {
+        return this.rawdata;
     }
 
     public void setValue(String value) {

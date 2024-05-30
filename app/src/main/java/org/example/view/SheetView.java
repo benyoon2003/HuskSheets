@@ -94,8 +94,7 @@ public class SheetView extends JFrame implements ISheetView {
         String[] columnNames = new String[colSize + 1];
         columnNames[0] = ""; // Empty first column
         for (int i = 1; i <= colSize; i++) {
-            columnNames[i] = String.valueOf((char) ('A' + (i - 1) % 26)) + ((i - 1) / 26); // Generate column labels (A,
-            // B, ..., Z, AA, AB, ...)
+            columnNames[i] = getExcelColumnName(i); // Generate Excel-like column labels
         }
 
         // Custom table model with row labels
@@ -168,6 +167,17 @@ public class SheetView extends JFrame implements ISheetView {
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         add(scrollPane, BorderLayout.CENTER);
+    }
+
+    // Helper function to generate Excel-like column names
+    private String getExcelColumnName(int columnNumber) {
+        StringBuilder columnName = new StringBuilder();
+        while (columnNumber > 0) {
+            int remainder = (columnNumber - 1) % 26;
+            columnName.insert(0, (char) (remainder + 'A'));
+            columnNumber = (columnNumber - 1) / 26;
+        }
+        return columnName.toString();
     }
 
     @Override
