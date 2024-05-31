@@ -44,6 +44,8 @@ public interface IUserController {
 
     void pasteCell(int selRow, int selCol);
 
+    void getPercentile(int selRow, int selCol);
+
     void saveSheetToServer(IReadOnlySpreadSheet sheet, String name);
 
     void deleteSheetFromServer(String name);
