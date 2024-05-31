@@ -209,7 +209,7 @@ public class SheetView extends JFrame implements ISheetView {
         String[][] data = this.cells.getCellStringsObject();
         for (int row = 0; row < data.length; row++) {
             for (int col = 0; col < data[row].length; col++) {
-                model.setValueAt(controller.handleReferencingCell(row, col, data[row][col]), row, col + 1);
+                //model.setValueAt(controller.handleReferencingCell(row, col, data[row][col]), row, col + 1);
             }
         }
         model.fireTableDataChanged();

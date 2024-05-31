@@ -19,16 +19,23 @@ public class ServerEndpoint {
   }
 
   public static void main(String[] args) throws Exception {
-    register("team2");
-    getPublishers();
-    createSheet("team2", "exampleSheet");
+//    register("team2");
+//    getPublishers();
+    //createSheet("team2", "testPayload");
     getSheets("team2");
 //    deleteSheet("team2", "exampleSheet");
 //    getSheets("team2");
-    updatePublished("team2", "exampleSheet", "NEW3");
-    getUpdatesForSubscription("team2", "exampleSheet", "1");
-    updateSubscription("team2", "exampleSheet", "NEW");
-    getUpdatesForPublished("team2", "exampleSheet", "3");
+//    updatePublished("team2", "testPayload",
+//            "$A1 1\\n" +
+//                    "$A2 \\\"help\\\"\\n" +
+//                    "$B1 -1.01"+
+//                    "$C4 \\\"\\\"\\n" +
+//                    "$c1 = SUM($A1:$B1");
+    getUpdatesForSubscription("team2", "testPayload", "0");
+    getUpdatesForPublished("team2", "testPayload", "0");
+
+//    updateSubscription("team2", "exampleSheet", "NEW");
+//    getUpdatesForPublished("team2", "exampleSheet", "3");
   }
 
 
@@ -58,7 +65,7 @@ public class ServerEndpoint {
    *
    * @throws Exception
    */
-  private static void getPublishers() throws Exception {
+  public static void getPublishers() throws Exception {
     String url = BASE_URL + "getPublishers";
     HttpClient client = HttpClient.newBuilder().build();
     HttpRequest request = HttpRequest.newBuilder()
@@ -153,7 +160,7 @@ public class ServerEndpoint {
    * @param id
    * @throws Exception
    */
-  public static void getUpdatesForSubscription(String publisher, String sheet, String id) throws Exception {
+  public static String getUpdatesForSubscription(String publisher, String sheet, String id) throws Exception {
     String url = BASE_URL + "getUpdatesForSubscription";
     HttpClient client = HttpClient.newBuilder().build();
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"id\":\"%s\"}", publisher, sheet, id);
@@ -166,6 +173,7 @@ public class ServerEndpoint {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
     System.out.println("Get Updates For Subscription Response: " + response.body());
+    return response.body();
   }
 
   /**

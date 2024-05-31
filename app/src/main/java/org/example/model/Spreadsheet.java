@@ -144,6 +144,11 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     @Override
+    public String getName() {
+        return this.name;
+    }
+
+    @Override
     public void setCellRawdata(int row, int col, String val) {
         this.grid.get(row).get(col).setRawData(val);
     }

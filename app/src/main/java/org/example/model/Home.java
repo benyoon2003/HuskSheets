@@ -59,7 +59,6 @@ public class Home implements IHome {
                 String value = cellElement.getTextContent();
                 cellArray.get(row).get(col).setValue(value);
             }
-
             return new Spreadsheet(cellArray, path);
         } catch (Exception e) {
             e.printStackTrace();
@@ -67,10 +66,15 @@ public class Home implements IHome {
         }
     }
 
-    public Spreadsheet readPayload(IAppUser user, String sheetName){
+    public ISpreadsheet readPayload(IAppUser user, String sheetName){
         try {
-            String response = ServerEndpoint.getSheets(user.getUsername());
+            String payload = Result.getPayload(ServerEndpoint.getUpdatesForSubscription(user.getUsername(), sheetName, "1"), sheetName);
 
+            if(payload != null){
+                //read payload
+            } else {
+                return new Spreadsheet(sheetName);
+            }
         }
         catch (Exception e){
             e.printStackTrace();
