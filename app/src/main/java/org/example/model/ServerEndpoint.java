@@ -30,7 +30,7 @@ public class ServerEndpoint {
                     "$A2 \\\"help\\\"\\n" +
                     "$B1 -1.01\\n"+
                     "$C4 \\\"\\\"\\n" +
-                    "$c1 =SUM($A1:$B1");
+                    "$c1 =SUM($A1:$B1\n");
     getUpdatesForSubscription("team2", "testPayload", "0");
     getUpdatesForPublished("team2", "testPayload", "0");
 

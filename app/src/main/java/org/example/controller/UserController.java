@@ -235,7 +235,6 @@ public class UserController implements IUserController {
     public void openServerSheet(String selectedSheet) {
         try {
             this.spreadsheetModel = this.home.readPayload(this.appUser, selectedSheet);
-            System.out.println(this.spreadsheetModel.getName());
             this.sheetView = new SheetView(spreadsheetModel);
             this.sheetView.makeVisible();
             this.setCurrentSheet(sheetView);

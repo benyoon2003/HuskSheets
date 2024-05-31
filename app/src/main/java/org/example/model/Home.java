@@ -1,9 +1,13 @@
 package org.example.model;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.*;
 import javax.xml.transform.*;
@@ -72,11 +76,25 @@ public class Home implements IHome {
 
     //Get payload of a sheet from server
     public ISpreadsheet readPayload(IAppUser user, String sheetName){
+        System.out.println(user.getUsername() + "\n" + sheetName);
         try {
             String payload = Result.getPayload(ServerEndpoint.getUpdatesForSubscription(user.getUsername(), sheetName, "0"), sheetName);
-            if(payload != ""){
-                //read payload
-            } else {
+            System.out.println(payload);
+            if(payload != ""){;
+
+                List<List<String>> data = convertStringTo2DArray(payload);
+
+                ISpreadsheet ss = new Spreadsheet(sheetName);
+
+                ArrayList<ArrayList<Cell>> grid = ss.getCells();
+
+                for(List<String> ls : data){
+                    ss.setCellRawdata(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
+                    ss.setCellValue(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
+                }
+             return ss;
+            }
+            else {
                 return new Spreadsheet(sheetName);
             }
         }
@@ -129,6 +147,66 @@ public class Home implements IHome {
             e.printStackTrace();
         }
     }
+
+    public static List<List<String>> convertStringTo2DArray(String input) {
+        // Parse input into lines
+        String[] lines = input.split("\\r?\\n");
+
+        // List to store the 2D array
+        List<List<String>> result = new ArrayList<>();
+
+        // Process each line
+        for (String line : lines) {
+            if (line.trim().isEmpty()) {
+                continue;
+            }
+
+            String[] parts = line.split(" ", 2);
+            if (parts.length < 2) {
+                continue;
+            }
+
+            String ref = parts[0];
+            String content = parts[1];
+
+            // Extract row and column from the reference
+            int[] rowCol = convertRefToRowCol(ref);
+
+            // Create the nested list for this cell
+            List<String> cellData = new ArrayList<>();
+            cellData.add(String.valueOf(rowCol[0])); // Row
+            cellData.add(String.valueOf(rowCol[1])); // Column
+            cellData.add(content); // Content
+
+            // Add to the result list
+            result.add(cellData);
+        }
+
+        return result;
+    }
+
+    // Convert cell reference (e.g., $A1) to row and column indices
+    private static int[] convertRefToRowCol(String ref) {
+        ref = ref.substring(1); // Remove the leading $
+        int row = 0;
+        int col = 0;
+        int i = 0;
+
+        // Extract column part (letters)
+        while (i < ref.length() && Character.isLetter(ref.charAt(i))) {
+            col = col * 26 + (ref.charAt(i) - 'A' + 1);
+            i++;
+        }
+
+        // Extract row part (digits)
+        while (i < ref.length() && Character.isDigit(ref.charAt(i))) {
+            row = row * 10 + (ref.charAt(i) - '0');
+            i++;
+        }
+
+        return new int[]{row - 1, col - 1}; // Convert to 0-based index
+    }
+
 
     private String trimEnds(String s) {
         String result = new StringBuilder(s).reverse().toString();

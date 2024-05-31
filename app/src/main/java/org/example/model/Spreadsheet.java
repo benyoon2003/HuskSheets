@@ -33,7 +33,8 @@ public class Spreadsheet implements ISpreadsheet {
         this(name);
         for (ArrayList<Cell> row : grid) {
             for (Cell c : row) {
-                this.grid.get(c.getRow()).get(c.getCol()).setValue(c.getValue());
+                //this.grid.get(c.getRow()).get(c.getCol()).setRawData(c.getValue());
+                System.out.println("Cell val: " + c.getValue());
             }
         }
     }
