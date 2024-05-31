@@ -1,13 +1,10 @@
 package org.example.model;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.xml.parsers.*;
 import javax.xml.transform.*;
@@ -70,7 +67,7 @@ public class Home implements IHome {
     }
 
     @Override
-    public void saveSheet(ReadOnlySpreadSheet sheet, String path) {
+    public void saveSheet(IReadOnlySpreadSheet sheet, String path) {
 
     }
 
@@ -94,18 +91,15 @@ public class Home implements IHome {
                 }
              return ss;
             }
-            else {
-                return new Spreadsheet(sheetName);
-            }
         }
         catch (Exception e){
             e.printStackTrace();
         }
-        return null;
+        return new Spreadsheet(sheetName);
     }
 
     @Override
-    public void writeXML(ReadOnlySpreadSheet sheet, String path) {
+    public void writeXML(IReadOnlySpreadSheet sheet, String path) {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();

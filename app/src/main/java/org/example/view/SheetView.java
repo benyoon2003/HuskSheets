@@ -2,8 +2,16 @@ package org.example.view;
 
 import org.example.controller.IUserController;
 import org.example.model.Cell;
+import org.example.model.IReadOnlySpreadSheet;
 import org.example.model.ISpreadsheet;
-import org.example.model.ReadOnlySpreadSheet;
+import org.example.model.IReadOnlySpreadSheet;
+import org.example.model.Spreadsheet;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -14,12 +22,11 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 
 public class SheetView extends JFrame implements ISheetView {
-    final ReadOnlySpreadSheet cells;
+    final IReadOnlySpreadSheet cells;
     private IUserController controller;
     private JButton backButton;
     JTable yourTable;
@@ -30,7 +37,7 @@ public class SheetView extends JFrame implements ISheetView {
     private static final int colSize = 100;
 
     public SheetView(ISpreadsheet openSheet) {
-        this.cells = new ReadOnlySpreadSheet(openSheet.getCellsObject());
+        this.cells = openSheet;
         setup();
     }
 
@@ -201,11 +208,25 @@ public class SheetView extends JFrame implements ISheetView {
     public void updateTable() {
         isUpdatingTable = true;
         JTable table = getTable();
+        if (table == null) {
+            System.out.println("Error: yourTable is null.");
+            isUpdatingTable = false;
+            return;
+        }
+        if (cells == null) {
+            System.out.println("Error: cells is null.");
+            isUpdatingTable = false;
+            return;
+        }
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         String[][] data = this.cells.getCellStringsObject();
+        if (data == null) {
+            System.out.println("Error: cells.getCellStringsObject() returned null.");
+            isUpdatingTable = false;
+            return;
+        }
         for (int row = 0; row < data.length; row++) {
             for (int col = 0; col < data[row].length; col++) {
-                System.out.println("CEll: " + data[row][col]);
                 model.setValueAt(controller.handleReferencingCell(row, col, data[row][col]), row, col + 1);
             }
         }

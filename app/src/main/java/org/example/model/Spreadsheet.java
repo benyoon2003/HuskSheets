@@ -3,6 +3,7 @@ package org.example.model;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -75,6 +76,7 @@ public class Spreadsheet implements ISpreadsheet {
 
     @Override
     public String evaluateFormula(String formula) {
+        System.out.println(formula);
         if (!formula.startsWith("=")) {
             return formula;
         }
