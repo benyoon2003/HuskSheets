@@ -39,35 +39,49 @@ public class HomeView extends JFrame implements IHomeView {
         spreadheetsLabel.setBounds(50, 50, 100, 25);
         panel.add(spreadheetsLabel);
 
+
+        //Button for creating a new sheet
         createSheet = new JButton("Create Spreadsheet");
         createSheet.setBounds(50, 70, 200, 25);
         panel.add(createSheet);
 
+        //dropdown menu for locally saved sheets
         openSheetDropdown = new JComboBox<>();
         openSheetDropdown.setBounds(50, 110, 200, 25);
         panel.add(openSheetDropdown);
 
+        //Button to open selected sheet
         openSheetButton = new JButton("Open Spreadsheet");
         openSheetButton.setBounds(50, 150, 200, 25);
         panel.add(openSheetButton);
 
+
+        //Button to delete selected sheet
         deleteSheetButton = new JButton("Delete Spreadsheet");
         deleteSheetButton.setBounds(50, 190, 200, 25);
         panel.add(deleteSheetButton);
 
+        //Create new sheet with name
         createSheet.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.createNewSheet();
+                String sheetName = JOptionPane.showInputDialog(panel, "Enter sheet name:", "Create New Sheet", JOptionPane.PLAIN_MESSAGE);
+                if (sheetName != null && !sheetName.trim().isEmpty()) {
+                    controller.createNewSheet(sheetName);
+                } else {
+                    JOptionPane.showMessageDialog(panel, "Sheet name cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
+        //open selected sheet
         openSheetButton.addActionListener(new ActionListener() { 
             @Override
             public void actionPerformed(ActionEvent e) {
                 String selectedSheet = (String) openSheetDropdown.getSelectedItem();
                 if (selectedSheet != null) {
-                    controller.openSheet("Husksheets/sheets/" + selectedSheet);
+//                    controller.openSheet("sheets/" + selectedSheet);
+                    controller.openServerSheet(selectedSheet);
                 } else {
                     JOptionPane.showMessageDialog(panel, "No sheet selected to open");
                 }
@@ -167,9 +181,10 @@ public class HomeView extends JFrame implements IHomeView {
     public void updateSavedSheets() {
         if (controller != null) {
             List<String> savedSheets = controller.getSavedSheets();
+            List<String> serverSheets = controller.getServerSheets();
             System.out.println("Updating dropdown with saved sheets: " + savedSheets);
             openSheetDropdown.removeAllItems();
-            for (String sheet : savedSheets) {
+            for (String sheet : serverSheets) {
                 openSheetDropdown.addItem(sheet);
             }
         }
@@ -178,13 +193,13 @@ public class HomeView extends JFrame implements IHomeView {
     @Override
     public void addController(IUserController controller) {
         this.controller = controller;
-        updateSavedSheets();
     }
 
     @Override
     public void makeVisible() {
         this.setVisible(true);
         updateSavedSheets();
+        this.controller.getServerSheets();
     }
 
     @Override

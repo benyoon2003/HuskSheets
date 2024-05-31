@@ -1,5 +1,20 @@
 package org.example.controller;
 
+import org.example.model.IAppUser;
+import org.example.model.IHome;
+import org.example.model.IReadOnlySpreadSheet;
+import org.example.model.ISelectedCells;
+import org.example.model.ISpreadsheet;
+import org.example.model.IReadOnlySpreadSheet;
+import org.example.model.Result;
+import org.example.model.SelectedCells;
+import org.example.model.ServerEndpoint;
+import org.example.model.Spreadsheet;
+import org.example.view.IHomeView;
+import org.example.view.ILoginView;
+import org.example.view.ISheetView;
+import org.example.view.SheetView;
+
 import java.io.File;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -9,17 +24,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.example.model.IAppUser;
-import org.example.model.IHome;
-import org.example.model.ISelectedCells;
-import org.example.model.ISpreadsheet;
-import org.example.model.ReadOnlySpreadSheet;
-import org.example.model.SelectedCells;
-import org.example.model.Spreadsheet;
-import org.example.view.IHomeView;
-import org.example.view.ILoginView;
-import org.example.view.ISheetView;
-import org.example.view.SheetView;
 
 public class UserController implements IUserController {
 
@@ -84,15 +88,20 @@ public class UserController implements IUserController {
     }
 
     @Override
-    public void createNewSheet() {
-        this.spreadsheetModel = new Spreadsheet();
+    public void createNewSheet(String name) {
+        try {
+            ServerEndpoint.createSheet("team2", name);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        this.spreadsheetModel = new Spreadsheet(name);
         this.sheetView = new SheetView(this.spreadsheetModel);
         this.setCurrentSheet(sheetView);
-        this.sheetView.makeVisible();
-    }
 
+ this.sheetView.makeVisible();
+    }
     @Override
-    public void saveSheet(ReadOnlySpreadSheet sheet, String path) {
+    public void saveSheet(IReadOnlySpreadSheet sheet, String path) {
         try {
             this.home.writeXML(sheet, path);
         } catch (Exception e) {
@@ -101,7 +110,7 @@ public class UserController implements IUserController {
     }
 
     @Override
-    public void saveSheetToServer(ReadOnlySpreadSheet sheet, String name) {
+    public void saveSheetToServer(IReadOnlySpreadSheet sheet, String name) {
         try {
             HttpClient client = HttpClient.newHttpClient();
             String json = convertSheetToJson(sheet, name);
@@ -121,7 +130,7 @@ public class UserController implements IUserController {
         }
     }
 
-    private String convertSheetToJson(ReadOnlySpreadSheet sheet, String name) {
+    private String convertSheetToJson(IReadOnlySpreadSheet sheet, String name) {
         StringBuilder json = new StringBuilder();
         json.append("{\"name\":\"").append(name).append("\", \"content\":\"");
 
@@ -220,6 +229,30 @@ public class UserController implements IUserController {
         return sheets;
     }
 
+    public List<String> getServerSheets() {
+        List<String> sheets = new ArrayList<>();
+        try {
+            String response = ServerEndpoint.getSheets("team2");
+            System.out.println(response);
+            sheets = Result.getSheets(response);
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+        return sheets;
+    }
+
+    @Override
+    public void openServerSheet(String selectedSheet) {
+        try {
+            this.spreadsheetModel = this.home.readPayload(this.appUser, selectedSheet);
+            this.sheetView = new SheetView(spreadsheetModel);
+            this.setCurrentSheet(sheetView);
+            this.sheetView.makeVisible();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void deleteSheet(String path) {
         File file = new File("sheets/" + path);
@@ -275,6 +308,7 @@ public class UserController implements IUserController {
             val = this.spreadsheetModel.evaluateFormula(val);
         }
         this.spreadsheetModel.setCellValue(selRow, selCol, val);
+        System.out.println("1");
         this.sheetView.updateTable(); // Update the table view after changing the value
     }
 

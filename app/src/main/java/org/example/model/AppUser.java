@@ -22,7 +22,7 @@ public class AppUser implements IAppUser {
 
     // Getters and Setters
     public String getUsername() {
-        return username;
+        return "team2";
     }
 
     public void setUsername(String username) {
