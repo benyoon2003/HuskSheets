@@ -61,7 +61,7 @@ public class Result {
     public static void main(String[] args) throws Exception {
         //getSheets(ServerEndpoint.getSheets("team2"));
 
-        getPayload(ServerEndpoint.getSheets("team2"), "exampleSheet");
+        getPayload(ServerEndpoint.getUpdatesForSubscription("team2", "testPayload2", "0"), "testPayload2");
 
     }
 }

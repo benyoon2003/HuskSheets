@@ -66,11 +66,11 @@ public class Home implements IHome {
         }
     }
 
+    //Get payload of a sheet from server
     public ISpreadsheet readPayload(IAppUser user, String sheetName){
         try {
-            String payload = Result.getPayload(ServerEndpoint.getUpdatesForSubscription(user.getUsername(), sheetName, "1"), sheetName);
-
-            if(payload != null){
+            String payload = Result.getPayload(ServerEndpoint.getUpdatesForSubscription(user.getUsername(), sheetName, "0"), sheetName);
+            if(payload != ""){
                 //read payload
             } else {
                 return new Spreadsheet(sheetName);
