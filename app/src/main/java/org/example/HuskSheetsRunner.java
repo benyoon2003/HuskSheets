@@ -10,6 +10,6 @@ import org.example.view.LoginView;
 public class HuskSheetsRunner {
   public static void main(String[] args) {
     new UserController(
-            new LoginView(), new HomeView(), new AppUser(),new Spreadsheet(), new Home());
+            new LoginView(), new HomeView(), new AppUser(),new Spreadsheet("test"), new Home());
   }
 }
