@@ -37,7 +37,7 @@ public class UserController implements IUserController {
     private boolean isCutOperation = false;
 
     public UserController(ILoginView loginView, IHomeView homeView,
-                          IAppUser appUser, ISpreadsheet spreadsheetModel, IHome home) {
+            IAppUser appUser, ISpreadsheet spreadsheetModel, IHome home) {
         this.loginPage = loginView;
         loginView.addController(this);
         this.appUser = appUser;
@@ -161,7 +161,8 @@ public class UserController implements IUserController {
                     endRow + 1, startColumn, endColumn);
 
             System.out.println("Selected range: (" + (selectedCells.getStartRow()) + ", " +
-                    selectedCells.getStartCol() + ") to (" + (selectedCells.getEndRow()) + ", " + selectedCells.getEndCol() + ")");
+                    selectedCells.getStartCol() + ") to (" + (selectedCells.getEndRow()) + ", "
+                    + selectedCells.getEndCol() + ")");
 
             if (this.singleCellSelected(this.selectedCells)) {
                 this.sheetView.changeFormulaTextField(this.spreadsheetModel.getCellRawdata(
@@ -204,7 +205,7 @@ public class UserController implements IUserController {
     @Override
     public List<String> getSavedSheets() {
         List<String> sheets = new ArrayList<>();
-        File folder = new File("sheets");
+        File folder = new File("HuskSheets/sheets");
         if (!folder.exists()) {
             folder.mkdirs(); // Ensure the directory exists
         }
@@ -256,8 +257,7 @@ public class UserController implements IUserController {
         String rawdata = this.spreadsheetModel.getCellRawdata(row, col);
         if (rawdata.startsWith("=")) {
             return this.spreadsheetModel.evaluateFormula(rawdata);
-        }
-        else {
+        } else {
             return data;
         }
     }
@@ -277,7 +277,7 @@ public class UserController implements IUserController {
         this.spreadsheetModel.setCellValue(selRow, selCol, val);
         this.sheetView.updateTable(); // Update the table view after changing the value
     }
-    
+
     @Override
     public String evaluateFormula(String formula) {
         return this.spreadsheetModel.evaluateFormula(formula);
@@ -306,6 +306,20 @@ public class UserController implements IUserController {
                 isCutOperation = false;
             }
             this.sheetView.updateTable();
+        }
+    }
+
+    @Override
+    public void getPercentile(int selRow, int selCol) {
+        String value = this.spreadsheetModel.getCellValue(selRow, selCol);
+        if (value == "" || value == null || value.contains("%"))
+            return;
+
+        try {
+            double num = Double.parseDouble(value);
+            this.spreadsheetModel.setCellValue(selRow, selCol, "" + (num * 100) + "%");
+        } catch (NumberFormatException e) {
+            this.spreadsheetModel.setCellValue(selRow, selCol, "Error");
         }
     }
 

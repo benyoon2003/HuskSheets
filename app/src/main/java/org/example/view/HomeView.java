@@ -67,7 +67,7 @@ public class HomeView extends JFrame implements IHomeView {
             public void actionPerformed(ActionEvent e) {
                 String selectedSheet = (String) openSheetDropdown.getSelectedItem();
                 if (selectedSheet != null) {
-                    controller.openSheet("sheets/" + selectedSheet);
+                    controller.openSheet("Husksheets/sheets/" + selectedSheet);
                 } else {
                     JOptionPane.showMessageDialog(panel, "No sheet selected to open");
                 }
@@ -77,8 +77,8 @@ public class HomeView extends JFrame implements IHomeView {
         deleteSheetButton.addActionListener(new ActionListener() { 
             @Override
             public void actionPerformed(ActionEvent e) {
-                String selectedSheet = (String) openSheetDropdown.getSelectedItem();
-                if (selectedSheet != null) {
+                // String selectedSheet = (String) openSheetDropdown.getSelectedItem();
+                // if (selectedSheet != null) {
                     int option = JOptionPane.showOptionDialog(
                             null,
                             "Choose where to delete the sheet from:",
@@ -90,18 +90,19 @@ public class HomeView extends JFrame implements IHomeView {
                             "Delete Locally");
 
                     if (option == JOptionPane.YES_OPTION) {
-                        controller.deleteSheet(selectedSheet);
+                        // controller.deleteSheet(selectedSheet);
                     } else if (option == JOptionPane.NO_OPTION) {
                         String sheetToDeleteFromServer = getSheetToDeleteFromServer();
                         if (sheetToDeleteFromServer != null) {
                             controller.deleteSheetFromServer(sheetToDeleteFromServer);
                         }
                     }
-                } else {
-                    JOptionPane.showMessageDialog(panel, "No sheet selected to delete");
-                }
+                // } else {
+                //     JOptionPane.showMessageDialog(panel, "No sheet selected to delete");
+                // }
             }
         });
+
     }
 
     private String getSheetToDeleteFromServer() {
@@ -152,7 +153,7 @@ public class HomeView extends JFrame implements IHomeView {
             System.out.println("Could not load spreadsheet: " + e.getMessage());
         }
     }
-    
+
     @Override
     public void openSheetFromServer(String path) {
         try {

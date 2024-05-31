@@ -9,8 +9,8 @@ import javax.script.ScriptException;
 
 public class Spreadsheet implements ISpreadsheet {
     private ArrayList<ArrayList<Cell>> grid;
-    private String[] functions = new String[] { "IF", "SUM", "MIN", "MAX", "AVG", "CONCAT", "DEBUG" };
-    private String[] arith = new String[] {"+", "-", "*", "/"};
+    private String[] functions = new String[] { "IF", "SUM", "MIN", "MAX", "AVG", "CONCAT", "DEBUG", "STDDEV" };
+    private String[] arith = new String[] { "+", "-", "*", "/" };
 
     public Spreadsheet() {
         grid = new ArrayList<>();
@@ -213,6 +213,8 @@ public class Spreadsheet implements ISpreadsheet {
             return evaluateCONCAT(formula.substring(7, formula.length() - 1));
         } else if (formula.startsWith("DEBUG(")) {
             return evaluateDEBUG(formula.substring(6, formula.length() - 1));
+        } else if (formula.startsWith("STDDEV(")) {
+            return evaluateSTDDEV(formula.substring(7, formula.length() - 1));
         }
 
         return formula;
@@ -424,5 +426,22 @@ public class Spreadsheet implements ISpreadsheet {
 
     private String evaluateDEBUG(String parameter) {
         return parameter.trim();
+    }
+
+    private String evaluateSTDDEV(String parameter) {
+        String[] nums = parameter.split(",");
+        double avg = Double.parseDouble(evaluateAVG(parameter));
+        double sum = 0;
+
+        try {
+            for (String num : nums) {
+                sum += Math.pow(Double.parseDouble(num) - avg, 2);
+            }
+        } catch (NumberFormatException e) {
+            return "Error";
+        }
+
+        double result = Math.pow(sum / nums.length, 0.5);
+        return "" + (double) Math.round(result * 1000) / 1000;
     }
 }
