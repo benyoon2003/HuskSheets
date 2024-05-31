@@ -166,6 +166,15 @@ public class HomeView extends JFrame implements IHomeView {
             System.out.println("Could not load spreadsheet: " + e.getMessage());
         }
     }
+    
+    @Override
+    public void openSheetFromServer(String path) {
+        try {
+            this.controller.openSheet(path);
+        } catch (Exception e) {
+            System.out.println("Could not load spreadsheet from server: " + e.getMessage());
+        }
+    }
 
     @Override
     public void updateSavedSheets() {

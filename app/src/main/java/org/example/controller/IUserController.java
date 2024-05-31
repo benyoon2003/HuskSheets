@@ -55,7 +55,13 @@ public interface IUserController {
     
     String getFormula(int row, int col); // New method declaration
 
+<<<<<<< HEAD
     List<String> getServerSheets();
 
     void openServerSheet(String selectedSheet);
+=======
+    int getSelectedRowZeroIndex();
+
+    int getSelectedColZeroIndex();
+>>>>>>> 5d4e35b4fcd992cce1d9f8d530d538d85bc59756
 }

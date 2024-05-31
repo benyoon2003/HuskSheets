@@ -12,4 +12,6 @@ public interface IHomeView {
     void updateSavedSheets(); // Add this method
 
     void openSheet(String absolutePath);
+    
+    void openSheetFromServer(String absolutePath);
 }

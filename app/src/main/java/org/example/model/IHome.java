@@ -6,4 +6,5 @@ public interface IHome {
     void saveSheet(ReadOnlySpreadSheet sheet, String path);
 
     ISpreadsheet readPayload(IAppUser user, String selectedSheet);
+    void writeXML(ReadOnlySpreadSheet sheet, String path);
 }

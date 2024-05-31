@@ -94,7 +94,7 @@ public class UserController implements IUserController {
     @Override
     public void saveSheet(ReadOnlySpreadSheet sheet, String path) {
         try {
-            this.home.saveSheet(sheet, path);
+            this.home.writeXML(sheet, path);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -155,16 +155,38 @@ public class UserController implements IUserController {
             int startColumn = selectedColumns[0];
             int endColumn = selectedColumns[selectedColumns.length - 1];
 
-            System.out.println("Selected range: (" + (startRow + 1) + ", " +
-                    startColumn + ") to (" + (endRow + 1) + ", " + endColumn + ")");
             // Additional logic for handling cell selection range
 
             this.selectedCells = new SelectedCells(startRow + 1,
                     endRow + 1, startColumn, endColumn);
+
+            System.out.println("Selected range: (" + (selectedCells.getStartRow()) + ", " +
+                    selectedCells.getStartCol() + ") to (" + (selectedCells.getEndRow()) + ", " + selectedCells.getEndCol() + ")");
+
+            if (this.singleCellSelected(this.selectedCells)) {
+                this.sheetView.changeFormulaTextField(this.spreadsheetModel.getCellRawdata(
+                        this.selectedCells.getStartRow() - 1, this.selectedCells.getStartCol() - 1));
+            }
         } else {
             this.selectedCells = new SelectedCells(-1,
                     -1, -1, -1);
         }
+    }
+
+    public int getSelectedRowZeroIndex() {
+        System.out.println("ROWINDEX:" + selectedCells.getStartRow());
+        return selectedCells.getStartRow() - 1;
+    }
+
+    public int getSelectedColZeroIndex() {
+        System.out.println("COLINDEX:" + selectedCells.getStartCol());
+        return selectedCells.getStartCol() - 1;
+    }
+
+    private boolean singleCellSelected(ISelectedCells selectedCells) {
+        System.out.println("Single cell selected");
+        return selectedCells.getStartRow() == selectedCells.getEndRow() &&
+                selectedCells.getStartCol() == selectedCells.getEndCol();
     }
 
     @Override

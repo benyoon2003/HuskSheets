@@ -15,7 +15,6 @@ import org.w3c.dom.*;
 public class Home implements IHome {
 
     public Spreadsheet readXML(String path) {
-
         try {
             File xmlFile = new File(path);
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -66,6 +65,11 @@ public class Home implements IHome {
         }
     }
 
+    @Override
+    public void saveSheet(ReadOnlySpreadSheet sheet, String path) {
+
+    }
+
     //Get payload of a sheet from server
     public ISpreadsheet readPayload(IAppUser user, String sheetName){
         try {
@@ -83,7 +87,7 @@ public class Home implements IHome {
     }
 
     @Override
-    public void saveSheet(ReadOnlySpreadSheet sheet, String path) {
+    public void writeXML(ReadOnlySpreadSheet sheet, String path) {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();
@@ -91,12 +95,14 @@ public class Home implements IHome {
 
             // root element (sheet)
             Element root = dom.createElement("sheet");
+            String name = this.trimEnds(path);
+            root.setAttribute("name", name);
 
             // adding the cell values
             String[][] values = sheet.getCellStringsObject();
             for (int i = 0; i < sheet.getRows(); i++) {
                 for (int j = 0; j < sheet.getCols(); j++) {
-                    if (values[i][j] == "" || values[i][j] == null) {
+                    if (values[i][j] == "") {
                         continue;
                     } else {
                         Element e = dom.createElement("cell");
@@ -116,12 +122,25 @@ public class Home implements IHome {
             tr.setOutputProperty(OutputKeys.METHOD, "xml");
             tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
 
-            if (!path.endsWith(".xml")) {
+            if (!path.endsWith(".xml"))
                 path += ".xml";
-            }
             tr.transform(new DOMSource(dom), new StreamResult(new FileOutputStream(path)));
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private String trimEnds(String s) {
+        String result = new StringBuilder(s).reverse().toString();
+
+        if (result.contains("\\"))
+            result = result.substring(0, result.indexOf('\\'));
+        else
+            result = result.substring(0, result.indexOf('/'));
+        result = new StringBuilder(result).reverse().toString();
+        if (result.endsWith(".xml"))
+            result = result.substring(0, result.indexOf('.'));
+
+        return result;
     }
 }

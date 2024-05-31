@@ -4,9 +4,6 @@ import org.example.controller.IUserController;
 import org.example.model.Cell;
 import org.example.model.ISpreadsheet;
 import org.example.model.ReadOnlySpreadSheet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -32,8 +29,6 @@ public class SheetView extends JFrame implements ISheetView {
     private static final int rowSize = 100;
     private static final int colSize = 100;
 
-    private static final Logger logger = LoggerFactory.getLogger(SheetView.class);
-
     public SheetView(ISpreadsheet openSheet) {
         this.cells = new ReadOnlySpreadSheet(openSheet.getCellsObject());
         setup();
@@ -52,9 +47,16 @@ public class SheetView extends JFrame implements ISheetView {
         JButton saveButton = new JButton("Save");
         backButton = new JButton("Back");
         formulaTextField = new JTextField(20);
-        formulaTextField.setEditable(false);
+        formulaTextField.setEditable(true);
         toolbar.add(new JLabel("Formula:"));
         toolbar.add(formulaTextField);
+        formulaTextField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controller.changeSpreadSheetValueAt(controller.getSelectedRowZeroIndex(),
+                        controller.getSelectedColZeroIndex(), formulaTextField.getText());
+            }
+        });
 
         toolbar.add(cutButton);
         toolbar.add(copyButton);
@@ -138,11 +140,6 @@ public class SheetView extends JFrame implements ISheetView {
                     int[] selectedRows = table.getSelectedRows();
                     int[] selectedColumns = table.getSelectedColumns();
                     controller.selectedCells(selectedRows, selectedColumns);
-
-                    if (selectedRows.length == 1 && selectedColumns.length == 1) {
-                        String formula = controller.getFormula(selectedRows[0], selectedColumns[0] - 1);
-                        formulaTextField.setText(formula);
-                    }
                 }
             }
         });
@@ -153,11 +150,6 @@ public class SheetView extends JFrame implements ISheetView {
                     int[] selectedRows = table.getSelectedRows();
                     int[] selectedColumns = table.getSelectedColumns();
                     controller.selectedCells(selectedRows, selectedColumns);
-
-                    if (selectedRows.length == 1 && selectedColumns.length == 1) {
-                        String formula = controller.getFormula(selectedRows[0], selectedColumns[0] - 1);
-                        formulaTextField.setText(formula);
-                    }
                 }
             }
         });
@@ -184,6 +176,10 @@ public class SheetView extends JFrame implements ISheetView {
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         add(scrollPane, BorderLayout.CENTER);
+    }
+
+    public void changeFormulaTextField(String rawdata) {
+        formulaTextField.setText(rawdata);
     }
 
     // Helper function to generate Excel-like column names
@@ -232,7 +228,7 @@ public class SheetView extends JFrame implements ISheetView {
 
     public void save(String path) {
         try {
-            this.controller.saveSheet(this.cells, path);
+            this.controller.saveSheetToServer(this.cells, path);
             System.out.println("Saved spreadsheet '" + path + ".xml'");
         } catch (Exception e) {
             System.out.println("Could not save spreadsheet: " + e.getMessage());
