@@ -22,6 +22,9 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
 
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 
@@ -75,7 +78,36 @@ public class SheetView extends JFrame implements ISheetView {
         cutButton.addActionListener(new ToolbarButtonListener(this));
         copyButton.addActionListener(new ToolbarButtonListener(this));
         pasteButton.addActionListener(new ToolbarButtonListener(this));
-        saveButton.addActionListener(new ToolbarButtonListener(this));
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int option = JOptionPane.showOptionDialog(
+                        null,
+                        "Choose where to save the sheet:",
+                        "Save Option",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        new Object[]{"Save Locally", "Save to Server"},
+                        "Save Locally");
+
+                if (option == JOptionPane.YES_OPTION) {
+                    JFileChooser fileChooser = new JFileChooser();
+                    int returnValue = fileChooser.showSaveDialog(null);
+                    if (returnValue == JFileChooser.APPROVE_OPTION) {
+                        File selectedFile = fileChooser.getSelectedFile();
+                        controller.saveSheetToServer(cells, selectedFile.getAbsolutePath());
+                    }
+                } else if (option == JOptionPane.NO_OPTION) {
+                    String name = JOptionPane.showInputDialog("Enter a name for the sheet:");
+                    if (name != null && !name.trim().isEmpty()) {
+                        controller.saveSheetToServer(cells, name);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Sheet name cannot be empty.");
+                    }
+                }
+            }
+        });
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -177,7 +209,6 @@ public class SheetView extends JFrame implements ISheetView {
 
         add(table, BorderLayout.CENTER);
 
-        // Add scroll bars
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setPreferredSize(new Dimension(800, 600));
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
