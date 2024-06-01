@@ -1,6 +1,5 @@
 package org.example.model;
 
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -8,60 +7,59 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-// Represents a JSON object to be returned by an HTTP request
+/**
+ * Represents a utility class to handle JSON responses from HTTP requests.
+ */
 public class Result {
 
-    //Get list of sheets of a specified user
-    public static List<String> getSheets(String response){
+    /**
+     * Parses the JSON response to retrieve a list of sheet names.
+     *
+     * @param response the JSON response from the server.
+     * @return a list of sheet names.
+     */
+    public static List<String> getSheets(String response) {
         List<String> sheetNames = new ArrayList<>();
-
-        JSONObject jsonObject = new JSONObject(response);
-        for( String key : jsonObject.keySet()){
-            System.out.println(key);
-        }
-
-        JSONArray jsonArray = jsonObject.getJSONArray("value");
-
-
-        for(int i = 0; i < jsonArray.length(); i++){
-            JSONObject entry = jsonArray.getJSONObject(i);
-            String sheetName = entry.getString("sheet");
-            System.out.println(sheetName);
-            sheetNames.add(sheetName);
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray jsonArray = jsonObject.getJSONArray("value");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject entry = jsonArray.getJSONObject(i);
+                String sheetName = entry.getString("sheet");
+                sheetNames.add(sheetName);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
         return sheetNames;
     }
 
-    //Get payload of a specified sheet
-    public static String getPayload(String response, String sheetName){
-        JSONObject jsonObject = new JSONObject(response);
-        for( String key : jsonObject.keySet()){
-            System.out.println(key);
-        }
-
-        JSONArray jsonArray = jsonObject.getJSONArray("value");
-        System.out.println(jsonArray.toString());
-
-        for(int i = 0; i < jsonArray.length(); i++){
-            JSONObject entry = jsonArray.getJSONObject(i);
-            String sheet = entry.getString("sheet");
-            if(sheet.equals(sheetName)){
-                try {
-                    System.out.println(sheet);
-                    String payload = entry.getString("payload");
-                    System.out.println(payload.toString());
-                    return payload;
-                } catch (JSONException e) {
+    /**
+     * Retrieves the payload of a specified sheet from the JSON response.
+     *
+     * @param response  the JSON response from the server.
+     * @param sheetName the name of the sheet.
+     * @return the payload of the specified sheet.
+     */
+    public static String getPayload(String response, String sheetName) {
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray jsonArray = jsonObject.getJSONArray("value");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject entry = jsonArray.getJSONObject(i);
+                String sheet = entry.getString("sheet");
+                if (sheet.equals(sheetName)) {
+                    return entry.getString("payload");
                 }
             }
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
         return null;
     }
 
     public static void main(String[] args) throws Exception {
-        //getSheets(ServerEndpoint.getSheets("team2"));
-
-        getPayload(ServerEndpoint.getUpdatesForSubscription("team2", "testPayload2", "0"), "testPayload2");
-
+        // Example usage
+        // getPayload(ServerEndpoint.getUpdatesForSubscription("team2", "testPayload2", "0"), "testPayload2");
     }
 }
