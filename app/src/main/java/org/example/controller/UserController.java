@@ -42,6 +42,14 @@ public class UserController implements IUserController {
     private String clipboardContent = "";
     private boolean isCutOperation = false;
 
+    /**
+     * Constructor to initialize the UserController.
+     * @param loginView the login view.
+     * @param homeView the home view.
+     * @param appUser the application user.
+     * @param spreadsheetModel the spreadsheet model.
+     * @param home the home model.
+     */
     public UserController(ILoginView loginView, IHomeView homeView,
                           IAppUser appUser, ISpreadsheet spreadsheetModel, IHome home) {
         this.loginPage = loginView;
@@ -272,23 +280,9 @@ public class UserController implements IUserController {
 
     @Override
     public void deleteSheetFromServer(String name) {
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("https://husksheets.fly.dev/api/v1/deleteSheet"))
-                    .header("Authorization", "Basic " + Base64.getEncoder().encodeToString(("team2:Ltf3r008'fYrV405").getBytes(StandardCharsets.UTF_8)))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\"}", "team2", name), StandardCharsets.UTF_8))
-                    .build();
-
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
-                System.out.println("Sheet deleted from server successfully!");
-                this.homeView.updateSavedSheets();
-            } else {
-                System.out.println("Failed to delete sheet from server: " + response.body());
-            }
-        } catch (Exception e) {
+        try{
+            ServerEndpoint.deleteSheet(appUser.getUsername(), name);
+        } catch(Exception e){
             e.printStackTrace();
         }
     }
