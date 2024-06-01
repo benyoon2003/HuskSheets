@@ -8,8 +8,8 @@ public interface ISheetView {
     void makeVisible();
 
     void displayMessage(String s);
-    
-    void updateTable(); // Add this method
+
+    void updateTable();
 
     void changeFormulaTextField(String rawdata);
 }

@@ -1,7 +1,6 @@
 package org.example.controller;
 
 import org.example.model.IReadOnlySpreadSheet;
-import org.example.model.IReadOnlySpreadSheet;
 import org.example.view.IHomeView;
 import org.example.view.ISheetView;
 
@@ -50,10 +49,7 @@ public interface IUserController {
 
     void deleteSheetFromServer(String name);
 
-    String handleReferencingCell(int row, int col, String data);    
-    
-    String getFormula(int row, int col); // New method declaration
-
+    String handleReferencingCell(int row, int col, String data);
 
     List<String> getServerSheets();
 
@@ -63,4 +59,5 @@ public interface IUserController {
 
     int getSelectedColZeroIndex();
 
+    String getFormula(int row, int col);
 }
