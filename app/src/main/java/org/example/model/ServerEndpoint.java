@@ -136,6 +136,14 @@ public class ServerEndpoint {
     System.out.println("Delete Sheet Response: " + response.body());
   }
 
+  /**
+   * Gets updates for a Subscriber of a specified sheet
+   * @param publisher Name of publisher
+   * @param sheet Name of sheet
+   * @param id id of last version
+   * @return Respones body containing payload of sheet updates
+   * @throws Exception
+   */
   public static String getUpdatesForSubscription(String publisher, String sheet, String id) throws Exception {
     String url = BASE_URL + "getUpdatesForSubscription";
     HttpClient client = HttpClient.newBuilder().build();

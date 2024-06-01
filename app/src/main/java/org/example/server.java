@@ -50,33 +50,33 @@ public class server {
     }
   }
 
-  @PostMapping("/authenticate")
-  public ResponseEntity<?> authenticateUser(@RequestBody AppUser user) {
-    logger.info("Received request to authenticate user: {}", user.getUsername());
+//  @PostMapping("/authenticate")
+//  public ResponseEntity<?> authenticateUser(@RequestBody AppUser user) {
+//    logger.info("Received request to authenticate user: {}", user.getUsername());
+//
+//    AppUser foundUser = userService.findUserByUsername(user.getUsername());
+//    if (foundUser != null && foundUser.getPassword().equals(user.getPassword())) {
+//      logger.info("User authenticated successfully: {}", user.getUsername());
+//      return ResponseEntity.ok("Login successful");
+//    } else {
+//      logger.warn("Authentication failed for user: {}", user.getUsername());
+//      return ResponseEntity.status(401).body("Invalid credentials");
+//    }
+//  }
 
-    AppUser foundUser = userService.findUserByUsername(user.getUsername());
-    if (foundUser != null && foundUser.getPassword().equals(user.getPassword())) {
-      logger.info("User authenticated successfully: {}", user.getUsername());
-      return ResponseEntity.ok("Login successful");
-    } else {
-      logger.warn("Authentication failed for user: {}", user.getUsername());
-      return ResponseEntity.status(401).body("Invalid credentials");
-    }
-  }
-
-  @PostMapping("/saveSheet")
-  public ResponseEntity<?> saveSheet(@RequestBody Sheet sheet) {
-    logger.info("Received request to save sheet: {}", sheet.getName());
-
-    try {
-      sheetRepository.save(sheet);
-      logger.info("Sheet saved successfully: {}", sheet.getName());
-      return ResponseEntity.ok("Sheet saved successfully");
-    } catch (Exception e) {
-      logger.error("Error saving sheet: {}", sheet.getName(), e);
-      return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
-    }
-  }
+//  @PostMapping("/saveSheet")
+//  public ResponseEntity<?> saveSheet(@RequestBody Sheet sheet) {
+//    logger.info("Received request to save sheet: {}", sheet.getName());
+//
+//    try {
+//      sheetRepository.save(sheet);
+//      logger.info("Sheet saved successfully: {}", sheet.getName());
+//      return ResponseEntity.ok("Sheet saved successfully");
+//    } catch (Exception e) {
+//      logger.error("Error saving sheet: {}", sheet.getName(), e);
+//      return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
+//    }
+//  }
 
   @GetMapping("/getSheets")
   public ResponseEntity<List<Sheet>> getSheets() {
