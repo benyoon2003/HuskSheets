@@ -99,12 +99,7 @@ public class SheetView extends JFrame implements ISheetView {
                         controller.saveSheetToServer(cells, selectedFile.getAbsolutePath());
                     }
                 } else if (option == JOptionPane.NO_OPTION) {
-                    String name = JOptionPane.showInputDialog("Enter a name for the sheet:");
-                    if (name != null && !name.trim().isEmpty()) {
-                        controller.saveSheetToServer(cells, name);
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Sheet name cannot be empty.");
-                    }
+                    controller.saveSheetToServer(cells, ((Spreadsheet) cells).getName());
                 }
             }
         });
@@ -341,12 +336,7 @@ public class SheetView extends JFrame implements ISheetView {
                         this.view.save(selectedFile.getAbsolutePath());
                     }
                 } else if (option == JOptionPane.NO_OPTION) {
-                    String name = JOptionPane.showInputDialog("Enter a name for the sheet:");
-                    if (name != null && !name.trim().isEmpty()) {
-                        this.view.getController().saveSheetToServer(this.view.cells, name);
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Sheet name cannot be empty.");
-                    }
+                    this.view.getController().saveSheetToServer(this.view.cells, ((Spreadsheet) this.view.cells).getName());
                 }
             } else {
                 view.getController().handleToolbar(command);
