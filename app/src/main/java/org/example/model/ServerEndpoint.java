@@ -21,16 +21,16 @@ public class ServerEndpoint {
   public static void main(String[] args) throws Exception {
 //    register("team2");
     getPublishers();
-    createSheet("team2", "testPayload2");
+//    createSheet("team2", "testPayload2");
     getSheets("team2");
 //    deleteSheet("team2", "exampleSheet");
 //    getSheets("team2");
-    updatePublished("team2", "testPayload2",
+    updatePublished("team2", "go",
             "$A1 1\\n" +
                     "$A2 \\\"help\\\"\\n" +
                     "$B1 -1.01\\n"+
                     "$C4 \\\"\\\"\\n" +
-                    "$c1 =SUM($A1:$B1\n");
+                    "$c1 =SUM($A1:$B1)\\n");
     getUpdatesForSubscription("team2", "testPayload", "0");
     getUpdatesForPublished("team2", "testPayload", "0");
 
