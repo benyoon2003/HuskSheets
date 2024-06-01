@@ -2,8 +2,16 @@ package org.example.view;
 
 import org.example.controller.IUserController;
 import org.example.model.Cell;
+import org.example.model.IReadOnlySpreadSheet;
 import org.example.model.ISpreadsheet;
-import org.example.model.ReadOnlySpreadSheet;
+import org.example.model.IReadOnlySpreadSheet;
+import org.example.model.Spreadsheet;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -14,12 +22,14 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 
 public class SheetView extends JFrame implements ISheetView {
-    final ReadOnlySpreadSheet cells;
+    final IReadOnlySpreadSheet cells;
     private IUserController controller;
     private JButton backButton;
     JTable yourTable;
@@ -30,7 +40,7 @@ public class SheetView extends JFrame implements ISheetView {
     private static final int colSize = 100;
 
     public SheetView(ISpreadsheet openSheet) {
-        this.cells = new ReadOnlySpreadSheet(openSheet.getCellsObject());
+        this.cells = openSheet;
         setup();
     }
 
@@ -122,7 +132,7 @@ public class SheetView extends JFrame implements ISheetView {
         table.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                                                           boolean hasFocus, int row, int column) {
+                    boolean hasFocus, int row, int column) {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 setHorizontalAlignment(SwingConstants.CENTER); // Align labels to the center
                 return this;
@@ -168,6 +178,37 @@ public class SheetView extends JFrame implements ISheetView {
             }
         });
 
+        // Add panel for right-clicks
+        JPanel rightClickPanel = new JPanel(new GridLayout(1, 1));
+        rightClickPanel.setSize(new Dimension(100, 15));
+
+        // Add buttons to right-click panel
+        JButton percentiles = new JButton("Percentile");
+        percentiles.setPreferredSize(new Dimension(100, 15));
+        percentiles.addActionListener(new RightClickButtonListener(this));
+        percentiles.setVisible(rightClickPanel.isVisible());
+        rightClickPanel.add(percentiles);
+        
+        rightClickPanel.setVisible(false);
+        yourTable.add(rightClickPanel);
+
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON3) { // For right-clicks
+                    int row = table.rowAtPoint(e.getPoint());
+                    int col = table.columnAtPoint(e.getPoint());
+                    if (row >= 0 && row < rowSize && col >= 1 && col < colSize) {
+                        rightClickCell(rightClickPanel, e.getX(), e.getY());
+                    }
+                } else if (e.getButton() == MouseEvent.BUTTON1) { // For left-clicks
+                    if (rightClickPanel != null && rightClickPanel.isVisible()) {
+                        rightClickPanel.setVisible(false);
+                    }
+                }
+            }
+        });
+
         add(table, BorderLayout.CENTER);
 
         // Add scroll bars
@@ -201,8 +242,23 @@ public class SheetView extends JFrame implements ISheetView {
     public void updateTable() {
         isUpdatingTable = true;
         JTable table = getTable();
+        if (table == null) {
+            System.out.println("Error: yourTable is null.");
+            isUpdatingTable = false;
+            return;
+        }
+        if (cells == null) {
+            System.out.println("Error: cells is null.");
+            isUpdatingTable = false;
+            return;
+        }
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         String[][] data = this.cells.getCellStringsObject();
+        if (data == null) {
+            System.out.println("Error: cells.getCellStringsObject() returned null.");
+            isUpdatingTable = false;
+            return;
+        }
         for (int row = 0; row < data.length; row++) {
             for (int col = 0; col < data[row].length; col++) {
                 model.setValueAt(controller.handleReferencingCell(row, col, data[row][col]), row, col + 1);
@@ -238,6 +294,11 @@ public class SheetView extends JFrame implements ISheetView {
     @Override
     public void displayMessage(String s) {
         JOptionPane.showMessageDialog(this, s);
+    }
+
+    private void rightClickCell(JPanel rightClickPanel, int x, int y) {
+        rightClickPanel.setLocation(x, y);
+        rightClickPanel.setVisible(true);
     }
 
     class ToolbarButtonListener implements ActionListener {
@@ -277,7 +338,7 @@ public class SheetView extends JFrame implements ISheetView {
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE,
                         null,
-                        new Object[]{"Save Locally", "Save to Server"},
+                        new Object[] { "Save Locally", "Save to Server" },
                         "Save Locally");
 
                 if (option == JOptionPane.YES_OPTION) {
@@ -298,6 +359,28 @@ public class SheetView extends JFrame implements ISheetView {
             } else {
                 view.getController().handleToolbar(command);
             }
+        }
+    }
+
+    class RightClickButtonListener implements ActionListener {
+        private SheetView view;
+
+        RightClickButtonListener(SheetView view) {
+            this.view = view;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String command = e.getActionCommand();
+            int row = this.view.yourTable.getSelectedRow();
+            int col = this.view.yourTable.getSelectedColumn() - 1;
+
+            if (command == "Percentile") {
+                System.out.println(command);
+                this.view.getController().getPercentile(row, col);
+            }
+
+            this.view.updateTable();
         }
     }
 }

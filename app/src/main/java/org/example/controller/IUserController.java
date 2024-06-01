@@ -1,11 +1,8 @@
 package org.example.controller;
 
-import org.example.model.AppUser;
-import org.example.model.ISpreadsheet;
-import org.example.model.ReadOnlySpreadSheet;
-import org.example.model.SelectedCells;
+import org.example.model.IReadOnlySpreadSheet;
+import org.example.model.IReadOnlySpreadSheet;
 import org.example.view.IHomeView;
-import org.example.view.ILoginView;
 import org.example.view.ISheetView;
 
 import java.util.List;
@@ -19,9 +16,9 @@ public interface IUserController {
 
     ISheetView getCurrentSheet();
 
-    void createNewSheet();
+    void createNewSheet(String name);
 
-    void saveSheet(ReadOnlySpreadSheet sheet, String path);
+    void saveSheet(IReadOnlySpreadSheet sheet, String path);
 
     void handleToolbar(String command);
 
@@ -47,7 +44,9 @@ public interface IUserController {
 
     void pasteCell(int selRow, int selCol);
 
-    void saveSheetToServer(ReadOnlySpreadSheet sheet, String name);
+    void getPercentile(int selRow, int selCol);
+
+    void saveSheetToServer(IReadOnlySpreadSheet sheet, String name);
 
     void deleteSheetFromServer(String name);
 
@@ -55,7 +54,13 @@ public interface IUserController {
     
     String getFormula(int row, int col); // New method declaration
 
+
+    List<String> getServerSheets();
+
+    void openServerSheet(String selectedSheet);
+
     int getSelectedRowZeroIndex();
 
     int getSelectedColZeroIndex();
+
 }

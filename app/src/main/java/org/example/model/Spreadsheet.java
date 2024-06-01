@@ -3,16 +3,21 @@ package org.example.model;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 public class Spreadsheet implements ISpreadsheet {
     private ArrayList<ArrayList<Cell>> grid;
+
+    private String name;
+
     private String[] functions = new String[] { "IF", "SUM", "MIN", "MAX", "AVG", "CONCAT", "DEBUG" };
     private String[] arith = new String[] {"+", "-", "*", "/"};
 
-    public Spreadsheet() {
+
+    public Spreadsheet(String name) {
         grid = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             ArrayList<Cell> row = new ArrayList<>();
@@ -21,13 +26,16 @@ public class Spreadsheet implements ISpreadsheet {
             }
             grid.add(row);
         }
+
+        this.name = name;
     }
 
-    public Spreadsheet(ArrayList<ArrayList<Cell>> grid) {
-        this();
+    public Spreadsheet(ArrayList<ArrayList<Cell>> grid, String name) {
+        this(name);
         for (ArrayList<Cell> row : grid) {
             for (Cell c : row) {
-                this.grid.get(c.getRow()).get(c.getCol()).setValue(c.getValue());
+                //this.grid.get(c.getRow()).get(c.getCol()).setRawData(c.getValue());
+                System.out.println("Cell val: " + c.getValue());
             }
         }
     }
@@ -68,6 +76,7 @@ public class Spreadsheet implements ISpreadsheet {
 
     @Override
     public String evaluateFormula(String formula) {
+        System.out.println(formula);
         if (!formula.startsWith("=")) {
             return formula;
         }
@@ -168,6 +177,11 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     @Override
+    public String getName() {
+        return this.name;
+    }
+
+    @Override
     public void setCellRawdata(int row, int col, String val) {
         this.grid.get(row).get(col).setRawData(val);
     }
@@ -213,6 +227,8 @@ public class Spreadsheet implements ISpreadsheet {
             return evaluateCONCAT(formula.substring(7, formula.length() - 1));
         } else if (formula.startsWith("DEBUG(")) {
             return evaluateDEBUG(formula.substring(6, formula.length() - 1));
+        } else if (formula.startsWith("STDDEV(")) {
+            return evaluateSTDDEV(formula.substring(7, formula.length() - 1));
         }
 
         return formula;
@@ -424,5 +440,22 @@ public class Spreadsheet implements ISpreadsheet {
 
     private String evaluateDEBUG(String parameter) {
         return parameter.trim();
+    }
+
+    private String evaluateSTDDEV(String parameter) {
+        String[] nums = parameter.split(",");
+        double avg = Double.parseDouble(evaluateAVG(parameter));
+        double sum = 0;
+
+        try {
+            for (String num : nums) {
+                sum += Math.pow(Double.parseDouble(num) - avg, 2);
+            }
+        } catch (NumberFormatException e) {
+            return "Error";
+        }
+
+        double result = Math.pow(sum / nums.length, 0.5);
+        return "" + (double) Math.round(result * 1000) / 1000;
     }
 }
