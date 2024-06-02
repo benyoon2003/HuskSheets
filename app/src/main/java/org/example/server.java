@@ -1,6 +1,8 @@
 package org.example;
 
 import org.example.model.AppUser;
+import org.example.model.IAppUser;
+import org.example.model.Result;
 import org.example.model.SheetDTO;
 import java.util.Base64;
 
@@ -24,7 +26,9 @@ public class server {
     /**
      * List of all available users
      */
-    private List<AppUser> availUsers = new ArrayList<AppUser>();
+    private List<IAppUser> availUsers = new ArrayList<>();
+
+
     // Get all publishers
 //    @GetMapping("/getPublishers")
 //    public ResponseEntity<List<AppUser>> getPublishers() {
@@ -36,19 +40,72 @@ public class server {
 //        }
 //    }
 //
-//    // Create a new sheet
-//    @PostMapping("/createSheet")
-//    public ResponseEntity<?> createSheet(@RequestBody SheetDTO sheetDTO) {
-//        try {
-//            Sheet sheet = new Sheet();
-//            sheet.setName(sheetDTO.getFilename());
-//            sheet.setContent(sheetDTO.getContent());
-//            sheetRepository.save(sheet);
-//            return ResponseEntity.ok("Sheet created successfully");
-//        } catch (Exception e) {
-//            return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
-//        }
-//    }
+    // Create a new sheet
+    @GetMapping("/createSheet")
+    public ResponseEntity<Result> createSheet(@RequestHeader("Authorization") String authHeader,
+                                              @RequestBody SheetDTO sheetDTO) {
+        try {
+            // Decode the Basic Auth header
+            String[] credentials = decodeBasicAuth(authHeader);
+            String username = credentials[0];
+            String password = credentials[1];
+            System.out.println(username + ": " + password);
+            if (credentials == null || credentials.length != 2 ||
+                    !existingUser(username, password)) {
+                return ResponseEntity.status(401).body(new Result(
+                        false, "Unauthorized", new ArrayList<>()));
+            }
+
+            String publisher = sheetDTO.getPublisher();
+            String sheet = sheetDTO.getSheet();
+
+            if (publisher != username) {
+                return ResponseEntity.status(401).body(new Result(
+                        false, "Unauthorized: sender is not owner of sheet",
+                        new ArrayList<>()));
+            }
+            else if (sheet == "") {
+                return ResponseEntity.status(401).body(new Result(
+                        false, "Sheet name cannot be blank ",
+                        new ArrayList<>()));
+            }
+            else if (hasSheet(sheet, publisher)) {
+                return ResponseEntity.status(401).body(new Result(
+                        false, "Sheet already exists: " + sheet,
+                        new ArrayList<>()));
+            }
+            else {
+                findUser(username, password).addSheet(sheet);
+                return ResponseEntity.status(401).body(new Result(
+                        true, null,
+                        new ArrayList<>()));
+
+            }
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new Result(
+                    false, "Internal Server Error: " + e.getMessage(), new ArrayList<>()));
+        }
+    }
+
+    private boolean hasSheet(String sheet, String publisher) {
+        for (IAppUser user : availUsers) {
+            if (user.getUsername().equals(publisher) && user.doesSheetExist(sheet)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private IAppUser findUser(String username, String password) {
+        for (IAppUser user : this.availUsers) {
+            if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
+                return user;
+            }
+        }
+        return null;
+    }
+
 //
 //    // Get all sheets for a publisher
 //    @PostMapping("/getSheets")
@@ -81,22 +138,24 @@ public class server {
 
     // Register a publisher (new implementation)
     @GetMapping("/register")
-    public ResponseEntity<?> register(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<Result> register(@RequestHeader("Authorization") String authHeader) {
         try {
             // Decode the Basic Auth header
             String[] credentials = decodeBasicAuth(authHeader);
             if (credentials == null || credentials.length != 2) {
-                return ResponseEntity.status(401).body("Unauthorized");
+                return ResponseEntity.status(401).body(new Result(
+                        false, "Unauthorized", new ArrayList<>()));
             }
+
 
             String username = credentials[0];
             String password = credentials[1];
             System.out.println(username + ": " + password);
 
             // Check if the user already exists
-            AppUser existingUser = findByUsername(username);
-            if (existingUser != null) {
-                return ResponseEntity.status(409).body("User already exists");
+            if (findByUsername(username)) {
+                return ResponseEntity.status(401).body(new Result(
+                        false, "User already exists", new ArrayList<>()));
             }
 
             // Create a new user
@@ -105,10 +164,52 @@ public class server {
             newUser.setPassword(password);
             availUsers.add(newUser);
 
-            return ResponseEntity.ok("Publisher registered successfully");
+            return ResponseEntity.ok(new Result(
+                    true, "Publisher registered successfully", new ArrayList<>()));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
+            return ResponseEntity.status(500).body(new Result(
+                    false, "Internal Server Error: " + e.getMessage(), new ArrayList<>()));
         }
+    }
+
+    // Login a user
+    @GetMapping("/login")
+    public ResponseEntity<Result> login(@RequestHeader("Authorization") String authHeader) {
+        try {
+            // Decode the Basic Auth header
+            String[] credentials = decodeBasicAuth(authHeader);
+            if (credentials == null || credentials.length != 2) {
+                return ResponseEntity.status(401).body(new Result(
+                        false, "Unauthorized", new ArrayList<>()));
+            }
+
+
+            String username = credentials[0];
+            String password = credentials[1];
+            System.out.println(username + ": " + password);
+
+            // Check if the user already exists
+            if (existingUser(username, password)) {
+                return ResponseEntity.ok(new Result(
+                        true, "Publisher logged in successfully", new ArrayList<>()));
+            }
+            else {
+                return ResponseEntity.status(401).body(new Result(
+                        false, "Wrong username or password", new ArrayList<>()));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new Result(
+                    false, "Internal Server Error: " + e.getMessage(), new ArrayList<>()));
+        }
+    }
+
+    private boolean existingUser(String username, String password) {
+        for (IAppUser user : availUsers) {
+            if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // Method to decode the Basic Auth header
@@ -123,13 +224,13 @@ public class server {
     }
 
     // Method to find a user by username
-    private AppUser findByUsername(String username) {
-        for (AppUser user : availUsers) {
+    private boolean findByUsername(String username) {
+        for (IAppUser user : availUsers) {
             if (user.getUsername().equals(username)) {
-                return user;
+                return true;
             }
         }
-        return null;
+        return false;
     }
 
 

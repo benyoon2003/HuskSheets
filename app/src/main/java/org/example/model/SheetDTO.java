@@ -5,10 +5,21 @@ public class SheetDTO {
     private String content;
     private String publisher; // Add this field
 
-    public SheetDTO(String filename, String content, String publisher) {
+    private String sheet;
+
+    public SheetDTO(String filename, String content, String publisher , String sheet) {
         this.filename = filename;
         this.content = content;
         this.publisher = publisher; // Initialize this field
+        this.sheet = sheet;
+    }
+
+    public String getSheet() {
+        return sheet;
+    }
+
+    public void setSheet(String sheet) {
+        this.sheet = sheet;
     }
 
     public String getFilename() {

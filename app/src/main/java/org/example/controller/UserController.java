@@ -1,6 +1,8 @@
 package org.example.controller;
 
+import org.example.model.AppUser;
 import org.example.model.Cell;
+import org.example.model.Home;
 import org.example.model.IAppUser;
 import org.example.model.IHome;
 import org.example.model.IReadOnlySpreadSheet;
@@ -11,6 +13,7 @@ import org.example.model.Result;
 import org.example.model.SelectedCells;
 import org.example.model.ServerEndpoint;
 import org.example.model.Spreadsheet;
+import org.example.view.HomeView;
 import org.example.view.IHomeView;
 import org.example.view.ILoginView;
 import org.example.view.ISheetView;
@@ -41,7 +44,7 @@ public class UserController implements IUserController {
 
     private String clipboardContent = "";
     private boolean isCutOperation = false;
-    private ServerEndpoint se;
+    private ServerEndpoint serverEndpoint;
 
     /**
      * Constructor to initialize the UserController.
@@ -51,23 +54,59 @@ public class UserController implements IUserController {
      * @param spreadsheetModel the spreadsheet model.
      * @param home the home model.
      */
-    public UserController(ILoginView loginView, IHomeView homeView,
-                          IAppUser appUser, ISpreadsheet spreadsheetModel, IHome home) {
+    public UserController(ILoginView loginView) {
         this.loginPage = loginView;
         loginView.addController(this);
-        this.appUser = appUser;
-        this.home = home;
-        this.homeView = homeView;
-        homeView.addController(this);
-        this.spreadsheetModel = spreadsheetModel;
-        this.se = new ServerEndpoint(appUser, "http://localhost:8080/api/v1/");
+        this.home = new Home();
+        this.serverEndpoint = new ServerEndpoint();
+    }
 
+    public void registerUser(String username, String password) {
         try {
-            this.se.register(this.appUser.getUsername());
-            this.homeView.makeVisible();
-            this.loginPage.disposeLoginPage();
-        } catch (Exception e) {
-            e.printStackTrace();
+            if (validateInput(username, password)) {
+                IAppUser newUser = new AppUser();
+                newUser.setUsername(username);
+                newUser.setPassword(password);
+                Result registerResult = serverEndpoint.register(newUser);
+                if (registerResult.getSuccess()) {
+                    openHomeView();
+                    this.loginPage.disposeLoginPage();
+                    this.appUser = newUser;
+                }
+                else {
+                    this.loginPage.displayErrorBox(registerResult.getMessage());
+                }
+            }
+            else {
+                this.loginPage.displayErrorBox("Empty credentials");
+            }
+        }
+        catch (Exception ignored){
+        }
+    }
+
+    @Override
+    public void loginUser(String username, String password) {
+        try {
+            if (validateInput(username, password)) {
+                IAppUser newUser = new AppUser();
+                newUser.setUsername(username);
+                newUser.setPassword(password);
+                Result loginResult = serverEndpoint.login(newUser);
+                if (loginResult.getSuccess()) {
+                    openHomeView();
+                    this.loginPage.disposeLoginPage();
+                    this.appUser = newUser;
+                }
+                else {
+                    this.loginPage.displayErrorBox(loginResult.getMessage());
+                }
+            }
+            else {
+                this.loginPage.displayErrorBox("Empty credentials");
+            }
+        }
+        catch (Exception ignored){
         }
     }
 
@@ -110,14 +149,14 @@ public class UserController implements IUserController {
     @Override
     public void createNewSheet(String name) {
         try {
-            this.se.createSheet(appUser.getUsername(), name);
+            serverEndpoint.createSheet(name);
+            this.spreadsheetModel = new Spreadsheet(name);
+            this.sheetView = new SheetView(this.spreadsheetModel);
+            this.setCurrentSheet(sheetView);
+            this.sheetView.makeVisible();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        this.spreadsheetModel = new Spreadsheet(name);
-        this.sheetView = new SheetView(this.spreadsheetModel);
-        this.setCurrentSheet(sheetView);
-        this.sheetView.makeVisible();
     }
 
     @Override
@@ -133,7 +172,7 @@ public class UserController implements IUserController {
     public void saveSheetToServer(IReadOnlySpreadSheet sheet, String name) {
         try {
             String payload = convertSheetToPayload(sheet);
-            this.se.updatePublished(appUser.getUsername(), name, payload);
+            serverEndpoint.updatePublished(appUser.getUsername(), name, payload);
 
 //            HttpClient client = HttpClient.newHttpClient();
 //            String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"payload\":\"%s\"}", "team2", name, payload);
@@ -259,7 +298,7 @@ public class UserController implements IUserController {
     public List<String> getServerSheets() {
         List<String> sheets = new ArrayList<>();
         try {
-            String response = this.se.getSheets("team2");
+            String response = serverEndpoint.getSheets("team2");
             sheets = Result.getSheets(response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -270,7 +309,7 @@ public class UserController implements IUserController {
     @Override
     public void openServerSheet(String selectedSheet) {
         try {
-            this.spreadsheetModel = this.home.readPayload(this.appUser, this.se, selectedSheet);
+            this.spreadsheetModel = this.home.readPayload(this.appUser, serverEndpoint, selectedSheet);
             this.sheetView = new SheetView(spreadsheetModel);
             this.setCurrentSheet(sheetView);
             this.sheetView.makeVisible();
@@ -291,7 +330,7 @@ public class UserController implements IUserController {
     @Override
     public void deleteSheetFromServer(String name) {
         try{
-            this.se.deleteSheet(appUser.getUsername(), name);
+            serverEndpoint.deleteSheet(appUser.getUsername(), name);
         } catch(Exception e){
             e.printStackTrace();
         }
@@ -310,6 +349,12 @@ public class UserController implements IUserController {
     @Override
     public IHomeView getHomeView() {
         return this.homeView;
+    }
+
+    public void openHomeView() {
+        this.homeView = new HomeView();
+        homeView.addController(this);
+        this.homeView.makeVisible();
     }
 
     @Override
@@ -371,6 +416,7 @@ public class UserController implements IUserController {
     public String getFormula(int row, int col) {
         return this.spreadsheetModel.getCellFormula(row, col);
     }
+
 
     private boolean validateInput(String username, String password) {
         return !username.isEmpty() && !password.isEmpty();
