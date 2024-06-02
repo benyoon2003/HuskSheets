@@ -239,6 +239,8 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     private String compareLess(String x, String y) {
+        x = replaceCellReferences(x);
+        y = replaceCellReferences(y);
         try {
             double a = Double.parseDouble(x);
             double b = Double.parseDouble(y);
@@ -249,6 +251,8 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     private String compareGreater(String x, String y) {
+        x = replaceCellReferences(x);
+        y = replaceCellReferences(y);
         try {
             double a = Double.parseDouble(x);
             double b = Double.parseDouble(y);
@@ -259,6 +263,8 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     private String compareEqual(String x, String y) {
+        x = replaceCellReferences(x);
+        y = replaceCellReferences(y);
         try {
             double a = Double.parseDouble(x);
             double b = Double.parseDouble(y);
@@ -273,6 +279,8 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     private String compareNotEqual(String x, String y) {
+        x = replaceCellReferences(x);
+        y = replaceCellReferences(y);
         try {
             double a = Double.parseDouble(x);
             double b = Double.parseDouble(y);
@@ -287,6 +295,8 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     private String andOperation(String x, String y) {
+        x = replaceCellReferences(x);
+        y = replaceCellReferences(y);
         try {
             double a = Double.parseDouble(x);
             double b = Double.parseDouble(y);
@@ -297,6 +307,8 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     private String orOperation(String x, String y) {
+        x = replaceCellReferences(x);
+        y = replaceCellReferences(y);
         try {
             double a = Double.parseDouble(x);
             double b = Double.parseDouble(y);
@@ -351,9 +363,9 @@ public class Spreadsheet implements ISpreadsheet {
         if (parts.length != 3) {
             return "Error";
         }
-        String condition = parts[0].trim();
-        String trueResult = parts[1].trim();
-        String falseResult = parts[2].trim();
+        String condition = replaceCellReferences(parts[0].trim());
+        String trueResult = replaceCellReferences(parts[1].trim());
+        String falseResult = replaceCellReferences(parts[2].trim());
 
         try {
             double conditionValue = Double.parseDouble(condition);
@@ -489,7 +501,7 @@ public class Spreadsheet implements ISpreadsheet {
             cell.setValue(sorted[i]);
             cell.setFormula(sorted[i]);
         }
-        
+
         this.grid.get(r + 1).get(c).setFormula("=" + formula);
         return sorted[0];
     }
