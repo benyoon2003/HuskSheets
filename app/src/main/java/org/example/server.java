@@ -277,7 +277,7 @@ public class server {
 
     // Get updates for subscription
     @PostMapping("/getUpdatesForSubscription")
-    public ResponseEntity<?> getUpdatedForSubscription(@RequestHeader("Authorization") String authHeader,
+    public ResponseEntity<?> getUpdatesForSubscription(@RequestHeader("Authorization") String authHeader,
                                                        @RequestBody Argument argument) {
         try {
             // Decode the Basic Auth header

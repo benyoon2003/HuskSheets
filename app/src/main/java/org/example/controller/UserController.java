@@ -219,12 +219,11 @@ public class UserController implements IUserController {
             for (int j = 0; j < sheet.getCols(); j++) {
                 if (values[i][j] != null && !values[i][j].getRawdata().isEmpty()) {
                     String cellValue = values[i][j].isFormula() ? values[i][j].getFormula() : values[i][j].getRawdata();
-                    payload.append(String.format("$%s%s %s\n", getExcelColumnName(j + 1), i + 1, cellValue.replace("\n", "\n").replace("\"", "\\\"")));
+                    payload.append(String.format("$%s%s %s\\n", getExcelColumnName(j + 1), i + 1, cellValue.replace("\n", "\n").replace("\"", "\\\"")));
                 }
             }
         }
         System.out.println("convertSheetToPayload is called here!");
-        System.out.println(payload.toString());
         return payload.toString();
     }
     

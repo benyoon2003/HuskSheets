@@ -178,7 +178,7 @@ public class ServerEndpoint {
    * @return Respones body containing payload of sheet updates
    * @throws Exception
    */
-  public String getUpdatesForSubscription(String publisher, String sheet, String id) throws Exception {
+  public Result getUpdatesForSubscription(String publisher, String sheet, String id) throws Exception {
     String url = BASE_URL + "getUpdatesForSubscription";
     HttpClient client = HttpClient.newBuilder().build();
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"id\":\"%s\"}", publisher, sheet, id);
@@ -191,7 +191,7 @@ public class ServerEndpoint {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
     System.out.println("Get Updates For Subscription Response: " + response.body());
-    return response.body();
+    return new Result(response.body());
   }
 
   public void getUpdatesForPublished(String publisher, String sheet, String id) throws Exception {
@@ -226,26 +226,6 @@ public class ServerEndpoint {
     System.out.println("Parsed Result: " + result);
     return result;
 }
-
-// public Result createSheet(String sheet) throws Exception {
-//   String encodedPublisher = URLEncoder.encode(user.getUsername(), StandardCharsets.UTF_8);
-//   String url = BASE_URL + "createSheet"; // Ensure the endpoint is correct
-//   String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\"}", user.getUsername(), sheet);
-
-//   HttpClient client = HttpClient.newBuilder().build();
-
-//   HttpRequest request = HttpRequest.newBuilder()
-//           .uri(new URI(url))
-//           .header("Authorization", getBasicAuthHeader())
-//           .header("Content-Type", "application/json")
-//           .POST(HttpRequest.BodyPublishers.ofString(json))
-//           .build();
-
-//   HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-//   System.out.println("Create Sheet Response: " + response.body());
-
-//   return new Result(response.body());
-// }
 
 
   public void updateSubscription(String publisher, String sheet, String payload) throws Exception {

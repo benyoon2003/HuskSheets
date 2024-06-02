@@ -76,10 +76,10 @@ public class Home implements IHome {
     public ISpreadsheet readPayload(IAppUser user, ServerEndpoint se, String sheetName){
         System.out.println("User: " + user.getUsername() + ", Sheet Name: " + sheetName);
         try {
-            String response = se.getUpdatesForSubscription(user.getUsername(), sheetName, "0");
-            System.out.println("Response from server: " + response);
+            Result getUpdatesForSubscriptionResult = se.getUpdatesForSubscription(user.getUsername(), sheetName, "0");
+            System.out.println("Response from server: " + getUpdatesForSubscriptionResult.getMessage());
     
-            String payload = Result.getPayload(response, sheetName);
+            String payload = getUpdatesForSubscriptionResult.getValue().get(0).getPayload();
             System.out.println("Payload received: " + payload);
     
             if (payload != null && !payload.isEmpty()) {
