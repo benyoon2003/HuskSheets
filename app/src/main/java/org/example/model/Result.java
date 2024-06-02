@@ -13,6 +13,65 @@ import java.util.stream.Collectors;
  */
 public class Result {
 
+    private boolean success;
+    private String message;
+    private List<Argument> value;
+
+    // Existing constructor
+    public Result(boolean success, String message, List<Argument> value) {
+        this.success = success;
+        this.message = message;
+        this.value = value != null ? value : new ArrayList<>();
+    }
+
+    // New constructor to parse JSON string
+    public Result(String jsonString) throws JSONException {
+        JSONObject jsonObject = new JSONObject(jsonString);
+        this.success = jsonObject.getBoolean("success");
+        this.message = jsonObject.optString("message", null);
+        this.value = new ArrayList<>();
+        JSONArray jsonArray = jsonObject.optJSONArray("value");
+
+        if (jsonArray != null) {
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject entry = jsonArray.optJSONObject(i);
+                if (entry != null) {
+                    Argument argument = new Argument();
+                    argument.setPublisher(entry.optString("publisher", ""));
+                    argument.setSheet(entry.optString("sheet", ""));
+                    argument.setId(entry.optString("id", ""));
+                    argument.setPayload(entry.optString("payload", ""));
+                    this.value.add(argument);
+                }
+            }
+        }
+    }
+
+    public boolean getSuccess() {
+        return this.success;
+    }
+
+    public String getMessage() {
+        return this.message;
+    }
+
+    public List<Argument> getValue() {
+        return this.value;
+    }
+
+    @Override
+    public String toString() {
+        String valueString = value.stream()
+                .map(Argument::toString)
+                .collect(Collectors.joining(", ", "[", "]"));
+
+        return "Result{" +
+                "success=" + success +
+                ", message='" + message + '\'' +
+                ", value=" + valueString +
+                '}';
+    }
+
     /**
      * Parses the JSON response to retrieve a list of sheet names.
      *
@@ -59,8 +118,7 @@ public class Result {
         return null;
     }
 
-
-    public static String makeResponse(Boolean success, String message,List<Argument> value, String endpoint){
+    public static String makeResponse(Boolean success, String message, List<Argument> value, String endpoint) {
         String res = "";
 
         switch (endpoint) {
@@ -79,71 +137,8 @@ public class Result {
         return res;
     }
 
-    private class resObject{
-        private boolean success;
-        private String message;
-        private List<Argument> value;
-
-        // Existing constructor
-        private resObject(boolean success, String message, List<Argument> value) {
-            this.success = success;
-            this.message = message;
-            this.value = value != null ? value : new ArrayList<>();
-        }
-
-        // New constructor to parse JSON string
-        public resObject(String jsonString) throws JSONException {
-            JSONObject jsonObject = new JSONObject(jsonString);
-            this.success = jsonObject.getBoolean("success");
-            this.message = jsonObject.optString("message", null);
-            this.value = new ArrayList<>();
-            JSONArray jsonArray = jsonObject.optJSONArray("argument");
-
-            if (jsonArray != null) {
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject entry = jsonArray.optJSONObject(i);
-                    if (entry != null) {
-                        Argument argument = new Argument();
-                        argument.setPublisher(entry.optString("publisher", ""));
-                        argument.setSheet(entry.optString("sheet", ""));
-                        argument.setId(entry.optString("id", ""));
-                        argument.setPayload(entry.optString("payload", ""));
-                        this.value.add(argument);
-                    }
-                }
-            }
-        }
-
-        public boolean getSuccess() {
-            return this.success;
-        }
-
-        public String getMessage() {
-            return this.message;
-        }
-
-        public List<Argument> getArgument() {
-            return this.value;
-        }
-
-        @Override
-        public String toString() {
-            String valueString = value.stream()
-                    .map(Argument::toString)
-                    .collect(Collectors.joining(", ", "[", "]"));
-
-            return "Result{" +
-                    "success=" + success +
-                    ", message='" + message + '\'' +
-                    ", value=" + valueString +
-                    '}';
-        }
-    }
-
-
     public static void main(String[] args) throws Exception {
         // Example usage
         // getPayload(ServerEndpoint.getUpdatesForSubscription("team2", "testPayload2", "0"), "testPayload2");
     }
-
 }

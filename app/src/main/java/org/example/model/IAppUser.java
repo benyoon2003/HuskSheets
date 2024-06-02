@@ -1,5 +1,7 @@
 package org.example.model;
 
+import java.util.List;
+
 /**
  * Represents the interface for application user management.
  */
@@ -54,4 +56,5 @@ public interface IAppUser {
   boolean doesSheetExist(String name);
 
   void addSheet(String sheetName);
+  List<ISpreadsheet> getSheets();
 }

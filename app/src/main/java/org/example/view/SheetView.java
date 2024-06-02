@@ -100,6 +100,8 @@ public class SheetView extends JFrame implements ISheetView {
                     }
                 } else if (option == JOptionPane.NO_OPTION) {
                     controller.saveSheetToServer(cells, ((Spreadsheet) cells).getName());
+                    System.out.println(((Spreadsheet) cells).getName());
+                    makeVisible();
                 }
             }
         });
