@@ -14,4 +14,6 @@ public interface IHomeView {
     void openSheet(String absolutePath);
     
     void openSheetFromServer(String absolutePath);
+
+  void displayErrorBox(String message);
 }

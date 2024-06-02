@@ -1,22 +1,19 @@
 package org.example.view;
 
 import org.example.controller.IUserController;
+import org.example.controller.UserController;
+import org.example.model.*;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 
 public class LoginView extends JFrame implements ILoginView {
 
     private JTextField usernameField;
     private JPasswordField passwordField;
     private JButton loginButton;
-    private JButton createAccountButton;
+    private JButton registerButton;
 
     private IUserController controller;
 
@@ -42,7 +39,7 @@ public class LoginView extends JFrame implements ILoginView {
     }
 
     @Override
-    public void displayErrorBox(Object message) {
+    public void displayErrorBox(String message) {
         JOptionPane.showMessageDialog(this, message);
     }
 
@@ -69,31 +66,26 @@ public class LoginView extends JFrame implements ILoginView {
         loginButton.setBounds(10, 80, 80, 25);
         panel.add(loginButton);
 
-        createAccountButton = new JButton("Create Account");
-        createAccountButton.setBounds(100, 80, 165, 25);
-        panel.add(createAccountButton);
+        registerButton = new JButton("Register");
+        registerButton.setBounds(100, 80, 165, 25);
+        panel.add(registerButton);
 
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
-                if (!controller.isUserAuthenticationComplete(username, password)) {
-                    JOptionPane.showMessageDialog(panel, "Username and password cannot be empty");
-                }
+                controller.loginUser(username, password);
             }
         });
 
-        createAccountButton.addActionListener(new ActionListener() {
+        registerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
-                if (!controller.isUserCreatedSuccessfully(username, password)) {
-                    JOptionPane.showMessageDialog(panel, "Username and password cannot be empty");
-                }
+                controller.registerUser(username, password);
             }
         });
     }
-
 }

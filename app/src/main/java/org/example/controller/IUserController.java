@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import org.example.model.IAppUser;
 import org.example.model.IReadOnlySpreadSheet;
 import org.example.view.IHomeView;
 import org.example.view.ISheetView;
@@ -14,7 +15,7 @@ public interface IUserController {
      * @param password the password of the user.
      * @return true if authentication is complete, false otherwise.
      */
-    boolean isUserAuthenticationComplete(String username, String password);
+ //   boolean isUserAuthenticationComplete(String username, String password);
 
     /**
      * Checks if a new user is created successfully.
@@ -22,13 +23,15 @@ public interface IUserController {
      * @param password the password of the new user.
      * @return true if user is created successfully, false otherwise.
      */
-    boolean isUserCreatedSuccessfully(String username, String password);
+ //   boolean isUserCreatedSuccessfully(String username, String password);
 
     /**
      * Sets the current sheet view.
      * @param sheetView the sheet view to set as current.
      */
     void setCurrentSheet(ISheetView sheetView);
+
+    void openHomeView();
 
     /**
      * Gets the current sheet view.
@@ -188,4 +191,8 @@ public interface IUserController {
      * @return the formula of the cell.
      */
     String getFormula(int row, int col);
+
+    void registerUser(String username, String password);
+
+    void loginUser(String username, String password);
 }
