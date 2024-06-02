@@ -1,7 +1,11 @@
 package org.example.model;
 
 import java.util.ArrayList;
+
 import java.util.List;
+
+import java.util.Arrays;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,6 +18,7 @@ public class Spreadsheet implements ISpreadsheet {
 
     private String name;
 
+
     private String[] functions = new String[] { "IF", "SUM", "MIN", "MAX", "AVG", "CONCAT", "DEBUG" };
     private String[] arith = new String[] {"+", "-", "*", "/"};
 
@@ -23,6 +28,8 @@ public class Spreadsheet implements ISpreadsheet {
     //used to retrieve version for GetUpdatesPublished
     private List<ISpreadsheet> subscribeVersions;
 
+    private String[] functions = new String[] { "IF", "SUM", "MIN", "MAX", "AVG", "CONCAT", "DEBUG", "STDDEV", "SORT" };
+    private String[] arith = new String[] { "+", "-", "*", "/" };
 
     public Spreadsheet(String name) {
         grid = new ArrayList<>();
@@ -43,7 +50,6 @@ public class Spreadsheet implements ISpreadsheet {
         this(name);
         for (ArrayList<Cell> row : grid) {
             for (Cell c : row) {
-                //this.grid.get(c.getRow()).get(c.getCol()).setRawData(c.getValue());
                 System.out.println("Cell val: " + c.getValue());
             }
         }
@@ -96,6 +102,9 @@ public class Spreadsheet implements ISpreadsheet {
         formula = formula.substring(1);
 
         try {
+            if (formula.contains("SORT")) {
+                return sort(formula);
+            }
             // Handle operations that need to be parsed before evaluation
             formula = parseOperations(formula);
             // Replace cell references with their values
@@ -253,12 +262,16 @@ public class Spreadsheet implements ISpreadsheet {
             return evaluateDEBUG(formula.substring(6, formula.length() - 1));
         } else if (formula.startsWith("STDDEV(")) {
             return evaluateSTDDEV(formula.substring(7, formula.length() - 1));
+        } else if (formula.startsWith("SORT(")) {
+            return evaluateSORT(formula.substring(5, formula.length() - 1));
         }
 
         return formula;
     }
 
     private String compareLess(String x, String y) {
+        x = replaceCellReferences(x);
+        y = replaceCellReferences(y);
         try {
             double a = Double.parseDouble(x);
             double b = Double.parseDouble(y);
@@ -269,6 +282,8 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     private String compareGreater(String x, String y) {
+        x = replaceCellReferences(x);
+        y = replaceCellReferences(y);
         try {
             double a = Double.parseDouble(x);
             double b = Double.parseDouble(y);
@@ -279,6 +294,8 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     private String compareEqual(String x, String y) {
+        x = replaceCellReferences(x);
+        y = replaceCellReferences(y);
         try {
             double a = Double.parseDouble(x);
             double b = Double.parseDouble(y);
@@ -293,6 +310,8 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     private String compareNotEqual(String x, String y) {
+        x = replaceCellReferences(x);
+        y = replaceCellReferences(y);
         try {
             double a = Double.parseDouble(x);
             double b = Double.parseDouble(y);
@@ -307,6 +326,8 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     private String andOperation(String x, String y) {
+        x = replaceCellReferences(x);
+        y = replaceCellReferences(y);
         try {
             double a = Double.parseDouble(x);
             double b = Double.parseDouble(y);
@@ -317,6 +338,8 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     private String orOperation(String x, String y) {
+        x = replaceCellReferences(x);
+        y = replaceCellReferences(y);
         try {
             double a = Double.parseDouble(x);
             double b = Double.parseDouble(y);
@@ -327,6 +350,7 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     private String rangeOperation(String startCell, String endCell) {
+        // check if this cell has a function value
         String func = getFunction(startCell);
         if (func != "") {
             startCell = startCell.substring(startCell.indexOf('(') + 1);
@@ -370,9 +394,9 @@ public class Spreadsheet implements ISpreadsheet {
         if (parts.length != 3) {
             return "Error";
         }
-        String condition = parts[0].trim();
-        String trueResult = parts[1].trim();
-        String falseResult = parts[2].trim();
+        String condition = replaceCellReferences(parts[0].trim());
+        String trueResult = replaceCellReferences(parts[1].trim());
+        String falseResult = replaceCellReferences(parts[2].trim());
 
         try {
             double conditionValue = Double.parseDouble(condition);
@@ -383,14 +407,6 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     private String evaluateSUM(String parameters) {
-        if (parameters.contains(":")) {
-            String[] rangeParts = parameters.split(":");
-            String rangeValues = rangeOperation(rangeParts[0].trim(), rangeParts[1].trim());
-            if (rangeValues.equals("Error")) {
-                return "Error";
-            }
-            parameters = rangeValues;
-        }
         String[] parts = parameters.split(",");
         double sum = 0;
         try {
@@ -481,5 +497,43 @@ public class Spreadsheet implements ISpreadsheet {
 
         double result = Math.pow(sum / nums.length, 0.5);
         return "" + (double) Math.round(result * 1000) / 1000;
+    }
+
+    private String evaluateSORT(String parameter) {
+        String[] s = parameter.split(",");
+        double[] nums = new double[s.length];
+        try {
+            for (int i = 0; i < nums.length; i++) {
+                nums[i] = Double.parseDouble(s[i]);
+            }
+        } catch (NumberFormatException e) {
+            return "Error";
+        }
+
+        Arrays.sort(nums);
+        StringBuilder result = new StringBuilder();
+
+        for (double num : nums) {
+            result.append(num).append(",");
+        }
+
+        return result.substring(0, result.length() - 1);
+    }
+
+    private String sort(String formula) {
+        String[] sorted = parseOperations(formula).split(",");
+        String cells = formula.substring(5, formula.length() - 1);
+        String endCell = cells.split(":")[1];
+        int r = getRow(endCell);
+        int c = getColumn(endCell);
+
+        for (int i = 0; i < sorted.length; i++) {
+            Cell cell = this.grid.get(r + i + 1).get(c);
+            cell.setValue(sorted[i]);
+            cell.setFormula(sorted[i]);
+        }
+
+        this.grid.get(r + 1).get(c).setFormula("=" + formula);
+        return sorted[0];
     }
 }
