@@ -54,11 +54,14 @@ public class server {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                         false, "Unauthorized", new ArrayList<>()));
             }
+
             String username = credentials[0];
             String publisher = argument.getPublisher();
             String sheet = argument.getSheet();
 
-            System.out.println(username + publisher + sheet);
+            System.out.println("Username: " + username);
+            System.out.println("Publisher: " + publisher);
+            System.out.println("Sheet: " + sheet);
 
             if (!publisher.equals(username)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
@@ -66,18 +69,22 @@ public class server {
             } else if (sheet.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Result(
                         false, "Sheet name cannot be blank", new ArrayList<>()));
-            }
-            else if (hasSheet(sheet, publisher)) {
+            } else if (hasSheet(sheet, publisher)) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(new Result(
                         false, "Sheet already exists: " + sheet, new ArrayList<>()));
-            }
-            else {
-                Objects.requireNonNull(findUser(username)).addSheet(sheet);
+            } else {
+                IAppUser user = findUser(username);
+                if (user == null) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
+                            false, "User not found", new ArrayList<>()));
+                }
+                user.addSheet(sheet);
                 return ResponseEntity.status(HttpStatus.CREATED).body(new Result(
                         true, "Sheet created successfully", new ArrayList<>()));
             }
 
         } catch (Exception e) {
+            e.printStackTrace(); // Log the full stack trace for debugging
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Result(
                     false, "Internal Server Error: " + e.getMessage(), new ArrayList<>()));
         }
@@ -85,7 +92,6 @@ public class server {
 
     private boolean hasSheet(String sheet, String publisher) {
         for (IAppUser user : availUsers) {
-            System.out.println("USER" + user.getUsername());
             if (user.getUsername().equals(publisher) && user.doesSheetExist(sheet)) {
                 return true;
             }

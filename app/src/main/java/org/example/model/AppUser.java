@@ -5,6 +5,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
@@ -25,6 +26,7 @@ public class AppUser implements IAppUser {
 
     // Default constructor
     public AppUser() {
+        this.sheets = new ArrayList<>();
     }
 
     // Getter for username
@@ -57,6 +59,7 @@ public class AppUser implements IAppUser {
                 return true;
             }
         }
+
         return false;
     }
 
