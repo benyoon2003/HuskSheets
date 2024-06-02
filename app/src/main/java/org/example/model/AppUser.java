@@ -5,6 +5,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -13,16 +15,13 @@ import javax.persistence.Table;
  * The AppUser class represents a user entity in the application.
  * It includes methods for user authentication and account creation via HTTP requests.
  */
-@Entity
-@Table(name = "users") // Ensure the table name is not a reserved keyword
 public class AppUser implements IAppUser {
 
     @Id
     private String username;
     private String password;
 
-    // Base URI for the API endpoints
-    private String uri = "http://localhost:8080/api"; // "https://husksheets.fly.dev/api/v1";
+    private List<ISpreadsheet> sheets;
 
     // Default constructor
     public AppUser() {
@@ -30,7 +29,7 @@ public class AppUser implements IAppUser {
 
     // Getter for username
     public String getUsername() {
-        return "team2";
+        return this.username;
     }
 
     // Setter for username
@@ -46,6 +45,19 @@ public class AppUser implements IAppUser {
     // Setter for password
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void addSheet(String sheetName) {
+        this.sheets.add(new Spreadsheet(sheetName));
+    }
+
+    public boolean doesSheetExist(String name) {
+        for (ISpreadsheet sheet : this.sheets) {
+            if (sheet.getName().equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

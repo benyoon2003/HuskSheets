@@ -6,7 +6,7 @@ public interface ILoginView {
 
   void addController(IUserController controller);
 
-  void displayErrorBox(Object message);
+  void displayErrorBox(String message);
 
   void disposeLoginPage();
 }
