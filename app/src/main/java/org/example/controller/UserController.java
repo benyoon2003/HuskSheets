@@ -196,7 +196,7 @@ public class UserController implements IUserController {
         }
     }
 
-    private String convertSheetToPayload(IReadOnlySpreadSheet sheet) {
+    public static String convertSheetToPayload(IReadOnlySpreadSheet sheet) {
         StringBuilder payload = new StringBuilder();
         Cell[][] values = sheet.getCellsObject();
         for (int i = 0; i < sheet.getRows(); i++) {
@@ -210,7 +210,7 @@ public class UserController implements IUserController {
         return payload.toString();
     }
 
-    private String getExcelColumnName(int columnNumber) {
+    public static String getExcelColumnName(int columnNumber) {
         StringBuilder columnName = new StringBuilder();
         while (columnNumber > 0) {
             int remainder = (columnNumber - 1) % 26;
