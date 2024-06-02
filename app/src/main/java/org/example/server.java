@@ -155,9 +155,19 @@ public class server {
                         existingSheet.setCellRawdata(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
                         existingSheet.setCellValue(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
                     }
-    
-                    // Create new sheet object to add to versions
-                    ISpreadsheet update = new Spreadsheet(existingSheet.getCells(), existingSheet.getName());
+
+                    ISpreadsheet update = new Spreadsheet(existingSheet.getName());
+
+                    //Copy contents of sheet
+                    ArrayList<ArrayList<Cell>> copy = new ArrayList<>();
+                    ArrayList<ArrayList<Cell>> grid = existingSheet.getCells();
+
+                    for (int i = 0; i < grid.size(); i++){
+                        for(int j = 0; j < grid.get(i).size(); j++){
+                            update.setCellValue(i, j, grid.get(i).get(j).getValue());
+                            update.setCellRawdata(i, j, grid.get(i).get(j).getRawdata());
+                        }
+                    }
                     existingSheet.addPublished(update);
     
                     return ResponseEntity.ok(new Result(true, "Sheet updated successfully", new ArrayList<>()));

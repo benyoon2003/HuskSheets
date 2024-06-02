@@ -152,43 +152,42 @@ public class Home implements IHome {
             System.out.println("Input to convertStringTo2DArray is null or empty");
             return new ArrayList<>();
         }
-    
+
         // Parse input into lines
         String[] lines = input.split("\\r?\\n");
-    
+
         // List to store the 2D array
         List<List<String>> result = new ArrayList<>();
-    
+
         // Process each line
         for (String line : lines) {
             if (line.trim().isEmpty()) {
                 continue;
             }
-    
+
             String[] parts = line.split(" ", 2);
             if (parts.length < 2) {
                 continue;
             }
-    
+
             String ref = parts[0];
             String content = parts[1];
-    
+
             // Extract row and column from the reference
             int[] rowCol = convertRefToRowCol(ref);
-    
+
             // Create the nested list for this cell
             List<String> cellData = new ArrayList<>();
             cellData.add(String.valueOf(rowCol[0])); // Row
             cellData.add(String.valueOf(rowCol[1])); // Column
             cellData.add(content); // Content
-    
+
             // Add to the result list
             result.add(cellData);
         }
-    
+
         return result;
     }
-    
 
     // Convert cell reference (e.g., $A1) to row and column indices
     private static int[] convertRefToRowCol(String ref) {
