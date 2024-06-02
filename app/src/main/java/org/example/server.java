@@ -123,10 +123,9 @@ public class server {
         }
     }
 
-    // Update published sheet
     @PostMapping("/updatePublished")
-    public ResponseEntity<?> updatePublished(@RequestHeader("Authorization") String authHeader,
-                                             @RequestBody Argument argument) {
+    public ResponseEntity<Result> updatePublished(@RequestHeader("Authorization") String authHeader,
+                                                  @RequestBody Argument argument) {
         try {
             // Decode the Basic Auth header
             String[] credentials = decodeBasicAuth(authHeader);
@@ -136,39 +135,45 @@ public class server {
             }
             String publisher = argument.getPublisher();
             String sheet = argument.getSheet();
-            String id = argument.getId();
             String payload = argument.getPayload();
-
+    
+            System.out.println("Publisher: " + publisher);
+            System.out.println("Sheet: " + sheet);
+            System.out.println("Payload: " + payload);
+    
             IAppUser user = findUser(publisher);
-
-
             if (user == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
                         false, "User not found", new ArrayList<>()));
             }
-
-            for(ISpreadsheet existingSheet : user.getSheets()){
-                if(existingSheet.getName().equals(sheet)){
+    
+            for (ISpreadsheet existingSheet : user.getSheets()) {
+                if (existingSheet.getName().equals(sheet)) {
                     List<List<String>> data = Home.convertStringTo2DArray(payload);
-
-                    for(List<String> ls : data){
+                    for (List<String> ls : data) {
+                        System.out.println("Row: " + ls.get(0) + " Col: " + ls.get(1) + " Value: " + ls.get(2));
                         existingSheet.setCellRawdata(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
                         existingSheet.setCellValue(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
                     }
-
-                    //Create new sheet object to add to versions
-                    ISpreadsheet update = existingSheet;
+    
+                    // Create new sheet object to add to versions
+                    ISpreadsheet update = new Spreadsheet(existingSheet.getCells(), existingSheet.getName());
                     existingSheet.addPublished(update);
-
+    
                     return ResponseEntity.ok(new Result(true, "Sheet updated successfully", new ArrayList<>()));
                 }
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
                     false, "Sheet not found", new ArrayList<>()));
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Result(
+                    false, "Internal Server Error: " + e.getMessage(), new ArrayList<>()));
         }
     }
+    
+    
+
 
 
     // Register a publisher (new implementation)
@@ -278,39 +283,50 @@ public class server {
             // Decode the Basic Auth header
             String[] credentials = decodeBasicAuth(authHeader);
             if (credentials == null || credentials.length != 2) {
+                System.out.println("Unauthorized: Invalid credentials");
                 return ResponseEntity.status(401).body(new Result(
                         false, "Unauthorized", new ArrayList<>()));
             }
             String publisher = argument.getPublisher();
             String sheet = argument.getSheet();
             String id = argument.getId();
+            System.out.println("User: " + publisher + ", Sheet Name: " + sheet + ", ID: " + id);
             IAppUser user = findUser(publisher);
-
-
+    
             if (user == null) {
+                System.out.println("User not found: " + publisher);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
                         false, "User not found", new ArrayList<>()));
             }
-
+    
             List<Argument> arguments = new ArrayList<>();
-            for(ISpreadsheet existingSheet : user.getSheets()){
-                if(existingSheet.getName().equals(sheet)){
+            for (ISpreadsheet existingSheet : user.getSheets()) {
+                if (existingSheet.getName().equals(sheet)) {
                     List<ISpreadsheet> versions = existingSheet.getPublishedVersions();
-                    for(int i = Integer.parseInt(id); i < versions.size(); i++){
-                        Argument arg = new Argument(publisher, sheet, String.valueOf(i), UserController.convertSheetToPayload(versions.get(i)));
+                    System.out.println("Found sheet: " + sheet + ", Versions: " + versions.size());
+                    for (int i = Integer.parseInt(id); i < versions.size(); i++) {
+                        String payload = UserController.convertSheetToPayload(versions.get(i));
+                        System.out.println("Payload for version " + i + ": " + payload);
+                        Argument arg = new Argument(publisher, sheet, String.valueOf(i), payload);
                         arguments.add(arg);
                     }
-                    return ResponseEntity.ok(new Result(true, "Updates recieved", arguments));
+                    System.out.println("Returning updates: " + arguments.size());
+                    return ResponseEntity.ok(new Result(true, "Updates received", arguments));
                 }
             }
-
+    
+            System.out.println("Sheet not found: " + sheet);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
                     false, "Sheet not found", new ArrayList<>()));
-
+    
         } catch (Exception e) {
+            System.out.println("Internal Server Error: " + e.getMessage());
             return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
         }
     }
+    
+    
+    
 
     // Get updates for published sheets
     @PostMapping("/getUpdatedForPublished")

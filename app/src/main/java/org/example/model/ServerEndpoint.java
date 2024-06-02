@@ -209,7 +209,7 @@ public class ServerEndpoint {
     System.out.println("Get Updates For Published Response: " + response.body());
   }
 
-  public void updatePublished(String publisher, String sheet, String payload) throws Exception {
+  public Result updatePublished(String publisher, String sheet, String payload) throws Exception {
     String url = BASE_URL + "updatePublished";
     HttpClient client = HttpClient.newBuilder().build();
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"payload\":\"%s\"}", publisher, sheet, payload);
@@ -222,7 +222,31 @@ public class ServerEndpoint {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
     System.out.println("Update Published Response: " + response.body());
-  }
+    Result result = new Result(response.body());
+    System.out.println("Parsed Result: " + result);
+    return result;
+}
+
+// public Result createSheet(String sheet) throws Exception {
+//   String encodedPublisher = URLEncoder.encode(user.getUsername(), StandardCharsets.UTF_8);
+//   String url = BASE_URL + "createSheet"; // Ensure the endpoint is correct
+//   String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\"}", user.getUsername(), sheet);
+
+//   HttpClient client = HttpClient.newBuilder().build();
+
+//   HttpRequest request = HttpRequest.newBuilder()
+//           .uri(new URI(url))
+//           .header("Authorization", getBasicAuthHeader())
+//           .header("Content-Type", "application/json")
+//           .POST(HttpRequest.BodyPublishers.ofString(json))
+//           .build();
+
+//   HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+//   System.out.println("Create Sheet Response: " + response.body());
+
+//   return new Result(response.body());
+// }
+
 
   public void updateSubscription(String publisher, String sheet, String payload) throws Exception {
     String url = BASE_URL + "updateSubscription";

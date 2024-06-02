@@ -74,30 +74,34 @@ public class Home implements IHome {
 
     //Get payload of a sheet from server
     public ISpreadsheet readPayload(IAppUser user, ServerEndpoint se, String sheetName){
-        System.out.println(user.getUsername() + "\n" + sheetName);
+        System.out.println("User: " + user.getUsername() + ", Sheet Name: " + sheetName);
         try {
-            String payload = Result.getPayload(se.getUpdatesForSubscription(user.getUsername(), sheetName, "0"), sheetName);
-            System.out.println(payload);
-            if(payload != ""){;
-
+            String response = se.getUpdatesForSubscription(user.getUsername(), sheetName, "0");
+            System.out.println("Response from server: " + response);
+    
+            String payload = Result.getPayload(response, sheetName);
+            System.out.println("Payload received: " + payload);
+    
+            if (payload != null && !payload.isEmpty()) {
                 List<List<String>> data = convertStringTo2DArray(payload);
-
                 ISpreadsheet ss = new Spreadsheet(sheetName);
-
                 ArrayList<ArrayList<Cell>> grid = ss.getCells();
-
-                for(List<String> ls : data){
+    
+                for (List<String> ls : data) {
                     ss.setCellRawdata(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
                     ss.setCellValue(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
                 }
-             return ss;
+                return ss;
+            } else {
+                System.out.println("Payload is null or empty");
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return new Spreadsheet(sheetName);
     }
+    
+    
 
     @Override
     public void writeXML(IReadOnlySpreadSheet sheet, String path) {
@@ -144,41 +148,47 @@ public class Home implements IHome {
     }
 
     public static List<List<String>> convertStringTo2DArray(String input) {
+        if (input == null || input.trim().isEmpty()) {
+            System.out.println("Input to convertStringTo2DArray is null or empty");
+            return new ArrayList<>();
+        }
+    
         // Parse input into lines
         String[] lines = input.split("\\r?\\n");
-
+    
         // List to store the 2D array
         List<List<String>> result = new ArrayList<>();
-
+    
         // Process each line
         for (String line : lines) {
             if (line.trim().isEmpty()) {
                 continue;
             }
-
+    
             String[] parts = line.split(" ", 2);
             if (parts.length < 2) {
                 continue;
             }
-
+    
             String ref = parts[0];
             String content = parts[1];
-
+    
             // Extract row and column from the reference
             int[] rowCol = convertRefToRowCol(ref);
-
+    
             // Create the nested list for this cell
             List<String> cellData = new ArrayList<>();
             cellData.add(String.valueOf(rowCol[0])); // Row
             cellData.add(String.valueOf(rowCol[1])); // Column
             cellData.add(content); // Content
-
+    
             // Add to the result list
             result.add(cellData);
         }
-
+    
         return result;
     }
+    
 
     // Convert cell reference (e.g., $A1) to row and column indices
     private static int[] convertRefToRowCol(String ref) {

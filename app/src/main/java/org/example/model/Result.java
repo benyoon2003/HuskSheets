@@ -8,23 +8,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Represents a utility class to handle JSON responses from HTTP requests.
- */
 public class Result {
 
     private boolean success;
     private String message;
     private List<Argument> value;
 
-    // Existing constructor
     public Result(boolean success, String message, List<Argument> value) {
         this.success = success;
         this.message = message;
         this.value = value != null ? value : new ArrayList<>();
     }
 
-    // New constructor to parse JSON string
     public Result(String jsonString) throws JSONException {
         JSONObject jsonObject = new JSONObject(jsonString);
         this.success = jsonObject.getBoolean("success");
@@ -72,12 +67,6 @@ public class Result {
                 '}';
     }
 
-    /**
-     * Parses the JSON response to retrieve a list of sheet names.
-     *
-     * @param response the JSON response from the server.
-     * @return a list of sheet names.
-     */
     public static List<String> getSheets(String response) {
         List<String> sheetNames = new ArrayList<>();
         try {
@@ -94,13 +83,6 @@ public class Result {
         return sheetNames;
     }
 
-    /**
-     * Retrieves the payload of a specified sheet from the JSON response.
-     *
-     * @param response  the JSON response from the server.
-     * @param sheetName the name of the sheet.
-     * @return the payload of the specified sheet.
-     */
     public static String getPayload(String response, String sheetName) {
         try {
             JSONObject jsonObject = new JSONObject(response);
