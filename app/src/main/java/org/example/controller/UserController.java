@@ -49,10 +49,6 @@ public class UserController implements IUserController {
     /**
      * Constructor to initialize the UserController.
      * @param loginView the login view.
-     * @param homeView the home view.
-     * @param appUser the application user.
-     * @param spreadsheetModel the spreadsheet model.
-     * @param home the home model.
      */
     public UserController(ILoginView loginView) {
         this.loginPage = loginView;
@@ -303,7 +299,7 @@ public class UserController implements IUserController {
     public List<String> getServerSheets() {
         List<String> sheets = new ArrayList<>();
         try {
-            String response = serverEndpoint.getSheets("team2");
+            String response = serverEndpoint.getSheets();
             sheets = Result.getSheets(response);
         } catch (Exception e) {
             e.printStackTrace();

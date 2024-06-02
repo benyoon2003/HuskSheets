@@ -1,10 +1,7 @@
 package org.example;
 
-import org.example.model.AppUser;
-import org.example.model.Argument;
-import org.example.model.IAppUser;
-import org.example.model.Result;
-import org.example.model.SheetDTO;
+import org.example.model.*;
+
 import java.util.Base64;
 
 import org.springframework.http.HttpStatus;
@@ -90,52 +87,82 @@ public class server {
         }
     }
 
-    private boolean hasSheet(String sheet, String publisher) {
-        for (IAppUser user : availUsers) {
-            if (user.getUsername().equals(publisher) && user.doesSheetExist(sheet)) {
-                return true;
+
+    // Get all sheets for a publisher
+    @PostMapping("/getSheets")
+    public ResponseEntity<Result> getSheets(@RequestHeader("Authorization") String authHeader,
+                                            @RequestBody Argument argument) {
+        try {
+            // Decode the Basic Auth header
+            String[] credentials = decodeBasicAuth(authHeader);
+            if (credentials == null || credentials.length != 2 || !existingUser(credentials[0])) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
+                        false, "Unauthorized", new ArrayList<>()));
             }
+
+            List<Argument> sheets = new ArrayList<>();;
+
+            String publisher = argument.getPublisher();
+
+            IAppUser user = findUser(publisher);
+
+
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
+                        false, "User not found", new ArrayList<>()));
+            }
+
+            for(ISpreadsheet sheet : user.getSheets()){
+                sheets.add(new Argument(publisher, sheet.getName(), null, null));
+            }
+
+            return ResponseEntity.ok(new Result(true, "Sheets retrieved successfully", sheets));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
         }
-        return false;
     }
 
-    private IAppUser findUser(String username) {
-        for (IAppUser user : this.availUsers) {
-            if (user.getUsername().equals(username)) {
-                return user;
+    // Update published sheet
+    @PostMapping("/updatePublished")
+    public ResponseEntity<?> updatePublished(@RequestHeader("Authorization") String authHeader,
+                                             @RequestBody Argument argument) {
+        try {
+            // Decode the Basic Auth header
+            String[] credentials = decodeBasicAuth(authHeader);
+            if (credentials == null || credentials.length != 2 || !existingUser(credentials[0])) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
+                        false, "Unauthorized", new ArrayList<>()));
             }
-        }
-        return null;
-    }
+            String publisher = argument.getPublisher();
+            String sheet = argument.getSheet();
+            String id = argument.getId();
+            String payload = argument.getPayload();
 
-//
-//    // Get all sheets for a publisher
-//    @PostMapping("/getSheets")
-//    public ResponseEntity<List<Sheet>> getSheets(@RequestBody SheetDTO sheetDTO) {
-//        try {
-//            List<Sheet> sheets = sheetRepository.findAllByPublisher(sheetDTO.getPublisher());
-//            return ResponseEntity.ok(sheets);
-//        } catch (Exception e) {
-//            return ResponseEntity.status(500).body(null);
-//        }
-//    }
-//
-//    // Update published sheet
-//    @PostMapping("/updatePublished")
-//    public ResponseEntity<?> updatePublished(@RequestBody SheetDTO sheetDTO) {
-//        try {
-//            Sheet sheet = sheetRepository.findById(sheetDTO.getFilename()).orElse(null);
-//            if (sheet != null) {
-//                sheet.setContent(sheetDTO.getContent());
-//                sheetRepository.save(sheet);
-//                return ResponseEntity.ok("Sheet updated successfully");
-//            } else {
-//                return ResponseEntity.status(404).body("Sheet not found");
-//            }
-//        } catch (Exception e) {
-//            return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
-//        }
-//    }
+            IAppUser user = findUser(publisher);
+
+
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
+                        false, "User not found", new ArrayList<>()));
+            }
+
+            for(ISpreadsheet existingSheet : user.getSheets()){
+                if(existingSheet.getName().equals(sheet)){
+                    List<List<String>> data = Home.convertStringTo2DArray(payload);
+
+                    for(List<String> ls : data){
+                        existingSheet.setCellRawdata(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
+                        existingSheet.setCellValue(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
+                    }
+                    return ResponseEntity.ok(new Result(true, "Sheet updated successfully", new ArrayList<>()));
+                }
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
+                    false, "Sheet not found", new ArrayList<>()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
+        }
+    }
 
 
     // Register a publisher (new implementation)
@@ -238,14 +265,31 @@ public class server {
 
 
     // Get updates for subscription
-    @PostMapping("/getUpdatedForSubscription")
-    public ResponseEntity<?> getUpdatedForSubscription(@RequestBody SheetDTO sheetDTO) {
+    @PostMapping("/getUpdatesForSubscription")
+    public ResponseEntity<?> getUpdatedForSubscription(@RequestHeader("Authorization") String authHeader,
+                                                       @RequestBody Argument argument) {
         try {
-            // Your logic to get updates for subscription here
-            return ResponseEntity.ok("Updates for subscription retrieved successfully");
+            // Decode the Basic Auth header
+            String[] credentials = decodeBasicAuth(authHeader);
+            if (credentials == null || credentials.length != 2) {
+                return ResponseEntity.status(401).body(new Result(
+                        false, "Unauthorized", new ArrayList<>()));
+            }
+            String publisher = argument.getPublisher();
+            String sheet = argument.getSheet();
+            String id = argument.getId();
+            String payload = argument.getPayload();
+
+            IAppUser user = findUser(publisher);
+
+
+
+
+
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
         }
+        return null;
     }
 
     // Get updates for published sheets
@@ -269,4 +313,26 @@ public class server {
             return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
         }
     }
+
+
+    private boolean hasSheet(String sheet, String publisher) {
+        for (IAppUser user : availUsers) {
+            if (user.getUsername().equals(publisher) && user.doesSheetExist(sheet)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private IAppUser findUser(String username) {
+        for (IAppUser user : this.availUsers) {
+            if (user.getUsername().equals(username)) {
+                return user;
+            }
+        }
+        return null;
+    }
+
+
+
 }

@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
  * Represents a utility class to handle JSON responses from HTTP requests.
  */
 public class Result {
+
     private boolean success;
     private String message;
     private List<Argument> value;
@@ -19,7 +20,7 @@ public class Result {
     // Existing constructor
     public Result(boolean success, String message, List<Argument> value) {
         this.success = success;
-        this.message = value != null ? message : "";
+        this.message = message;
         this.value = value != null ? value : new ArrayList<>();
     }
 
@@ -29,7 +30,7 @@ public class Result {
         this.success = jsonObject.getBoolean("success");
         this.message = jsonObject.optString("message", null);
         this.value = new ArrayList<>();
-        JSONArray jsonArray = jsonObject.optJSONArray("argument");
+        JSONArray jsonArray = jsonObject.optJSONArray("value");
 
         if (jsonArray != null) {
             for (int i = 0; i < jsonArray.length(); i++) {
@@ -54,7 +55,7 @@ public class Result {
         return this.message;
     }
 
-    public List<Argument> getArgument() {
+    public List<Argument> getValue() {
         return this.value;
     }
 
@@ -115,6 +116,25 @@ public class Result {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static String makeResponse(Boolean success, String message, List<Argument> value, String endpoint) {
+        String res = "";
+
+        switch (endpoint) {
+            case "register": break;
+            case "getPublishers": break;
+            case "getSheets": break;
+            case "createSheet": break;
+            case "deleteSheet": break;
+            case "getUpdatesForSubscription": break;
+            case "getUpdatesForPublished": break;
+            case "updatePublished": break;
+            case "updateSubscription": break;
+            default: break;
+        }
+
+        return res;
     }
 
     public static void main(String[] args) throws Exception {

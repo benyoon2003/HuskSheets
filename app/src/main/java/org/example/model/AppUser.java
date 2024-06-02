@@ -63,6 +63,10 @@ public class AppUser implements IAppUser {
         return false;
     }
 
+    public List<ISpreadsheet> getSheets() {
+        return this.sheets;
+    }
+
 }
 
     /**

@@ -18,7 +18,7 @@ public class ServerEndpoint {
 
 
   // Base URL for the server endpoints
-  private static String BASE_URL = "http://localhost:8080/api/v1/"; // = ConfigLoader.getProperty("base.url");
+  private static String BASE_URL =  "http://localhost:8080/api/v1/";  //ConfigLoader.getProperty("base.url");
   private static IAppUser user;
 
 
@@ -39,7 +39,7 @@ public class ServerEndpoint {
   /**
    * Registers a publisher with the server.
    *
-   * @param publisher Name of the publisher to register
+
    * @throws Exception if an error occurs during the HTTP request
    */
 
@@ -102,7 +102,6 @@ public class ServerEndpoint {
   /**
    * Creates a new sheet for a specified publisher on the server.
    *
-   * @param publisher Name of the publisher
    * @param sheet     Name of the sheet to create
    * @throws Exception if an error occurs during the HTTP request
    */
@@ -130,14 +129,13 @@ public class ServerEndpoint {
   /**
    * Retrieves the list of sheets for a specified publisher from the server.
    *
-   * @param publisher Name of the publisher
    * @return Response body containing the list of sheets
    * @throws Exception if an error occurs during the HTTP request
    */
-  public String getSheets(String publisher) throws Exception {
+  public String getSheets() throws Exception {
     String url = BASE_URL + "getSheets";
     HttpClient client = HttpClient.newBuilder().build();
-    String json = String.format("{\"publisher\":\"%s\"}", publisher);
+    String json = String.format("{\"publisher\":\"%s\"}", user.getUsername());
     HttpRequest request = HttpRequest.newBuilder()
             .uri(new URI(url))
             .header("Authorization", getBasicAuthHeader())
