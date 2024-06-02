@@ -15,6 +15,22 @@ public class Argument {
 
   }
 
+  public String getPublisher() {
+    return this.publisher;
+  }
+
+  public String getSheet() {
+    return this.sheet;
+  }
+
+  public String getId() {
+    return this.id;
+  }
+
+  public String getPayload() {
+    return this.payload;
+  }
+
   public void setPublisher(String publisher) {
     this.publisher = publisher;
   }

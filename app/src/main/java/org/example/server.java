@@ -1,16 +1,19 @@
 package org.example;
 
 import org.example.model.AppUser;
+import org.example.model.Argument;
 import org.example.model.IAppUser;
 import org.example.model.Result;
 import org.example.model.SheetDTO;
 import java.util.Base64;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -41,55 +44,48 @@ public class server {
 //    }
 //
     // Create a new sheet
-    @GetMapping("/createSheet")
+    @PostMapping("/createSheet")
     public ResponseEntity<Result> createSheet(@RequestHeader("Authorization") String authHeader,
-                                              @RequestBody SheetDTO sheetDTO) {
+                                              @RequestBody Argument argument) {
         try {
             // Decode the Basic Auth header
             String[] credentials = decodeBasicAuth(authHeader);
-            String username = credentials[0];
-            String password = credentials[1];
-            System.out.println(username + ": " + password);
-            if (credentials == null || credentials.length != 2 ||
-                    !existingUser(username, password)) {
-                return ResponseEntity.status(401).body(new Result(
+            if (credentials == null || credentials.length != 2 || !existingUser(credentials[0])) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                         false, "Unauthorized", new ArrayList<>()));
             }
+            String username = credentials[0];
+            String publisher = argument.getPublisher();
+            String sheet = argument.getSheet();
 
-            String publisher = sheetDTO.getPublisher();
-            String sheet = sheetDTO.getSheet();
+            System.out.println(username + publisher + sheet);
 
-            if (publisher != username) {
-                return ResponseEntity.status(401).body(new Result(
-                        false, "Unauthorized: sender is not owner of sheet",
-                        new ArrayList<>()));
-            }
-            else if (sheet == "") {
-                return ResponseEntity.status(401).body(new Result(
-                        false, "Sheet name cannot be blank ",
-                        new ArrayList<>()));
+            if (!publisher.equals(username)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
+                        false, "Unauthorized: sender is not owner of sheet", new ArrayList<>()));
+            } else if (sheet.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Result(
+                        false, "Sheet name cannot be blank", new ArrayList<>()));
             }
             else if (hasSheet(sheet, publisher)) {
-                return ResponseEntity.status(401).body(new Result(
-                        false, "Sheet already exists: " + sheet,
-                        new ArrayList<>()));
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(new Result(
+                        false, "Sheet already exists: " + sheet, new ArrayList<>()));
             }
             else {
-                findUser(username, password).addSheet(sheet);
-                return ResponseEntity.status(401).body(new Result(
-                        true, null,
-                        new ArrayList<>()));
-
+                Objects.requireNonNull(findUser(username)).addSheet(sheet);
+                return ResponseEntity.status(HttpStatus.CREATED).body(new Result(
+                        true, "Sheet created successfully", new ArrayList<>()));
             }
 
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(new Result(
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Result(
                     false, "Internal Server Error: " + e.getMessage(), new ArrayList<>()));
         }
     }
 
     private boolean hasSheet(String sheet, String publisher) {
         for (IAppUser user : availUsers) {
+            System.out.println("USER" + user.getUsername());
             if (user.getUsername().equals(publisher) && user.doesSheetExist(sheet)) {
                 return true;
             }
@@ -97,9 +93,9 @@ public class server {
         return false;
     }
 
-    private IAppUser findUser(String username, String password) {
+    private IAppUser findUser(String username) {
         for (IAppUser user : this.availUsers) {
-            if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
+            if (user.getUsername().equals(username)) {
                 return user;
             }
         }
@@ -164,6 +160,7 @@ public class server {
             newUser.setPassword(password);
             availUsers.add(newUser);
 
+
             return ResponseEntity.ok(new Result(
                     true, "Publisher registered successfully", new ArrayList<>()));
         } catch (Exception e) {
@@ -189,7 +186,7 @@ public class server {
             System.out.println(username + ": " + password);
 
             // Check if the user already exists
-            if (existingUser(username, password)) {
+            if (existingUser(username)) {
                 return ResponseEntity.ok(new Result(
                         true, "Publisher logged in successfully", new ArrayList<>()));
             }
@@ -203,9 +200,9 @@ public class server {
         }
     }
 
-    private boolean existingUser(String username, String password) {
+    private boolean existingUser(String username) {
         for (IAppUser user : availUsers) {
-            if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
+            if (user.getUsername().equals(username)) {
                 return true;
             }
         }

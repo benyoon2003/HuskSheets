@@ -19,7 +19,7 @@ public class Result {
     // Existing constructor
     public Result(boolean success, String message, List<Argument> value) {
         this.success = success;
-        this.message = message;
+        this.message = value != null ? message : "";
         this.value = value != null ? value : new ArrayList<>();
     }
 
