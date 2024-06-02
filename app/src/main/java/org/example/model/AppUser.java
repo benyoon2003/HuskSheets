@@ -18,7 +18,6 @@ import javax.persistence.Table;
  */
 public class AppUser implements IAppUser {
 
-    @Id
     private String username;
     private String password;
 
@@ -66,6 +65,7 @@ public class AppUser implements IAppUser {
     public List<ISpreadsheet> getSheets() {
         return this.sheets;
     }
+
 
 }
 

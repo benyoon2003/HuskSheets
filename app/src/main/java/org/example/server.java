@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.controller.UserController;
 import org.example.model.*;
 
 import java.util.Base64;
@@ -154,6 +155,11 @@ public class server {
                         existingSheet.setCellRawdata(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
                         existingSheet.setCellValue(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
                     }
+
+                    //Create new sheet object to add to versions
+                    ISpreadsheet update = existingSheet;
+                    existingSheet.addPublished(update);
+
                     return ResponseEntity.ok(new Result(true, "Sheet updated successfully", new ArrayList<>()));
                 }
             }
@@ -278,18 +284,32 @@ public class server {
             String publisher = argument.getPublisher();
             String sheet = argument.getSheet();
             String id = argument.getId();
-            String payload = argument.getPayload();
-
             IAppUser user = findUser(publisher);
 
 
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
+                        false, "User not found", new ArrayList<>()));
+            }
 
+            List<Argument> arguments = new ArrayList<>();
+            for(ISpreadsheet existingSheet : user.getSheets()){
+                if(existingSheet.getName().equals(sheet)){
+                    List<ISpreadsheet> versions = existingSheet.getPublishedVersions();
+                    for(int i = Integer.parseInt(id); i < versions.size(); i++){
+                        Argument arg = new Argument(publisher, sheet, String.valueOf(i), UserController.convertSheetToPayload(versions.get(i)));
+                        arguments.add(arg);
+                    }
+                    return ResponseEntity.ok(new Result(true, "Updates recieved", arguments));
+                }
+            }
 
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
+                    false, "Sheet not found", new ArrayList<>()));
 
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
         }
-        return null;
     }
 
     // Get updates for published sheets
