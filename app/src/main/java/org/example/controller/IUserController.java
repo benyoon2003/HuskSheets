@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import org.example.model.IAppUser;
 import org.example.model.IReadOnlySpreadSheet;
 import org.example.view.IHomeView;
 import org.example.view.ISheetView;
@@ -29,6 +30,8 @@ public interface IUserController {
      * @param sheetView the sheet view to set as current.
      */
     void setCurrentSheet(ISheetView sheetView);
+
+    void openHomeView();
 
     /**
      * Gets the current sheet view.
@@ -188,4 +191,8 @@ public interface IUserController {
      * @return the formula of the cell.
      */
     String getFormula(int row, int col);
+
+    void registerUser(String username, String password);
+
+    void loginUser(String username, String password);
 }

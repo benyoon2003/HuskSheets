@@ -50,4 +50,8 @@ public interface IAppUser {
    * @param password the new password of the user.
    */
   void setPassword(String password);
+
+  boolean doesSheetExist(String name);
+
+  void addSheet(String sheetName);
 }
