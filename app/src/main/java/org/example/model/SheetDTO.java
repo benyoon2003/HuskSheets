@@ -3,14 +3,16 @@ package org.example.model;
 public class SheetDTO {
     private String filename;
     private String content;
+    private String publisher; // Add this field
 
-    public SheetDTO(String filename, String content) {
+    public SheetDTO(String filename, String content, String publisher) {
         this.filename = filename;
         this.content = content;
+        this.publisher = publisher; // Initialize this field
     }
 
     public String getFilename() {
-        return this.filename;
+        return filename;
     }
 
     public void setFilename(String filename) {
@@ -18,10 +20,19 @@ public class SheetDTO {
     }
 
     public String getContent() {
-        return this.content;
+        return content;
     }
 
     public void setContent(String content) {
         this.content = content;
     }
+
+    public String getPublisher() { // Add this getter method
+        return publisher;
+    }
+
+    public void setPublisher(String publisher) { // Add this setter method
+        this.publisher = publisher;
+    }
 }
+
