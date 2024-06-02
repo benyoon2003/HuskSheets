@@ -12,4 +12,6 @@ public interface ISheetView {
     void updateTable(); // Add this method
 
     void changeFormulaTextField(String rawdata);
+
+    String getExcelColumnName(int columnNumber);
 }
