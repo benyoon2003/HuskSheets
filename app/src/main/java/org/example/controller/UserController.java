@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import org.example.model.Cell;
 import org.example.model.IAppUser;
 import org.example.model.IHome;
 import org.example.model.IReadOnlySpreadSheet;
@@ -21,6 +22,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,8 +42,16 @@ public class UserController implements IUserController {
     private String clipboardContent = "";
     private boolean isCutOperation = false;
 
+    /**
+     * Constructor to initialize the UserController.
+     * @param loginView the login view.
+     * @param homeView the home view.
+     * @param appUser the application user.
+     * @param spreadsheetModel the spreadsheet model.
+     * @param home the home model.
+     */
     public UserController(ILoginView loginView, IHomeView homeView,
-            IAppUser appUser, ISpreadsheet spreadsheetModel, IHome home) {
+                          IAppUser appUser, ISpreadsheet spreadsheetModel, IHome home) {
         this.loginPage = loginView;
         loginView.addController(this);
         this.appUser = appUser;
@@ -91,15 +101,15 @@ public class UserController implements IUserController {
     public void createNewSheet(String name) {
         try {
             ServerEndpoint.createSheet("team2", name);
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         this.spreadsheetModel = new Spreadsheet(name);
         this.sheetView = new SheetView(this.spreadsheetModel);
         this.setCurrentSheet(sheetView);
-
- this.sheetView.makeVisible();
+        this.sheetView.makeVisible();
     }
+
     @Override
     public void saveSheet(IReadOnlySpreadSheet sheet, String path) {
         try {
@@ -112,38 +122,52 @@ public class UserController implements IUserController {
     @Override
     public void saveSheetToServer(IReadOnlySpreadSheet sheet, String name) {
         try {
-            HttpClient client = HttpClient.newHttpClient();
-            String json = convertSheetToJson(sheet, name);
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:8080/api/saveSheet"))
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
-                System.out.println("Sheet saved to server successfully!");
-            } else {
-                System.out.println("Failed to save sheet to server: " + response.body());
-            }
+            String payload = convertSheetToPayload(sheet);
+            ServerEndpoint.updatePublished("team2", name, payload);
+
+//            HttpClient client = HttpClient.newHttpClient();
+//            String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"payload\":\"%s\"}", "team2", name, payload);
+//
+//            HttpRequest request = HttpRequest.newBuilder()
+//                    .uri(new URI("https://husksheets.fly.dev/api/v1/updatePublished"))
+//                    .header("Authorization", "Basic " + Base64.getEncoder().encodeToString(("team2:Ltf3r008'fYrV405").getBytes(StandardCharsets.UTF_8)))
+//                    .header("Content-Type", "application/json")
+//                    .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
+//                    .build();
+//
+//            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+//            if (response.statusCode() == 200) {
+//                System.out.println("Sheet updated successfully!");
+//            } else {
+//                System.out.println("Failed to update sheet: " + response.body());
+//            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private String convertSheetToJson(IReadOnlySpreadSheet sheet, String name) {
-        StringBuilder json = new StringBuilder();
-        json.append("{\"name\":\"").append(name).append("\", \"content\":\"");
-
-        String[][] values = sheet.getCellStringsObject();
+    private String convertSheetToPayload(IReadOnlySpreadSheet sheet) {
+        StringBuilder payload = new StringBuilder();
+        Cell[][] values = sheet.getCellsObject();
         for (int i = 0; i < sheet.getRows(); i++) {
             for (int j = 0; j < sheet.getCols(); j++) {
-                if (values[i][j] != null && !values[i][j].isEmpty()) {
-                    json.append(values[i][j].replace("\n", "\\n").replace("\"", "\\\"")).append(",");
+                if (values[i][j] != null && !values[i][j].getRawdata().isEmpty()) {
+                    String cellValue = sheet.getCellsObject()[i][j].isFormula() ? sheet.getCellsObject()[i][j].getFormula() : values[i][j].getRawdata();
+                    payload.append(String.format("$%s%s %s\\n", getExcelColumnName(j + 1), i + 1, cellValue.replace("\n", "\\n").replace("\"", "\\\"")));
                 }
             }
         }
-        json.append("\"}");
-        return json.toString();
+        return payload.toString();
+    }
+
+    private String getExcelColumnName(int columnNumber) {
+        StringBuilder columnName = new StringBuilder();
+        while (columnNumber > 0) {
+            int remainder = (columnNumber - 1) % 26;
+            columnName.insert(0, (char) (remainder + 'A'));
+            columnNumber = (columnNumber - 1) / 26;
+        }
+        return columnName.toString();
     }
 
     @Override
@@ -164,10 +188,7 @@ public class UserController implements IUserController {
             int startColumn = selectedColumns[0];
             int endColumn = selectedColumns[selectedColumns.length - 1];
 
-            // Additional logic for handling cell selection range
-
-            this.selectedCells = new SelectedCells(startRow + 1,
-                    endRow + 1, startColumn, endColumn);
+            this.selectedCells = new SelectedCells(startRow + 1, endRow + 1, startColumn, endColumn);
 
             System.out.println("Selected range: (" + (selectedCells.getStartRow()) + ", " +
                     selectedCells.getStartCol() + ") to (" + (selectedCells.getEndRow()) + ", "
@@ -178,23 +199,19 @@ public class UserController implements IUserController {
                         this.selectedCells.getStartRow() - 1, this.selectedCells.getStartCol() - 1));
             }
         } else {
-            this.selectedCells = new SelectedCells(-1,
-                    -1, -1, -1);
+            this.selectedCells = new SelectedCells(-1, -1, -1, -1);
         }
     }
 
     public int getSelectedRowZeroIndex() {
-        System.out.println("ROWINDEX:" + selectedCells.getStartRow());
         return selectedCells.getStartRow() - 1;
     }
 
     public int getSelectedColZeroIndex() {
-        System.out.println("COLINDEX:" + selectedCells.getStartCol());
         return selectedCells.getStartCol() - 1;
     }
 
     private boolean singleCellSelected(ISelectedCells selectedCells) {
-        System.out.println("Single cell selected");
         return selectedCells.getStartRow() == selectedCells.getEndRow() &&
                 selectedCells.getStartCol() == selectedCells.getEndCol();
     }
@@ -216,7 +233,7 @@ public class UserController implements IUserController {
         List<String> sheets = new ArrayList<>();
         File folder = new File("HuskSheets/sheets");
         if (!folder.exists()) {
-            folder.mkdirs(); // Ensure the directory exists
+            folder.mkdirs();
         }
         if (folder.isDirectory()) {
             for (File file : folder.listFiles()) {
@@ -225,17 +242,16 @@ public class UserController implements IUserController {
                 }
             }
         }
-        System.out.println("Found saved sheets: " + sheets); // Debug statement
         return sheets;
     }
 
+    @Override
     public List<String> getServerSheets() {
         List<String> sheets = new ArrayList<>();
         try {
             String response = ServerEndpoint.getSheets("team2");
-            System.out.println(response);
             sheets = Result.getSheets(response);
-        } catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return sheets;
@@ -259,28 +275,14 @@ public class UserController implements IUserController {
         if (file.exists()) {
             file.delete();
             this.homeView.updateSavedSheets();
-            System.out.println("Deleted sheet: " + path); // Debug statement
-        } else {
-            System.out.println("Sheet not found: " + path); // Debug statement
         }
     }
 
     @Override
     public void deleteSheetFromServer(String name) {
-        try {
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:8080/api/deleteSheet/" + name))
-                    .DELETE()
-                    .build();
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            if (response.statusCode() == 200) {
-                System.out.println("Sheet deleted from server successfully!");
-                this.homeView.updateSavedSheets(); // Update the dropdown
-            } else {
-                System.out.println("Failed to delete sheet from server: " + response.body());
-            }
-        } catch (Exception e) {
+        try{
+            ServerEndpoint.deleteSheet(appUser.getUsername(), name);
+        } catch(Exception e){
             e.printStackTrace();
         }
     }
@@ -304,12 +306,11 @@ public class UserController implements IUserController {
     public void changeSpreadSheetValueAt(int selRow, int selCol, String val) {
         this.spreadsheetModel.setCellRawdata(selRow, selCol, val);
         if (val.startsWith("=")) {
-            this.spreadsheetModel.setCellValue(selRow, selCol, val); // Store the formula
+            this.spreadsheetModel.setCellValue(selRow, selCol, val);
             val = this.spreadsheetModel.evaluateFormula(val);
         }
         this.spreadsheetModel.setCellValue(selRow, selCol, val);
-        System.out.println("1");
-        this.sheetView.updateTable(); // Update the table view after changing the value
+        this.sheetView.updateTable();
     }
 
     @Override
@@ -346,8 +347,7 @@ public class UserController implements IUserController {
     @Override
     public void getPercentile(int selRow, int selCol) {
         String value = this.spreadsheetModel.getCellValue(selRow, selCol);
-        if (value == "" || value == null || value.contains("%"))
-            return;
+        if (value.isEmpty() || value.contains("%")) return;
 
         try {
             double num = Double.parseDouble(value);

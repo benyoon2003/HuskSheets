@@ -1,5 +1,8 @@
 package org.example.model;
 
+
+import org.example.controller.ConfigLoader;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -9,41 +12,29 @@ import java.util.Base64;
 
 public class ServerEndpoint {
 
-  private static final String BASE_URL = "https://husksheets.fly.dev/api/v1/";
-  private static final String USERNAME = "team2";
-  private static final String PASSWORD = "Ltf3r008'fYrV405";
 
+  // Base URL for the server endpoints
+  private static final String BASE_URL = ConfigLoader.getProperty("base.url");
+  // Username for authentication
+  private static final String USERNAME = ConfigLoader.getProperty("username");
+  // Password for authentication
+  private static final String PASSWORD = ConfigLoader.getProperty("password");
+
+  /**
+   * Constructs the Basic Authentication header using the username and password.
+   *
+   * @return Basic Authentication header string
+   */
   private static String getBasicAuthHeader() {
     String auth = USERNAME + ":" + PASSWORD;
     return "Basic " + Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
   }
 
-  public static void main(String[] args) throws Exception {
-//    register("team2");
-    getPublishers();
-    createSheet("team2", "testPayload2");
-    getSheets("team2");
-//    deleteSheet("team2", "exampleSheet");
-//    getSheets("team2");
-    updatePublished("team2", "testPayload2",
-            "$A1 1\\n" +
-                    "$A2 \\\"help\\\"\\n" +
-                    "$B1 -1.01\\n"+
-                    "$C4 \\\"\\\"\\n" +
-                    "$c1 =SUM($A1:$B1)\\n");
-    getUpdatesForSubscription("team2", "testPayload", "0");
-    getUpdatesForPublished("team2", "testPayload", "0");
-
-//    updateSubscription("team2", "exampleSheet", "NEW");
-//    getUpdatesForPublished("team2", "exampleSheet", "3");
-  }
-
-
   /**
-   * causes the server to create a publisher with the client name. No value is returned.
+   * Registers a publisher with the server.
    *
-   * @param publisher
-   * @throws Exception
+   * @param publisher Name of the publisher to register
+   * @throws Exception if an error occurs during the HTTP request
    */
   private static void register(String publisher) throws Exception {
     String url = BASE_URL + "register";
@@ -53,7 +44,7 @@ public class ServerEndpoint {
             .uri(new URI(url))
             .header("Authorization", getBasicAuthHeader())
             .header("Content-Type", "application/json")
-            //.POST(HttpRequest.BodyPublishers.ofString(json))
+            .POST(HttpRequest.BodyPublishers.ofString(json))
             .build();
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -61,9 +52,9 @@ public class ServerEndpoint {
   }
 
   /**
-   * returns a list of argument objects with the publisher field set to all registered publishers.
+   * Retrieves the list of publishers from the server.
    *
-   * @throws Exception
+   * @throws Exception if an error occurs during the HTTP request
    */
   public static void getPublishers() throws Exception {
     String url = BASE_URL + "getPublishers";
@@ -79,12 +70,11 @@ public class ServerEndpoint {
   }
 
   /**
-   * takes an argument object with fields publisher and sheet set to the name of the client and
-   * the name of a sheet to create. No value is returned.
+   * Creates a new sheet for a specified publisher on the server.
    *
-   * @param publisher
-   * @param sheet
-   * @throws Exception
+   * @param publisher Name of the publisher
+   * @param sheet     Name of the sheet to create
+   * @throws Exception if an error occurs during the HTTP request
    */
   public static void createSheet(String publisher, String sheet) throws Exception {
     String url = BASE_URL + "createSheet";
@@ -102,12 +92,11 @@ public class ServerEndpoint {
   }
 
   /**
-   * takes an argument object with field publisher set to the name of a publisher and
-   * returns a list of argument objects with the publisher and sheet fields set to all
-   * sheet names for the given publisher.
+   * Retrieves the list of sheets for a specified publisher from the server.
    *
-   * @param publisher
-   * @throws Exception
+   * @param publisher Name of the publisher
+   * @return Response body containing the list of sheets
+   * @throws Exception if an error occurs during the HTTP request
    */
   public static String getSheets(String publisher) throws Exception {
     String url = BASE_URL + "getSheets";
@@ -126,12 +115,11 @@ public class ServerEndpoint {
   }
 
   /**
-   * takes an argument object with fields publisher and sheet set to the name of the client
-   * and the name of a sheet to delete. No value is returned.
+   * Deletes a specified sheet for a publisher from the server.
    *
-   * @param publisher
-   * @param sheet
-   * @throws Exception
+   * @param publisher Name of the publisher
+   * @param sheet     Name of the sheet to delete
+   * @throws Exception if an error occurs during the HTTP request
    */
   public static void deleteSheet(String publisher, String sheet) throws Exception {
     String url = BASE_URL + "deleteSheet";
@@ -148,18 +136,6 @@ public class ServerEndpoint {
     System.out.println("Delete Sheet Response: " + response.body());
   }
 
-  /**
-   * takes an argument object with fields publisher, sheet and id set to the name of a publisher,
-   * a sheet, and an id. It returns an argument object with the payload set to all updates that
-   * occurred after id, and the id field set to the last id for those updates. The sheet is owned
-   * by a publisher different from the client. An empty payload is returned if no updates occurred
-   * after the given id.
-   *
-   * @param publisher
-   * @param sheet
-   * @param id
-   * @throws Exception
-   */
   public static String getUpdatesForSubscription(String publisher, String sheet, String id) throws Exception {
     String url = BASE_URL + "getUpdatesForSubscription";
     HttpClient client = HttpClient.newBuilder().build();
@@ -176,18 +152,6 @@ public class ServerEndpoint {
     return response.body();
   }
 
-  /**
-   * takes an argument object with fields publisher, sheet and id set to the name of a publisher,
-   * a sheet, and an id. It returns an argument object with the payload set to all the requests
-   * for updates that occurred after id, and the id field set to the last id for those requests
-   * for updates. The sheet is owned by the client. An empty payload is returned if no updates
-   * occurred after the given id.
-   *
-   * @param publisher
-   * @param sheet
-   * @param id
-   * @throws Exception
-   */
   public static void getUpdatesForPublished(String publisher, String sheet, String id) throws Exception {
     String url = BASE_URL + "getUpdatesForPublished";
     HttpClient client = HttpClient.newBuilder().build();
@@ -203,15 +167,6 @@ public class ServerEndpoint {
     System.out.println("Get Updates For Published Response: " + response.body());
   }
 
-  /**
-   * takes an argument object with fields publisher, sheet and payload set to the name of a
-   * publisher, a sheet, and updates for that sheet. No value is returned. The sheet is owned by the client.
-   *
-   * @param publisher
-   * @param sheet
-   * @param payload
-   * @throws Exception
-   */
   public static void updatePublished(String publisher, String sheet, String payload) throws Exception {
     String url = BASE_URL + "updatePublished";
     HttpClient client = HttpClient.newBuilder().build();
@@ -227,16 +182,6 @@ public class ServerEndpoint {
     System.out.println("Update Published Response: " + response.body());
   }
 
-  /**
-   * takes an argument object with fields publisher, sheet and payload set to the name of a
-   * publisher, a sheet, and requests for updates for that sheet. No value is returned. The
-   * sheet is owned by a publisher different from the client.
-   *
-   * @param publisher
-   * @param sheet
-   * @param payload
-   * @throws Exception
-   */
   public static void updateSubscription(String publisher, String sheet, String payload) throws Exception {
     String url = BASE_URL + "updateSubscription";
     HttpClient client = HttpClient.newBuilder().build();

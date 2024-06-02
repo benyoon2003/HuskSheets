@@ -78,7 +78,31 @@ public class SheetView extends JFrame implements ISheetView {
         cutButton.addActionListener(new ToolbarButtonListener(this));
         copyButton.addActionListener(new ToolbarButtonListener(this));
         pasteButton.addActionListener(new ToolbarButtonListener(this));
-        saveButton.addActionListener(new ToolbarButtonListener(this));
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int option = JOptionPane.showOptionDialog(
+                        null,
+                        "Choose where to save the sheet:",
+                        "Save Option",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        new Object[]{"Save Locally", "Save to Server"},
+                        "Save Locally");
+
+                if (option == JOptionPane.YES_OPTION) {
+                    JFileChooser fileChooser = new JFileChooser();
+                    int returnValue = fileChooser.showSaveDialog(null);
+                    if (returnValue == JFileChooser.APPROVE_OPTION) {
+                        File selectedFile = fileChooser.getSelectedFile();
+                        controller.saveSheetToServer(cells, selectedFile.getAbsolutePath());
+                    }
+                } else if (option == JOptionPane.NO_OPTION) {
+                    controller.saveSheetToServer(cells, ((Spreadsheet) cells).getName());
+                }
+            }
+        });
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -132,7 +156,7 @@ public class SheetView extends JFrame implements ISheetView {
         table.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                    boolean hasFocus, int row, int column) {
+                                                           boolean hasFocus, int row, int column) {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 setHorizontalAlignment(SwingConstants.CENTER); // Align labels to the center
                 return this;
@@ -178,40 +202,8 @@ public class SheetView extends JFrame implements ISheetView {
             }
         });
 
-        // Add panel for right-clicks
-        JPanel rightClickPanel = new JPanel(new GridLayout(1, 1));
-        rightClickPanel.setSize(new Dimension(100, 15));
-
-        // Add buttons to right-click panel
-        JButton percentiles = new JButton("Percentile");
-        percentiles.setPreferredSize(new Dimension(100, 15));
-        percentiles.addActionListener(new RightClickButtonListener(this));
-        percentiles.setVisible(rightClickPanel.isVisible());
-        rightClickPanel.add(percentiles);
-        
-        rightClickPanel.setVisible(false);
-        yourTable.add(rightClickPanel);
-
-        table.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON3) { // For right-clicks
-                    int row = table.rowAtPoint(e.getPoint());
-                    int col = table.columnAtPoint(e.getPoint());
-                    if (row >= 0 && row < rowSize && col >= 1 && col < colSize) {
-                        rightClickCell(rightClickPanel, e.getX(), e.getY());
-                    }
-                } else if (e.getButton() == MouseEvent.BUTTON1) { // For left-clicks
-                    if (rightClickPanel != null && rightClickPanel.isVisible()) {
-                        rightClickPanel.setVisible(false);
-                    }
-                }
-            }
-        });
-
         add(table, BorderLayout.CENTER);
 
-        // Add scroll bars
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.setPreferredSize(new Dimension(800, 600));
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -296,11 +288,6 @@ public class SheetView extends JFrame implements ISheetView {
         JOptionPane.showMessageDialog(this, s);
     }
 
-    private void rightClickCell(JPanel rightClickPanel, int x, int y) {
-        rightClickPanel.setLocation(x, y);
-        rightClickPanel.setVisible(true);
-    }
-
     class ToolbarButtonListener implements ActionListener {
         private SheetView view;
 
@@ -338,7 +325,7 @@ public class SheetView extends JFrame implements ISheetView {
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE,
                         null,
-                        new Object[] { "Save Locally", "Save to Server" },
+                        new Object[]{"Save Locally", "Save to Server"},
                         "Save Locally");
 
                 if (option == JOptionPane.YES_OPTION) {
@@ -349,38 +336,11 @@ public class SheetView extends JFrame implements ISheetView {
                         this.view.save(selectedFile.getAbsolutePath());
                     }
                 } else if (option == JOptionPane.NO_OPTION) {
-                    String name = JOptionPane.showInputDialog("Enter a name for the sheet:");
-                    if (name != null && !name.trim().isEmpty()) {
-                        this.view.getController().saveSheetToServer(this.view.cells, name);
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Sheet name cannot be empty.");
-                    }
+                    this.view.getController().saveSheetToServer(this.view.cells, ((Spreadsheet) this.view.cells).getName());
                 }
             } else {
                 view.getController().handleToolbar(command);
             }
-        }
-    }
-
-    class RightClickButtonListener implements ActionListener {
-        private SheetView view;
-
-        RightClickButtonListener(SheetView view) {
-            this.view = view;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String command = e.getActionCommand();
-            int row = this.view.yourTable.getSelectedRow();
-            int col = this.view.yourTable.getSelectedColumn() - 1;
-
-            if (command == "Percentile") {
-                System.out.println(command);
-                this.view.getController().getPercentile(row, col);
-            }
-
-            this.view.updateTable();
         }
     }
 }

@@ -1,5 +1,6 @@
 package org.example.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Lob;
@@ -14,6 +15,9 @@ public class Sheet {
 
     @Lob
     private String content;
+
+    @Column(name = "publisher")
+    private String publisher;
 
     // Getters and Setters
     public String getName() {
@@ -30,5 +34,14 @@ public class Sheet {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    // Getters and Setters
+    public String getPublisher() {
+        return publisher;
+    }
+    
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
     }
 }
