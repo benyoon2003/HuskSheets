@@ -177,6 +177,11 @@ public class HomeView extends JFrame implements IHomeView {
     }
 
     @Override
+    public void displayErrorBox(String message) {
+        JOptionPane.showMessageDialog(this, message);
+    }
+
+    @Override
     public void updateSavedSheets() {
         if (controller != null) {
             List<String> savedSheets = controller.getSavedSheets();

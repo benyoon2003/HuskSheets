@@ -54,11 +54,11 @@ public class ServerEndpoint {
     HttpRequest request = HttpRequest.newBuilder()
             .uri(new URI(url))
             .header("Authorization", getBasicAuthHeader())
-            .header("Content-Type", "application/json")
             .GET()
             .build();
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    System.out.println("Register request: " + response.body());
     return new Result(response.body());
   }
 
@@ -73,11 +73,11 @@ public class ServerEndpoint {
     HttpRequest request = HttpRequest.newBuilder()
             .uri(new URI(url))
             .header("Authorization", getBasicAuthHeader())
-            .header("Content-Type", "application/json")
             .GET()
             .build();
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    System.out.println("Login request: " + response.body());
     return new Result(response.body());
   }
 
@@ -108,7 +108,7 @@ public class ServerEndpoint {
    */
   public Result createSheet(String sheet) throws Exception {
     String encodedPublisher = URLEncoder.encode(user.getUsername(), StandardCharsets.UTF_8);
-    String url = BASE_URL + "createSheet?publisher=" + encodedPublisher;
+    String url = BASE_URL + "createSheet"; // Ensure the endpoint is correct
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\"}", user.getUsername(), sheet);
 
     HttpClient client = HttpClient.newBuilder().build();
@@ -125,6 +125,7 @@ public class ServerEndpoint {
 
     return new Result(response.body());
   }
+
 
   /**
    * Retrieves the list of sheets for a specified publisher from the server.

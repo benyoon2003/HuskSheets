@@ -149,11 +149,16 @@ public class UserController implements IUserController {
     @Override
     public void createNewSheet(String name) {
         try {
-            serverEndpoint.createSheet(name);
-            this.spreadsheetModel = new Spreadsheet(name);
-            this.sheetView = new SheetView(this.spreadsheetModel);
-            this.setCurrentSheet(sheetView);
-            this.sheetView.makeVisible();
+            Result createSheetResult = serverEndpoint.createSheet(name);
+            if (createSheetResult.getSuccess()) {
+                this.spreadsheetModel = new Spreadsheet(name);
+                this.sheetView = new SheetView(this.spreadsheetModel);
+                this.setCurrentSheet(sheetView);
+                this.sheetView.makeVisible();
+            }
+            else {
+                this.homeView.displayErrorBox(createSheetResult.getMessage());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

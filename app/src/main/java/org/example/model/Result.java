@@ -60,7 +60,7 @@ public class Result {
     }
 
 
-    public static String makeResponse(String response, IAppUser user, String endpoint){
+    public static String makeResponse(Boolean success, String message,List<Argument> value, String endpoint){
         String res = "";
 
         switch (endpoint) {
