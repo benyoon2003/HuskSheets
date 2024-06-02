@@ -1,6 +1,7 @@
 package org.example.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents the interface for a spreadsheet.
@@ -73,4 +74,11 @@ public interface ISpreadsheet extends IReadOnlySpreadSheet {
      * @return the name of the spreadsheet.
      */
     String getName();
+
+
+    public void addPublished(ISpreadsheet sheet);
+
+    public void addSubscribed(ISpreadsheet sheet);
+
+    public List<ISpreadsheet> getPublishedVersions();
 }
