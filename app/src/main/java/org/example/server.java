@@ -1,9 +1,11 @@
 package org.example;
 
 import org.example.model.AppUser;
+import org.example.model.Sheet;
 import org.example.model.SheetDTO;
 import java.util.Base64;
 
+import org.example.model.Spreadsheet;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,44 +28,47 @@ public class server {
      */
     private List<AppUser> availUsers = new ArrayList<AppUser>();
     // Get all publishers
-//    @GetMapping("/getPublishers")
-//    public ResponseEntity<List<AppUser>> getPublishers() {
-//        try {
-//            List<AppUser> publishers = userService.getAllUsers();
-//            return ResponseEntity.ok(publishers);
-//        } catch (Exception e) {
-//            return ResponseEntity.status(500).body(null);
-//        }
-//    }
-//
-//    // Create a new sheet
-//    @PostMapping("/createSheet")
-//    public ResponseEntity<?> createSheet(@RequestBody SheetDTO sheetDTO) {
-//        try {
-//            Sheet sheet = new Sheet();
-//            sheet.setName(sheetDTO.getFilename());
-//            sheet.setContent(sheetDTO.getContent());
-//            sheetRepository.save(sheet);
-//            return ResponseEntity.ok("Sheet created successfully");
-//        } catch (Exception e) {
-//            return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
-//        }
-//    }
-//
-//    // Get all sheets for a publisher
-//    @PostMapping("/getSheets")
-//    public ResponseEntity<List<Sheet>> getSheets(@RequestBody SheetDTO sheetDTO) {
-//        try {
-//            List<Sheet> sheets = sheetRepository.findAllByPublisher(sheetDTO.getPublisher());
-//            return ResponseEntity.ok(sheets);
-//        } catch (Exception e) {
-//            return ResponseEntity.status(500).body(null);
-//        }
-//    }
-//
-//    // Update published sheet
-//    @PostMapping("/updatePublished")
-//    public ResponseEntity<?> updatePublished(@RequestBody SheetDTO sheetDTO) {
+    @GetMapping("/getPublishers")
+    public ResponseEntity<List<AppUser>> getPublishers() {
+        try {
+            List<AppUser> publishers = this.availUsers;
+            return ResponseEntity.ok(publishers);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(null);
+        }
+    }
+
+    // Create a new sheet
+    @PostMapping("/createSheet")
+    public ResponseEntity<?> createSheet(@RequestBody String publisher, String name) {
+        try {
+            Spreadsheet sheet = new Spreadsheet(name);
+            AppUser user = findByUsername(publisher);
+            user.addPublished(sheet);
+            return ResponseEntity.ok("Sheet created successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
+        }
+    }
+
+    // Get all sheets for a publisher
+    @PostMapping("/getSheets")
+    public ResponseEntity<CustomResponse> getSheets(@RequestBody String publisher, String name) {
+        try {
+            AppUser user = findByUsername(publisher);
+            List<Spreadsheet> sheets = user.getPublished();
+
+            CustomResponse response = new CustomResponse(true, null, sheets, System.currentTimeMillis());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            CustomResponse response = new CustomResponse(false, "Internal Server Error: " + e.getMessage(), null, System.currentTimeMillis());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    // Update published sheet
+    @PostMapping("/updatePublished")
+    public ResponseEntity<?> updatePublished(@RequestBody String publisher, String name, String payload) {
 //        try {
 //            Sheet sheet = sheetRepository.findById(sheetDTO.getFilename()).orElse(null);
 //            if (sheet != null) {
@@ -76,7 +81,8 @@ public class server {
 //        } catch (Exception e) {
 //            return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
 //        }
-//    }
+        return null;
+    }
 
 
     // Register a publisher (new implementation)
