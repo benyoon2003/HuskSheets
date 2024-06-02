@@ -12,7 +12,7 @@ public interface IAppUser {
    * @param password the password of the user.
    * @return a message indicating the result of the authentication process.
    */
-  String authenticateUser(String username, String password);
+  //String authenticateUser(String username, String password);
 
   /**
    * Creates a new account with the given username and password.
@@ -21,7 +21,7 @@ public interface IAppUser {
    * @param password the desired password for the new account.
    * @return a message indicating the result of the account creation process.
    */
-  String createAccount(String username, String password);
+  //String createAccount(String username, String password);
 
   /**
    * Gets the username of the user.

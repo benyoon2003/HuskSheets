@@ -14,7 +14,7 @@ public interface IUserController {
      * @param password the password of the user.
      * @return true if authentication is complete, false otherwise.
      */
-    boolean isUserAuthenticationComplete(String username, String password);
+ //   boolean isUserAuthenticationComplete(String username, String password);
 
     /**
      * Checks if a new user is created successfully.
@@ -22,7 +22,7 @@ public interface IUserController {
      * @param password the password of the new user.
      * @return true if user is created successfully, false otherwise.
      */
-    boolean isUserCreatedSuccessfully(String username, String password);
+ //   boolean isUserCreatedSuccessfully(String username, String password);
 
     /**
      * Sets the current sheet view.

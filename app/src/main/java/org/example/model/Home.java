@@ -11,6 +11,7 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;
 
+import org.h2.tools.Server;
 import org.w3c.dom.*;
 
 public class Home implements IHome {
@@ -72,10 +73,10 @@ public class Home implements IHome {
     }
 
     //Get payload of a sheet from server
-    public ISpreadsheet readPayload(IAppUser user, String sheetName){
+    public ISpreadsheet readPayload(IAppUser user, ServerEndpoint se, String sheetName){
         System.out.println(user.getUsername() + "\n" + sheetName);
         try {
-            String payload = Result.getPayload(ServerEndpoint.getUpdatesForSubscription(user.getUsername(), sheetName, "0"), sheetName);
+            String payload = Result.getPayload(se.getUpdatesForSubscription(user.getUsername(), sheetName, "0"), sheetName);
             System.out.println(payload);
             if(payload != ""){;
 

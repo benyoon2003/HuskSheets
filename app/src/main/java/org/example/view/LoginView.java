@@ -1,15 +1,12 @@
 package org.example.view;
 
 import org.example.controller.IUserController;
+import org.example.controller.UserController;
+import org.example.model.*;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 
 public class LoginView extends JFrame implements ILoginView {
 
@@ -78,9 +75,9 @@ public class LoginView extends JFrame implements ILoginView {
             public void actionPerformed(ActionEvent e) {
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
-                if (!controller.isUserAuthenticationComplete(username, password)) {
-                    JOptionPane.showMessageDialog(panel, "Username and password cannot be empty");
-                }
+//                if (!controller.isUserAuthenticationComplete(username, password)) {
+//                    JOptionPane.showMessageDialog(panel, "Username and password cannot be empty");
+//                }
             }
         });
 
@@ -89,11 +86,12 @@ public class LoginView extends JFrame implements ILoginView {
             public void actionPerformed(ActionEvent e) {
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
-                if (!controller.isUserCreatedSuccessfully(username, password)) {
-                    JOptionPane.showMessageDialog(panel, "Username and password cannot be empty");
-                }
+                IAppUser user = new AppUser();
+                user.setUsername(username);
+                user.setPassword(password);
+
+                IUserController controller = new UserController(LoginView.this, new HomeView(), user, new Spreadsheet("test"), new Home());
             }
         });
     }
-
 }
