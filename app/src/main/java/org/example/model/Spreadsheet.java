@@ -404,7 +404,7 @@ public class Spreadsheet implements ISpreadsheet {
         double sum = 0;
         try {
             for (String part : parts) {
-                sum += Double.parseDouble(part.trim());
+                sum += Double.parseDouble(replaceCellReferences(part.trim()));
             }
             return String.valueOf(sum);
         } catch (NumberFormatException e) {
@@ -417,7 +417,7 @@ public class Spreadsheet implements ISpreadsheet {
         double min = Double.MAX_VALUE;
         try {
             for (String part : parts) {
-                double value = Double.parseDouble(part.trim());
+                double value = Double.parseDouble(replaceCellReferences(part.trim()));
                 if (value < min) {
                     min = value;
                 }
@@ -433,7 +433,7 @@ public class Spreadsheet implements ISpreadsheet {
         double max = Double.MIN_VALUE;
         try {
             for (String part : parts) {
-                double value = Double.parseDouble(part.trim());
+                double value = Double.parseDouble(replaceCellReferences(part.trim()));
                 if (value > max) {
                     max = value;
                 }
@@ -449,7 +449,7 @@ public class Spreadsheet implements ISpreadsheet {
         double sum = 0;
         try {
             for (String part : parts) {
-                sum += Double.parseDouble(part.trim());
+                sum += Double.parseDouble(replaceCellReferences(part.trim()));
             }
             return String.valueOf(sum / parts.length);
         } catch (NumberFormatException e) {
@@ -482,7 +482,7 @@ public class Spreadsheet implements ISpreadsheet {
 
         try {
             for (String num : nums) {
-                sum += Math.pow(Double.parseDouble(num) - avg, 2);
+                sum += Math.pow(Double.parseDouble(replaceCellReferences(num)) - avg, 2);
             }
         } catch (NumberFormatException e) {
             return "Error";
@@ -497,7 +497,7 @@ public class Spreadsheet implements ISpreadsheet {
         double[] nums = new double[s.length];
         try {
             for (int i = 0; i < nums.length; i++) {
-                nums[i] = Double.parseDouble(s[i]);
+                nums[i] = Double.parseDouble(replaceCellReferences(s[i]));
             }
         } catch (NumberFormatException e) {
             return "Error";
