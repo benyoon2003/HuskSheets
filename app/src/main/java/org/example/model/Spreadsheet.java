@@ -1,6 +1,7 @@
 package org.example.model;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,6 +17,12 @@ public class Spreadsheet implements ISpreadsheet {
     private String[] functions = new String[] { "IF", "SUM", "MIN", "MAX", "AVG", "CONCAT", "DEBUG" };
     private String[] arith = new String[] {"+", "-", "*", "/"};
 
+    //used to retrieve version for GetUpdatesForSubscription
+    private List<ISpreadsheet> publishVersions;
+
+    //used to retrieve version for GetUpdatesPublished
+    private List<ISpreadsheet> subscribeVersions;
+
 
     public Spreadsheet(String name) {
         grid = new ArrayList<>();
@@ -28,6 +35,8 @@ public class Spreadsheet implements ISpreadsheet {
         }
 
         this.name = name;
+        this.publishVersions = new ArrayList<>();
+        this.subscribeVersions = new ArrayList<>();
     }
 
     public Spreadsheet(ArrayList<ArrayList<Cell>> grid, String name) {
@@ -51,6 +60,8 @@ public class Spreadsheet implements ISpreadsheet {
     public ArrayList<ArrayList<Cell>> getCells() {
         return this.grid;
     }
+
+
 
     public Cell[][] getCellsObject() {
         Cell[][] retObject = new Cell[this.getRows()][this.getCols()];
@@ -159,6 +170,19 @@ public class Spreadsheet implements ISpreadsheet {
         }
 
         return false;
+    }
+
+    public void addPublished(ISpreadsheet sheet){
+        this.publishVersions.add(sheet);
+    }
+
+    public void addSubscribed(ISpreadsheet sheet){
+        this.subscribeVersions.add(sheet);
+    }
+
+
+    public List<ISpreadsheet> getPublishedVersions(){
+        return this.publishVersions;
     }
 
     @Override

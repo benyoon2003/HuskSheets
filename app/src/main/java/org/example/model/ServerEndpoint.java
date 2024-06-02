@@ -18,7 +18,7 @@ public class ServerEndpoint {
 
 
   // Base URL for the server endpoints
-  private static String BASE_URL =  "http://localhost:8080/api/v1/";  //ConfigLoader.getProperty("base.url");
+  private static String BASE_URL =  ConfigLoader.getProperty("base.url"); //"http://localhost:8080/api/v1/";  //ConfigLoader.getProperty("base.url");
   private static IAppUser user;
 
 
