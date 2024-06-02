@@ -19,8 +19,8 @@ public class Spreadsheet implements ISpreadsheet {
     private String name;
 
 
-    private String[] functions = new String[] { "IF", "SUM", "MIN", "MAX", "AVG", "CONCAT", "DEBUG" };
-    private String[] arith = new String[] {"+", "-", "*", "/"};
+    // private String[] functions = new String[] { "IF", "SUM", "MIN", "MAX", "AVG", "CONCAT", "DEBUG" };
+    // private String[] arith = new String[] {"+", "-", "*", "/"};
 
     //used to retrieve version for GetUpdatesForSubscription
     private List<ISpreadsheet> publishVersions;
