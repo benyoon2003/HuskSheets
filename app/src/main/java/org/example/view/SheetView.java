@@ -218,7 +218,7 @@ public class SheetView extends JFrame implements ISheetView {
     }
 
     // Helper function to generate Excel-like column names
-    private String getExcelColumnName(int columnNumber) {
+    public String getExcelColumnName(int columnNumber) {
         StringBuilder columnName = new StringBuilder();
         while (columnNumber > 0) {
             int remainder = (columnNumber - 1) % 26;
