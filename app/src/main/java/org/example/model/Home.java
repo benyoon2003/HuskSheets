@@ -153,6 +153,10 @@ public class Home implements IHome {
             System.out.println("Input to convertStringTo2DArray is null or empty");
             return new ArrayList<>();
         }
+        // Replace literal "\n" with actual newline characters if needed
+        if (input.contains("\\n")) {
+            input = input.replace("\\n", "\n");
+        }
 
         // Parse input into lines
         String[] lines = input.split("\\r?\\n");
@@ -162,6 +166,7 @@ public class Home implements IHome {
 
         // Process each line
         for (String line : lines) {
+            System.out.println("LINE: " + line); // Debugging statement
             if (line.trim().isEmpty()) {
                 continue;
             }
@@ -190,7 +195,7 @@ public class Home implements IHome {
         return result;
     }
 
-    // Convert cell reference (e.g., $A1) to row and column indices
+    // Convert cell reference (e.g., $A1, $AA4) to row and column indices
     private static int[] convertRefToRowCol(String ref) {
         ref = ref.substring(1); // Remove the leading $
         int row = 0;
