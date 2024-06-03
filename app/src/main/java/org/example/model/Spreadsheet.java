@@ -20,14 +20,10 @@ public class Spreadsheet implements ISpreadsheet {
 
     private String name;
 
-
-    // private String[] functions = new String[] { "IF", "SUM", "MIN", "MAX", "AVG", "CONCAT", "DEBUG" };
-    // private String[] arith = new String[] {"+", "-", "*", "/"};
-
-    //used to retrieve version for GetUpdatesForSubscription
+    // used to retrieve version for GetUpdatesForSubscription
     private List<ISpreadsheet> publishVersions;
 
-    //used to retrieve version for GetUpdatesPublished
+    // used to retrieve version for GetUpdatesPublished
     private List<ISpreadsheet> subscribeVersions;
 
     private String[] functions = new String[] { "IF", "SUM", "MIN", "MAX", "AVG", "CONCAT", "DEBUG", "STDDEV", "SORT" };
@@ -64,8 +60,6 @@ public class Spreadsheet implements ISpreadsheet {
     public ArrayList<ArrayList<Cell>> getCells() {
         return this.grid;
     }
-
-
 
     public Cell[][] getCellsObject() {
         Cell[][] retObject = new Cell[this.getRows()][this.getCols()];
@@ -179,16 +173,15 @@ public class Spreadsheet implements ISpreadsheet {
         return false;
     }
 
-    public void addPublished(ISpreadsheet sheet){
+    public void addPublished(ISpreadsheet sheet) {
         this.publishVersions.add(sheet);
     }
 
-    public void addSubscribed(ISpreadsheet sheet){
+    public void addSubscribed(ISpreadsheet sheet) {
         this.subscribeVersions.add(sheet);
     }
 
-
-    public List<ISpreadsheet> getPublishedVersions(){
+    public List<ISpreadsheet> getPublishedVersions() {
         return this.publishVersions;
     }
 
@@ -409,7 +402,7 @@ public class Spreadsheet implements ISpreadsheet {
         double sum = 0;
         try {
             for (String part : parts) {
-                sum += Double.parseDouble(part.trim());
+                sum += Double.parseDouble(replaceCellReferences(part.trim()));
             }
             return String.valueOf(sum);
         } catch (NumberFormatException e) {
@@ -422,7 +415,7 @@ public class Spreadsheet implements ISpreadsheet {
         double min = Double.MAX_VALUE;
         try {
             for (String part : parts) {
-                double value = Double.parseDouble(part.trim());
+                double value = Double.parseDouble(replaceCellReferences(part.trim()));
                 if (value < min) {
                     min = value;
                 }
@@ -438,7 +431,7 @@ public class Spreadsheet implements ISpreadsheet {
         double max = Double.MIN_VALUE;
         try {
             for (String part : parts) {
-                double value = Double.parseDouble(part.trim());
+                double value = Double.parseDouble(replaceCellReferences(part.trim()));
                 if (value > max) {
                     max = value;
                 }
@@ -454,7 +447,7 @@ public class Spreadsheet implements ISpreadsheet {
         double sum = 0;
         try {
             for (String part : parts) {
-                sum += Double.parseDouble(part.trim());
+                sum += Double.parseDouble(replaceCellReferences(part.trim()));
             }
             return String.valueOf(sum / parts.length);
         } catch (NumberFormatException e) {
@@ -487,7 +480,7 @@ public class Spreadsheet implements ISpreadsheet {
 
         try {
             for (String num : nums) {
-                sum += Math.pow(Double.parseDouble(num) - avg, 2);
+                sum += Math.pow(Double.parseDouble(replaceCellReferences(num)) - avg, 2);
             }
         } catch (NumberFormatException e) {
             return "Error";
@@ -502,7 +495,7 @@ public class Spreadsheet implements ISpreadsheet {
         double[] nums = new double[s.length];
         try {
             for (int i = 0; i < nums.length; i++) {
-                nums[i] = Double.parseDouble(s[i]);
+                nums[i] = Double.parseDouble(replaceCellReferences(s[i]));
             }
         } catch (NumberFormatException e) {
             return "Error";
@@ -520,18 +513,25 @@ public class Spreadsheet implements ISpreadsheet {
 
     private String sort(String formula) {
         String[] sorted = parseOperations(formula).split(",");
-        String cells = formula.substring(5, formula.length() - 1);
-        String endCell = cells.split(":")[1];
-        int r = getRow(endCell);
-        int c = getColumn(endCell);
+        if (sorted.length > 1) {
+            String cells = formula.substring(5, formula.length() - 1);
+            String endCell;
+            if (cells.contains(":")) {
+                endCell = cells.split(":")[1];
+            } else {
+                endCell = cells.split(",")[sorted.length - 1];
+            }
+            int r = getRow(endCell);
+            int c = getColumn(endCell);
 
-        for (int i = 0; i < sorted.length; i++) {
-            Cell cell = this.grid.get(r + i + 1).get(c);
-            cell.setValue(sorted[i]);
-            cell.setFormula(sorted[i]);
+            for (int i = 0; i < sorted.length; i++) {
+                Cell cell = this.grid.get(r + i + 1).get(c);
+                cell.setValue(sorted[i]);
+                cell.setFormula(sorted[i]);
+            }
+
+            this.grid.get(r + 1).get(c).setFormula("=" + formula);
         }
-
-        this.grid.get(r + 1).get(c).setFormula("=" + formula);
         return sorted[0];
     }
 }
