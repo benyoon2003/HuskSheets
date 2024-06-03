@@ -1,5 +1,7 @@
 package org.example.model;
 
+import org.example.controller.UserController;
+
 import java.util.ArrayList;
 
 import java.util.List;
@@ -44,11 +46,7 @@ public class Spreadsheet implements ISpreadsheet {
 
     public Spreadsheet(ArrayList<ArrayList<Cell>> grid, String name) {
         this(name);
-        for (ArrayList<Cell> row : grid) {
-            for (Cell c : row) {
-                System.out.println("Cell val: " + c.getValue());
-            }
-        }
+        this.grid = grid;
     }
 
     public int getRows() {

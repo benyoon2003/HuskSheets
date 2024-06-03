@@ -74,30 +74,35 @@ public class Home implements IHome {
 
     //Get payload of a sheet from server
     public ISpreadsheet readPayload(IAppUser user, ServerEndpoint se, String sheetName){
-        System.out.println(user.getUsername() + "\n" + sheetName);
+        System.out.println("User: " + user.getUsername() + ", Sheet Name: " + sheetName);
         try {
-            String payload = Result.getPayload(se.getUpdatesForSubscription(user.getUsername(), sheetName, "0"), sheetName);
-            System.out.println(payload);
-            if(payload != ""){;
-
+            Result getUpdatesForSubscriptionResult = se.getUpdatesForSubscription(user.getUsername(), sheetName, "0");
+            System.out.println("Response from server: " + getUpdatesForSubscriptionResult.getMessage());
+    
+            String payload = getUpdatesForSubscriptionResult.getValue().get(
+                    getUpdatesForSubscriptionResult.getValue().size() - 1).getPayload();
+            System.out.println("Payload received: " + payload);
+    
+            if (payload != null && !payload.isEmpty()) {
                 List<List<String>> data = convertStringTo2DArray(payload);
-
                 ISpreadsheet ss = new Spreadsheet(sheetName);
-
                 ArrayList<ArrayList<Cell>> grid = ss.getCells();
-
-                for(List<String> ls : data){
+    
+                for (List<String> ls : data) {
                     ss.setCellRawdata(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
                     ss.setCellValue(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
                 }
-             return ss;
+                return ss;
+            } else {
+                System.out.println("Payload is null or empty");
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return new Spreadsheet(sheetName);
     }
+    
+    
 
     @Override
     public void writeXML(IReadOnlySpreadSheet sheet, String path) {
@@ -144,6 +149,15 @@ public class Home implements IHome {
     }
 
     public static List<List<String>> convertStringTo2DArray(String input) {
+        if (input == null || input.trim().isEmpty()) {
+            System.out.println("Input to convertStringTo2DArray is null or empty");
+            return new ArrayList<>();
+        }
+        // Replace literal "\n" with actual newline characters if needed
+        if (input.contains("\\n")) {
+            input = input.replace("\\n", "\n");
+        }
+
         // Parse input into lines
         String[] lines = input.split("\\r?\\n");
 
@@ -152,6 +166,7 @@ public class Home implements IHome {
 
         // Process each line
         for (String line : lines) {
+            System.out.println("LINE: " + line); // Debugging statement
             if (line.trim().isEmpty()) {
                 continue;
             }
@@ -180,7 +195,7 @@ public class Home implements IHome {
         return result;
     }
 
-    // Convert cell reference (e.g., $A1) to row and column indices
+    // Convert cell reference (e.g., $A1, $AA4) to row and column indices
     private static int[] convertRefToRowCol(String ref) {
         ref = ref.substring(1); // Remove the leading $
         int row = 0;

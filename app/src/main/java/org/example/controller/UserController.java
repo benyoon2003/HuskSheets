@@ -173,28 +173,44 @@ public class UserController implements IUserController {
     public void saveSheetToServer(IReadOnlySpreadSheet sheet, String name) {
         try {
             String payload = convertSheetToPayload(sheet);
-            serverEndpoint.updatePublished(appUser.getUsername(), name, payload);
-
-//            HttpClient client = HttpClient.newHttpClient();
-//            String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"payload\":\"%s\"}", "team2", name, payload);
-//
-//            HttpRequest request = HttpRequest.newBuilder()
-//                    .uri(new URI("https://husksheets.fly.dev/api/v1/updatePublished"))
-//                    .header("Authorization", "Basic " + Base64.getEncoder().encodeToString(("team2:Ltf3r008'fYrV405").getBytes(StandardCharsets.UTF_8)))
-//                    .header("Content-Type", "application/json")
-//                    .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
-//                    .build();
-//
-//            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-//            if (response.statusCode() == 200) {
-//                System.out.println("Sheet updated successfully!");
-//            } else {
-//                System.out.println("Failed to update sheet: " + response.body());
-//            }
+            Result result = serverEndpoint.updatePublished(appUser.getUsername(), name, payload);
+            if (result.getSuccess()) {
+                System.out.println("Sheet updated successfully on the server.");
+            } else {
+                System.out.println("Failed to update sheet on the server: " + result.getMessage());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+    
+
+//     @Override
+//     public void saveSheetToServer(IReadOnlySpreadSheet sheet, String name) {
+//         try {
+//             String payload = convertSheetToPayload(sheet);
+//             serverEndpoint.updatePublished(appUser.getUsername(), name, payload);
+
+// //            HttpClient client = HttpClient.newHttpClient();
+// //            String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"payload\":\"%s\"}", "team2", name, payload);
+// //
+// //            HttpRequest request = HttpRequest.newBuilder()
+// //                    .uri(new URI("https://husksheets.fly.dev/api/v1/updatePublished"))
+// //                    .header("Authorization", "Basic " + Base64.getEncoder().encodeToString(("team2:Ltf3r008'fYrV405").getBytes(StandardCharsets.UTF_8)))
+// //                    .header("Content-Type", "application/json")
+// //                    .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
+// //                    .build();
+// //
+// //            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+// //            if (response.statusCode() == 200) {
+// //                System.out.println("Sheet updated successfully!");
+// //            } else {
+// //                System.out.println("Failed to update sheet: " + response.body());
+// //            }
+//         } catch (Exception e) {
+//             e.printStackTrace();
+//         }
+//     }
 
     public static String convertSheetToPayload(IReadOnlySpreadSheet sheet) {
         StringBuilder payload = new StringBuilder();
@@ -202,13 +218,15 @@ public class UserController implements IUserController {
         for (int i = 0; i < sheet.getRows(); i++) {
             for (int j = 0; j < sheet.getCols(); j++) {
                 if (values[i][j] != null && !values[i][j].getRawdata().isEmpty()) {
-                    String cellValue = sheet.getCellsObject()[i][j].isFormula() ? sheet.getCellsObject()[i][j].getFormula() : values[i][j].getRawdata();
-                    payload.append(String.format("$%s%s %s\\n", getExcelColumnName(j + 1), i + 1, cellValue.replace("\n", "\\n").replace("\"", "\\\"")));
+                    String cellValue = values[i][j].isFormula() ? values[i][j].getFormula() : values[i][j].getRawdata();
+                    payload.append(String.format("$%s%s %s\\n", getExcelColumnName(j + 1), i + 1, cellValue.replace("\n", "\n").replace("\"", "\\\"")));
                 }
             }
         }
+        System.out.println("convertSheetToPayload is called here!");
         return payload.toString();
     }
+    
 
     public static String getExcelColumnName(int columnNumber) {
         StringBuilder columnName = new StringBuilder();
