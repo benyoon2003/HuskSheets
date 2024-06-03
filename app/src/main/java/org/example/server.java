@@ -133,33 +133,50 @@ public class server {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                         false, "Unauthorized", new ArrayList<>()));
             }
+
+            // Log the received argument
+            System.out.println("Received argument: " + argument.toString());
+
             String publisher = argument.getPublisher();
             String sheet = argument.getSheet();
             String payload = argument.getPayload();
-    
+
+            // Log the extracted data
             System.out.println("Publisher: " + publisher);
             System.out.println("Sheet: " + sheet);
             System.out.println("Payload: " + payload);
-    
+
             IAppUser user = findUser(publisher);
             if (user == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
                         false, "User not found", new ArrayList<>()));
             }
-    
+
             for (ISpreadsheet existingSheet : user.getSheets()) {
                 if (existingSheet.getName().equals(sheet)) {
                     List<List<String>> data = Home.convertStringTo2DArray(payload);
+                    System.out.println("Pass");
                     for (List<String> ls : data) {
                         System.out.println("Row: " + ls.get(0) + " Col: " + ls.get(1) + " Value: " + ls.get(2));
                         existingSheet.setCellRawdata(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
                         existingSheet.setCellValue(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
                     }
-    
+
                     // Create new sheet object to add to versions
-                    ISpreadsheet update = new Spreadsheet(existingSheet.getCells(), existingSheet.getName());
+                    ISpreadsheet update = new Spreadsheet(existingSheet.getName());
+
+                    // Copy contents of sheet
+                    ArrayList<ArrayList<Cell>> copy = new ArrayList<>();
+                    ArrayList<ArrayList<Cell>> grid = existingSheet.getCells();
+
+                    for (int i = 0; i < grid.size(); i++) {
+                        for (int j = 0; j < grid.get(i).size(); j++) {
+                            update.setCellValue(i, j, grid.get(i).get(j).getValue());
+                            update.setCellRawdata(i, j, grid.get(i).get(j).getRawdata());
+                        }
+                    }
                     existingSheet.addPublished(update);
-    
+
                     return ResponseEntity.ok(new Result(true, "Sheet updated successfully", new ArrayList<>()));
                 }
             }
@@ -171,8 +188,9 @@ public class server {
                     false, "Internal Server Error: " + e.getMessage(), new ArrayList<>()));
         }
     }
-    
-    
+
+
+
 
 
 
@@ -292,13 +310,13 @@ public class server {
             String id = argument.getId();
             System.out.println("User: " + publisher + ", Sheet Name: " + sheet + ", ID: " + id);
             IAppUser user = findUser(publisher);
-    
+
             if (user == null) {
                 System.out.println("User not found: " + publisher);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
                         false, "User not found", new ArrayList<>()));
             }
-    
+
             List<Argument> arguments = new ArrayList<>();
             for (ISpreadsheet existingSheet : user.getSheets()) {
                 if (existingSheet.getName().equals(sheet)) {
@@ -314,23 +332,23 @@ public class server {
                     return ResponseEntity.ok(new Result(true, "Updates received", arguments));
                 }
             }
-    
+
             System.out.println("Sheet not found: " + sheet);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
                     false, "Sheet not found", new ArrayList<>()));
-    
+
         } catch (Exception e) {
             System.out.println("Internal Server Error: " + e.getMessage());
             return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
         }
     }
-    
-    
-    
+
+
+
 
     // Get updates for published sheets
-    @PostMapping("/getUpdatedForPublished")
-    public ResponseEntity<?> getUpdatedForPublished(@RequestBody SheetDTO sheetDTO) {
+    @PostMapping("/getUpdatesForPublished")
+    public ResponseEntity<?> getUpdatesForPublished(@RequestBody SheetDTO sheetDTO) {
         try {
             // Your logic to get updates for published here
             return ResponseEntity.ok("Updates for published retrieved successfully");
