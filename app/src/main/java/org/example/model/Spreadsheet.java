@@ -93,7 +93,7 @@ public class Spreadsheet implements ISpreadsheet {
         }
 
         // Remove the initial "="
-        formula = formula.substring(1);
+        formula = formula.substring(1).stripLeading();
 
         try {
             if (formula.contains("SORT")) {
@@ -189,7 +189,7 @@ public class Spreadsheet implements ISpreadsheet {
 
     @Override
     public void setCellValue(int row, int col, String value) {
-        this.grid.get(row).get(col).setValue(value);
+        this.grid.get(row).get(col).setValue(evaluateFormula(value));
     }
 
     @Override
@@ -477,10 +477,10 @@ public class Spreadsheet implements ISpreadsheet {
 
     private String evaluateSTDDEV(String parameter) {
         String[] nums = parameter.split(",");
-        double avg = Double.parseDouble(evaluateAVG(parameter));
         double sum = 0;
 
         try {
+            double avg = Double.parseDouble(evaluateAVG(parameter));
             for (String num : nums) {
                 sum += Math.pow(Double.parseDouble(replaceCellReferences(num)) - avg, 2);
             }
