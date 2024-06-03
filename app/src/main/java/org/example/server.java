@@ -48,7 +48,7 @@ public class server {
         try {
             // Decode the Basic Auth header
             String[] credentials = decodeBasicAuth(authHeader);
-            if (credentials == null || credentials.length != 2 || !existingUser(credentials[0])) {
+            if (credentials == null || credentials.length != 2 || !existingUser(credentials[0], credentials[1])) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                         false, "Unauthorized", new ArrayList<>()));
             }
@@ -96,7 +96,7 @@ public class server {
         try {
             // Decode the Basic Auth header
             String[] credentials = decodeBasicAuth(authHeader);
-            if (credentials == null || credentials.length != 2 || !existingUser(credentials[0])) {
+            if (credentials == null || credentials.length != 2 || !existingUser(credentials[0], credentials[1])) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                         false, "Unauthorized", new ArrayList<>()));
             }
@@ -129,7 +129,7 @@ public class server {
         try {
             // Decode the Basic Auth header
             String[] credentials = decodeBasicAuth(authHeader);
-            if (credentials == null || credentials.length != 2 || !existingUser(credentials[0])) {
+            if (credentials == null || credentials.length != 2 || !existingUser(credentials[0], credentials[1])) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                         false, "Unauthorized", new ArrayList<>()));
             }
@@ -240,7 +240,7 @@ public class server {
             System.out.println(username + ": " + password);
 
             // Check if the user already exists
-            if (existingUser(username)) {
+            if (existingUser(username, password)) {
                 return ResponseEntity.ok(new Result(
                         true, "Publisher logged in successfully", new ArrayList<>()));
             }
@@ -254,9 +254,9 @@ public class server {
         }
     }
 
-    private boolean existingUser(String username) {
+    private boolean existingUser(String username, String password) {
         for (IAppUser user : availUsers) {
-            if (user.getUsername().equals(username)) {
+            if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
                 return true;
             }
         }
