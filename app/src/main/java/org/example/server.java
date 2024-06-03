@@ -302,13 +302,13 @@ public class server {
             String id = argument.getId();
             System.out.println("User: " + publisher + ", Sheet Name: " + sheet + ", ID: " + id);
             IAppUser user = findUser(publisher);
-    
+
             if (user == null) {
                 System.out.println("User not found: " + publisher);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
                         false, "User not found", new ArrayList<>()));
             }
-    
+
             List<Argument> arguments = new ArrayList<>();
             for (ISpreadsheet existingSheet : user.getSheets()) {
                 if (existingSheet.getName().equals(sheet)) {
@@ -324,14 +324,14 @@ public class server {
                     return ResponseEntity.ok(new Result(true, "Updates received", arguments));
                 }
             }
-    
+
             System.out.println("Sheet not found: " + sheet);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
                     false, "Sheet not found", new ArrayList<>()));
-    
+
         } catch (Exception e) {
             System.out.println("Internal Server Error: " + e.getMessage());
-            return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
+            return ResponseEntity.status(500).body(new Result(false, "Internal Server Error: " + e.getMessage(), new ArrayList<>()));
         }
     }
     

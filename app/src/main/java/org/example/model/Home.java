@@ -79,7 +79,8 @@ public class Home implements IHome {
             Result getUpdatesForSubscriptionResult = se.getUpdatesForSubscription(user.getUsername(), sheetName, "0");
             System.out.println("Response from server: " + getUpdatesForSubscriptionResult.getMessage());
     
-            String payload = getUpdatesForSubscriptionResult.getValue().get(0).getPayload();
+            String payload = getUpdatesForSubscriptionResult.getValue().get(
+                    getUpdatesForSubscriptionResult.getValue().size() - 1).getPayload();
             System.out.println("Payload received: " + payload);
     
             if (payload != null && !payload.isEmpty()) {
