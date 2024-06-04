@@ -18,7 +18,7 @@ public class ServerEndpoint {
 
 
   // Base URL for the server endpoints
-  private static String BASE_URL =  "http://localhost:8080/api/v1/"; //"http://localhost:8080/api/v1/";  //ConfigLoader.getProperty("base.url");
+  private static String BASE_URL = "http://localhost:8080/api/v1/";//ConfigLoader.getProperty("base.url");//"http://localhost:8080/api/v1/";//ConfigLoader.getProperty("base.url");//"http://localhost:8080/api/v1/";//ConfigLoader.getProperty("base.url");//ConfigLoader.getProperty("base.url");  //"http://localhost:8080/api/v1/";  //ConfigLoader.getProperty("base.url");
   private static IAppUser user;
 
 
@@ -62,6 +62,13 @@ public class ServerEndpoint {
     return new Result(response.body());
   }
 
+    /**
+     * Logs in a publisher with the server.
+     *
+     * @param user the user to log in.
+     * @return the result of the login.
+     * @throws Exception if an error occurs during the HTTP request.
+     */
   public Result login(IAppUser user) throws Exception {
     this.user = user;
     // Encode the publisher name to be URL-safe
@@ -178,7 +185,7 @@ public class ServerEndpoint {
    * @return Respones body containing payload of sheet updates
    * @throws Exception
    */
-  public String getUpdatesForSubscription(String publisher, String sheet, String id) throws Exception {
+  public Result getUpdatesForSubscription(String publisher, String sheet, String id) throws Exception {
     String url = BASE_URL + "getUpdatesForSubscription";
     HttpClient client = HttpClient.newBuilder().build();
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"id\":\"%s\"}", publisher, sheet, id);
@@ -191,9 +198,17 @@ public class ServerEndpoint {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
     System.out.println("Get Updates For Subscription Response: " + response.body());
-    return response.body();
+    return new Result(response.body());
   }
 
+    /**
+     * Retrieves updates for a published sheet.
+     *
+     * @param publisher the name of the publisher.
+     * @param sheet     the name of the sheet.
+     * @param id        the id of the last version.
+     * @throws Exception if an error occurs during the HTTP request.
+     */
   public void getUpdatesForPublished(String publisher, String sheet, String id) throws Exception {
     String url = BASE_URL + "getUpdatesForPublished";
     HttpClient client = HttpClient.newBuilder().build();
@@ -209,7 +224,16 @@ public class ServerEndpoint {
     System.out.println("Get Updates For Published Response: " + response.body());
   }
 
-  public void updatePublished(String publisher, String sheet, String payload) throws Exception {
+    /**
+     * Updates a published sheet with new payload data.
+     *
+     * @param publisher the name of the publisher.
+     * @param sheet     the name of the sheet.
+     * @param payload   the new payload data.
+     * @return the result of the update operation.
+     * @throws Exception if an error occurs during the HTTP request.
+     */
+  public Result updatePublished(String publisher, String sheet, String payload) throws Exception {
     String url = BASE_URL + "updatePublished";
     HttpClient client = HttpClient.newBuilder().build();
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"payload\":\"%s\"}", publisher, sheet, payload);
@@ -222,8 +246,19 @@ public class ServerEndpoint {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
     System.out.println("Update Published Response: " + response.body());
-  }
+    Result result = new Result(response.body());
+    System.out.println("Parsed Result: " + result);
+    return result;
+}
 
+    /**
+     * Updates a subscription sheet with new payload data.
+     *
+     * @param publisher the name of the publisher.
+     * @param sheet     the name of the sheet.
+     * @param payload   the new payload data.
+     * @throws Exception if an error occurs during the HTTP request.
+     */
   public void updateSubscription(String publisher, String sheet, String payload) throws Exception {
     String url = BASE_URL + "updateSubscription";
     HttpClient client = HttpClient.newBuilder().build();

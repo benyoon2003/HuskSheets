@@ -14,8 +14,17 @@ import javax.xml.transform.stream.*;
 import org.h2.tools.Server;
 import org.w3c.dom.*;
 
+/**
+ * The Home class provides methods to read and write spreadsheet data from and to XML files.
+ */
 public class Home implements IHome {
-    @Override
+
+    /**
+     * Reads a spreadsheet from an XML file.
+     *
+     * @param path the path of the XML file
+     * @return a Spreadsheet object representing the data in the XML file
+     */
     public Spreadsheet readXML(String path) {
         try {
             File xmlFile = new File(path);
@@ -67,37 +76,61 @@ public class Home implements IHome {
         }
     }
 
+    /**
+     * Saves the spreadsheet data to an XML file.
+     *
+     * @param sheet the spreadsheet data to save
+     * @param path the path of the XML file to save to
+     */
     @Override
     public void saveSheet(IReadOnlySpreadSheet sheet, String path) {
 
     }
 
-    @Override
-    public ISpreadsheet readPayload(IAppUser user, ServerEndpoint se, String sheetName) {
-        System.out.println(user.getUsername() + "\n" + sheetName);
+    /**
+     * Reads the payload of a sheet from the server.
+     *
+     * @param user the user requesting the sheet
+     * @param se the server endpoint
+     * @param sheetName the name of the sheet to read
+     * @return the spreadsheet data
+     */
+    public ISpreadsheet readPayload(IAppUser user, ServerEndpoint se, String sheetName){
+        System.out.println("User: " + user.getUsername() + ", Sheet Name: " + sheetName);
         try {
-            String payload = Result.getPayload(se.getUpdatesForSubscription(user.getUsername(), sheetName, "0"),
-                    sheetName);
-            System.out.println(payload);
-            if (payload != "") {
+            Result getUpdatesForSubscriptionResult = se.getUpdatesForSubscription(user.getUsername(), sheetName, "0");
+            System.out.println("Response from server: " + getUpdatesForSubscriptionResult.getMessage());
+    
+            String payload = getUpdatesForSubscriptionResult.getValue().get(
+                    getUpdatesForSubscriptionResult.getValue().size() - 1).getPayload();
+            System.out.println("Payload received: " + payload);
+    
+            if (payload != null && !payload.isEmpty()) {
                 List<List<String>> data = convertStringTo2DArray(payload);
-
                 ISpreadsheet ss = new Spreadsheet(sheetName);
-
                 ArrayList<ArrayList<Cell>> grid = ss.getCells();
-
+    
                 for (List<String> ls : data) {
                     ss.setCellRawdata(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
                     ss.setCellValue(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
                 }
                 return ss;
+            } else {
+                System.out.println("Payload is null or empty");
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return new Spreadsheet(sheetName);
     }
-
+    
+    
+    /**
+     * Writes the spreadsheet data to an XML file.
+     *
+     * @param sheet the spreadsheet data to write
+     * @param path the path of the XML file to write to
+     */
     @Override
     public void writeXML(IReadOnlySpreadSheet sheet, String path) {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -142,7 +175,22 @@ public class Home implements IHome {
         }
     }
 
+    /**
+     * Converts a string representation of a 2D array to an actual 2D array.
+     *
+     * @param input the string representation of the 2D array
+     * @return a list of lists representing the 2D array
+     */
     public static List<List<String>> convertStringTo2DArray(String input) {
+        if (input == null || input.trim().isEmpty()) {
+            System.out.println("Input to convertStringTo2DArray is null or empty");
+            return new ArrayList<>();
+        }
+        // Replace literal "\n" with actual newline characters if needed
+        if (input.contains("\\n")) {
+            input = input.replace("\\n", "\n");
+        }
+
         // Parse input into lines
         String[] lines = input.split("\\r?\\n");
 
@@ -151,6 +199,7 @@ public class Home implements IHome {
 
         // Process each line
         for (String line : lines) {
+            System.out.println("LINE: " + line); // Debugging statement
             if (line.trim().isEmpty()) {
                 continue;
             }
@@ -179,7 +228,12 @@ public class Home implements IHome {
         return result;
     }
 
-    // Convert cell reference (e.g., $A1) to row and column indices
+    /**
+     * Converts a cell reference (e.g., $A1, $AA4) to row and column indices.
+     *
+     * @param ref the cell reference
+     * @return an array with the row and column indices
+     */
     private static int[] convertRefToRowCol(String ref) {
         ref = ref.substring(1); // Remove the leading $
         int row = 0;
@@ -201,8 +255,12 @@ public class Home implements IHome {
         return new int[] { row - 1, col - 1 }; // Convert to 0-based index
     }
 
-    // Trim the ends of the given string so that only the name of the file is
-    // returned
+    /**
+     * Trims the ends of a string, removing any directory path and file extension.
+     *
+     * @param s the string to trim
+     * @return the trimmed string
+     */
     private String trimEnds(String s) {
         String result = new StringBuilder(s).reverse().toString();
 

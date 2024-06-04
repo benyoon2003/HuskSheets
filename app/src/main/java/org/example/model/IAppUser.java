@@ -53,10 +53,25 @@ public interface IAppUser {
    */
   void setPassword(String password);
 
+  /**
+   * Checks if a sheet with the given name exists.
+   *
+   * @param name the name of the sheet to check.
+   * @return true if the sheet exists, false otherwise.
+   */
   boolean doesSheetExist(String name);
 
+  /**
+   * Adds a new sheet with the given name.
+   *
+   * @param sheetName the name of the sheet to add.
+   */
   void addSheet(String sheetName);
+
+  /**
+   * Gets the list of spreadsheets associated with the user.
+   *
+   * @return a list of spreadsheets.
+   */
   List<ISpreadsheet> getSheets();
-
-
 }

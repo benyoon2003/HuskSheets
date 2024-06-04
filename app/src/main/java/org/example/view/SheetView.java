@@ -28,6 +28,10 @@ import java.io.File;
 
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 
+/**
+ * The SheetView class provides a GUI for interacting with a spreadsheet.
+ * It implements the ISheetView interface to interact with the user controller.
+ */
 public class SheetView extends JFrame implements ISheetView {
     final IReadOnlySpreadSheet cells;
     private IUserController controller;
@@ -39,11 +43,19 @@ public class SheetView extends JFrame implements ISheetView {
     private static final int rowSize = 100;
     private static final int colSize = 100;
 
+    /**
+     * Constructs a SheetView with the given spreadsheet.
+     *
+     * @param openSheet the spreadsheet to be displayed.
+     */
     public SheetView(ISpreadsheet openSheet) {
         this.cells = openSheet;
         setup();
     }
 
+    /**
+     * Sets up the GUI components for the spreadsheet view.
+     */
     private void setup() {
         setTitle("Spreadsheet");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -213,11 +225,21 @@ public class SheetView extends JFrame implements ISheetView {
         add(scrollPane, BorderLayout.CENTER);
     }
 
+    /**
+     * Changes the formula text field to display the given raw data.
+     *
+     * @param rawdata the raw data to display in the formula text field.
+     */
     public void changeFormulaTextField(String rawdata) {
         formulaTextField.setText(rawdata);
     }
 
-    // Helper function to generate Excel-like column names
+    /**
+     * Generates an Excel-like column name based on the given column number.
+     *
+     * @param columnNumber the column number to convert.
+     * @return the Excel-like column name.
+     */
     public String getExcelColumnName(int columnNumber) {
         StringBuilder columnName = new StringBuilder();
         while (columnNumber > 0) {
@@ -228,11 +250,19 @@ public class SheetView extends JFrame implements ISheetView {
         return columnName.toString();
     }
 
+    /**
+     * Adds a controller to the sheet view.
+     *
+     * @param controller the IUserController instance to add.
+     */
     @Override
     public void addController(IUserController controller) {
         this.controller = controller;
     }
 
+    /**
+     * Updates the table with the latest cell data from the spreadsheet.
+     */
     public void updateTable() {
         isUpdatingTable = true;
         JTable table = getTable();
@@ -262,20 +292,38 @@ public class SheetView extends JFrame implements ISheetView {
         isUpdatingTable = false;
     }
 
+    /**
+     * Gets the JTable instance used in the view.
+     *
+     * @return the JTable instance.
+     */
     private JTable getTable() {
         return yourTable;
     }
 
+    /**
+     * Gets the controller associated with the sheet view.
+     *
+     * @return the IUserController instance.
+     */
     public IUserController getController() {
         return this.controller;
     }
 
+    /**
+     * Makes the sheet view visible and updates the table with the latest data.
+     */
     @Override
     public void makeVisible() {
         this.updateTable();
         this.setVisible(true);
     }
 
+    /**
+     * Saves the spreadsheet to the specified path.
+     *
+     * @param path the path to save the spreadsheet.
+     */
     public void save(String path) {
         try {
             this.controller.saveSheetToServer(this.cells, path);
@@ -285,11 +333,19 @@ public class SheetView extends JFrame implements ISheetView {
         }
     }
 
+    /**
+     * Displays a message in a dialog box.
+     *
+     * @param s the message to display.
+     */
     @Override
     public void displayMessage(String s) {
         JOptionPane.showMessageDialog(this, s);
     }
-
+    
+    /**
+     * Inner class to handle toolbar button actions.
+     */
     class ToolbarButtonListener implements ActionListener {
         private SheetView view;
 
