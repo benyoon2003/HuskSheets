@@ -18,7 +18,7 @@ public class ServerEndpoint {
 
 
   // Base URL for the server endpoints
-  private static String BASE_URL = "http://localhost:8080/api/v1/";//ConfigLoader.getProperty("base.url");//"http://localhost:8080/api/v1/";//ConfigLoader.getProperty("base.url");//"http://localhost:8080/api/v1/";//ConfigLoader.getProperty("base.url");//ConfigLoader.getProperty("base.url");  //"http://localhost:8080/api/v1/";  //ConfigLoader.getProperty("base.url");
+  private static String BASE_URL = ConfigLoader.getProperty("base.url");//"http://localhost:8080/api/v1/";////"http://localhost:8080/api/v1/";//ConfigLoader.getProperty("base.url");//"http://localhost:8080/api/v1/";//ConfigLoader.getProperty("base.url");//ConfigLoader.getProperty("base.url");  //"http://localhost:8080/api/v1/";  //ConfigLoader.getProperty("base.url");
   private static IAppUser user;
 
 
@@ -93,7 +93,7 @@ public class ServerEndpoint {
    *
    * @throws Exception if an error occurs during the HTTP request
    */
-  public void getPublishers() throws Exception {
+  public Result getPublishers() throws Exception {
     String url = BASE_URL + "getPublishers";
     HttpClient client = HttpClient.newBuilder().build();
     HttpRequest request = HttpRequest.newBuilder()
@@ -104,6 +104,7 @@ public class ServerEndpoint {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
     System.out.println("Get Publishers Response: " + response.body());
+    return new Result(response.body());
   }
 
   /**

@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import org.example.model.AppUser;
+import org.example.model.Argument;
 import org.example.model.Cell;
 import org.example.model.Home;
 import org.example.model.IAppUser;
@@ -122,6 +123,22 @@ public class UserController implements IUserController {
             }
         }
         catch (Exception ignored){
+        }
+    }
+
+    @Override
+    public List<String> getPublishers() {
+        try {
+            Result getPublisherResult = serverEndpoint.getPublishers();
+
+            List<String> listOfUsernames = new ArrayList<>();
+            for (Argument argument : getPublisherResult.getValue()) {
+                listOfUsernames.add(argument.getPublisher());
+            }
+            return listOfUsernames;
+        }
+        catch (Exception ignored) {
+            return new ArrayList<>();
         }
     }
 
