@@ -62,6 +62,13 @@ public class ServerEndpoint {
     return new Result(response.body());
   }
 
+    /**
+     * Logs in a publisher with the server.
+     *
+     * @param user the user to log in.
+     * @return the result of the login.
+     * @throws Exception if an error occurs during the HTTP request.
+     */
   public Result login(IAppUser user) throws Exception {
     this.user = user;
     // Encode the publisher name to be URL-safe
@@ -194,6 +201,14 @@ public class ServerEndpoint {
     return new Result(response.body());
   }
 
+    /**
+     * Retrieves updates for a published sheet.
+     *
+     * @param publisher the name of the publisher.
+     * @param sheet     the name of the sheet.
+     * @param id        the id of the last version.
+     * @throws Exception if an error occurs during the HTTP request.
+     */
   public void getUpdatesForPublished(String publisher, String sheet, String id) throws Exception {
     String url = BASE_URL + "getUpdatesForPublished";
     HttpClient client = HttpClient.newBuilder().build();
@@ -209,6 +224,15 @@ public class ServerEndpoint {
     System.out.println("Get Updates For Published Response: " + response.body());
   }
 
+    /**
+     * Updates a published sheet with new payload data.
+     *
+     * @param publisher the name of the publisher.
+     * @param sheet     the name of the sheet.
+     * @param payload   the new payload data.
+     * @return the result of the update operation.
+     * @throws Exception if an error occurs during the HTTP request.
+     */
   public Result updatePublished(String publisher, String sheet, String payload) throws Exception {
     String url = BASE_URL + "updatePublished";
     HttpClient client = HttpClient.newBuilder().build();
@@ -227,7 +251,14 @@ public class ServerEndpoint {
     return result;
 }
 
-
+    /**
+     * Updates a subscription sheet with new payload data.
+     *
+     * @param publisher the name of the publisher.
+     * @param sheet     the name of the sheet.
+     * @param payload   the new payload data.
+     * @throws Exception if an error occurs during the HTTP request.
+     */
   public void updateSubscription(String publisher, String sheet, String payload) throws Exception {
     String url = BASE_URL + "updateSubscription";
     HttpClient client = HttpClient.newBuilder().build();

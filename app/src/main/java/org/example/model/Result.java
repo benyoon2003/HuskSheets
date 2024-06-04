@@ -8,18 +8,34 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Represents the result of an operation, encapsulating success status, message, and value.
+ */
 public class Result {
 
     private boolean success;
     private String message;
     private List<Argument> value;
 
+    /**
+     * Constructs a Result with the specified success status, message, and value.
+     *
+     * @param success whether the operation was successful.
+     * @param message the message associated with the result.
+     * @param value   the value associated with the result.
+     */
     public Result(boolean success, String message, List<Argument> value) {
         this.success = success;
         this.message = message;
         this.value = value != null ? value : new ArrayList<>();
     }
 
+    /**
+     * Constructs a Result from a JSON string.
+     *
+     * @param jsonString the JSON string representing the result.
+     * @throws JSONException if there is an error parsing the JSON string.
+     */
     public Result(String jsonString) throws JSONException {
         JSONObject jsonObject = new JSONObject(jsonString);
         this.success = jsonObject.getBoolean("success");
@@ -42,18 +58,38 @@ public class Result {
         }
     }
 
+    /**
+     * Gets the success status of the result.
+     *
+     * @return true if the operation was successful, false otherwise.
+     */
     public boolean getSuccess() {
         return this.success;
     }
 
+    /**
+     * Gets the message associated with the result.
+     *
+     * @return the message associated with the result.
+     */
     public String getMessage() {
         return this.message;
     }
 
+    /**
+     * Gets the value associated with the result.
+     *
+     * @return a list of Argument objects representing the value.
+     */
     public List<Argument> getValue() {
         return this.value;
     }
 
+    /**
+     * Converts the Result object to a string representation.
+     *
+     * @return a string representation of the Result object.
+     */
     @Override
     public String toString() {
         String valueString = value.stream()
@@ -67,6 +103,12 @@ public class Result {
                 '}';
     }
 
+    /**
+     * Extracts sheet names from a JSON response.
+     *
+     * @param response the JSON response containing sheet information.
+     * @return a list of sheet names.
+     */
     public static List<String> getSheets(String response) {
         List<String> sheetNames = new ArrayList<>();
         try {
@@ -83,6 +125,13 @@ public class Result {
         return sheetNames;
     }
 
+    /**
+     * Extracts the payload of a specified sheet from a JSON response.
+     *
+     * @param response  the JSON response containing sheet information.
+     * @param sheetName the name of the sheet for which the payload is to be extracted.
+     * @return the payload of the specified sheet, or null if not found.
+     */
     public static String getPayload(String response, String sheetName) {
         try {
             JSONObject jsonObject = new JSONObject(response);
@@ -100,6 +149,15 @@ public class Result {
         return null;
     }
 
+    /**
+     * Creates a response string for a specified endpoint.
+     *
+     * @param success  whether the operation was successful.
+     * @param message  the message associated with the response.
+     * @param value    the value associated with the response.
+     * @param endpoint the endpoint for which the response is created.
+     * @return a response string.
+     */
     public static String makeResponse(Boolean success, String message, List<Argument> value, String endpoint) {
         String res = "";
 
@@ -118,7 +176,13 @@ public class Result {
 
         return res;
     }
-
+    
+    /**
+     * Main method for testing the Result class.
+     *
+     * @param args command line arguments.
+     * @throws Exception if an error occurs during testing.
+     */
     public static void main(String[] args) throws Exception {
         // Example usage
         // getPayload(ServerEndpoint.getUpdatesForSubscription("team2", "testPayload2", "0"), "testPayload2");
