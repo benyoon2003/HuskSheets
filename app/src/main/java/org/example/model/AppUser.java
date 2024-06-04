@@ -1,16 +1,7 @@
 package org.example.model;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 /**
  * The AppUser class represents a user entity in the application.
@@ -23,35 +14,66 @@ public class AppUser implements IAppUser {
 
     private List<ISpreadsheet> sheets;
 
-    // Default constructor
+    /**
+     * Default constructor for AppUser.
+     * Initializes the sheets list.
+     */
     public AppUser() {
         this.sheets = new ArrayList<>();
     }
 
-    // Getter for username
+    /**
+     * Getter for username.
+     *
+     * @return the username of the user.
+     */
     public String getUsername() {
         return this.username;
     }
 
-    // Setter for username
+    /**
+     * Setter for username.
+     *
+     * @param username the username to set.
+     */
     public void setUsername(String username) {
         this.username = username;
     }
 
-    // Getter for password
+    /**
+     * Getter for password.
+     *
+     * @return the password of the user.
+     */
     public String getPassword() {
         return password;
     }
 
+    /**
+     * Setter for password.
+     *
+     * @param password the password to set.
+     */
     // Setter for password
     public void setPassword(String password) {
         this.password = password;
     }
 
+    /**
+     * Adds a new sheet with the given name to the user's list of sheets.
+     *
+     * @param sheetName the name of the new sheet.
+     */
     public void addSheet(String sheetName) {
         this.sheets.add(new Spreadsheet(sheetName));
     }
 
+    /**
+     * Checks if a sheet with the given name already exists in the user's list of sheets.
+     *
+     * @param name the name of the sheet to check.
+     * @return true if the sheet exists, false otherwise.
+     */
     public boolean doesSheetExist(String name) {
         for (ISpreadsheet sheet : this.sheets) {
             if (sheet.getName().equals(name)) {
@@ -62,11 +84,14 @@ public class AppUser implements IAppUser {
         return false;
     }
 
+    /**
+     * Getter for the user's list of sheets.
+     *
+     * @return the list of sheets.
+     */
     public List<ISpreadsheet> getSheets() {
         return this.sheets;
     }
-
-
 }
 
     /**

@@ -14,8 +14,17 @@ import javax.xml.transform.stream.*;
 import org.h2.tools.Server;
 import org.w3c.dom.*;
 
+/**
+ * The Home class provides methods to read and write spreadsheet data from and to XML files.
+ */
 public class Home implements IHome {
 
+    /**
+     * Reads a spreadsheet from an XML file.
+     *
+     * @param path the path of the XML file
+     * @return a Spreadsheet object representing the data in the XML file
+     */
     public Spreadsheet readXML(String path) {
         try {
             File xmlFile = new File(path);
@@ -67,12 +76,25 @@ public class Home implements IHome {
         }
     }
 
+    /**
+     * Saves the spreadsheet data to an XML file.
+     *
+     * @param sheet the spreadsheet data to save
+     * @param path the path of the XML file to save to
+     */
     @Override
     public void saveSheet(IReadOnlySpreadSheet sheet, String path) {
 
     }
 
-    //Get payload of a sheet from server
+    /**
+     * Reads the payload of a sheet from the server.
+     *
+     * @param user the user requesting the sheet
+     * @param se the server endpoint
+     * @param sheetName the name of the sheet to read
+     * @return the spreadsheet data
+     */
     public ISpreadsheet readPayload(IAppUser user, ServerEndpoint se, String sheetName){
         System.out.println("User: " + user.getUsername() + ", Sheet Name: " + sheetName);
         try {
@@ -102,7 +124,12 @@ public class Home implements IHome {
     }
     
     
-
+    /**
+     * Writes the spreadsheet data to an XML file.
+     *
+     * @param sheet the spreadsheet data to write
+     * @param path the path of the XML file to write to
+     */
     @Override
     public void writeXML(IReadOnlySpreadSheet sheet, String path) {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -147,6 +174,12 @@ public class Home implements IHome {
         }
     }
 
+    /**
+     * Converts a string representation of a 2D array to an actual 2D array.
+     *
+     * @param input the string representation of the 2D array
+     * @return a list of lists representing the 2D array
+     */
     public static List<List<String>> convertStringTo2DArray(String input) {
         if (input == null || input.trim().isEmpty()) {
             System.out.println("Input to convertStringTo2DArray is null or empty");
@@ -190,7 +223,15 @@ public class Home implements IHome {
     }
     
 
+
     // Convert cell reference (e.g., $A1) to row and column indices
+    /**
+     * Converts a cell reference (e.g., $A1, $AA4) to row and column indices.
+     *
+     * @param ref the cell reference
+     * @return an array with the row and column indices
+     */
+
     private static int[] convertRefToRowCol(String ref) {
         ref = ref.substring(1); // Remove the leading $
         int row = 0;
@@ -209,10 +250,15 @@ public class Home implements IHome {
             i++;
         }
 
-        return new int[]{row - 1, col - 1}; // Convert to 0-based index
+        return new int[] { row - 1, col - 1 }; // Convert to 0-based index
     }
 
-
+    /**
+     * Trims the ends of a string, removing any directory path and file extension.
+     *
+     * @param s the string to trim
+     * @return the trimmed string
+     */
     private String trimEnds(String s) {
         String result = new StringBuilder(s).reverse().toString();
 

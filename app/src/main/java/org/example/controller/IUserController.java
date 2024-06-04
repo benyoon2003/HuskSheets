@@ -1,12 +1,18 @@
 package org.example.controller;
 
-import org.example.model.IAppUser;
+import java.util.List;
+
 import org.example.model.IReadOnlySpreadSheet;
 import org.example.view.IHomeView;
 import org.example.view.ISheetView;
 
-import java.util.List;
-
+/**
+ * IUserController interface defines the contract for user-related operations
+ * in the application, including user authentication, sheet management, and 
+ * handling various user actions such as cell selection, toolbar commands, 
+ * and statistical calculations. Implementing classes should provide the 
+ * logic for these operations.
+ */
 public interface IUserController {
 
     /**
@@ -58,11 +64,11 @@ public interface IUserController {
      */
     void handleToolbar(String command);
 
-    /**
-     * Handles statistics dropdown actions.
-     * @param selectedStat the selected statistic to handle.
-     */
-    void handleStatsDropdown(String selectedStat);
+    // /**
+    //  * Handles statistics dropdown actions.
+    //  * @param selectedStat the selected statistic to handle.
+    //  */
+    // void handleStatsDropdown(String selectedStat);
 
     /**
      * Handles cell selection.
@@ -192,7 +198,17 @@ public interface IUserController {
      */
     String getFormula(int row, int col);
 
+    /**
+     * Registers a new user with the provided username and password.
+     * @param username the username of the new user.
+     * @param password the password of the new user.
+     */
     void registerUser(String username, String password);
 
+    /**
+     * Logs in a user with the provided username and password.
+     * @param username the username of the user.
+     * @param password the password of the user.
+     */
     void loginUser(String username, String password);
 }

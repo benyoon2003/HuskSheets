@@ -8,6 +8,10 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * The LoginView class provides a GUI for user login and registration.
+ * It implements the ILoginView interface to interact with the user controller.
+ */
 public class LoginView extends JFrame implements ILoginView {
 
     private JTextField usernameField;
@@ -17,6 +21,10 @@ public class LoginView extends JFrame implements ILoginView {
 
     private IUserController controller;
 
+    /**
+     * Constructor for LoginView.
+     * Initializes the login window and its components.
+     */
     public LoginView() {
         setTitle("Login");
         setSize(300, 180);
@@ -30,19 +38,37 @@ public class LoginView extends JFrame implements ILoginView {
         this.setVisible(true);
     }
 
+    /**
+     * Disposes of the login page, closing the window.
+     */
     public void disposeLoginPage() {
         this.dispose();
     }
 
+    /**
+     * Adds a controller to the login view.
+     *
+     * @param controller the IUserController instance to add.
+     */
     public void addController(IUserController controller) {
         this.controller = controller;
     }
 
+    /**
+     * Displays an error message in a dialog box.
+     *
+     * @param message the error message to display.
+     */
     @Override
     public void displayErrorBox(String message) {
         JOptionPane.showMessageDialog(this, message);
     }
-
+    
+    /**
+     * Places the components on the login panel.
+     *
+     * @param panel the JPanel to place components on.
+     */
     private void placeComponents(JPanel panel) {
         panel.setLayout(null);
 

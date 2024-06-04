@@ -75,10 +75,30 @@ public interface ISpreadsheet extends IReadOnlySpreadSheet {
      */
     String getName();
 
-
+    /**
+     * Adds a published version of the spreadsheet.
+     *
+     * @param sheet the published spreadsheet to add.
+     */
     public void addPublished(ISpreadsheet sheet);
 
+   /**
+     * Adds a subscribed version of the spreadsheet.
+     *
+     * @param sheet the subscribed spreadsheet to add.
+     */
     public void addSubscribed(ISpreadsheet sheet);
 
+    /**
+     * Gets the list of published versions of the spreadsheet.
+     *
+     * @return a list of published versions of the spreadsheet.
+     */
     public List<ISpreadsheet> getPublishedVersions();
+
+    /**
+     * Gets the list of subscribed modified versions of the spreadsheet
+     * @return
+     */
+    public List<ISpreadsheet> getSubscribedVersions();
 }
