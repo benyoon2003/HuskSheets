@@ -7,6 +7,9 @@ import org.example.controller.IUserController;
  * Provides methods for interaction between the view and the user controller.
  */
 public interface ISheetView {
+
+    public void setup();
+
     /**
      * Adds a controller to the sheet view.
      *
