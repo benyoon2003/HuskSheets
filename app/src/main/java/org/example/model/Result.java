@@ -12,9 +12,8 @@ import java.util.stream.Collectors;
  * Represents the result of an operation, encapsulating success status, message, and value.
  */
 public class Result {
-
-    private boolean success;
-    private String message;
+    private boolean success; // whether or not the HTTP request was successful
+    private String message; // more information on the HTTP request
     private List<Argument> value;
 
     /**

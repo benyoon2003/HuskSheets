@@ -62,14 +62,14 @@ public class Spreadsheet implements ISpreadsheet {
      */
     public Spreadsheet(ArrayList<ArrayList<Cell>> grid, String name) {
         this(name);
-        this.grid = grid;
+        for (ArrayList<Cell> row : grid) {
+            for (Cell c : row) {
+                String value = this.evaluateFormula(c.getValue());
+                this.grid.get(c.getRow()).get(c.getCol()).setValue(value);
+            }
+        }
     }
 
-    /**
-     * Gets the number of rows in the spreadsheet.
-     *
-     * @return the number of rows.
-     */
     public int getRows() {
         return this.grid.size();
     }
@@ -138,7 +138,7 @@ public class Spreadsheet implements ISpreadsheet {
         }
 
         // Remove the initial "="
-        formula = formula.substring(1);
+        formula = formula.substring(1).stripLeading();
 
         try {
             if (formula.contains("SORT")) {
@@ -283,7 +283,7 @@ public class Spreadsheet implements ISpreadsheet {
      */
     @Override
     public void setCellValue(int row, int col, String value) {
-        this.grid.get(row).get(col).setValue(value);
+        this.grid.get(row).get(col).setValue(evaluateFormula(value));
     }
 
     /**
@@ -525,7 +525,7 @@ public class Spreadsheet implements ISpreadsheet {
      * @return the result of the range operation.
      */
     private String rangeOperation(String startCell, String endCell) {
-        // check if this cell has a function value
+        // Check if this cell has a function value
         String func = getFunction(startCell);
         if (func != "") {
             startCell = startCell.substring(startCell.indexOf('(') + 1);
@@ -542,6 +542,7 @@ public class Spreadsheet implements ISpreadsheet {
             return "Error";
         }
 
+        // Append the cells' values
         StringBuilder rangeResult = new StringBuilder();
         for (int row = startRow; row <= endRow; row++) {
             for (int col = startCol; col <= endCol; col++) {
@@ -557,6 +558,7 @@ public class Spreadsheet implements ISpreadsheet {
         }
 
         String result = rangeResult.substring(0, rangeResult.length() - 1);
+        // Add function if needed
         if (func != "") {
             result = func + "(" + result + ")";
             return parseOperations(result);
@@ -707,10 +709,10 @@ public class Spreadsheet implements ISpreadsheet {
      */
     private String evaluateSTDDEV(String parameter) {
         String[] nums = parameter.split(",");
-        double avg = Double.parseDouble(evaluateAVG(parameter));
         double sum = 0;
 
         try {
+            double avg = Double.parseDouble(evaluateAVG(parameter));
             for (String num : nums) {
                 sum += Math.pow(Double.parseDouble(replaceCellReferences(num)) - avg, 2);
             }
@@ -759,6 +761,8 @@ public class Spreadsheet implements ISpreadsheet {
         String[] sorted = parseOperations(formula).split(",");
         if (sorted.length > 1) {
             String cells = formula.substring(5, formula.length() - 1);
+
+            // Determine which cell should be the start of the sorted list
             String endCell;
             if (cells.contains(":")) {
                 endCell = cells.split(":")[1];
@@ -768,6 +772,7 @@ public class Spreadsheet implements ISpreadsheet {
             int r = getRow(endCell);
             int c = getColumn(endCell);
 
+            // Set the values
             for (int i = 0; i < sorted.length; i++) {
                 Cell cell = this.grid.get(r + i + 1).get(c);
                 cell.setValue(sorted[i]);

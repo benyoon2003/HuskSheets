@@ -1,52 +1,43 @@
-// package org.example.model;
+package org.example.model;
 
-// import org.junit.jupiter.api.Test;
-// import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-// public class AppUserTest {
+import org.junit.jupiter.api.BeforeEach;
 
-//     @Test
-//     public void testConstructorAndGetterSetter() {
-//         AppUser user = new AppUser();
-//         user.setUsername("testUser");
-//         user.setPassword("testPassword");
+public class AppUserTest {
+    private AppUser user;
 
-//         assertEquals("testUser", user.getUsername());
-//         assertEquals("testPassword", user.getPassword());
-//     }
+    @BeforeEach
+    public void init() {
+        this.user = new AppUser();
+        this.user.setUsername("testUser");
+        this.user.setPassword("testPassword");
+    }
 
-//     @Test
-//     public void testAuthenticateUser() {
-//         AppUser user = new AppUser();
-//         String result = user.authenticateUser("testUser", "testPassword");
+    @Test
+    public void testConstructorAndGetterSetter() {
+        assertEquals("testUser", this.user.getUsername());
+        assertEquals("testPassword", this.user.getPassword());
+    }
 
-//         assertNotNull(result);
+    @Test
+    public void testAddSheet() {
+        assertEquals(0, this.user.getSheets().size());
+    
+        this.user.addSheet("Sheet1");
 
-//         // Add more assertions based on the expected outcomes
-//         user.createAccount("Ben", "1229");
-//         assertEquals(user.authenticateUser("Ben", "1"),
-//                 "Failed to login: Invalid credentials");
-//         assertEquals(user.authenticateUser("Ben", "1229"),
-//                 "Login successful!");
-//         assertEquals(user.authenticateUser("Be", "1229"),
-//                 "Failed to login: Invalid credentials");
-//         assertEquals(user.authenticateUser("", ""),
-//                 "Failed to login: Invalid credentials");
+        assertEquals(1, this.user.getSheets().size());
+        assertEquals("Sheet1", this.user.getSheets().get(0).getName());
+    }
 
-//     }
+    @Test
+    public void testDoesSheetExist() {
+        assertFalse(this.user.doesSheetExist("Sheet1"));
 
-//     @Test
-//     public void testCreateAccount() {
-//         AppUser user = new AppUser();
-//         String result = user.createAccount("newUser", "newPassword");
+        this.user.addSheet("Sheet1");
 
-//         assertNotNull(result);
-
-//         // Add more assertions based on the expected outcomes
-//         assertEquals(user.createAccount("newUser", "newPassword"),
-//                 "Failed to create account: Internal Server Error: Username already exists!");
-//         assertEquals(user.createAccount("Ben1", "1229"),
-//                 "Account created successfully!");
-
-//     }
-// }
+        assertTrue(this.user.doesSheetExist("Sheet1"));
+        assertFalse(this.user.doesSheetExist("Sheet2"));
+    }
+}

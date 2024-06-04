@@ -252,7 +252,7 @@ public class Home implements IHome {
             i++;
         }
 
-        return new int[]{row - 1, col - 1}; // Convert to 0-based index
+        return new int[] { row - 1, col - 1 }; // Convert to 0-based index
     }
 
     /**
