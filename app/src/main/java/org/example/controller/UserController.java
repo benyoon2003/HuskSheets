@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import org.example.model.AppUser;
+import org.example.model.Argument;
 import org.example.model.Cell;
 import org.example.model.Home;
 import org.example.model.IAppUser;
@@ -18,6 +19,7 @@ import org.example.view.IHomeView;
 import org.example.view.ILoginView;
 import org.example.view.ISheetView;
 import org.example.view.SheetView;
+import org.example.view.SubscriberSheetView;
 
 import java.io.File;
 import java.net.URI;
@@ -29,7 +31,16 @@ import java.util.Base64;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * UserController class implements the IUserController interface and 
+ * manages user-related operations such as authentication, sheet management, 
+ * and handling user interactions within the application. This class interacts 
+ * with the model and view components to perform actions like creating, 
+ * saving, and deleting sheets, handling cell operations, and managing 
+ * user sessions. It serves as the main controller for user functionalities 
+ * and ensures the smooth flow of data and actions between the application's 
+ * UI and backend.
+ */
 public class UserController implements IUserController {
 
     private ILoginView loginPage;
@@ -57,6 +68,11 @@ public class UserController implements IUserController {
         this.serverEndpoint = new ServerEndpoint();
     }
 
+    /**
+     * Registers a new user with the provided username and password.
+     * @param username the username of the new user.
+     * @param password the password of the new user.
+     */
     public void registerUser(String username, String password) {
         try {
             if (validateInput(username, password)) {
@@ -65,9 +81,9 @@ public class UserController implements IUserController {
                 newUser.setPassword(password);
                 Result registerResult = serverEndpoint.register(newUser);
                 if (registerResult.getSuccess()) {
-                    openHomeView();
                     this.loginPage.disposeLoginPage();
                     this.appUser = newUser;
+                    openHomeView();
                 }
                 else {
                     this.loginPage.displayErrorBox(registerResult.getMessage());
@@ -81,6 +97,11 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Logs in a user with the provided username and password.
+     * @param username the username of the user.
+     * @param password the password of the user.
+     */
     @Override
     public void loginUser(String username, String password) {
         try {
@@ -103,6 +124,31 @@ public class UserController implements IUserController {
             }
         }
         catch (Exception ignored){
+        }
+    }
+
+    @Override
+    public List<String> getPublishers() {
+        if(appUser == null){
+            System.out.println("user is null");
+        }
+        try {
+
+            Result getPublisherResult = serverEndpoint.getPublishers();
+
+            List<String> listOfUsernames = new ArrayList<>();
+            for (Argument argument : getPublisherResult.getValue()) {
+                System.out.println(argument.getPublisher());
+                System.out.println("User: " + this.appUser.getUsername());
+                if(!argument.getPublisher().equals(this.appUser.getUsername())) {
+                    listOfUsernames.add(argument.getPublisher());
+                }
+            }
+            listOfUsernames.remove(appUser.getUsername());
+            return listOfUsernames;
+        }
+        catch (Exception ignored) {
+            return new ArrayList<>();
         }
     }
 
@@ -132,16 +178,28 @@ public class UserController implements IUserController {
 //        }
 //    }
 
+    /**
+     * Sets the current sheet view.
+     * @param sheetView the sheet view to set as current.
+     */
     @Override
     public void setCurrentSheet(ISheetView sheetView) {
         this.sheetView = sheetView;
         this.sheetView.addController(this);
     }
 
+    /**
+     * Gets the current sheet view.
+     * @return the current sheet view.
+     */
     public ISheetView getCurrentSheet() {
         return this.sheetView;
     }
 
+    /**
+     * Creates a new sheet.
+     * @param name the name of the new sheet.
+     */
     @Override
     public void createNewSheet(String name) {
         try {
@@ -160,6 +218,11 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Saves the given sheet to the specified path.
+     * @param sheet the sheet to save.
+     * @param path the path to save the sheet to.
+     */
     @Override
     public void saveSheet(IReadOnlySpreadSheet sheet, String path) {
         try {
@@ -169,47 +232,97 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Saves the sheet to the server.
+     * @param sheet the sheet to save.
+     * @param name the name of the sheet.
+     */
     @Override
     public void saveSheetToServer(IReadOnlySpreadSheet sheet, String name) {
         try {
             String payload = convertSheetToPayload(sheet);
-            serverEndpoint.updatePublished(appUser.getUsername(), name, payload);
 
-//            HttpClient client = HttpClient.newHttpClient();
-//            String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"payload\":\"%s\"}", "team2", name, payload);
-//
-//            HttpRequest request = HttpRequest.newBuilder()
-//                    .uri(new URI("https://husksheets.fly.dev/api/v1/updatePublished"))
-//                    .header("Authorization", "Basic " + Base64.getEncoder().encodeToString(("team2:Ltf3r008'fYrV405").getBytes(StandardCharsets.UTF_8)))
-//                    .header("Content-Type", "application/json")
-//                    .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
-//                    .build();
-//
-//            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-//            if (response.statusCode() == 200) {
-//                System.out.println("Sheet updated successfully!");
-//            } else {
-//                System.out.println("Failed to update sheet: " + response.body());
-//            }
+            System.out.println("Converted Payload:\n" + payload);
+            Result result = serverEndpoint.updatePublished(appUser.getUsername(), name, payload);
+            if (result.getSuccess()) {
+                System.out.println("Sheet updated successfully on the server.");
+            } else {
+                System.out.println("Failed to update sheet on the server: " + result.getMessage());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    public void updateSubscribedSheet(String publisher, IReadOnlySpreadSheet sheet, String name){
+        try {
+            String payload = convertSheetToPayload(sheet);
+
+            System.out.println("Converted Payload:\n" + payload);
+            Result result = serverEndpoint.updateSubscription(publisher, name, payload);
+            if (result.getSuccess()) {
+                System.out.println("Sheet updated successfully on the server.");
+            } else {
+                System.out.println("Failed to update sheet on the server: " + result.getMessage());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+
+//     @Override
+//     public void saveSheetToServer(IReadOnlySpreadSheet sheet, String name) {
+//         try {
+//             String payload = convertSheetToPayload(sheet);
+//             serverEndpoint.updatePublished(appUser.getUsername(), name, payload);
+
+// //            HttpClient client = HttpClient.newHttpClient();
+// //            String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"payload\":\"%s\"}", "team2", name, payload);
+// //
+// //            HttpRequest request = HttpRequest.newBuilder()
+// //                    .uri(new URI("https://husksheets.fly.dev/api/v1/updatePublished"))
+// //                    .header("Authorization", "Basic " + Base64.getEncoder().encodeToString(("team2:Ltf3r008'fYrV405").getBytes(StandardCharsets.UTF_8)))
+// //                    .header("Content-Type", "application/json")
+// //                    .POST(HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
+// //                    .build();
+// //
+// //            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+// //            if (response.statusCode() == 200) {
+// //                System.out.println("Sheet updated successfully!");
+// //            } else {
+// //                System.out.println("Failed to update sheet: " + response.body());
+// //            }
+//         } catch (Exception e) {
+//             e.printStackTrace();
+//         }
+//     }
+
+    /**
+     * Converts the sheet to a payload string.
+     * @param sheet the sheet to convert.
+     * @return the payload string.
+     */
     public static String convertSheetToPayload(IReadOnlySpreadSheet sheet) {
         StringBuilder payload = new StringBuilder();
         Cell[][] values = sheet.getCellsObject();
         for (int i = 0; i < sheet.getRows(); i++) {
             for (int j = 0; j < sheet.getCols(); j++) {
                 if (values[i][j] != null && !values[i][j].getRawdata().isEmpty()) {
-                    String cellValue = sheet.getCellsObject()[i][j].isFormula() ? sheet.getCellsObject()[i][j].getFormula() : values[i][j].getRawdata();
-                    payload.append(String.format("$%s%s %s\\n", getExcelColumnName(j + 1), i + 1, cellValue.replace("\n", "\\n").replace("\"", "\\\"")));
+                    String cellValue = values[i][j].isFormula() ? values[i][j].getFormula() : values[i][j].getRawdata();
+                    payload.append(String.format("$%s%s %s\\n", getExcelColumnName(j + 1), i + 1, cellValue));
                 }
             }
         }
+        System.out.println("convertSheetToPayload is called here!");
         return payload.toString();
     }
-
+    
+    /**
+     * Gets the Excel column name for a given column number.
+     * @param columnNumber the column number.
+     * @return the Excel column name.
+     */
     public static String getExcelColumnName(int columnNumber) {
         StringBuilder columnName = new StringBuilder();
         while (columnNumber > 0) {
@@ -220,16 +333,30 @@ public class UserController implements IUserController {
         return columnName.toString();
     }
 
+    /**
+     * Handles toolbar actions.
+     * @param command the command to handle.
+     */
     @Override
     public void handleToolbar(String command) {
         this.sheetView.displayMessage(command + " button clicked");
     }
 
-    @Override
-    public void handleStatsDropdown(String selectedStat) {
-        // TODO: Implement statistical calculations if needed
-    }
+    // /**
+    //  * Handles statistics dropdown actions.
+    //  * @param selectedStat the selected statistic to handle.
+    //  */
+    // @Override
+    // public void handleStatsDropdown(String selectedStat) {
+    //     // TODO: Implement statistical calculations if needed
+    // }    
 
+
+    /**
+     * Handles cell selection.
+     * @param selectedRows the selected rows.
+     * @param selectedColumns the selected columns.
+     */
     @Override
     public void selectedCells(int[] selectedRows, int[] selectedColumns) {
         if (selectedRows.length > 0 && selectedColumns.length > 0) {
@@ -253,19 +380,36 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Gets the zero-indexed selected row.
+     * @return the zero-indexed selected row.
+     */
     public int getSelectedRowZeroIndex() {
         return selectedCells.getStartRow() - 1;
     }
 
+    /**
+     * Gets the zero-indexed selected column.
+     * @return the zero-indexed selected column.
+     */
     public int getSelectedColZeroIndex() {
         return selectedCells.getStartCol() - 1;
     }
 
+    /**
+     * Checks if a single cell is selected.
+     * @param selectedCells the selected cells.
+     * @return true if a single cell is selected, false otherwise.
+     */
     private boolean singleCellSelected(ISelectedCells selectedCells) {
         return selectedCells.getStartRow() == selectedCells.getEndRow() &&
                 selectedCells.getStartCol() == selectedCells.getEndCol();
     }
 
+    /**
+     * Opens a sheet from the specified path.
+     * @param path the path to open the sheet from.
+     */
     @Override
     public void openSheet(String path) {
         try {
@@ -278,6 +422,10 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Gets the list of saved sheets.
+     * @return the list of saved sheets.
+     */
     @Override
     public List<String> getSavedSheets() {
         List<String> sheets = new ArrayList<>();
@@ -295,11 +443,15 @@ public class UserController implements IUserController {
         return sheets;
     }
 
+    /**
+     * Gets the list of sheets from the server.
+     * @return the list of server sheets.
+     */
     @Override
     public List<String> getServerSheets() {
         List<String> sheets = new ArrayList<>();
         try {
-            String response = serverEndpoint.getSheets();
+            String response = serverEndpoint.getSheets(appUser.getUsername());
             sheets = Result.getSheets(response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -307,10 +459,14 @@ public class UserController implements IUserController {
         return sheets;
     }
 
+    /**
+     * Opens a sheet from the server.
+     * @param selectedSheet the name of the sheet to open.
+     */
     @Override
     public void openServerSheet(String selectedSheet) {
         try {
-            this.spreadsheetModel = this.home.readPayload(this.appUser, serverEndpoint, selectedSheet);
+            this.spreadsheetModel = this.home.readPayload(this.appUser.getUsername(), serverEndpoint, selectedSheet);
             this.sheetView = new SheetView(spreadsheetModel);
             this.setCurrentSheet(sheetView);
             this.sheetView.makeVisible();
@@ -319,6 +475,35 @@ public class UserController implements IUserController {
         }
     }
 
+    public List<String> getSubscribedSheets(String publisher){
+        try{
+            List<String> sheets = new ArrayList<>();
+            String response = this.serverEndpoint.getSheets(publisher);
+            sheets = Result.getSheets(response);
+            return sheets;
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public void openSubscriberSheet(String selectedSheet, String publisher) {
+        try {
+            this.spreadsheetModel = this.home.readPayload(publisher, serverEndpoint, selectedSheet);
+            this.sheetView = new SubscriberSheetView(publisher, spreadsheetModel);
+            this.sheetView.addController(this);
+            this.setCurrentSheet(sheetView);
+            this.sheetView.makeVisible();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Deletes a sheet at the specified path.
+     * @param path the path to delete the sheet from.
+     */
     @Override
     public void deleteSheet(String path) {
         File file = new File("sheets/" + path);
@@ -328,6 +513,10 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Deletes a sheet from the server.
+     * @param name the name of the sheet.
+     */
     @Override
     public void deleteSheetFromServer(String name) {
         try{
@@ -337,6 +526,13 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Handles referencing of a cell.
+     * @param row the row of the cell.
+     * @param col the column of the cell.
+     * @param data the data in the cell.
+     * @return the result of the referencing.
+     */
     @Override
     public String handleReferencingCell(int row, int col, String data) {
         String rawdata = this.spreadsheetModel.getCellRawdata(row, col);
@@ -347,17 +543,30 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Gets the home view.
+     * @return the home view.
+     */
     @Override
     public IHomeView getHomeView() {
         return this.homeView;
     }
 
+    /**
+     * Opens the home view.
+     */
     public void openHomeView() {
         this.homeView = new HomeView();
         homeView.addController(this);
         this.homeView.makeVisible();
     }
 
+    /**
+     * Changes the value of a cell in the spreadsheet at the specified row and column.
+     * @param selRow the row of the cell.
+     * @param selCol the column of the cell.
+     * @param val the value to set.
+     */
     @Override
     public void changeSpreadSheetValueAt(int selRow, int selCol, String val) {
         this.spreadsheetModel.setCellRawdata(selRow, selCol, val);
@@ -369,11 +578,21 @@ public class UserController implements IUserController {
         this.sheetView.updateTable();
     }
 
+   /**
+     * Evaluates a formula.
+     * @param formula the formula to evaluate.
+     * @return the result of the formula evaluation.
+     */
     @Override
     public String evaluateFormula(String formula) {
         return this.spreadsheetModel.evaluateFormula(formula);
     }
 
+    /**
+     * Cuts the content of a cell.
+     * @param selRow the row of the cell.
+     * @param selCol the column of the cell.
+     */
     @Override
     public void cutCell(int selRow, int selCol) {
         this.clipboardContent = this.spreadsheetModel.getCellRawdata(selRow, selCol);
@@ -382,12 +601,22 @@ public class UserController implements IUserController {
         this.isCutOperation = true;
     }
 
+    /**
+     * Copies the content of a cell.
+     * @param selRow the row of the cell.
+     * @param selCol the column of the cell.
+     */
     @Override
     public void copyCell(int selRow, int selCol) {
         this.clipboardContent = this.spreadsheetModel.getCellRawdata(selRow, selCol);
         this.isCutOperation = false;
     }
 
+    /**
+     * Pastes the content into a cell.
+     * @param selRow the row of the cell.
+     * @param selCol the column of the cell.
+     */
     @Override
     public void pasteCell(int selRow, int selCol) {
         if (!clipboardContent.isEmpty()) {
@@ -400,6 +629,11 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Calculates the percentile of a cell value.
+     * @param selRow the row of the cell.
+     * @param selCol the column of the cell.
+     */
     @Override
     public void getPercentile(int selRow, int selCol) {
         String value = this.spreadsheetModel.getCellValue(selRow, selCol);
@@ -413,12 +647,23 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Gets the formula of a cell.
+     * @param row the row of the cell.
+     * @param col the column of the cell.
+     * @return the formula of the cell.
+     */
     @Override
     public String getFormula(int row, int col) {
         return this.spreadsheetModel.getCellFormula(row, col);
     }
 
-
+    /**
+     * Validates the input for username and password.
+     * @param username the username to validate.
+     * @param password the password to validate.
+     * @return true if input is valid, false otherwise.
+     */
     private boolean validateInput(String username, String password) {
         return !username.isEmpty() && !password.isEmpty();
     }
