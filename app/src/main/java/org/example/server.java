@@ -372,11 +372,10 @@ public class server {
     /**
      * Retrieves updates for published sheets.
      *
-     * @param sheetDTO the sheet details.
      * @return a ResponseEntity containing the result of the updates retrieval.
      */
     @PostMapping("/getUpdatedForPublished")
-    public ResponseEntity<?> getUpdatedForPublished(@RequestBody SheetDTO sheetDTO) {
+    public ResponseEntity<?> getUpdatedForPublished(@RequestBody Argument argument) {
         try {
             // Your logic to get updates for published here
             return ResponseEntity.ok("Updates for published retrieved successfully");
@@ -388,11 +387,10 @@ public class server {
     /**
      * Updates a subscription.
      *
-     * @param sheetDTO the sheet details.
      * @return a ResponseEntity containing the result of the subscription update.
      */
     @PostMapping("/updateSubscription")
-    public ResponseEntity<?> updateSubscription(@RequestBody SheetDTO sheetDTO) {
+    public ResponseEntity<?> updateSubscription(@RequestBody Argument argument) {
         try {
             // Your logic to update subscription here
             return ResponseEntity.ok("Subscription updated successfully");
