@@ -1,4 +1,4 @@
-package org.example;
+package org.example.server;
 
 import org.example.controller.UserController;
 import org.example.model.*;
