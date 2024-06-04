@@ -271,6 +271,7 @@ public class HomeView extends JFrame implements IHomeView {
             }
 
             for (String username : listOfPublishers) {
+
                 publishers.addItem(username);
             }
 

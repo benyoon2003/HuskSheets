@@ -47,9 +47,7 @@ public class server {
             List<Argument> listOfArgument = new ArrayList<>();
 
             for (IAppUser user : availUsers) {
-                if (!user.getUsername().equals(credentials[0])) {
-                    listOfArgument.add(new Argument(user.getUsername(), null, null, null));
-                }
+                listOfArgument.add(new Argument(user.getUsername(), null, null, null));
             }
 
             return ResponseEntity.ok(new Result(

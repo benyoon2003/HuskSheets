@@ -128,12 +128,21 @@ public class UserController implements IUserController {
 
     @Override
     public List<String> getPublishers() {
+        if(appUser == null){
+            System.out.println("user is null");
+        }
+        String user = this.appUser.getUsername();
         try {
+
             Result getPublisherResult = serverEndpoint.getPublishers();
 
             List<String> listOfUsernames = new ArrayList<>();
             for (Argument argument : getPublisherResult.getValue()) {
-                listOfUsernames.add(argument.getPublisher());
+                System.out.println(argument.getPublisher());
+                //System.out.println("User: " + this.appUser.getUsername());
+//                if(!argument.getPublisher().equals(this.appUser.getUsername())) {
+//                    listOfUsernames.add(argument.getPublisher());
+//                }
             }
             return listOfUsernames;
         }
