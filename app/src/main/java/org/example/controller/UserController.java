@@ -254,6 +254,22 @@ public class UserController implements IUserController {
             e.printStackTrace();
         }
     }
+
+    public void updateSubscribedSheet(String publisher, IReadOnlySpreadSheet sheet, String name){
+        try {
+            String payload = convertSheetToPayload(sheet);
+
+            System.out.println("Converted Payload:\n" + payload);
+            Result result = serverEndpoint.updateSubscription(publisher, name, payload);
+            if (result.getSuccess()) {
+                System.out.println("Sheet updated successfully on the server.");
+            } else {
+                System.out.println("Failed to update sheet on the server: " + result.getMessage());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     
 
 //     @Override
@@ -476,7 +492,7 @@ public class UserController implements IUserController {
     public void openSubscriberSheet(String selectedSheet, String publisher) {
         try {
             this.spreadsheetModel = this.home.readPayload(publisher, serverEndpoint, selectedSheet);
-            this.sheetView = new SubscriberSheetView(spreadsheetModel);
+            this.sheetView = new SubscriberSheetView(publisher, spreadsheetModel);
             this.setCurrentSheet(sheetView);
             this.sheetView.makeVisible();
         } catch (Exception e) {

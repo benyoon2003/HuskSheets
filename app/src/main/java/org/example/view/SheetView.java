@@ -93,28 +93,7 @@ public class SheetView extends JFrame implements ISheetView {
         saveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int option = JOptionPane.showOptionDialog(
-                        null,
-                        "Choose where to save the sheet:",
-                        "Save Option",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE,
-                        null,
-                        new Object[]{"Save Locally", "Save to Server"},
-                        "Save Locally");
-
-                if (option == JOptionPane.YES_OPTION) {
-                    JFileChooser fileChooser = new JFileChooser();
-                    int returnValue = fileChooser.showSaveDialog(null);
-                    if (returnValue == JFileChooser.APPROVE_OPTION) {
-                        File selectedFile = fileChooser.getSelectedFile();
-                        controller.saveSheetToServer(cells, selectedFile.getAbsolutePath());
-                    }
-                } else if (option == JOptionPane.NO_OPTION) {
-                    controller.saveSheetToServer(cells, ((Spreadsheet) cells).getName());
-                    System.out.println(((Spreadsheet) cells).getName());
-                    makeVisible();
-                }
+                handleSave();
             }
         });
         backButton.addActionListener(new ActionListener() {
@@ -333,6 +312,31 @@ public class SheetView extends JFrame implements ISheetView {
         }
     }
 
+
+    public void handleSave(){
+        int option = JOptionPane.showOptionDialog(
+                null,
+                "Choose where to save the sheet:",
+                "Save Option",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new Object[]{"Save Locally", "Save to Server"},
+                "Save Locally");
+
+        if (option == JOptionPane.YES_OPTION) {
+            JFileChooser fileChooser = new JFileChooser();
+            int returnValue = fileChooser.showSaveDialog(null);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                controller.saveSheetToServer(cells, selectedFile.getAbsolutePath());
+            }
+        } else if (option == JOptionPane.NO_OPTION) {
+            controller.saveSheetToServer(cells, ((Spreadsheet) cells).getName());
+            System.out.println(((Spreadsheet) cells).getName());
+            makeVisible();
+        }
+    }
     /**
      * Displays a message in a dialog box.
      *
