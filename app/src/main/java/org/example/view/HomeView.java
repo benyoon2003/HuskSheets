@@ -14,6 +14,10 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+/**
+ * HomeView is the main GUI window that allows users to create, open, and delete spreadsheets.
+ * It interacts with the IUserController to handle user actions and update the view accordingly.
+ */
 public class HomeView extends JFrame implements IHomeView {
 
     private JButton createSheet;
@@ -22,6 +26,9 @@ public class HomeView extends JFrame implements IHomeView {
     private JButton deleteSheetButton;
     private IUserController controller;
 
+    /**
+     * Constructs a HomeView instance, setting up the main GUI window.
+     */
     public HomeView() {
         setTitle("Main GUI");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -32,6 +39,11 @@ public class HomeView extends JFrame implements IHomeView {
         add(panel);
     }
 
+    /**
+     * Places and initializes the components within the specified panel.
+     *
+     * @param panel the JPanel to place the components on.
+     */
     private void placeComponents(JPanel panel) {
         panel.setLayout(null);
 
@@ -158,6 +170,11 @@ public class HomeView extends JFrame implements IHomeView {
 //        }
 //    }
 
+    /**
+     * Opens a sheet from the specified path.
+     *
+     * @param path the path to the sheet to open.
+     */
     @Override
     public void openSheet(String path) {
         try {
@@ -167,6 +184,11 @@ public class HomeView extends JFrame implements IHomeView {
         }
     }
 
+    /**
+     * Opens a sheet from the server.
+     *
+     * @param path the path to the sheet on the server to open.
+     */
     @Override
     public void openSheetFromServer(String path) {
         try {
@@ -176,11 +198,19 @@ public class HomeView extends JFrame implements IHomeView {
         }
     }
 
+    /**
+     * Displays an error message in a dialog box.
+     *
+     * @param message the error message to display.
+     */
     @Override
     public void displayErrorBox(String message) {
         JOptionPane.showMessageDialog(this, message);
     }
 
+    /**
+     * Updates the list of saved sheets in the dropdown menu.
+     */
     @Override
     public void updateSavedSheets() {
         if (controller != null) {
@@ -194,18 +224,29 @@ public class HomeView extends JFrame implements IHomeView {
         }
     }
 
+    /**
+     * Adds the controller to this view.
+     *
+     * @param controller the IUserController instance to add.
+     */
     @Override
     public void addController(IUserController controller) {
         this.controller = controller;
     }
 
+    /**
+     * Makes the home view visible and updates the list of saved sheets.
+     */
     @Override
     public void makeVisible() {
         this.setVisible(true);
         updateSavedSheets();
         this.controller.getServerSheets();
     }
-
+    
+    /**
+     * Disposes of the home page.
+     */
     @Override
     public void disposeHomePage() {
         this.dispose();

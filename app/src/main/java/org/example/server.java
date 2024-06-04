@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * REST API server for managing publishers, sheets, and related operations.
+ */
 @RestController
 @RequestMapping("/api/v1")
 public class server {
@@ -41,7 +44,13 @@ public class server {
 //        }
 //    }
 //
-    // Create a new sheet
+    /**
+     * Creates a new sheet for a specified publisher.
+     *
+     * @param authHeader the authorization header containing the credentials.
+     * @param argument   the argument containing the sheet details.
+     * @return a ResponseEntity containing the result of the sheet creation.
+     */
     @PostMapping("/createSheet")
     public ResponseEntity<Result> createSheet(@RequestHeader("Authorization") String authHeader,
                                               @RequestBody Argument argument) {
@@ -89,7 +98,13 @@ public class server {
     }
 
 
-    // Get all sheets for a publisher
+    /**
+     * Retrieves all sheets for a specified publisher.
+     *
+     * @param authHeader the authorization header containing the credentials.
+     * @param argument   the argument containing the publisher details.
+     * @return a ResponseEntity containing the result of the sheets retrieval.
+     */
     @PostMapping("/getSheets")
     public ResponseEntity<Result> getSheets(@RequestHeader("Authorization") String authHeader,
                                             @RequestBody Argument argument) {
@@ -123,6 +138,13 @@ public class server {
         }
     }
 
+    /**
+     * Updates a published sheet for a specified publisher.
+     *
+     * @param authHeader the authorization header containing the credentials.
+     * @param argument   the argument containing the sheet details.
+     * @return a ResponseEntity containing the result of the sheet update.
+     */
     @PostMapping("/updatePublished")
     public ResponseEntity<Result> updatePublished(@RequestHeader("Authorization") String authHeader,
                                                   @RequestBody Argument argument) {
@@ -182,11 +204,12 @@ public class server {
         }
     }
     
-    
-
-
-
-    // Register a publisher (new implementation)
+    /**
+     * Registers a new publisher.
+     *
+     * @param authHeader the authorization header containing the credentials.
+     * @return a ResponseEntity containing the result of the registration.
+     */
     @GetMapping("/register")
     public ResponseEntity<Result> register(@RequestHeader("Authorization") String authHeader) {
         try {
@@ -223,7 +246,12 @@ public class server {
         }
     }
 
-    // Login a user
+    /**
+     * Logs in a user.
+     *
+     * @param authHeader the authorization header containing the credentials.
+     * @return a ResponseEntity containing the result of the login.
+     */
     @GetMapping("/login")
     public ResponseEntity<Result> login(@RequestHeader("Authorization") String authHeader) {
         try {
@@ -285,7 +313,13 @@ public class server {
     }
 
 
-    // Get updates for subscription
+    /**
+     * Retrieves updates for a subscription.
+     *
+     * @param authHeader the authorization header containing the credentials.
+     * @param argument   the argument containing the subscription details.
+     * @return a ResponseEntity containing the result of the updates retrieval.
+     */
     @PostMapping("/getUpdatesForSubscription")
     public ResponseEntity<?> getUpdatesForSubscription(@RequestHeader("Authorization") String authHeader,
                                                        @RequestBody Argument argument) {
@@ -335,10 +369,12 @@ public class server {
         }
     }
     
-    
-    
-
-    // Get updates for published sheets
+    /**
+     * Retrieves updates for published sheets.
+     *
+     * @param sheetDTO the sheet details.
+     * @return a ResponseEntity containing the result of the updates retrieval.
+     */
     @PostMapping("/getUpdatedForPublished")
     public ResponseEntity<?> getUpdatedForPublished(@RequestBody SheetDTO sheetDTO) {
         try {
@@ -349,7 +385,12 @@ public class server {
         }
     }
 
-    // Update subscription
+    /**
+     * Updates a subscription.
+     *
+     * @param sheetDTO the sheet details.
+     * @return a ResponseEntity containing the result of the subscription update.
+     */
     @PostMapping("/updateSubscription")
     public ResponseEntity<?> updateSubscription(@RequestBody SheetDTO sheetDTO) {
         try {
@@ -360,7 +401,13 @@ public class server {
         }
     }
 
-
+    /**
+     * Checks if a sheet exists for a publisher.
+     *
+     * @param sheet     the sheet name.
+     * @param publisher the publisher name.
+     * @return true if the sheet exists, false otherwise.
+     */
     private boolean hasSheet(String sheet, String publisher) {
         for (IAppUser user : availUsers) {
             if (user.getUsername().equals(publisher) && user.doesSheetExist(sheet)) {
@@ -369,7 +416,13 @@ public class server {
         }
         return false;
     }
-
+    
+    /**
+     * Finds a user by username.
+     *
+     * @param username the username.
+     * @return the user if found, null otherwise.
+     */
     private IAppUser findUser(String username) {
         for (IAppUser user : this.availUsers) {
             if (user.getUsername().equals(username)) {
