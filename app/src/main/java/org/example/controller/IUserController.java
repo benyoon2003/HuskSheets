@@ -211,4 +211,12 @@ public interface IUserController {
      * @param password the password of the user.
      */
     void loginUser(String username, String password);
+
+    List<String> getPublishers();
+
+    public List<String> getSubscribedSheets(String publisher);
+
+    void openSubscriberSheet(String selectedSheet, String publisher);
+
+    public void updateSubscribedSheet(String publisher, IReadOnlySpreadSheet sheet, String name);
 }

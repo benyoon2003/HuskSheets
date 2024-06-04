@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import org.example.model.AppUser;
+import org.example.model.Argument;
 import org.example.model.Cell;
 import org.example.model.Home;
 import org.example.model.IAppUser;
@@ -18,6 +19,7 @@ import org.example.view.IHomeView;
 import org.example.view.ILoginView;
 import org.example.view.ISheetView;
 import org.example.view.SheetView;
+import org.example.view.SubscriberSheetView;
 
 import java.io.File;
 import java.net.URI;
@@ -79,9 +81,9 @@ public class UserController implements IUserController {
                 newUser.setPassword(password);
                 Result registerResult = serverEndpoint.register(newUser);
                 if (registerResult.getSuccess()) {
-                    openHomeView();
                     this.loginPage.disposeLoginPage();
                     this.appUser = newUser;
+                    openHomeView();
                 }
                 else {
                     this.loginPage.displayErrorBox(registerResult.getMessage());
@@ -122,6 +124,31 @@ public class UserController implements IUserController {
             }
         }
         catch (Exception ignored){
+        }
+    }
+
+    @Override
+    public List<String> getPublishers() {
+        if(appUser == null){
+            System.out.println("user is null");
+        }
+        try {
+
+            Result getPublisherResult = serverEndpoint.getPublishers();
+
+            List<String> listOfUsernames = new ArrayList<>();
+            for (Argument argument : getPublisherResult.getValue()) {
+                System.out.println(argument.getPublisher());
+                System.out.println("User: " + this.appUser.getUsername());
+                if(!argument.getPublisher().equals(this.appUser.getUsername())) {
+                    listOfUsernames.add(argument.getPublisher());
+                }
+            }
+            listOfUsernames.remove(appUser.getUsername());
+            return listOfUsernames;
+        }
+        catch (Exception ignored) {
+            return new ArrayList<>();
         }
     }
 
@@ -214,7 +241,25 @@ public class UserController implements IUserController {
     public void saveSheetToServer(IReadOnlySpreadSheet sheet, String name) {
         try {
             String payload = convertSheetToPayload(sheet);
+
+            System.out.println("Converted Payload:\n" + payload);
             Result result = serverEndpoint.updatePublished(appUser.getUsername(), name, payload);
+            if (result.getSuccess()) {
+                System.out.println("Sheet updated successfully on the server.");
+            } else {
+                System.out.println("Failed to update sheet on the server: " + result.getMessage());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateSubscribedSheet(String publisher, IReadOnlySpreadSheet sheet, String name){
+        try {
+            String payload = convertSheetToPayload(sheet);
+
+            System.out.println("Converted Payload:\n" + payload);
+            Result result = serverEndpoint.updateSubscription(publisher, name, payload);
             if (result.getSuccess()) {
                 System.out.println("Sheet updated successfully on the server.");
             } else {
@@ -265,7 +310,7 @@ public class UserController implements IUserController {
             for (int j = 0; j < sheet.getCols(); j++) {
                 if (values[i][j] != null && !values[i][j].getRawdata().isEmpty()) {
                     String cellValue = values[i][j].isFormula() ? values[i][j].getFormula() : values[i][j].getRawdata();
-                    payload.append(String.format("$%s%s %s\\n", getExcelColumnName(j + 1), i + 1, cellValue.replace("\n", "\n").replace("\"", "\\\"")));
+                    payload.append(String.format("$%s%s %s\\n", getExcelColumnName(j + 1), i + 1, cellValue));
                 }
             }
         }
@@ -406,7 +451,7 @@ public class UserController implements IUserController {
     public List<String> getServerSheets() {
         List<String> sheets = new ArrayList<>();
         try {
-            String response = serverEndpoint.getSheets();
+            String response = serverEndpoint.getSheets(appUser.getUsername());
             sheets = Result.getSheets(response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -421,7 +466,7 @@ public class UserController implements IUserController {
     @Override
     public void openServerSheet(String selectedSheet) {
         try {
-            this.spreadsheetModel = this.home.readPayload(this.appUser, serverEndpoint, selectedSheet);
+            this.spreadsheetModel = this.home.readPayload(this.appUser.getUsername(), serverEndpoint, selectedSheet);
             this.sheetView = new SheetView(spreadsheetModel);
             this.setCurrentSheet(sheetView);
             this.sheetView.makeVisible();
@@ -430,7 +475,32 @@ public class UserController implements IUserController {
         }
     }
 
-     /**
+    public List<String> getSubscribedSheets(String publisher){
+        try{
+            List<String> sheets = new ArrayList<>();
+            String response = this.serverEndpoint.getSheets(publisher);
+            sheets = Result.getSheets(response);
+            return sheets;
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public void openSubscriberSheet(String selectedSheet, String publisher) {
+        try {
+            this.spreadsheetModel = this.home.readPayload(publisher, serverEndpoint, selectedSheet);
+            this.sheetView = new SubscriberSheetView(publisher, spreadsheetModel);
+            this.sheetView.addController(this);
+            this.setCurrentSheet(sheetView);
+            this.sheetView.makeVisible();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Deletes a sheet at the specified path.
      * @param path the path to delete the sheet from.
      */

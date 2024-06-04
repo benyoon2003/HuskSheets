@@ -95,14 +95,13 @@ public class Home implements IHome {
      * @param sheetName the name of the sheet to read
      * @return the spreadsheet data
      */
-    public ISpreadsheet readPayload(IAppUser user, ServerEndpoint se, String sheetName){
-        System.out.println("User: " + user.getUsername() + ", Sheet Name: " + sheetName);
+    public ISpreadsheet readPayload(String user, ServerEndpoint se, String sheetName){
+        System.out.println("User: " + user + ", Sheet Name: " + sheetName);
         try {
-            Result getUpdatesForSubscriptionResult = se.getUpdatesForSubscription(user.getUsername(), sheetName, "0");
+            Result getUpdatesForSubscriptionResult = se.getUpdatesForSubscription(user, sheetName, "0");
             System.out.println("Response from server: " + getUpdatesForSubscriptionResult.getMessage());
     
-            String payload = getUpdatesForSubscriptionResult.getValue().get(
-                    getUpdatesForSubscriptionResult.getValue().size() - 1).getPayload();
+            String payload = getUpdatesForSubscriptionResult.getValue().get(0).getPayload();
             System.out.println("Payload received: " + payload);
     
             if (payload != null && !payload.isEmpty()) {
@@ -186,54 +185,53 @@ public class Home implements IHome {
             System.out.println("Input to convertStringTo2DArray is null or empty");
             return new ArrayList<>();
         }
-        // Replace literal "\n" with actual newline characters if needed
-        if (input.contains("\\n")) {
-            input = input.replace("\\n", "\n");
-        }
-
+    
         // Parse input into lines
         String[] lines = input.split("\\r?\\n");
-
+    
         // List to store the 2D array
         List<List<String>> result = new ArrayList<>();
-
+    
         // Process each line
         for (String line : lines) {
-            System.out.println("LINE: " + line); // Debugging statement
             if (line.trim().isEmpty()) {
                 continue;
             }
-
+    
             String[] parts = line.split(" ", 2);
             if (parts.length < 2) {
                 continue;
             }
-
+    
             String ref = parts[0];
             String content = parts[1];
-
+    
             // Extract row and column from the reference
             int[] rowCol = convertRefToRowCol(ref);
-
+    
             // Create the nested list for this cell
             List<String> cellData = new ArrayList<>();
             cellData.add(String.valueOf(rowCol[0])); // Row
             cellData.add(String.valueOf(rowCol[1])); // Column
             cellData.add(content); // Content
-
+    
             // Add to the result list
             result.add(cellData);
         }
-
+    
         return result;
     }
+    
 
+
+    // Convert cell reference (e.g., $A1) to row and column indices
     /**
      * Converts a cell reference (e.g., $A1, $AA4) to row and column indices.
      *
      * @param ref the cell reference
      * @return an array with the row and column indices
      */
+
     private static int[] convertRefToRowCol(String ref) {
         ref = ref.substring(1); // Remove the leading $
         int row = 0;

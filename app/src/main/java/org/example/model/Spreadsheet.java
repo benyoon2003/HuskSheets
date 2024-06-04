@@ -24,7 +24,7 @@ public class Spreadsheet implements ISpreadsheet {
     private ArrayList<ArrayList<Cell>> grid;
 
     private String name;
-
+    private int id_version;
     // used to retrieve version for GetUpdatesForSubscription
     private List<ISpreadsheet> publishVersions;
 
@@ -51,7 +51,8 @@ public class Spreadsheet implements ISpreadsheet {
 
         this.name = name;
         this.publishVersions = new ArrayList<>();
-        this.subscribeVersions = new ArrayList<>();
+        //this.subscribeVersions = new ArrayList<>();
+
     }
 
     /**
@@ -274,6 +275,13 @@ public class Spreadsheet implements ISpreadsheet {
         return this.publishVersions;
     }
 
+    /**
+     * Gets the list of subscribed modified versions of the spreadsheet
+     * @return
+     */
+    public List<ISpreadsheet> getSubscribedVersions() {
+        return this.subscribeVersions;
+    }
     /**
      * Sets the value of the cell at the specified row and column.
      *

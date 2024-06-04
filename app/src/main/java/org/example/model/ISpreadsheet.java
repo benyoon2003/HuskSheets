@@ -95,4 +95,10 @@ public interface ISpreadsheet extends IReadOnlySpreadSheet {
      * @return a list of published versions of the spreadsheet.
      */
     public List<ISpreadsheet> getPublishedVersions();
+
+    /**
+     * Gets the list of subscribed modified versions of the spreadsheet
+     * @return
+     */
+    public List<ISpreadsheet> getSubscribedVersions();
 }

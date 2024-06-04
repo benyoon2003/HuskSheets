@@ -18,7 +18,7 @@ public class ServerEndpoint {
 
 
   // Base URL for the server endpoints
-  private static String BASE_URL = "http://localhost:8080/api/v1/";//ConfigLoader.getProperty("base.url");//"http://localhost:8080/api/v1/";//ConfigLoader.getProperty("base.url");//"http://localhost:8080/api/v1/";//ConfigLoader.getProperty("base.url");//ConfigLoader.getProperty("base.url");  //"http://localhost:8080/api/v1/";  //ConfigLoader.getProperty("base.url");
+  private static String BASE_URL = ConfigLoader.getProperty("base.url");//"http://localhost:8080/api/v1/";////"http://localhost:8080/api/v1/";//ConfigLoader.getProperty("base.url");//"http://localhost:8080/api/v1/";//ConfigLoader.getProperty("base.url");//ConfigLoader.getProperty("base.url");  //"http://localhost:8080/api/v1/";  //ConfigLoader.getProperty("base.url");
   private static IAppUser user;
 
 
@@ -93,7 +93,7 @@ public class ServerEndpoint {
    *
    * @throws Exception if an error occurs during the HTTP request
    */
-  public void getPublishers() throws Exception {
+  public Result getPublishers() throws Exception {
     String url = BASE_URL + "getPublishers";
     HttpClient client = HttpClient.newBuilder().build();
     HttpRequest request = HttpRequest.newBuilder()
@@ -104,6 +104,7 @@ public class ServerEndpoint {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
     System.out.println("Get Publishers Response: " + response.body());
+    return new Result(response.body());
   }
 
   /**
@@ -139,10 +140,10 @@ public class ServerEndpoint {
    * @return Response body containing the list of sheets
    * @throws Exception if an error occurs during the HTTP request
    */
-  public String getSheets() throws Exception {
+  public String getSheets(String publisher) throws Exception {
     String url = BASE_URL + "getSheets";
     HttpClient client = HttpClient.newBuilder().build();
-    String json = String.format("{\"publisher\":\"%s\"}", user.getUsername());
+    String json = String.format("{\"publisher\":\"%s\"}", publisher);
     HttpRequest request = HttpRequest.newBuilder()
             .uri(new URI(url))
             .header("Authorization", getBasicAuthHeader())
@@ -259,7 +260,7 @@ public class ServerEndpoint {
      * @param payload   the new payload data.
      * @throws Exception if an error occurs during the HTTP request.
      */
-  public void updateSubscription(String publisher, String sheet, String payload) throws Exception {
+  public Result updateSubscription(String publisher, String sheet, String payload) throws Exception {
     String url = BASE_URL + "updateSubscription";
     HttpClient client = HttpClient.newBuilder().build();
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"payload\":\"%s\"}", publisher, sheet, payload);
@@ -272,6 +273,6 @@ public class ServerEndpoint {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
     System.out.println("Update Subscription Response: " + response.body());
+    return new Result(response.body());
   }
-
 }

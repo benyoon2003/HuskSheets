@@ -22,7 +22,13 @@ public class HomeView extends JFrame implements IHomeView {
 
     private JButton createSheet;
     private JComboBox<String> openSheetDropdown;
+
+    private JComboBox<String> publishers;
+
+    private JComboBox<String> openSubscriberDropdown;
+
     private JButton openSheetButton;
+    private JButton openSubscribeButton;
     private JButton deleteSheetButton;
     private IUserController controller;
 
@@ -62,10 +68,22 @@ public class HomeView extends JFrame implements IHomeView {
         openSheetDropdown.setBounds(50, 110, 200, 25);
         panel.add(openSheetDropdown);
 
+        publishers = new JComboBox<>();
+        publishers.setBounds(50, 320, 200, 25);
+        panel.add(publishers);
+
+        openSubscriberDropdown = new JComboBox<>();
+        openSubscriberDropdown.setBounds(50, 360, 200, 25);
+        panel.add(openSubscriberDropdown);
+
         //Button to open selected sheet
         openSheetButton = new JButton("Open Spreadsheet");
         openSheetButton.setBounds(50, 150, 200, 25);
         panel.add(openSheetButton);
+
+        openSubscribeButton = new JButton("Subscribe and open");
+        openSubscribeButton.setBounds(50, 400, 200, 25);
+        panel.add(openSubscribeButton);
 
 
         //Button to delete selected sheet
@@ -94,6 +112,25 @@ public class HomeView extends JFrame implements IHomeView {
                 if (selectedSheet != null) {
 //                    controller.openSheet("sheets/" + selectedSheet);
                     controller.openServerSheet(selectedSheet);
+                } else {
+                    JOptionPane.showMessageDialog(panel, "No sheet selected to open");
+                }
+            }
+        });
+
+        //change publisher
+        publishers.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateSubscribeSheets((String) publishers.getSelectedItem());
+            }
+        });
+        openSubscribeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedSheet = (String) openSubscriberDropdown.getSelectedItem();
+                if (selectedSheet != null && publishers.getSelectedItem() != null) {
+                    controller.openSubscriberSheet(selectedSheet, (String) publishers.getSelectedItem());
                 } else {
                     JOptionPane.showMessageDialog(panel, "No sheet selected to open");
                 }
@@ -198,6 +235,14 @@ public class HomeView extends JFrame implements IHomeView {
         }
     }
 
+    public void updateSubscribeSheets(String selectedPublisher) {
+        List<String> subscribedSheets = controller.getSubscribedSheets(selectedPublisher);
+        openSubscriberDropdown.removeAllItems();
+        for (String sheet : subscribedSheets){
+            openSubscriberDropdown.addItem(sheet);
+        }
+    }
+
     /**
      * Displays an error message in a dialog box.
      *
@@ -216,11 +261,21 @@ public class HomeView extends JFrame implements IHomeView {
         if (controller != null) {
             List<String> savedSheets = controller.getSavedSheets();
             List<String> serverSheets = controller.getServerSheets();
+            List<String> listOfPublishers = controller.getPublishers();
             System.out.println("Updating dropdown with saved sheets: " + savedSheets);
             openSheetDropdown.removeAllItems();
+            publishers.removeAllItems();
             for (String sheet : serverSheets) {
                 openSheetDropdown.addItem(sheet);
             }
+
+            for (String username : listOfPublishers) {
+
+                publishers.addItem(username);
+            }
+
+            updateSubscribeSheets(publishers.getSelectedItem().toString());
+
         }
     }
 
