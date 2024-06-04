@@ -19,6 +19,7 @@ import org.example.view.IHomeView;
 import org.example.view.ILoginView;
 import org.example.view.ISheetView;
 import org.example.view.SheetView;
+import org.example.view.SubscriberSheetView;
 
 import java.io.File;
 import java.net.URI;
@@ -466,7 +467,7 @@ public class UserController implements IUserController {
     public void openSubscriberSheet(String selectedSheet, String publisher) {
         try {
             this.spreadsheetModel = this.home.readPayload(publisher, serverEndpoint, selectedSheet);
-            this.sheetView = new SheetView(spreadsheetModel);
+            this.sheetView = new SubscriberSheetView(spreadsheetModel);
             this.setCurrentSheet(sheetView);
             this.sheetView.makeVisible();
         } catch (Exception e) {
