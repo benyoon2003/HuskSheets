@@ -56,7 +56,7 @@ public class SheetView extends JFrame implements ISheetView {
     /**
      * Sets up the GUI components for the spreadsheet view.
      */
-    private void setup() {
+    public void setup() {
         setTitle("Spreadsheet");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

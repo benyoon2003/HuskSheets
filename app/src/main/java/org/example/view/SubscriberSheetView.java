@@ -12,4 +12,7 @@ public class SubscriberSheetView extends SheetView{
   public SubscriberSheetView(ISpreadsheet openSheet) {
     super(openSheet);
   }
+
+
+
 }
