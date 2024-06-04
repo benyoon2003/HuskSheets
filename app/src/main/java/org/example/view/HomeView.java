@@ -118,6 +118,13 @@ public class HomeView extends JFrame implements IHomeView {
             }
         });
 
+        //change publisher
+        publishers.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateSubscribeSheets((String) publishers.getSelectedItem());
+            }
+        });
         openSubscribeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -229,6 +236,14 @@ public class HomeView extends JFrame implements IHomeView {
         }
     }
 
+    public void updateSubscribeSheets(String selectedPublisher) {
+        List<String> subscribedSheets = controller.getSubscribedSheets(selectedPublisher);
+        openSubscriberDropdown.removeAllItems();
+        for (String sheet : subscribedSheets){
+            openSubscriberDropdown.addItem(sheet);
+        }
+    }
+
     /**
      * Displays an error message in a dialog box.
      *
@@ -258,6 +273,8 @@ public class HomeView extends JFrame implements IHomeView {
             for (String username : listOfPublishers) {
                 publishers.addItem(username);
             }
+
+            updateSubscribeSheets(publishers.getSelectedItem().toString());
 
         }
     }

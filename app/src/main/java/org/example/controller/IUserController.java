@@ -213,4 +213,6 @@ public interface IUserController {
     void loginUser(String username, String password);
 
     List<String> getPublishers();
+
+    public List<String> getSubscribedSheets(String publisher);
 }

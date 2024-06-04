@@ -449,6 +449,17 @@ public class UserController implements IUserController {
         }
     }
 
+    public List<String> getSubscribedSheets(String publisher){
+        try{
+            List<String> sheets = new ArrayList<>();
+            String response = this.serverEndpoint.getSheets(publisher);
+            sheets = Result.getSheets(response);
+            return sheets;
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
      /**
      * Deletes a sheet at the specified path.
      * @param path the path to delete the sheet from.

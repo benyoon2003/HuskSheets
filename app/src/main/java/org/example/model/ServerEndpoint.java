@@ -157,6 +157,28 @@ public class ServerEndpoint {
   }
 
   /**
+   * Retrieves the list of sheets for a specified publisher from the server.
+   *
+   * @return Response body containing the list of sheets
+   * @throws Exception if an error occurs during the HTTP request
+   */
+  public String getSheets(String publisher) throws Exception {
+    String url = BASE_URL + "getSheets";
+    HttpClient client = HttpClient.newBuilder().build();
+    String json = String.format("{\"publisher\":\"%s\"}", publisher);
+    HttpRequest request = HttpRequest.newBuilder()
+            .uri(new URI(url))
+            .header("Authorization", getBasicAuthHeader())
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(json))
+            .build();
+
+    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+    System.out.println("Get Sheets Response: " + response.body());
+    return response.body();
+  }
+
+  /**
    * Deletes a specified sheet for a publisher from the server.
    *
    * @param publisher Name of the publisher
