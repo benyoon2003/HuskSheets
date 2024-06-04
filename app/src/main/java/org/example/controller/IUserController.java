@@ -211,4 +211,6 @@ public interface IUserController {
      * @param password the password of the user.
      */
     void loginUser(String username, String password);
+
+    List<String> getPublishers();
 }

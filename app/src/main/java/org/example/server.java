@@ -34,16 +34,32 @@ public class server {
 
 
     // Get all publishers
-//    @GetMapping("/getPublishers")
-//    public ResponseEntity<List<AppUser>> getPublishers() {
-//        try {
-//            List<AppUser> publishers = userService.getAllUsers();
-//            return ResponseEntity.ok(publishers);
-//        } catch (Exception e) {
-//            return ResponseEntity.status(500).body(null);
-//        }
-//    }
-//
+    @GetMapping("/getPublishers")
+    public ResponseEntity<?> getPublishers(@RequestHeader("Authorization") String authHeader) {
+        try {
+            // Decode the Basic Auth header
+            String[] credentials = decodeBasicAuth(authHeader);
+            if (credentials == null || credentials.length != 2) {
+                return ResponseEntity.status(401).body(new Result(
+                        false, "Unauthorized", new ArrayList<>()));
+            }
+
+            List<Argument> listOfArgument = new ArrayList<>();
+
+            for (IAppUser user : availUsers) {
+                if (!user.getUsername().equals(credentials[0])) {
+                    listOfArgument.add(new Argument(user.getUsername(), null, null, null));
+                }
+            }
+
+            return ResponseEntity.ok(new Result(
+                    true, null, listOfArgument));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new Result(
+                    false, "Internal Server Error: " + e.getMessage(), new ArrayList<>()));
+        }
+    }
+
     /**
      * Creates a new sheet for a specified publisher.
      *
