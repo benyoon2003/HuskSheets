@@ -5,14 +5,7 @@ import org.example.controller.IUserController;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.ArrayList;
 import java.util.List;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 /**
  * HomeView is the main GUI window that allows users to create, open, and delete spreadsheets.
@@ -21,7 +14,8 @@ import org.json.JSONObject;
 public class HomeView extends JFrame implements IHomeView {
 
     private JButton createSheet;
-    private JComboBox<String> openSheetDropdown;
+    private JComboBox<String> openPublisherSheetDropdown;
+    private JComboBox<String> openSubscriberSheetDropdown;
     private JButton openSheetButton;
     private JButton deleteSheetButton;
     private IUserController controller;
@@ -47,33 +41,42 @@ public class HomeView extends JFrame implements IHomeView {
     private void placeComponents(JPanel panel) {
         panel.setLayout(null);
 
-        JLabel spreadheetsLabel = new JLabel("Spreadsheets:");
-        spreadheetsLabel.setBounds(50, 50, 100, 25);
-        panel.add(spreadheetsLabel);
+        // Label for Publisher Sheets
+        JLabel publisherSheetsLabel = new JLabel("Publisher Sheets:");
+        publisherSheetsLabel.setBounds(50, 50, 150, 25);
+        panel.add(publisherSheetsLabel);
 
+        // Dropdown menu for publisher sheets
+        openPublisherSheetDropdown = new JComboBox<>();
+        openPublisherSheetDropdown.setBounds(50, 80, 200, 25);
+        panel.add(openPublisherSheetDropdown);
 
-        //Button for creating a new sheet
+        // Label for Subscriber Sheets
+        JLabel subscriberSheetsLabel = new JLabel("Subscriber Sheets:");
+        subscriberSheetsLabel.setBounds(300, 50, 150, 25);
+        panel.add(subscriberSheetsLabel);
+
+        // Dropdown menu for subscriber sheets
+        openSubscriberSheetDropdown = new JComboBox<>();
+        openSubscriberSheetDropdown.setBounds(300, 80, 200, 25);
+        panel.add(openSubscriberSheetDropdown);
+
+        // Button for creating a new sheet
         createSheet = new JButton("Create Spreadsheet");
-        createSheet.setBounds(50, 70, 200, 25);
+        createSheet.setBounds(50, 120, 200, 25);
         panel.add(createSheet);
 
-        //dropdown menu for locally saved sheets
-        openSheetDropdown = new JComboBox<>();
-        openSheetDropdown.setBounds(50, 110, 200, 25);
-        panel.add(openSheetDropdown);
-
-        //Button to open selected sheet
+        // Button to open selected sheet
         openSheetButton = new JButton("Open Spreadsheet");
-        openSheetButton.setBounds(50, 150, 200, 25);
+        openSheetButton.setBounds(50, 160, 200, 25);
         panel.add(openSheetButton);
 
-
-        //Button to delete selected sheet
+        // Button to delete selected sheet
         deleteSheetButton = new JButton("Delete Spreadsheet");
-        deleteSheetButton.setBounds(50, 190, 200, 25);
+        deleteSheetButton.setBounds(50, 200, 200, 25);
         panel.add(deleteSheetButton);
 
-        //Create new sheet with name
+        // Create new sheet with name
         createSheet.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -86,13 +89,12 @@ public class HomeView extends JFrame implements IHomeView {
             }
         });
 
-        //open selected sheet
-        openSheetButton.addActionListener(new ActionListener() { 
+        // Open selected sheet
+        openSheetButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String selectedSheet = (String) openSheetDropdown.getSelectedItem();
+                String selectedSheet = (String) openPublisherSheetDropdown.getSelectedItem();
                 if (selectedSheet != null) {
-//                    controller.openSheet("sheets/" + selectedSheet);
                     controller.openServerSheet(selectedSheet);
                 } else {
                     JOptionPane.showMessageDialog(panel, "No sheet selected to open");
@@ -100,11 +102,11 @@ public class HomeView extends JFrame implements IHomeView {
             }
         });
 
-        deleteSheetButton.addActionListener(new ActionListener() { 
+        deleteSheetButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String selectedSheet = (String) openSheetDropdown.getSelectedItem();
-                // if (selectedSheet != null) {
+                String selectedSheet = (String) openPublisherSheetDropdown.getSelectedItem();
+                if (selectedSheet != null) {
                     int option = JOptionPane.showOptionDialog(
                             null,
                             "Choose where to delete the sheet from:",
@@ -116,59 +118,17 @@ public class HomeView extends JFrame implements IHomeView {
                             "Delete Locally");
 
                     if (option == JOptionPane.YES_OPTION) {
-                        // controller.deleteSheet(selectedSheet);
+                        controller.deleteSheet(selectedSheet);
                     } else if (option == JOptionPane.NO_OPTION) {
-                       System.out.println(selectedSheet);
-                       controller.deleteSheetFromServer(selectedSheet);
-                       makeVisible();
+                        controller.deleteSheetFromServer(selectedSheet);
+                        makeVisible();
                     }
-                // } else {
-                //     JOptionPane.showMessageDialog(panel, "No sheet selected to delete");
-                // }
+                } else {
+                    JOptionPane.showMessageDialog(panel, "No sheet selected to delete");
+                }
             }
         });
-
     }
-
-//    private String getSheetToDeleteFromServer() {
-//        try {
-//            HttpClient client = HttpClient.newHttpClient();
-//            HttpRequest request = HttpRequest.newBuilder()
-//                    .uri(new URI("http://localhost:8080/api/getSheets"))
-//                    .header("Content-Type", "application/json")
-//                    .GET()
-//                    .build();
-//            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-//
-//            if (response.statusCode() == 200) {
-//                String responseBody = response.body();
-//                JSONArray sheetsArray = new JSONArray(responseBody);
-//                List<String> sheetNames = new ArrayList<>();
-//                for (int i = 0; i < sheetsArray.length(); i++) {
-//                    JSONObject sheetObject = sheetsArray.getJSONObject(i);
-//                    sheetNames.add(sheetObject.getString("name"));
-//                }
-//
-//                String[] sheetArray = sheetNames.toArray(new String[0]);
-//                return (String) JOptionPane.showInputDialog(
-//                        null,
-//                        "Select a sheet to delete from the server:",
-//                        "Delete Sheet from Server",
-//                        JOptionPane.QUESTION_MESSAGE,
-//                        null,
-//                        sheetArray,
-//                        sheetArray[0]);
-//
-//            } else {
-//                JOptionPane.showMessageDialog(null, "Failed to retrieve sheets from server.");
-//                return null;
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            JOptionPane.showMessageDialog(null, "Error occurred: " + e.getMessage());
-//            return null;
-//        }
-//    }
 
     /**
      * Opens a sheet from the specified path.
@@ -217,9 +177,15 @@ public class HomeView extends JFrame implements IHomeView {
             List<String> savedSheets = controller.getSavedSheets();
             List<String> serverSheets = controller.getServerSheets();
             System.out.println("Updating dropdown with saved sheets: " + savedSheets);
-            openSheetDropdown.removeAllItems();
+
+            openPublisherSheetDropdown.removeAllItems();
+            for (String sheet : savedSheets) {
+                openPublisherSheetDropdown.addItem(sheet);
+            }
+
+            openSubscriberSheetDropdown.removeAllItems();
             for (String sheet : serverSheets) {
-                openSheetDropdown.addItem(sheet);
+                openSubscriberSheetDropdown.addItem(sheet);
             }
         }
     }
@@ -243,7 +209,7 @@ public class HomeView extends JFrame implements IHomeView {
         updateSavedSheets();
         this.controller.getServerSheets();
     }
-    
+
     /**
      * Disposes of the home page.
      */
