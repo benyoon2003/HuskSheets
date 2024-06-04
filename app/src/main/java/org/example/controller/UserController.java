@@ -452,7 +452,7 @@ public class UserController implements IUserController {
     public List<String> getServerSheets() {
         List<String> sheets = new ArrayList<>();
         try {
-            String response = serverEndpoint.getSheets();
+            String response = serverEndpoint.getSheets(appUser.getUsername());
             sheets = Result.getSheets(response);
         } catch (Exception e) {
             e.printStackTrace();
