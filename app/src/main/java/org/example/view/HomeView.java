@@ -129,12 +129,11 @@ public class HomeView extends JFrame implements IHomeView {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String selectedSheet = (String) openSubscriberDropdown.getSelectedItem();
-//                if (selectedSheet != null) {
-////                    controller.openSheet("sheets/" + selectedSheet);
-//                    controller.openServerSheet(selectedSheet);
-//                } else {
-//                    JOptionPane.showMessageDialog(panel, "No sheet selected to open");
-//                }
+                if (selectedSheet != null && publishers.getSelectedItem() != null) {
+                    controller.openSubscriberSheet(selectedSheet, (String) publishers.getSelectedItem());
+                } else {
+                    JOptionPane.showMessageDialog(panel, "No sheet selected to open");
+                }
             }
         });
 
