@@ -12,9 +12,8 @@ import java.util.stream.Collectors;
  * Represents a utility class to handle JSON responses from HTTP requests.
  */
 public class Result {
-
-    private boolean success;
-    private String message;
+    private boolean success; // whether or not the HTTP request was successful
+    private String message; // more information on the HTTP request
     private List<Argument> value;
 
     // Existing constructor

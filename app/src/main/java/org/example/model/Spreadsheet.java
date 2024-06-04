@@ -47,6 +47,8 @@ public class Spreadsheet implements ISpreadsheet {
         for (ArrayList<Cell> row : grid) {
             for (Cell c : row) {
                 System.out.println("Cell val: " + c.getValue());
+                String value = this.evaluateFormula(c.getValue());
+                this.grid.get(c.getRow()).get(c.getCol()).setValue(value);
             }
         }
     }
@@ -136,6 +138,7 @@ public class Spreadsheet implements ISpreadsheet {
         return result.toString();
     }
 
+    // Returns the row of this cell
     private int getRow(String cell) {
         try {
             return Integer.parseInt(cell.replaceAll("[^0-9]", "")) - 1;
@@ -144,6 +147,7 @@ public class Spreadsheet implements ISpreadsheet {
         }
     }
 
+    // Returns the column of this cell
     private int getColumn(String cell) {
         String col = cell.replaceAll("[^A-Z]", "").toUpperCase();
         int column = 0;
@@ -175,14 +179,17 @@ public class Spreadsheet implements ISpreadsheet {
         return false;
     }
 
+    // Adds the given sheet to this spreadsheet's published versions
     public void addPublished(ISpreadsheet sheet) {
         this.publishVersions.add(sheet);
     }
 
+    // Adds the given sheet to this spreadsheet's subscribed versions
     public void addSubscribed(ISpreadsheet sheet) {
         this.subscribeVersions.add(sheet);
     }
 
+    // Returns this spreadsheet's list of published versions
     public List<ISpreadsheet> getPublishedVersions() {
         return this.publishVersions;
     }
@@ -217,6 +224,7 @@ public class Spreadsheet implements ISpreadsheet {
         return this.grid.get(row).get(col).getFormula();
     }
 
+    // Parses the operations from this formula
     private String parseOperations(String formula) {
         if (formula.contains("<>")) {
             String[] parts = formula.split("<>");
@@ -343,7 +351,7 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     private String rangeOperation(String startCell, String endCell) {
-        // check if this cell has a function value
+        // Check if this cell has a function value
         String func = getFunction(startCell);
         if (func != "") {
             startCell = startCell.substring(startCell.indexOf('(') + 1);
@@ -360,6 +368,7 @@ public class Spreadsheet implements ISpreadsheet {
             return "Error";
         }
 
+        // Append the cells' values
         StringBuilder rangeResult = new StringBuilder();
         for (int row = startRow; row <= endRow; row++) {
             for (int col = startCol; col <= endCol; col++) {
@@ -375,6 +384,7 @@ public class Spreadsheet implements ISpreadsheet {
         }
 
         String result = rangeResult.substring(0, rangeResult.length() - 1);
+        // Add function if needed
         if (func != "") {
             result = func + "(" + result + ")";
             return parseOperations(result);
@@ -517,6 +527,8 @@ public class Spreadsheet implements ISpreadsheet {
         String[] sorted = parseOperations(formula).split(",");
         if (sorted.length > 1) {
             String cells = formula.substring(5, formula.length() - 1);
+
+            // Determine which cell should be the start of the sorted list
             String endCell;
             if (cells.contains(":")) {
                 endCell = cells.split(":")[1];
@@ -526,6 +538,7 @@ public class Spreadsheet implements ISpreadsheet {
             int r = getRow(endCell);
             int c = getColumn(endCell);
 
+            // Set the values
             for (int i = 0; i < sorted.length; i++) {
                 Cell cell = this.grid.get(r + i + 1).get(c);
                 cell.setValue(sorted[i]);

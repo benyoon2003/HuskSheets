@@ -15,7 +15,7 @@ import org.h2.tools.Server;
 import org.w3c.dom.*;
 
 public class Home implements IHome {
-
+    @Override
     public Spreadsheet readXML(String path) {
         try {
             File xmlFile = new File(path);
@@ -72,28 +72,27 @@ public class Home implements IHome {
 
     }
 
-    //Get payload of a sheet from server
-    public ISpreadsheet readPayload(IAppUser user, ServerEndpoint se, String sheetName){
+    @Override
+    public ISpreadsheet readPayload(IAppUser user, ServerEndpoint se, String sheetName) {
         System.out.println(user.getUsername() + "\n" + sheetName);
         try {
-            String payload = Result.getPayload(se.getUpdatesForSubscription(user.getUsername(), sheetName, "0"), sheetName);
+            String payload = Result.getPayload(se.getUpdatesForSubscription(user.getUsername(), sheetName, "0"),
+                    sheetName);
             System.out.println(payload);
-            if(payload != ""){;
-
+            if (payload != "") {
                 List<List<String>> data = convertStringTo2DArray(payload);
 
                 ISpreadsheet ss = new Spreadsheet(sheetName);
 
                 ArrayList<ArrayList<Cell>> grid = ss.getCells();
 
-                for(List<String> ls : data){
+                for (List<String> ls : data) {
                     ss.setCellRawdata(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
                     ss.setCellValue(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
                 }
-             return ss;
+                return ss;
             }
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return new Spreadsheet(sheetName);
@@ -199,10 +198,11 @@ public class Home implements IHome {
             i++;
         }
 
-        return new int[]{row - 1, col - 1}; // Convert to 0-based index
+        return new int[] { row - 1, col - 1 }; // Convert to 0-based index
     }
 
-
+    // Trim the ends of the given string so that only the name of the file is
+    // returned
     private String trimEnds(String s) {
         String result = new StringBuilder(s).reverse().toString();
 

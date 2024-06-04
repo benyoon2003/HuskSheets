@@ -1,16 +1,7 @@
 package org.example.model;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 /**
  * The AppUser class represents a user entity in the application.
@@ -65,8 +56,6 @@ public class AppUser implements IAppUser {
     public List<ISpreadsheet> getSheets() {
         return this.sheets;
     }
-
-
 }
 
     /**
