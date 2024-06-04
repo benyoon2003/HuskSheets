@@ -80,9 +80,9 @@ public class UserController implements IUserController {
                 newUser.setPassword(password);
                 Result registerResult = serverEndpoint.register(newUser);
                 if (registerResult.getSuccess()) {
-                    openHomeView();
                     this.loginPage.disposeLoginPage();
                     this.appUser = newUser;
+                    openHomeView();
                 }
                 else {
                     this.loginPage.displayErrorBox(registerResult.getMessage());
@@ -135,6 +135,7 @@ public class UserController implements IUserController {
             for (Argument argument : getPublisherResult.getValue()) {
                 listOfUsernames.add(argument.getPublisher());
             }
+            listOfUsernames.remove(appUser.getUsername());
             return listOfUsernames;
         }
         catch (Exception ignored) {
