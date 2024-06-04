@@ -132,7 +132,6 @@ public class UserController implements IUserController {
         if(appUser == null){
             System.out.println("user is null");
         }
-        String user = this.appUser.getUsername();
         try {
 
             Result getPublisherResult = serverEndpoint.getPublishers();
@@ -140,10 +139,10 @@ public class UserController implements IUserController {
             List<String> listOfUsernames = new ArrayList<>();
             for (Argument argument : getPublisherResult.getValue()) {
                 System.out.println(argument.getPublisher());
-                //System.out.println("User: " + this.appUser.getUsername());
-//                if(!argument.getPublisher().equals(this.appUser.getUsername())) {
-//                    listOfUsernames.add(argument.getPublisher());
-//                }
+                System.out.println("User: " + this.appUser.getUsername());
+                if(!argument.getPublisher().equals(this.appUser.getUsername())) {
+                    listOfUsernames.add(argument.getPublisher());
+                }
             }
             listOfUsernames.remove(appUser.getUsername());
             return listOfUsernames;
@@ -493,6 +492,7 @@ public class UserController implements IUserController {
         try {
             this.spreadsheetModel = this.home.readPayload(publisher, serverEndpoint, selectedSheet);
             this.sheetView = new SubscriberSheetView(publisher, spreadsheetModel);
+            this.sheetView.addController(this);
             this.setCurrentSheet(sheetView);
             this.sheetView.makeVisible();
         } catch (Exception e) {

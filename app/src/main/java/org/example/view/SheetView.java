@@ -34,7 +34,7 @@ import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
  */
 public class SheetView extends JFrame implements ISheetView {
     final IReadOnlySpreadSheet cells;
-    private IUserController controller;
+    IUserController controller;
     private JButton backButton;
     JTable yourTable;
     private boolean isUpdatingTable = false;

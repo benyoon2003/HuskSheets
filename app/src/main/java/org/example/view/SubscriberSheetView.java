@@ -9,14 +9,8 @@ import javax.swing.*;
 import java.io.File;
 
 public class SubscriberSheetView extends SheetView{
-  private IUserController controller;
-  private JButton backButton;
-  JTable yourTable;
-  private boolean isUpdatingTable = false;
-  private JTextField formulaTextField;
+  final IReadOnlySpreadSheet cells;
 
-  private static final int rowSize = 100;
-  private static final int colSize = 100;
   String publisher;
 
   /**
@@ -27,6 +21,7 @@ public class SubscriberSheetView extends SheetView{
   public SubscriberSheetView(String publisher, ISpreadsheet openSheet) {
     super(openSheet);
     this.publisher = publisher;
+    this.cells = openSheet;
   }
 
 
@@ -45,11 +40,14 @@ public class SubscriberSheetView extends SheetView{
       JFileChooser fileChooser = new JFileChooser();
       int returnValue = fileChooser.showSaveDialog(null);
       if (returnValue == JFileChooser.APPROVE_OPTION) {
-        File selectedFile = fileChooser.getSelectedFile();
-        controller.saveSheetToServer(cells, selectedFile.getAbsolutePath());
+//        File selectedFile = fileChooser.getSelectedFile();
+//        controller.saveSheetToServer(cells, selectedFile.getAbsolutePath());
       }
     } else if (option == JOptionPane.NO_OPTION) {
-      controller.updateSubscribedSheet(this.publisher, cells, ((Spreadsheet) cells).getName());
+      if(this.controller == null){
+        System.out.println("Cells is null");
+      }
+      this.controller.updateSubscribedSheet(this.publisher, cells, ((Spreadsheet) cells).getName());
       System.out.println(((Spreadsheet) cells).getName());
       makeVisible();
     }
