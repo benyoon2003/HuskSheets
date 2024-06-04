@@ -215,4 +215,6 @@ public interface IUserController {
     List<String> getPublishers();
 
     public List<String> getSubscribedSheets(String publisher);
+
+    void openSubscriberSheet(String selectedSheet, String publisher);
 }

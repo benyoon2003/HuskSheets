@@ -80,9 +80,9 @@ public class UserController implements IUserController {
                 newUser.setPassword(password);
                 Result registerResult = serverEndpoint.register(newUser);
                 if (registerResult.getSuccess()) {
-                    openHomeView();
                     this.loginPage.disposeLoginPage();
                     this.appUser = newUser;
+                    openHomeView();
                 }
                 else {
                     this.loginPage.displayErrorBox(registerResult.getMessage());
@@ -144,6 +144,7 @@ public class UserController implements IUserController {
 //                    listOfUsernames.add(argument.getPublisher());
 //                }
             }
+            listOfUsernames.remove(appUser.getUsername());
             return listOfUsernames;
         }
         catch (Exception ignored) {
@@ -449,7 +450,7 @@ public class UserController implements IUserController {
     @Override
     public void openServerSheet(String selectedSheet) {
         try {
-            this.spreadsheetModel = this.home.readPayload(this.appUser, serverEndpoint, selectedSheet);
+            this.spreadsheetModel = this.home.readPayload(this.appUser.getUsername(), serverEndpoint, selectedSheet);
             this.sheetView = new SheetView(spreadsheetModel);
             this.setCurrentSheet(sheetView);
             this.sheetView.makeVisible();
@@ -469,7 +470,20 @@ public class UserController implements IUserController {
         }
         return null;
     }
-     /**
+
+    @Override
+    public void openSubscriberSheet(String selectedSheet, String publisher) {
+        try {
+            this.spreadsheetModel = this.home.readPayload(publisher, serverEndpoint, selectedSheet);
+            this.sheetView = new SheetView(spreadsheetModel);
+            this.setCurrentSheet(sheetView);
+            this.sheetView.makeVisible();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Deletes a sheet at the specified path.
      * @param path the path to delete the sheet from.
      */

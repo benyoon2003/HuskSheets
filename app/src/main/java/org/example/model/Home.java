@@ -95,10 +95,10 @@ public class Home implements IHome {
      * @param sheetName the name of the sheet to read
      * @return the spreadsheet data
      */
-    public ISpreadsheet readPayload(IAppUser user, ServerEndpoint se, String sheetName){
-        System.out.println("User: " + user.getUsername() + ", Sheet Name: " + sheetName);
+    public ISpreadsheet readPayload(String user, ServerEndpoint se, String sheetName){
+        System.out.println("User: " + user + ", Sheet Name: " + sheetName);
         try {
-            Result getUpdatesForSubscriptionResult = se.getUpdatesForSubscription(user.getUsername(), sheetName, "0");
+            Result getUpdatesForSubscriptionResult = se.getUpdatesForSubscription(user, sheetName, "0");
             System.out.println("Response from server: " + getUpdatesForSubscriptionResult.getMessage());
     
             String payload = getUpdatesForSubscriptionResult.getValue().get(0).getPayload();
