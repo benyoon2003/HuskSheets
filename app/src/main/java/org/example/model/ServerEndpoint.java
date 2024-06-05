@@ -18,8 +18,8 @@ public class ServerEndpoint {
 
 
   // Base URL for the server endpoints
+  private static String BASE_URL =   "http://localhost:8080/api/v1/"; // "http://192.168.4.56:8080/api/v1/";ConfigLoader.getProperty("base.url");
 
-  private static String BASE_URL = "http://localhost:8080/api/v1/";//ConfigLoader.getProperty("base.url");////"http://localhost:8080/api/v1/";//ConfigLoader.getProperty("base.url");//"http://localhost:8080/api/v1/";//ConfigLoader.getProperty("base.url");//ConfigLoader.getProperty("base.url");  //"http://localhost:8080/api/v1/";  //ConfigLoader.getProperty("base.url");
   private static IAppUser user;
 
 
@@ -211,7 +211,7 @@ public class ServerEndpoint {
      * @param id        the id of the last version.
      * @throws Exception if an error occurs during the HTTP request.
      */
-  public void getUpdatesForPublished(String publisher, String sheet, String id) throws Exception {
+  public Result getUpdatesForPublished(String publisher, String sheet, String id) throws Exception {
     String url = BASE_URL + "getUpdatesForPublished";
     HttpClient client = HttpClient.newBuilder().build();
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"id\":\"%s\"}", publisher, sheet, id);
@@ -224,6 +224,7 @@ public class ServerEndpoint {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
     System.out.println("Get Updates For Published Response: " + response.body());
+    return new Result(response.body());
   }
 
     /**

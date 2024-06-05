@@ -24,11 +24,11 @@ public interface IHome {
     /**
      * Reads a payload associated with a given user and selected sheet, and returns a spreadsheet model.
      *
-     * @param user the user associated with the payload.
-     * @param selectedSheet the selected sheet to read the payload from.
+     * @param payload payload to be parsed.
+     * @param sheetName name of sheet
      * @return a spreadsheet model representing the data from the payload.
      */
-    ISpreadsheet readPayload(String user, ServerEndpoint se, String selectedSheet);
+    ISpreadsheet readPayload(String payload, String sheetName);
 
     /**
      * Writes the given read-only spreadsheet to an XML file at the specified path.

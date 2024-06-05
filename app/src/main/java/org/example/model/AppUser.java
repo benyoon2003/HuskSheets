@@ -69,6 +69,17 @@ public class AppUser implements IAppUser {
     }
 
     /**
+     * Removes a given sheet from the list of users sheets.
+     * @param sheetName the name of the sheet
+     */
+    public void removeSheet(String sheetName) {
+        for (ISpreadsheet sheet : this.sheets) {
+            if (sheet.getName().equals(sheetName)) {
+                this.sheets.remove(sheet);
+            }
+        }
+    }
+    /**
      * Checks if a sheet with the given name already exists in the user's list of sheets.
      *
      * @param name the name of the sheet to check.
@@ -93,14 +104,6 @@ public class AppUser implements IAppUser {
         return this.sheets;
     }
 
-    @Override
-    public void removeSheet(String sheetName) {
-        for (ISpreadsheet sheet : this.sheets) {
-            if (sheet.getName().equals(sheetName)) {
-                this.sheets.remove(sheet);
-            }
-        }
-    }
 }
 
     /**

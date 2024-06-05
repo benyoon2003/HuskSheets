@@ -219,4 +219,11 @@ public interface IUserController {
     void openSubscriberSheet(String selectedSheet, String publisher);
 
     public void updateSubscribedSheet(String publisher, IReadOnlySpreadSheet sheet, String name);
+
+    /**
+     * Gets all subscriber updates since the specified id
+     * @param sheet name of the sheet
+     * @param id version of sheet
+     */
+    public void getUpdatesForPublished(String sheet, int id);
 }

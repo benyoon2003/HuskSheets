@@ -32,4 +32,18 @@ public interface IReadOnlySpreadSheet {
      * @return a 2D array of strings representing the values of cells in the spreadsheet.
      */
     String[][] getCellStringsObject();
+
+    /**
+     * Get the id of the sheet
+     * @return the id as an int
+     */
+    public int getId_version();
+
+    /**
+     * Gets the name of the spreadsheet.
+     *
+     * @return the name of the spreadsheet.
+     */
+    String getName();
+
 }
