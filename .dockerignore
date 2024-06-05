@@ -4,7 +4,7 @@
 # Except these files and directories
 !Dockerfile
 !heroku.yml
-!build/libs/*.jar
+!app/build/libs/app-1.0-SNAPSHOT-plain.jar
 
 # Optionally, exclude other files that are not needed for the build
 !src/
