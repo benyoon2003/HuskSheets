@@ -74,4 +74,6 @@ public interface IAppUser {
    * @return a list of spreadsheets.
    */
   List<ISpreadsheet> getSheets();
+
+  void removeSheet(String sheetName);
 }

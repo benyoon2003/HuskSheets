@@ -111,9 +111,9 @@ public class UserController implements IUserController {
                 newUser.setPassword(password);
                 Result loginResult = serverEndpoint.login(newUser);
                 if (loginResult.getSuccess()) {
+                    this.appUser = newUser;
                     openHomeView();
                     this.loginPage.disposeLoginPage();
-                    this.appUser = newUser;
                 }
                 else {
                     this.loginPage.displayErrorBox(loginResult.getMessage());
