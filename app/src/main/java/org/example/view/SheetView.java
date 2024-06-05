@@ -4,13 +4,7 @@ import org.example.controller.IUserController;
 import org.example.model.Cell;
 import org.example.model.IReadOnlySpreadSheet;
 import org.example.model.ISpreadsheet;
-import org.example.model.IReadOnlySpreadSheet;
 import org.example.model.Spreadsheet;
-
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -22,8 +16,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
@@ -39,7 +31,7 @@ public class SheetView extends JFrame implements ISheetView {
     JTable yourTable;
     private boolean isUpdatingTable = false;
     private JTextField formulaTextField;
-
+    private double zoomFactor = 1.0;
     private static final int rowSize = 100;
     private static final int colSize = 100;
 
@@ -67,6 +59,8 @@ public class SheetView extends JFrame implements ISheetView {
         JButton copyButton = new JButton("Copy");
         JButton pasteButton = new JButton("Paste");
         JButton saveButton = new JButton("Save");
+        JButton zoomInButton = new JButton("Zoom In");
+        JButton zoomOutButton = new JButton("Zoom Out");
         backButton = new JButton("Back");
         formulaTextField = new JTextField(20);
         formulaTextField.setEditable(true);
@@ -84,6 +78,8 @@ public class SheetView extends JFrame implements ISheetView {
         toolbar.add(copyButton);
         toolbar.add(pasteButton);
         toolbar.add(saveButton);
+        toolbar.add(zoomInButton);
+        toolbar.add(zoomOutButton);
         toolbar.add(backButton);
 
         // Add action listeners for buttons
@@ -103,6 +99,21 @@ public class SheetView extends JFrame implements ISheetView {
                 IHomeView homeView = controller.getHomeView();
                 homeView.updateSavedSheets(); // Update the dropdown before making it visible
                 homeView.makeVisible();
+            }
+        });
+
+        // Add action listeners for zoom buttons
+        zoomInButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                zoomTable(1.1); // Zoom in by 10%
+            }
+        });
+
+        zoomOutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                zoomTable(0.9); // Zoom out by 10%
             }
         });
 
@@ -312,7 +323,6 @@ public class SheetView extends JFrame implements ISheetView {
         }
     }
 
-
     public void handleSave(){
         int option = JOptionPane.showOptionDialog(
                 null,
@@ -346,7 +356,21 @@ public class SheetView extends JFrame implements ISheetView {
     public void displayMessage(String s) {
         JOptionPane.showMessageDialog(this, s);
     }
-    
+
+    /**
+     * Zooms the table view by the specified factor.
+     *
+     * @param factor the factor to zoom by.
+     */
+    private void zoomTable(double factor) {
+        zoomFactor *= factor;
+        Font tableFont = yourTable.getFont();
+        float newSize = (float) (tableFont.getSize() * factor);
+        yourTable.setFont(tableFont.deriveFont(newSize));
+        yourTable.setRowHeight((int) (yourTable.getRowHeight() * factor));
+        yourTable.getTableHeader().setFont(tableFont.deriveFont(newSize));
+    }
+
     /**
      * Inner class to handle toolbar button actions.
      */
