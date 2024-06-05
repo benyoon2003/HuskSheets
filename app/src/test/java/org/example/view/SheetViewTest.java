@@ -4,22 +4,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.example.controller.IUserController;
 import org.example.controller.MockUserController;
+import org.example.controller.UserController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class SheetViewTest {
     private MockSheetView sheetView;
+    private IUserController controller;
 
     @BeforeEach
     public void init() {
         this.sheetView = new MockSheetView();
+        this.controller = new UserController(new LoginView());
+        this.sheetView.addController(this.controller);
     }
 
     @Test
     public void testAddController() {
-        IUserController controller = new MockUserController();
-        this.sheetView.addController(controller);
-            
         assertEquals("Controller added\n", this.sheetView.toString());
     }
 
@@ -39,6 +40,7 @@ public class SheetViewTest {
 
     @Test
     public void testUpdateTable() {
+        this.controller.createNewSheet("Test");
         this.sheetView.updateTable();
         assertEquals("Table updated with latest changes\n", this.sheetView.toString());
     }

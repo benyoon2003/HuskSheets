@@ -14,14 +14,6 @@ public interface IHome {
     Spreadsheet readXML(String path);
 
     /**
-     * Saves the given read-only spreadsheet to the specified path.
-     *
-     * @param sheet the read-only spreadsheet to save.
-     * @param path the path where the spreadsheet will be saved.
-     */
-    void saveSheet(IReadOnlySpreadSheet sheet, String path);
-
-    /**
      * Reads a payload associated with a given user and selected sheet, and returns a spreadsheet model.
      *
      * @param payload payload to be parsed.

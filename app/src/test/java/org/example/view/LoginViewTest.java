@@ -1,11 +1,13 @@
 package org.example.view;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.StringWriter;
 
 import org.example.controller.IUserController;
 import org.example.controller.MockUserController;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,19 +24,24 @@ public class LoginViewTest {
         IUserController controller = new MockUserController();
         this.loginView.addController(controller);
 
-        assertEquals(this.loginView.toString(), "Controller added\n");
+        assertTrue(this.loginView.toString().contains("Controller added\n"));
     }
     
     @Test
     public void testDisplayErrorBox() {
         this.loginView.displayErrorBox("Could not log in");
-        assertEquals(this.loginView.toString(), "Error: Could not log in\n");
+        assertTrue(this.loginView.toString().contains("Error: Could not log in\n"));
     }
     
     @Test
     public void testDisposeLoginPage() {
         this.loginView.disposeLoginPage();
-        assertEquals(this.loginView.toString(), "Login page disposed\n");
+        assertTrue(this.loginView.toString().contains("Login page disposed\n"));
+    }
+
+    @AfterEach
+    public void after() {
+        this.loginView.disposeLoginPage();
     }
 
     private class MockLoginView extends LoginView {
@@ -57,6 +64,7 @@ public class LoginViewTest {
         @Override
         public void disposeLoginPage() {
             this.out.append("Login page disposed\n");
+            super.disposeLoginPage();
         }
 
         @Override

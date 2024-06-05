@@ -53,6 +53,11 @@ public class ResultTest {
 
         assertEquals("Test1", sheets.get(0));
         assertEquals("Test2", sheets.get(1));
+
+        // for poorly constructed JSON objects
+        jsonString = "{\"success\":\"false\", \"message\": \"Bad JSON object\", \"value\": []\"}";
+        List<String> badSheets = Result.getSheets(jsonString);
+        assertTrue(badSheets.isEmpty());
     }
 
     @Test

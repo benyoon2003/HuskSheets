@@ -32,6 +32,19 @@ public class AppUserTest {
     }
 
     @Test
+    public void testRemoveSheet() {
+        this.user.addSheet("Sheet1");
+        this.user.addSheet("Sheet2");
+        assertEquals(2, this.user.getSheets().size());
+        assertEquals("Sheet1", this.user.getSheets().get(0).getName());
+
+        this.user.removeSheet("Sheet1");
+        assertEquals(1, this.user.getSheets().size());
+        this.user.removeSheet("Sheet2");
+        assertEquals(0, this.user.getSheets().size());
+    }
+
+    @Test
     public void testDoesSheetExist() {
         assertFalse(this.user.doesSheetExist("Sheet1"));
 

@@ -7,6 +7,7 @@ import org.example.model.Spreadsheet;
 
 public class MockSheetView extends SheetView {
     private StringWriter out;
+    private IUserController controller;
 
     public MockSheetView() {
         super(new Spreadsheet("Test"));
@@ -16,6 +17,7 @@ public class MockSheetView extends SheetView {
     @Override
     public void addController(IUserController controller) {
         this.out.append("Controller added\n");
+        super.addController(controller);
     }
 
     @Override
@@ -31,17 +33,13 @@ public class MockSheetView extends SheetView {
     @Override
     public void updateTable() {
         this.out.append("Table updated with latest changes\n");
+        super.updateTable();
     }
 
     @Override
     public void changeFormulaTextField(String rawdata) {
         this.out.append("Formula text field: ").append(rawdata).append("\n");
     }
-
-    // @Override
-    // public String getExcelColumnName(int columnNumber) {
-    //     return super.getExcelColumnName(columnNumber);
-    // }
 
     @Override
     public String toString() {

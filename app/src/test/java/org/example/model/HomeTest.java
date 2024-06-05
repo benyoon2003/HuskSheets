@@ -2,6 +2,7 @@ package org.example.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 public class HomeTest {
     private Home home;
+    private String path = "..\\sheets\\test.xml";
 
     @BeforeEach
     public void init() {
@@ -35,6 +37,9 @@ public class HomeTest {
         assertEquals("13", sheet.getCellValue(7, 0));
 
         assertEquals("", sheet.getCellValue(0, 1));
+
+        // should return null for files that don't exist
+        assertNull(this.home.readXML("bad filepath"));
     }
 
     @Test
@@ -67,7 +72,6 @@ public class HomeTest {
         sheet.setCellValue(3, 0, "3");
         sheet.setCellValue(4, 0, "4");
 
-        String path = "..\\sheets\\test.xml";
         this.home.writeXML(sheet, path);
 
         File file = new File(path);
@@ -81,6 +85,18 @@ public class HomeTest {
         } catch (IOException e) {
 
         }
+
+        file.delete();
+    }
+
+    @Test
+    public void testWriteXMLError() {
+        path = "..\\sheets\\errorTest";
+
+        this.home.writeXML(null, path);
+
+        File file = new File(path);
+        assertFalse(file.exists());
     }
 
     @Test
