@@ -35,6 +35,8 @@ public class SubscriberSheetView extends SheetView{
     JButton copyButton = new JButton("Copy");
     JButton pasteButton = new JButton("Paste");
     JButton saveButton = new JButton("Save");
+    JButton zoomInButton = new JButton("Zoom In");
+    JButton zoomOutButton = new JButton("Zoom Out");
     backButton = new JButton("Back");
     formulaTextField = new JTextField(20);
     formulaTextField.setEditable(true);
@@ -52,6 +54,8 @@ public class SubscriberSheetView extends SheetView{
     toolbar.add(copyButton);
     toolbar.add(pasteButton);
     toolbar.add(saveButton);
+    toolbar.add(zoomInButton);
+    toolbar.add(zoomOutButton);
     toolbar.add(backButton);
 
     // Add action listeners for buttons
@@ -73,7 +77,22 @@ public class SubscriberSheetView extends SheetView{
         homeView.makeVisible();
       }
     });
-    
+
+
+    zoomInButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        zoomTable(1.1); //Zoom in by 10%
+      }
+    });
+
+    zoomOutButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        zoomTable(0.9); //Zoom out by 10%
+      }
+    });
+
     add(toolbar, BorderLayout.NORTH);
   }
 
