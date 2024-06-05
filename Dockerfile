@@ -3,7 +3,7 @@ FROM gradle:7.5.1-jdk11 AS builder
 WORKDIR /home/gradle/project
 
 # Copy the project files to the container
-COPY --chown=gradle:gradle . .
+COPY . .
 
 # Build the application
 RUN gradle build --no-daemon
