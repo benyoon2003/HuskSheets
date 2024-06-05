@@ -43,6 +43,9 @@ dependencies {
         
     // JUnit
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.1'
+
+    //Graalvm
+    implementation 'org.graalvm.js:js:21.3.0' // Use the latest version available
 }
 
 application {

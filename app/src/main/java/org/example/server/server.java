@@ -175,23 +175,16 @@ public class server {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                         false, "Unauthorized", new ArrayList<>()));
             }
-
             List<Argument> sheets = new ArrayList<>();;
-
             String publisher = argument.getPublisher();
-
             IAppUser user = findUser(publisher);
-
-
             if (user == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
                         false, "User not found", new ArrayList<>()));
             }
-
             for(ISpreadsheet sheet : user.getSheets()){
                 sheets.add(new Argument(publisher, sheet.getName(), null, null));
             }
-
             return ResponseEntity.ok(new Result(true, "Sheets retrieved successfully", sheets));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(null);
@@ -218,17 +211,14 @@ public class server {
             String publisher = argument.getPublisher();
             String sheet = argument.getSheet();
             String payload = argument.getPayload();
-    
             System.out.println("Publisher: " + publisher);
             System.out.println("Sheet: " + sheet);
             System.out.println("Payload: " + payload);
-    
             IAppUser user = findUser(publisher);
             if (user == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
                         false, "User not found", new ArrayList<>()));
             }
-    
             for (ISpreadsheet existingSheet : user.getSheets()) {
                 if (existingSheet.getName().equals(sheet)) {
                     List<List<String>> data = Home.convertStringTo2DArray(payload);
@@ -237,13 +227,10 @@ public class server {
                         existingSheet.setCellRawdata(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
                         existingSheet.setCellValue(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
                     }
-
                     ISpreadsheet update = new Spreadsheet(existingSheet.getName());
-
                     //Copy contents of sheet
                     ArrayList<ArrayList<Cell>> copy = new ArrayList<>();
                     ArrayList<ArrayList<Cell>> grid = existingSheet.getCells();
-
                     for (int i = 0; i < grid.size(); i++){
                         for(int j = 0; j < grid.get(i).size(); j++){
                             update.setCellValue(i, j, grid.get(i).get(j).getValue());
@@ -251,7 +238,6 @@ public class server {
                         }
                     }
                     existingSheet.addPublished(update);
-
                     return ResponseEntity.ok(new Result(true, "Sheet updated successfully", new ArrayList<>()));
                 }
             }
