@@ -9,7 +9,7 @@ plugins {
 
 group = 'com.yourcompany'
 version = '1.0-SNAPSHOT'
-sourceCompatibility = '11'
+
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
@@ -18,13 +18,13 @@ repositories {
 dependencies {
     // Spring Boot Starter for web applications
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    
+
     // Spring Boot Starter for JPA (Java Persistence API)
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    
+
     // MySQL connector for Java
     implementation 'mysql:mysql-connector-java'
-    
+
     // H2 Database
     implementation 'com.h2database:h2'
 
@@ -36,15 +36,15 @@ dependencies {
 
     // Use JUnit Jupiter for testing.
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-        
+
     // Mockito for mocking
     testImplementation 'org.mockito:mockito-core:3.11.2'
     testImplementation 'org.mockito:mockito-junit-jupiter:3.11.2'
-        
+
     // JUnit
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.1'
 
-    //Graalvm
+    // Graalvm
     implementation 'org.graalvm.js:js:21.3.0' // Use the latest version available
 }
 
