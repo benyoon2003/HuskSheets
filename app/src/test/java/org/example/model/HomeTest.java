@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.io.ClassPathResource;
 
 public class HomeTest {
     private Home home;
@@ -21,8 +22,9 @@ public class HomeTest {
     }
 
     @Test
-    public void testReadXML() {
-        Spreadsheet sheet = this.home.readXML("..\\sheets\\testSheet.xml");
+    public void testReadXML() throws IOException {
+        File file = new ClassPathResource("sheets/testSheet.xml").getFile();
+        Spreadsheet sheet = this.home.readXML(file.getAbsolutePath());
 
         assertEquals("6", sheet.getCellValue(0, 0));
         assertEquals("7", sheet.getCellValue(1, 0));
@@ -66,7 +68,7 @@ public class HomeTest {
         sheet.setCellValue(3, 0, "3");
         sheet.setCellValue(4, 0, "4");
 
-        String path = "..\\sheets\\test.xml";
+        String path = "src/test/resources/sheets/test.xml";
         this.home.writeXML(sheet, path);
 
         File file = new File(path);
