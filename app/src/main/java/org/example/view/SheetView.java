@@ -376,7 +376,7 @@ public class SheetView extends JFrame implements ISheetView {
      *
      * @param factor the factor to zoom by.
      */
-    private void zoomTable(double factor) {
+    void zoomTable(double factor) {
         this.zoomFactor *= factor;
         Font tableFont = yourTable.getFont();
         float newSize = (float) (tableFont.getSize() * factor);
