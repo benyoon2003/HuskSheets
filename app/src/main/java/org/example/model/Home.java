@@ -185,6 +185,11 @@ public class Home implements IHome {
             System.out.println("Input to convertStringTo2DArray is null or empty");
             return new ArrayList<>();
         }
+
+        // Replace literal "\n" with actual newline characters if needed
+        if (input.contains("\\n")) {
+            input = input.replace("\\n", "\n");
+        }
     
         // Parse input into lines
         String[] lines = input.split("\\r?\\n");
