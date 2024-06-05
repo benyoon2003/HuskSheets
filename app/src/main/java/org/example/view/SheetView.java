@@ -4,13 +4,7 @@ import org.example.controller.IUserController;
 import org.example.model.Cell;
 import org.example.model.IReadOnlySpreadSheet;
 import org.example.model.ISpreadsheet;
-import org.example.model.IReadOnlySpreadSheet;
 import org.example.model.Spreadsheet;
-
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -22,8 +16,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
@@ -37,6 +29,7 @@ public class SheetView extends JFrame implements ISheetView {
     IUserController controller;
     JButton backButton;
     JTable yourTable;
+
     boolean isUpdatingTable = false;
     JTextField formulaTextField;
 
@@ -325,7 +318,6 @@ public class SheetView extends JFrame implements ISheetView {
         }
     }
 
-
     public void handleSave(){
         int option = JOptionPane.showOptionDialog(
                 null,
@@ -359,7 +351,21 @@ public class SheetView extends JFrame implements ISheetView {
     public void displayMessage(String s) {
         JOptionPane.showMessageDialog(this, s);
     }
-    
+
+    /**
+     * Zooms the table view by the specified factor.
+     *
+     * @param factor the factor to zoom by.
+     */
+    private void zoomTable(double factor) {
+        zoomFactor *= factor;
+        Font tableFont = yourTable.getFont();
+        float newSize = (float) (tableFont.getSize() * factor);
+        yourTable.setFont(tableFont.deriveFont(newSize));
+        yourTable.setRowHeight((int) (yourTable.getRowHeight() * factor));
+        yourTable.getTableHeader().setFont(tableFont.deriveFont(newSize));
+    }
+
     /**
      * Inner class to handle toolbar button actions.
      */
