@@ -1,13 +1,21 @@
-# Use an official OpenJDK runtime as a parent image
-FROM openjdk:11-jre-slim
+# Stage 1: Build the application
+FROM gradle:7.5.1-jdk11 AS builder
+WORKDIR /home/gradle/project
 
-# Set the working directory in the container
+# Copy the project files to the container
+COPY --chown=gradle:gradle . .
+
+# Build the application
+RUN gradle build --no-daemon
+
+# Stage 2: Run the application
+FROM openjdk:11-jre-slim
 WORKDIR /app
 
-# Copy the executable JAR file into the container at /app
-COPY app/build/libs/app-1.0-SNAPSHOT.jar /app/husksheets.jar
+# Copy the jar file from the builder stage
+COPY --from=builder /home/gradle/project/build/libs/app-1.0-SNAPSHOT.jar /app/husksheets.jar
 
-# Make port 8080 available to the world outside this container
+# Expose the port the application runs on
 EXPOSE 8080
 
 # Run the jar file
