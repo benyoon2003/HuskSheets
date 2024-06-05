@@ -74,4 +74,10 @@ public interface IAppUser {
    * @return a list of spreadsheets.
    */
   List<ISpreadsheet> getSheets();
+
+  /**
+   * Removes a given sheet name from the users list of sheets.
+   * @param sheetName the name of the sheet
+   */
+  public void removeSheet(String sheetName);
 }

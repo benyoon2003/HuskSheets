@@ -111,9 +111,9 @@ public class UserController implements IUserController {
                 newUser.setPassword(password);
                 Result loginResult = serverEndpoint.login(newUser);
                 if (loginResult.getSuccess()) {
-                    openHomeView();
                     this.loginPage.disposeLoginPage();
                     this.appUser = newUser;
+                    openHomeView();
                 }
                 else {
                     this.loginPage.displayErrorBox(loginResult.getMessage());
@@ -466,7 +466,19 @@ public class UserController implements IUserController {
     @Override
     public void openServerSheet(String selectedSheet) {
         try {
-            this.spreadsheetModel = this.home.readPayload(this.appUser.getUsername(), serverEndpoint, selectedSheet);
+            Result getUpdatesForSubscriptionResult = this.serverEndpoint.getUpdatesForSubscription(this.appUser.getUsername(), selectedSheet, "0");
+            System.out.println("Response from server: " + getUpdatesForSubscriptionResult.getMessage());
+
+            String fullPayload = "";
+            List<Argument> payloads = getUpdatesForSubscriptionResult.getValue();
+            for(Argument payload : payloads) {
+                String payload_string = payload.getPayload();
+                System.out.println("Payload received: " + payload);
+                fullPayload += payload_string;
+            }
+
+
+            this.spreadsheetModel = this.home.readPayload(fullPayload, selectedSheet);
             this.sheetView = new SheetView(spreadsheetModel);
             this.setCurrentSheet(sheetView);
             this.sheetView.makeVisible();
@@ -490,12 +502,36 @@ public class UserController implements IUserController {
     @Override
     public void openSubscriberSheet(String selectedSheet, String publisher) {
         try {
-            this.spreadsheetModel = this.home.readPayload(publisher, serverEndpoint, selectedSheet);
+
+            Result getUpdatesForSubscriptionResult = this.serverEndpoint.getUpdatesForSubscription(publisher, selectedSheet, "0");
+            System.out.println("Response from server: " + getUpdatesForSubscriptionResult.getMessage());
+
+            String payload = getUpdatesForSubscriptionResult.getValue().get(0).getPayload();
+            System.out.println("Payload received: " + payload);
+            this.spreadsheetModel = this.home.readPayload(payload, selectedSheet);
             this.sheetView = new SubscriberSheetView(publisher, spreadsheetModel);
             this.sheetView.addController(this);
             this.setCurrentSheet(sheetView);
             this.sheetView.makeVisible();
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Gets all subscriber updates since the specified id
+     * @param sheet name of the sheet
+     * @param id version of sheet
+     */
+    public void getUpdatesForPublished(String sheet, int id){
+        try{
+            Result getUpdatesForPublishedResult = this.serverEndpoint.getUpdatesForPublished(this.appUser.getUsername(), sheet, String.valueOf(id));
+            String payload = getUpdatesForPublishedResult.getValue().get(0).getPayload();
+            ISpreadsheet changes = this.home.readPayload(payload, sheet);
+            System.out.println("Changes payload received: " + payload);
+            //Open new sheetview to review changes
+
+        } catch(Exception e){
             e.printStackTrace();
         }
     }
@@ -667,4 +703,5 @@ public class UserController implements IUserController {
     private boolean validateInput(String username, String password) {
         return !username.isEmpty() && !password.isEmpty();
     }
+
 }

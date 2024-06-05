@@ -90,20 +90,10 @@ public class Home implements IHome {
     /**
      * Reads the payload of a sheet from the server.
      *
-     * @param user the user requesting the sheet
-     * @param se the server endpoint
-     * @param sheetName the name of the sheet to read
      * @return the spreadsheet data
      */
-    public ISpreadsheet readPayload(String user, ServerEndpoint se, String sheetName){
-        System.out.println("User: " + user + ", Sheet Name: " + sheetName);
+    public ISpreadsheet readPayload(String payload, String sheetName){
         try {
-            Result getUpdatesForSubscriptionResult = se.getUpdatesForSubscription(user, sheetName, "0");
-            System.out.println("Response from server: " + getUpdatesForSubscriptionResult.getMessage());
-    
-            String payload = getUpdatesForSubscriptionResult.getValue().get(0).getPayload();
-            System.out.println("Payload received: " + payload);
-    
             if (payload != null && !payload.isEmpty()) {
                 List<List<String>> data = convertStringTo2DArray(payload);
                 ISpreadsheet ss = new Spreadsheet(sheetName);

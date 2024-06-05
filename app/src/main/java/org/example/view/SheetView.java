@@ -61,52 +61,7 @@ public class SheetView extends JFrame implements ISheetView {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Create toolbar
-        JToolBar toolbar = new JToolBar();
-        JButton cutButton = new JButton("Cut");
-        JButton copyButton = new JButton("Copy");
-        JButton pasteButton = new JButton("Paste");
-        JButton saveButton = new JButton("Save");
-        backButton = new JButton("Back");
-        formulaTextField = new JTextField(20);
-        formulaTextField.setEditable(true);
-        toolbar.add(new JLabel("Formula:"));
-        toolbar.add(formulaTextField);
-        formulaTextField.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                controller.changeSpreadSheetValueAt(controller.getSelectedRowZeroIndex(),
-                        controller.getSelectedColZeroIndex(), formulaTextField.getText());
-            }
-        });
-
-        toolbar.add(cutButton);
-        toolbar.add(copyButton);
-        toolbar.add(pasteButton);
-        toolbar.add(saveButton);
-        toolbar.add(backButton);
-
-        // Add action listeners for buttons
-        cutButton.addActionListener(new ToolbarButtonListener(this));
-        copyButton.addActionListener(new ToolbarButtonListener(this));
-        pasteButton.addActionListener(new ToolbarButtonListener(this));
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handleSave();
-            }
-        });
-        backButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-                IHomeView homeView = controller.getHomeView();
-                homeView.updateSavedSheets(); // Update the dropdown before making it visible
-                homeView.makeVisible();
-            }
-        });
-
-        add(toolbar, BorderLayout.NORTH);
+        makeToolbar();
 
         JTable table;
 
@@ -202,6 +157,64 @@ public class SheetView extends JFrame implements ISheetView {
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         add(scrollPane, BorderLayout.CENTER);
+    }
+
+    public void makeToolbar(){
+        // Create toolbar
+        JToolBar toolbar = new JToolBar();
+        JButton cutButton = new JButton("Cut");
+        JButton copyButton = new JButton("Copy");
+        JButton pasteButton = new JButton("Paste");
+        JButton saveButton = new JButton("Save");
+        JButton getUpdates = new JButton("Get Updates");
+        backButton = new JButton("Back");
+        formulaTextField = new JTextField(20);
+        formulaTextField.setEditable(true);
+        toolbar.add(new JLabel("Formula:"));
+        toolbar.add(formulaTextField);
+        formulaTextField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controller.changeSpreadSheetValueAt(controller.getSelectedRowZeroIndex(),
+                        controller.getSelectedColZeroIndex(), formulaTextField.getText());
+            }
+        });
+
+        toolbar.add(cutButton);
+        toolbar.add(copyButton);
+        toolbar.add(pasteButton);
+        toolbar.add(getUpdates);
+        toolbar.add(saveButton);
+        toolbar.add(backButton);
+
+        // Add action listeners for buttons
+        cutButton.addActionListener(new ToolbarButtonListener(this));
+        copyButton.addActionListener(new ToolbarButtonListener(this));
+        pasteButton.addActionListener(new ToolbarButtonListener(this));
+        saveButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleSave();
+            }
+        });
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+                IHomeView homeView = controller.getHomeView();
+                homeView.updateSavedSheets(); // Update the dropdown before making it visible
+                homeView.makeVisible();
+            }
+        });
+
+        getUpdates.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controller.getUpdatesForPublished(cells.getName(), cells.getId_version());
+            }
+        });
+
+        add(toolbar, BorderLayout.NORTH);
     }
 
     /**

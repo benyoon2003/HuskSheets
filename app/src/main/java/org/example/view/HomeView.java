@@ -274,8 +274,9 @@ public class HomeView extends JFrame implements IHomeView {
                 publishers.addItem(username);
             }
 
-            updateSubscribeSheets(publishers.getSelectedItem().toString());
-
+            if(publishers.getSelectedItem() != null) {
+                updateSubscribeSheets(publishers.getSelectedItem().toString());
+            }
         }
     }
 

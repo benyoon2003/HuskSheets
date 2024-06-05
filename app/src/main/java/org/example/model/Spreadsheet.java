@@ -255,6 +255,7 @@ public class Spreadsheet implements ISpreadsheet {
      */
     public void addPublished(ISpreadsheet sheet) {
         this.publishVersions.add(sheet);
+        this.id_version++;
     }
 
     /**
@@ -281,6 +282,14 @@ public class Spreadsheet implements ISpreadsheet {
      */
     public List<ISpreadsheet> getSubscribedVersions() {
         return this.subscribeVersions;
+    }
+
+    /**
+     * Get the id of current sheet
+     * @return the id of the sheet
+     */
+    public int getId_version() {
+        return this.id_version;
     }
     /**
      * Sets the value of the cell at the specified row and column.

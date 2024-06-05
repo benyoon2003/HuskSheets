@@ -68,12 +68,6 @@ public interface ISpreadsheet extends IReadOnlySpreadSheet {
      */
     String getCellRawdata(int row, int col);
 
-    /**
-     * Gets the name of the spreadsheet.
-     *
-     * @return the name of the spreadsheet.
-     */
-    String getName();
 
     /**
      * Adds a published version of the spreadsheet.
@@ -101,4 +95,6 @@ public interface ISpreadsheet extends IReadOnlySpreadSheet {
      * @return
      */
     public List<ISpreadsheet> getSubscribedVersions();
+
+
 }
