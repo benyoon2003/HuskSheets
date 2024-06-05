@@ -11,9 +11,9 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.Value;
+
 
 /**
  * Represents a spreadsheet with various functionalities such as evaluating formulas,
@@ -21,6 +21,8 @@ import javax.script.ScriptException;
  */
 
 public class Spreadsheet implements ISpreadsheet {
+
+
     private ArrayList<ArrayList<Cell>> grid;
 
     private String name;
@@ -149,17 +151,16 @@ public class Spreadsheet implements ISpreadsheet {
             formula = parseOperations(formula);
             // Replace cell references with their values
             formula = replaceCellReferences(formula);
-
+            System.setProperty("polyglot.engine.WarnInterpreterOnly", "false");
             // For simplicity, handle basic arithmetic operations using JavaScript engine
             Object result = formula;
             if (containsArith((String) result)) {
-                ScriptEngineManager manager = new ScriptEngineManager();
-                ScriptEngine engine = manager.getEngineByName("JavaScript");
-                result = engine.eval(formula);
+                Context context = Context.create("js");
+                result = context.eval("js", formula);
             }
             return result.toString();
-        } catch (ScriptException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            //e.printStackTrace();
             return "Error";
         }
     }

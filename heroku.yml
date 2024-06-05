@@ -1,6 +1,3 @@
-build:
+setup:
   docker:
-    web: Dockerfile
-
-run:
-  web: java -jar /app/husksheets.jar
+    filename: Dockerfile
