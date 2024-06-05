@@ -159,9 +159,9 @@ public class HomeView extends JFrame implements IHomeView {
                        controller.deleteSheetFromServer(selectedSheet);
                        makeVisible();
                     }
-                // } else {
-                //     JOptionPane.showMessageDialog(panel, "No sheet selected to delete");
-                // }
+                  else {
+                     JOptionPane.showMessageDialog(panel, "No sheet selected to delete");
+                 }
             }
         });
 
@@ -274,9 +274,16 @@ public class HomeView extends JFrame implements IHomeView {
                 publishers.addItem(username);
             }
 
+
             if(publishers.getSelectedItem() != null) {
                 updateSubscribeSheets(publishers.getSelectedItem().toString());
             }
+
+            if (publishers.getSelectedItem() != null) {
+                updateSubscribeSheets(publishers.getSelectedItem().toString());
+            }
+
+
         }
     }
 

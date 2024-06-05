@@ -104,14 +104,6 @@ public class AppUser implements IAppUser {
         return this.sheets;
     }
 
-    @Override
-    public void removeSheet(String sheetName) {
-        for (ISpreadsheet sheet : this.sheets) {
-            if (sheet.getName().equals(sheetName)) {
-                this.sheets.remove(sheet);
-            }
-        }
-    }
 }
 
     /**

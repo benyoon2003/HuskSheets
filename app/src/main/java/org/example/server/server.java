@@ -156,56 +156,7 @@ public class server {
         }
     }
 
-
-    /**
-     * Creates a new sheet for a specified publisher.
-     *
-     * @param authHeader the authorization header containing the credentials.
-     * @param argument   the argument containing the sheet details.
-     * @return a ResponseEntity containing the result of the sheet deletion.
-     */
-    @PostMapping("/deleteSheet")
-    public ResponseEntity<Result> deleteSheet(@RequestHeader("Authorization") String authHeader,
-                                              @RequestBody Argument argument) {
-        try {
-            // Decode the Basic Auth header
-            String[] credentials = decodeBasicAuth(authHeader);
-            if (credentials == null || credentials.length != 2 || !existingUser(credentials[0], credentials[1])) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
-                        false, "Unauthorized", new ArrayList<>()));
-            }
-
-            String username = credentials[0];
-            String publisher = argument.getPublisher();
-            String sheet = argument.getSheet();
-
-            System.out.println("Username: " + username);
-            System.out.println("Publisher: " + publisher);
-            System.out.println("Sheet: " + sheet);
-
-            if (!publisher.equals(username)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
-                        false, "Unauthorized: sender is not owner of sheet", new ArrayList<>()));
-            } else if (sheet.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Result(
-                        false, "Sheet name cannot be blank", new ArrayList<>()));
-            }  else {
-                IAppUser user = findUser(username);
-                if (user == null) {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
-                            false, "User not found", new ArrayList<>()));
-                }
-                user.removeSheet(sheet);
-                return ResponseEntity.status(HttpStatus.CREATED).body(new Result(
-                        true, "Sheet deleted successfully", new ArrayList<>()));
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace(); // Log the full stack trace for debugging
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Result(
-                    false, "Internal Server Error: " + e.getMessage(), new ArrayList<>()));
-        }
-    }
+    
 
     /**
      * Retrieves all sheets for a specified publisher.
