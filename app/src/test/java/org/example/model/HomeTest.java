@@ -1,6 +1,7 @@
 package org.example.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -74,14 +75,26 @@ public class HomeTest {
 
         try {
             List<String> lines = Files.readAllLines(Paths.get(path));
-            for (String line : lines) {
-                line.trim();
-            }
             assertTrue(lines.contains("<sheet name=\"test\">"));
             assertTrue(lines.contains("    <cell col=\"0\" row=\"0\">0</cell>"));
             assertTrue(lines.contains("    <cell col=\"0\" row=\"1\">1</cell>"));
         } catch (IOException e) {
 
         }
+    }
+
+    @Test
+    public void testConvertStringTo2DArray() {
+        List<List<String>> result = Home.convertStringTo2DArray(null);
+        assertTrue(result.isEmpty());
+
+        String input = "$A1 1\\n$A2 \"help\"\\n$B1 -1.01\\n$C4 \"\"\\n$C1 = SUM($A1:$B1)";
+        result = Home.convertStringTo2DArray(input);
+
+        assertFalse(result.isEmpty());
+        assertEquals(5, result.size());
+        assertTrue(result.get(0).get(0).contains("0")); // A1's row == 0
+        assertTrue(result.get(1).get(0).contains("1")); // A2's row == 1
+        assertTrue(result.get(1).get(2).contains("\"help\"")); // A2's value == "help"
     }
 }
