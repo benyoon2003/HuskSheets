@@ -6,6 +6,9 @@ import org.example.model.ISpreadsheet;
 import org.example.model.Spreadsheet;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 
 public class SubscriberSheetView extends SheetView{
@@ -22,6 +25,56 @@ public class SubscriberSheetView extends SheetView{
     super(openSheet);
     this.publisher = publisher;
     this.cells = openSheet;
+  }
+
+
+  public void makeToolbar(){
+    // Create toolbar
+    JToolBar toolbar = new JToolBar();
+    JButton cutButton = new JButton("Cut");
+    JButton copyButton = new JButton("Copy");
+    JButton pasteButton = new JButton("Paste");
+    JButton saveButton = new JButton("Save");
+    backButton = new JButton("Back");
+    formulaTextField = new JTextField(20);
+    formulaTextField.setEditable(true);
+    toolbar.add(new JLabel("Formula:"));
+    toolbar.add(formulaTextField);
+    formulaTextField.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        controller.changeSpreadSheetValueAt(controller.getSelectedRowZeroIndex(),
+                controller.getSelectedColZeroIndex(), formulaTextField.getText());
+      }
+    });
+
+    toolbar.add(cutButton);
+    toolbar.add(copyButton);
+    toolbar.add(pasteButton);
+    toolbar.add(saveButton);
+    toolbar.add(backButton);
+
+    // Add action listeners for buttons
+    cutButton.addActionListener(new ToolbarButtonListener(this));
+    copyButton.addActionListener(new ToolbarButtonListener(this));
+    pasteButton.addActionListener(new ToolbarButtonListener(this));
+    saveButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        handleSave();
+      }
+    });
+    backButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        dispose();
+        IHomeView homeView = controller.getHomeView();
+        homeView.updateSavedSheets(); // Update the dropdown before making it visible
+        homeView.makeVisible();
+      }
+    });
+    
+    add(toolbar, BorderLayout.NORTH);
   }
 
 

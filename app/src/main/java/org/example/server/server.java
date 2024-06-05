@@ -156,7 +156,7 @@ public class server {
         }
     }
 
-    
+
 
     /**
      * Retrieves all sheets for a specified publisher.
@@ -274,6 +274,8 @@ public class server {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                         false, "Unauthorized", new ArrayList<>()));
             }
+
+            System.out.println("test");
             String publisher = argument.getPublisher();
             String sheet = argument.getSheet();
             String payload = argument.getPayload();

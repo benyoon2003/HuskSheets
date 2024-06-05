@@ -51,7 +51,7 @@ public class Spreadsheet implements ISpreadsheet {
 
         this.name = name;
         this.publishVersions = new ArrayList<>();
-        //this.subscribeVersions = new ArrayList<>();
+        this.subscribeVersions = new ArrayList<>();
 
     }
 

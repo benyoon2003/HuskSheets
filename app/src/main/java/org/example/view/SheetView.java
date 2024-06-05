@@ -35,10 +35,10 @@ import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 public class SheetView extends JFrame implements ISheetView {
     final IReadOnlySpreadSheet cells;
     IUserController controller;
-    private JButton backButton;
+    JButton backButton;
     JTable yourTable;
-    private boolean isUpdatingTable = false;
-    private JTextField formulaTextField;
+    boolean isUpdatingTable = false;
+    JTextField formulaTextField;
 
     private static final int rowSize = 100;
     private static final int colSize = 100;
