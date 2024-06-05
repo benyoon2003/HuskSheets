@@ -1,0 +1,14 @@
+# Ignore all files
+*
+
+# Except these files and directories
+!Dockerfile
+!heroku.yml
+!build/libs/*.jar
+
+# Optionally, exclude other files that are not needed for the build
+!src/
+!settings.gradle
+!gradle/
+!gradlew
+!gradlew.bat
