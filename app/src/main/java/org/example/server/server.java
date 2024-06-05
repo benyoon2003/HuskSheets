@@ -320,6 +320,9 @@ public class server {
     @GetMapping("/register")
     public ResponseEntity<Result> register(@RequestHeader("Authorization") String authHeader) {
         try {
+
+            System.out.println("GITHUB TRACKING");
+
             // Decode the Basic Auth header
             String[] credentials = decodeBasicAuth(authHeader);
             if (credentials == null || credentials.length != 2) {
