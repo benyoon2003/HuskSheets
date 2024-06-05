@@ -33,6 +33,7 @@ public class SheetView extends JFrame implements ISheetView {
     boolean isUpdatingTable = false;
     JTextField formulaTextField;
 
+    private double zoomFactor = 1.0;
     private static final int rowSize = 100;
     private static final int colSize = 100;
 
@@ -159,6 +160,8 @@ public class SheetView extends JFrame implements ISheetView {
         JButton copyButton = new JButton("Copy");
         JButton pasteButton = new JButton("Paste");
         JButton saveButton = new JButton("Save");
+        JButton zoomInButton = new JButton("Zoom In");
+        JButton zoomOutButton = new JButton("Zoom Out");
         JButton getUpdates = new JButton("Get Updates");
         backButton = new JButton("Back");
         formulaTextField = new JTextField(20);
@@ -178,6 +181,8 @@ public class SheetView extends JFrame implements ISheetView {
         toolbar.add(pasteButton);
         toolbar.add(getUpdates);
         toolbar.add(saveButton);
+        toolbar.add(zoomInButton);
+        toolbar.add(zoomOutButton);
         toolbar.add(backButton);
 
         // Add action listeners for buttons
@@ -204,6 +209,20 @@ public class SheetView extends JFrame implements ISheetView {
             @Override
             public void actionPerformed(ActionEvent e) {
                 controller.getUpdatesForPublished(cells.getName(), cells.getId_version());
+            }
+        });
+
+        zoomInButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                zoomTable(1.1); //Zoom in by 10%
+            }
+        });
+
+        zoomOutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                zoomTable(0.9); //Zoom out by 10%
             }
         });
 
@@ -358,7 +377,7 @@ public class SheetView extends JFrame implements ISheetView {
      * @param factor the factor to zoom by.
      */
     private void zoomTable(double factor) {
-        zoomFactor *= factor;
+        this.zoomFactor *= factor;
         Font tableFont = yourTable.getFont();
         float newSize = (float) (tableFont.getSize() * factor);
         yourTable.setFont(tableFont.deriveFont(newSize));
