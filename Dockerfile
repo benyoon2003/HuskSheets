@@ -5,7 +5,7 @@ FROM openjdk:11-jre-slim
 WORKDIR /app
 
 # Copy the executable JAR file into the container at /app
-COPY app/build/libs/app-1.0-SNAPSHOT.jar /app/husksheets.jar
+COPY app/build/libs/app-1.0-SNAPSHOT-plain.jar /app/husksheets.jar
 
 # Make port 8080 available to the world outside this container
 EXPOSE 8080
