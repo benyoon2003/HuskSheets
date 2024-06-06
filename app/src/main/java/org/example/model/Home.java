@@ -14,7 +14,8 @@ import javax.xml.transform.stream.*;
 import org.w3c.dom.*;
 
 /**
- * The Home class provides methods to read and write spreadsheet data from and to XML files.
+ * The Home class provides methods to read and write spreadsheet data from and
+ * to XML files.
  */
 public class Home implements IHome {
 
@@ -76,28 +77,17 @@ public class Home implements IHome {
     }
 
     /**
-     * Saves the spreadsheet data to an XML file.
-     *
-     * @param sheet the spreadsheet data to save
-     * @param path the path of the XML file to save to
-     */
-    @Override
-    public void saveSheet(IReadOnlySpreadSheet sheet, String path) {
-
-    }
-
-    /**
      * Reads the payload of a sheet from the server.
      *
      * @return the spreadsheet data
      */
-    public ISpreadsheet readPayload(String payload, String sheetName){
+    public ISpreadsheet readPayload(String payload, String sheetName) {
         try {
             if (payload != null && !payload.isEmpty()) {
                 List<List<String>> data = convertStringTo2DArray(payload);
                 ISpreadsheet ss = new Spreadsheet(sheetName);
                 ArrayList<ArrayList<Cell>> grid = ss.getCells();
-    
+
                 for (List<String> ls : data) {
                     ss.setCellRawdata(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
                     ss.setCellValue(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
@@ -111,13 +101,12 @@ public class Home implements IHome {
         }
         return new Spreadsheet(sheetName);
     }
-    
-    
+
     /**
      * Writes the spreadsheet data to an XML file.
      *
      * @param sheet the spreadsheet data to write
-     * @param path the path of the XML file to write to
+     * @param path  the path of the XML file to write to
      */
     @Override
     public void writeXML(IReadOnlySpreadSheet sheet, String path) {
@@ -179,44 +168,42 @@ public class Home implements IHome {
         if (input.contains("\\n")) {
             input = input.replace("\\n", "\n");
         }
-    
+
         // Parse input into lines
         String[] lines = input.split("\\r?\\n");
-    
+
         // List to store the 2D array
         List<List<String>> result = new ArrayList<>();
-    
+
         // Process each line
         for (String line : lines) {
             if (line.trim().isEmpty()) {
                 continue;
             }
-    
+
             String[] parts = line.split(" ", 2);
             if (parts.length < 2) {
                 continue;
             }
-    
+
             String ref = parts[0];
             String content = parts[1];
-    
+
             // Extract row and column from the reference
             int[] rowCol = convertRefToRowCol(ref);
-    
+
             // Create the nested list for this cell
             List<String> cellData = new ArrayList<>();
             cellData.add(String.valueOf(rowCol[0])); // Row
             cellData.add(String.valueOf(rowCol[1])); // Column
             cellData.add(content); // Content
-    
+
             // Add to the result list
             result.add(cellData);
         }
-    
+
         return result;
     }
-    
-
 
     // Convert cell reference (e.g., $A1) to row and column indices
     /**

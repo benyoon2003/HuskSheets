@@ -18,5 +18,27 @@ public class ArgumentTest {
         assertEquals(sheet, argument.getSheet());
         assertEquals(id, argument.getId());
         assertEquals(payload, argument.getPayload());
+
+        assertEquals("Argument{publisher=TestPublisher, sheet=TestSheet, id=TestID, payload='TestPayload'}", argument.toString());
+    }
+
+    @Test
+    public void testSetters() {
+        Argument argument = new Argument();
+
+        assertNull(argument.getPublisher());
+        assertNull(argument.getSheet());
+        assertNull(argument.getId());
+        assertNull(argument.getPayload());
+
+        argument.setPublisher("TestPublisher");
+        argument.setSheet("TestSheet");
+        argument.setId("TestID");
+        argument.setPayload("TestPayload");
+
+        assertEquals("TestPublisher", argument.getPublisher());
+        assertEquals("TestSheet", argument.getSheet());
+        assertEquals("TestID", argument.getId());
+        assertEquals("TestPayload", argument.getPayload());
     }
 }

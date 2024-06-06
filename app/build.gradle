@@ -35,6 +35,7 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+    sourceCompatibility = "1.21"
 }
 
 jacoco {

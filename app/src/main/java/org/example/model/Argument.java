@@ -1,20 +1,21 @@
 package org.example.model;
 
 /**
- * The Argument class represents an entity containing information related to a publisher, sheet, ID, and payload.
+ * The Argument class represents an entity containing information related to a
+ * publisher, sheet, ID, and payload.
  * It includes methods to get and set these values.
  */
 public class Argument {
 
   String publisher, sheet, id, payload;
 
-    /**
+  /**
    * Constructs an Argument with the specified publisher, sheet, ID, and payload.
    *
    * @param publisher the publisher associated with the argument
-   * @param sheet the sheet associated with the argument
-   * @param id the ID associated with the argument
-   * @param payload the payload associated with the argument
+   * @param sheet     the sheet associated with the argument
+   * @param id        the ID associated with the argument
+   * @param payload   the payload associated with the argument
    */
   public Argument(String publisher, String sheet, String id, String payload) {
     this.publisher = publisher;
@@ -101,5 +102,9 @@ public class Argument {
    */
   public void setPayload(String payload) {
     this.payload = payload;
+  }
+
+  public String toString() {
+    return "Argument{publisher=" + publisher + ", sheet=" + sheet + ", id=" + id + ", payload='" + payload + "'}";
   }
 }

@@ -16,6 +16,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
@@ -98,10 +100,41 @@ public class SheetView extends JFrame implements ISheetView {
         table.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                                                           boolean hasFocus, int row, int column) {
+                    boolean hasFocus, int row, int column) {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 setHorizontalAlignment(SwingConstants.CENTER); // Align labels to the center
                 return this;
+            }
+        });
+
+        // Add panel for right-clicks
+        JPanel rightClickPanel = new JPanel(new GridLayout(1, 1));
+        rightClickPanel.setSize(new Dimension(100, 15));
+
+        // Add buttons to right-click panel
+        JButton percentiles = new JButton("Percentile");
+        percentiles.setPreferredSize(new Dimension(100, 15));
+        percentiles.addActionListener(new RightClickButtonListener(this));
+        percentiles.setVisible(rightClickPanel.isVisible());
+        rightClickPanel.add(percentiles);
+
+        rightClickPanel.setVisible(false);
+        yourTable.add(rightClickPanel);
+
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON3) { // For right-clicks
+                    int row = table.rowAtPoint(e.getPoint());
+                    int col = table.columnAtPoint(e.getPoint());
+                    if (row >= 0 && row < rowSize && col >= 1 && col < colSize) {
+                        rightClickCell(rightClickPanel, e.getX(), e.getY());
+                    }
+                } else if (e.getButton() == MouseEvent.BUTTON1) { // For left-clicks
+                    if (rightClickPanel != null && rightClickPanel.isVisible()) {
+                        rightClickPanel.setVisible(false);
+                    }
+                }
             }
         });
 
@@ -153,7 +186,7 @@ public class SheetView extends JFrame implements ISheetView {
         add(scrollPane, BorderLayout.CENTER);
     }
 
-    public void makeToolbar(){
+    public void makeToolbar() {
         // Create toolbar
         JToolBar toolbar = new JToolBar();
         JButton cutButton = new JButton("Cut");
@@ -215,14 +248,14 @@ public class SheetView extends JFrame implements ISheetView {
         zoomInButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                zoomTable(1.1); //Zoom in by 10%
+                zoomTable(1.1); // Zoom in by 10%
             }
         });
 
         zoomOutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                zoomTable(0.9); //Zoom out by 10%
+                zoomTable(0.9); // Zoom out by 10%
             }
         });
 
@@ -337,7 +370,7 @@ public class SheetView extends JFrame implements ISheetView {
         }
     }
 
-    public void handleSave(){
+    public void handleSave() {
         int option = JOptionPane.showOptionDialog(
                 null,
                 "Choose where to save the sheet:",
@@ -345,7 +378,7 @@ public class SheetView extends JFrame implements ISheetView {
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
                 null,
-                new Object[]{"Save Locally", "Save to Server"},
+                new Object[] { "Save Locally", "Save to Server" },
                 "Save Locally");
 
         if (option == JOptionPane.YES_OPTION) {
@@ -361,6 +394,7 @@ public class SheetView extends JFrame implements ISheetView {
             makeVisible();
         }
     }
+
     /**
      * Displays a message in a dialog box.
      *
@@ -383,6 +417,12 @@ public class SheetView extends JFrame implements ISheetView {
         yourTable.setFont(tableFont.deriveFont(newSize));
         yourTable.setRowHeight((int) (yourTable.getRowHeight() * factor));
         yourTable.getTableHeader().setFont(tableFont.deriveFont(newSize));
+    }
+
+    // Displays the right-click window at the location where it was clicked
+    private void rightClickCell(JPanel rightClickPanel, int x, int y) {
+        rightClickPanel.setLocation(x, y);
+        rightClickPanel.setVisible(true);
     }
 
     /**
@@ -425,7 +465,7 @@ public class SheetView extends JFrame implements ISheetView {
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE,
                         null,
-                        new Object[]{"Save Locally", "Save to Server"},
+                        new Object[] { "Save Locally", "Save to Server" },
                         "Save Locally");
 
                 if (option == JOptionPane.YES_OPTION) {
@@ -436,11 +476,37 @@ public class SheetView extends JFrame implements ISheetView {
                         this.view.save(selectedFile.getAbsolutePath());
                     }
                 } else if (option == JOptionPane.NO_OPTION) {
-                    this.view.getController().saveSheetToServer(this.view.cells, ((Spreadsheet) this.view.cells).getName());
+                    this.view.getController().saveSheetToServer(this.view.cells,
+                            ((Spreadsheet) this.view.cells).getName());
                 }
             } else {
                 view.getController().handleToolbar(command);
             }
+        }
+    }
+
+    /**
+     * Inner class to handle mouse right-click actions
+     */
+    class RightClickButtonListener implements ActionListener {
+        private SheetView view;
+
+        RightClickButtonListener(SheetView view) {
+            this.view = view;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String command = e.getActionCommand();
+            int row = this.view.yourTable.getSelectedRow();
+            int col = this.view.yourTable.getSelectedColumn() - 1;
+
+            if (command == "Percentile") {
+                System.out.println(command);
+                this.view.getController().getPercentile(row, col);
+            }
+
+            this.view.updateTable();
         }
     }
 }
