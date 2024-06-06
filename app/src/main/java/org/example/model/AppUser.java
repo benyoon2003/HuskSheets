@@ -76,6 +76,7 @@ public class AppUser implements IAppUser {
         for (ISpreadsheet sheet : this.sheets) {
             if (sheet.getName().equals(sheetName)) {
                 this.sheets.remove(sheet);
+                return;
             }
         }
     }
