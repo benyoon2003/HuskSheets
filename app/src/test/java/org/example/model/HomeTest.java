@@ -1,6 +1,8 @@
 package org.example.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -15,6 +17,7 @@ import org.springframework.core.io.ClassPathResource;
 
 public class HomeTest {
     private Home home;
+    private String path = "..\\sheets\\test.xml";
 
     @BeforeEach
     public void init() {

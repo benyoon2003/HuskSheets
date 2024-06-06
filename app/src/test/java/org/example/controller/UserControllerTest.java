@@ -1,16 +1,17 @@
 // package org.example.controller;
 
-// import org.aspectj.lang.annotation.Before;
-// import org.assertj.core.internal.bytebuddy.implementation.bind.annotation.Default;
-// import org.example.model.AppUser;
-// import org.example.model.IAppUser;
-// import org.example.model.SelectedCells;
+// import org.example.model.Spreadsheet;
 // import org.example.view.IHomeView;
 // import org.example.view.ILoginView;
 // import org.example.view.ISheetView;
-// import org.example.view.SheetView;
 // import org.junit.jupiter.api.BeforeEach;
 // import org.junit.jupiter.api.Test;
+
+// import java.util.List;
+// import java.io.File;
+// import java.io.IOException;
+// import java.nio.file.Files;
+// import java.nio.file.Paths;
 
 // import static org.junit.jupiter.api.Assertions.assertEquals;
 // import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -18,66 +19,150 @@
 // import static org.mockito.Mockito.mock;
 
 // public class UserControllerTest {
+//     private IUserController controller;
 
-//   private IUserController controller;
-//   private ILoginView loginViewMock;
+//     private ILoginView loginViewMock;
+//     private IHomeView homeViewMock;
+//     private ISheetView sheetView;
+//     private Spreadsheet sheet;
 
-//   private IHomeView homeViewMock;
+//     @BeforeEach
+//     public void setUp() {
+//         loginViewMock = mock(ILoginView.class);
+//         homeViewMock = mock(IHomeView.class);
+//         controller = new UserController(loginViewMock);
+//         sheetView = mock(ISheetView.class);
+//         sheet = new Spreadsheet("controllerTest");
 
-//   private IAppUser appUser;
+//         this.controller.loginUser("test", "test");
+//         this.controller.createNewSheet("controllerTest");
+//     }
 
-//   private ISheetView sheetView;
+//     @Test
+//     public void testSetCurrentSheetAndGetCurrentSheet() {
+//         controller.setCurrentSheet(sheetView);
+//         assertEquals(controller.getCurrentSheet(), sheetView);
+//     }
 
-//   @BeforeEach
-//   public void setUp() {
-//     loginViewMock = mock(ILoginView.class);
-//     homeViewMock = mock(IHomeView.class);
-//     this.appUser = new AppUser();
-//     controller = new UserController(loginViewMock, homeViewMock, appUser);
-//     sheetView = mock(ISheetView.class);
-//   }
+//     @Test
+//     public void testOpenHomeView() {
 
-//   @Test
-//   public void testIsUserAuthenticationComplete() {
-//     assertTrue(controller.isUserAuthenticationComplete("test", "test"));
-//     assertFalse(controller.isUserAuthenticationComplete("", "1"));
-//     assertFalse(controller.isUserAuthenticationComplete("e", ""));
-//   }
+//     }
 
-//   @Test
-//   public void testIsUserCreated() {
-//     appUser.createAccount("test1", "test1");
-//     assertTrue(controller.isUserCreatedSuccessfully("test1", "test1"));
-//     assertFalse(controller.isUserCreatedSuccessfully("", "123"));
-//   }
+//     @Test
+//     public void testSaveSheet() {
+//         this.sheet.setCellValue(0, 0, "0");
+//         this.sheet.setCellValue(1, 0, "1");
+//         this.sheet.setCellValue(2, 0, "2");
 
-//   @Test
-//   public void testSetCurrentSheetAndGetCurrentSheet() {
-//     controller.setCurrentSheet(sheetView);
-//     assertEquals(controller.getCurrentSheet(), sheetView);
-//   }
+//         String path = "..\\sheets\\controllerTest.xml";
+//         this.controller.saveSheet(this.sheet, path);
 
-//   @Test
-//   public void testCreateNewSheet() {
-//     ISheetView newSheet = mock(ISheetView.class);
-//     controller.createNewSheet(newSheet);
-//     assertEquals(controller.getCurrentSheet(), newSheet);
-//   }
+//         File file = new File(path);
+//         assertTrue(file.exists());
 
-//   //TODO: Test saveSheet in future since it is a Bonus feature
+//         try {
+//             List<String> lines = Files.readAllLines(Paths.get(path));
+//             assertTrue(lines.contains("<sheet name=\"controllerTest\">"));
+//             assertTrue(lines.contains("    <cell col=\"0\" row=\"0\">0</cell>"));
+//             assertTrue(lines.contains("    <cell col=\"0\" row=\"1\">1</cell>"));
+//         } catch (IOException e) {
+//         }
+//     }
 
-//   @Test
-//   public void testHandleToolbar() {
-//   }
+//     @Test
+//     public void testHandleToolbar() {
+//     }
 
-//   @Test
-//   public void testHandleStatsDropdown() {
-//   }
+//     @Test
+//     public void testSelectedCells() {
+//     }
 
-//   //TODO: Not sure how we will implement this
-//   @Test
-//   public void testSelectedCells() {
+//     @Test
+//     public void testOpenSheet() {
+//     }
 
-//   }
+//     @Test
+//     public void testGetSavedSheets() {
+//     }
 
+//     @Test
+//     public void testDeleteSheet() {
+//     }
+
+//     @Test
+//     public void testGetHomeView() {
+//     }
+
+//     @Test
+//     public void testChangeSpreadsheetValueAt() {
+//     }
+
+//     @Test
+//     public void testEvaluateFormula() {
+//     }
+
+//     @Test
+//     public void testCutCell() {
+//     }
+
+//     @Test
+//     public void testCopyCell() {
+//     }
+
+//     @Test
+//     public void testPasteCell() {
+//     }
+
+//     @Test
+//     public void testGetPercentile() {
+//     }
+
+//     @Test
+//     public void testSaveSheetToServer() {
+//         this.sheet.setCellValue(0, 0, "0");
+//         this.sheet.setCellRawdata(0, 0, "0");
+//         this.sheet.setCellValue(1, 0, "1");
+//         this.sheet.setCellRawdata(1, 0, "1");
+//         this.sheet.setCellValue(2, 0, "2");
+//         this.sheet.setCellRawdata(2, 0, "2");
+
+//         this.controller.saveSheetToServer(this.sheet, "controllerTest");
+//     }
+
+//     @Test
+//     public void testDeleteSheetFromServer() {
+//     }
+
+//     @Test
+//     public void testHandleReferencingCell() {
+//     }
+
+//     @Test
+//     public void testGetServerSheets() {
+//     }
+
+//     @Test
+//     public void testOpenServerSheet() {
+//     }
+
+//     @Test
+//     public void testGetSelectedRowZeroIndex() {
+//     }
+
+//     @Test
+//     public void testGetSelectedColZeroIndex() {
+//     }
+
+//     @Test
+//     public void testGetFormula() {
+//     }
+
+//     @Test
+//     public void testRegisterUser() {
+//     }
+
+//     @Test
+//     public void testLoginUser() {
+//     }
 // }

@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Represents the result of an operation, encapsulating success status, message, and value.
+ * Represents the result of an operation, encapsulating success status, message,
+ * and value.
  */
 public class Result {
     private boolean success; // whether or not the HTTP request was successful
@@ -128,7 +129,8 @@ public class Result {
      * Extracts the payload of a specified sheet from a JSON response.
      *
      * @param response  the JSON response containing sheet information.
-     * @param sheetName the name of the sheet for which the payload is to be extracted.
+     * @param sheetName the name of the sheet for which the payload is to be
+     *                  extracted.
      * @return the payload of the specified sheet, or null if not found.
      */
     public static String getPayload(String response, String sheetName) {
@@ -146,44 +148,5 @@ public class Result {
             e.printStackTrace();
         }
         return null;
-    }
-
-    /**
-     * Creates a response string for a specified endpoint.
-     *
-     * @param success  whether the operation was successful.
-     * @param message  the message associated with the response.
-     * @param value    the value associated with the response.
-     * @param endpoint the endpoint for which the response is created.
-     * @return a response string.
-     */
-    public static String makeResponse(Boolean success, String message, List<Argument> value, String endpoint) {
-        String res = "";
-
-        switch (endpoint) {
-            case "register": break;
-            case "getPublishers": break;
-            case "getSheets": break;
-            case "createSheet": break;
-            case "deleteSheet": break;
-            case "getUpdatesForSubscription": break;
-            case "getUpdatesForPublished": break;
-            case "updatePublished": break;
-            case "updateSubscription": break;
-            default: break;
-        }
-
-        return res;
-    }
-    
-    /**
-     * Main method for testing the Result class.
-     *
-     * @param args command line arguments.
-     * @throws Exception if an error occurs during testing.
-     */
-    public static void main(String[] args) throws Exception {
-        // Example usage
-        // getPayload(ServerEndpoint.getUpdatesForSubscription("team2", "testPayload2", "0"), "testPayload2");
     }
 }
