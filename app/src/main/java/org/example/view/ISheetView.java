@@ -1,5 +1,7 @@
 package org.example.view;
 
+import java.awt.Color;
+
 import org.example.controller.IUserController;
 
 /**
@@ -50,4 +52,6 @@ public interface ISheetView {
     String getExcelColumnName(int columnNumber);
 
     public void loadChanges() throws Exception;
+
+    public void highlightCell(int i, int j, Color pink);
 }

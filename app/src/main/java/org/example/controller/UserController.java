@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.ArrayList;
 import java.util.List;
+import java.awt.Color;
 
 /**
  * UserController class implements the IUserController interface and 
@@ -710,6 +711,47 @@ public class UserController implements IUserController {
         return this.spreadsheetModel.getCellFormula(row, col);
     }
 
+    @Override
+    public void applyConditionalFormatting() {
+        System.out.println("Applying Conditional Formatting...");
+        Cell[][] cells = this.spreadsheetModel.getCellsObject();
+        for (int i = 0; i < this.spreadsheetModel.getRows(); i++) {
+            for (int j = 0; j < this.spreadsheetModel.getCols(); j++) {
+                String value = cells[i][j].getValue();
+                if (value != null && !value.isEmpty()) {
+                    try {
+                        double numericValue = Double.parseDouble(value);
+                        if (numericValue < 0) {
+                            System.out.println("Highlighting cell (" + i + ", " + j + ") with PINK");
+                            this.highlightCell(i, j, SheetView.PINK);
+                        } else if (numericValue > 0) {
+                            System.out.println("Highlighting cell (" + i + ", " + j + ") with GREEN");
+                            this.highlightCell(i, j, SheetView.GREEN);
+                        }
+                    } catch (NumberFormatException e) {
+                        this.highlightCell(i, j, Color.WHITE);
+                    }
+                } else {
+                    this.highlightCell(i, j, Color.WHITE);
+                }
+            }
+        }
+        this.sheetView.updateTable();
+        System.out.println("Conditional Formatting Applied.");
+    }
+
+    public void highlightCell(int row, int col, Color color) {
+        if (color.equals(SheetView.GREEN) || color.equals(SheetView.PINK)) {
+            System.out.println("Calling highlightCell with row: " + row + ", col: " + col + ", color: " + color);
+        }
+        if (sheetView instanceof SheetView) {
+            ((SheetView) sheetView).highlightCell(row, col, color);
+        }
+    }
+    
+    
+   
+    
     /**
      * Validates the input for username and password.
      * @param username the username to validate.
