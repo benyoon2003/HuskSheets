@@ -216,6 +216,8 @@ public interface IUserController {
 
     public List<String> getSubscribedSheets(String publisher);
 
+    void applyConditionalFormatting();
+
     void openSubscriberSheet(String selectedSheet, String publisher);
 
     public void updateSubscribedSheet(String publisher, IReadOnlySpreadSheet sheet, String name);

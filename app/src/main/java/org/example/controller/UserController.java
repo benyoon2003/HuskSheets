@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.ArrayList;
 import java.util.List;
+import java.awt.Color;
 
 /**
  * UserController class implements the IUserController interface and 
@@ -694,6 +695,37 @@ public class UserController implements IUserController {
         return this.spreadsheetModel.getCellFormula(row, col);
     }
 
+    public void applyConditionalFormatting() {
+        Cell[][] cells = this.spreadsheetModel.getCellsObject();
+        for (int i = 0; i < this.spreadsheetModel.getRows(); i++) {
+            for (int j = 0; j < this.spreadsheetModel.getCols(); j++) {
+                String value = cells[i][j].getValue();
+                if (value != null && !value.isEmpty()) {
+                    try {
+                        double numericValue = Double.parseDouble(value);
+                        if (numericValue < 0) {
+                            this.highlightCell(i, j, SheetView.PINK);
+                        } else if (numericValue > 0) {
+                            this.highlightCell(i, j, SheetView.GREEN);
+                        }
+                    } catch (NumberFormatException e) {
+                        this.highlightCell(i, j, Color.WHITE);
+                    }
+                } else {
+                    this.highlightCell(i, j, Color.WHITE);
+                }
+            }
+        }
+        this.sheetView.updateTable();
+    }
+    
+    public void highlightCell(int row, int col, Color color) {
+        if (sheetView instanceof SheetView) {
+            ((SheetView) sheetView).highlightCell(row, col, color);
+        }
+    }
+   
+    
     /**
      * Validates the input for username and password.
      * @param username the username to validate.
