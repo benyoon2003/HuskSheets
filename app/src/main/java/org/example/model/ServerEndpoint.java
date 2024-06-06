@@ -4,8 +4,6 @@ package org.example.model;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.example.controller.ConfigLoader;
-import org.h2.tools.Server;
-
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
