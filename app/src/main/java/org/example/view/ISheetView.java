@@ -49,5 +49,5 @@ public interface ISheetView {
      */
     String getExcelColumnName(int columnNumber);
 
-    public void loadChanges();
+    public void loadChanges() throws Exception;
 }

@@ -200,6 +200,7 @@ public class UserController implements IUserController {
         try {
             Result createSheetResult = serverEndpoint.createSheet(name);
             if (createSheetResult.getSuccess()) {
+                this.homeView.disposeHomePage();
                 this.spreadsheetModel = new Spreadsheet(name);
                 this.sheetView = new SheetView(this.spreadsheetModel);
                 this.setCurrentSheet(sheetView);
@@ -408,6 +409,7 @@ public class UserController implements IUserController {
     @Override
     public void openSheet(String path) {
         try {
+            this.homeView.disposeHomePage();
             this.spreadsheetModel = this.home.readXML(path);
             this.sheetView = new SheetView(spreadsheetModel);
             this.sheetView.makeVisible();
@@ -471,8 +473,6 @@ public class UserController implements IUserController {
                 System.out.println("Payload received: " + payload);
                 fullPayload += payload_string;
             }
-
-
             this.spreadsheetModel = this.home.readPayload(fullPayload, selectedSheet);
             this.sheetView = new SheetView(spreadsheetModel);
             this.setCurrentSheet(sheetView);
@@ -525,7 +525,7 @@ public class UserController implements IUserController {
      * @param sheet name of the sheet
      * @param id version of sheet
      */
-    public void getUpdatesForPublished(String sheet, int id){
+    public void getUpdatesForPublished(String sheet, int id) throws Exception {
         try{
             Result getUpdatesForPublishedResult = this.serverEndpoint.getUpdatesForPublished(this.appUser.getUsername(), sheet, String.valueOf(id));
             //String payload = getUpdatesForPublishedResult.getValue().get(0).getPayload();
@@ -548,7 +548,7 @@ public class UserController implements IUserController {
             this.sheetView.makeVisible();
             this.sheetView.loadChanges();
         } catch(Exception e){
-            e.printStackTrace();
+            throw new Exception(e.getMessage());
         }
     }
 
