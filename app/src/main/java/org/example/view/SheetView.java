@@ -428,6 +428,7 @@ public class SheetView extends JFrame implements ISheetView {
     @Override
     public void loadChanges() throws Exception {
         // no implementation
+    }
 
     // Displays the right-click window at the location where it was clicked
     private void rightClickCell(JPanel rightClickPanel, int x, int y) {
