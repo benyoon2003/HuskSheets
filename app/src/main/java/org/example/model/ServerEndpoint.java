@@ -16,7 +16,7 @@ public class ServerEndpoint {
 
 
   // Base URL for the server endpoints
-  private static String BASE_URL =  "http://localhost:8080/api/v1/"; //ConfigLoader.getProperty("base.url");"https://husksheet-cb47d5864e1b.herokuapp.com/api/v1/"
+  private static String BASE_URL =  "https://husksheet-cb47d5864e1b.herokuapp.com/api/v1/"; //"http://localhost:8080/api/v1/"; //ConfigLoader.getProperty("base.url");
   private static IAppUser user;
 
 

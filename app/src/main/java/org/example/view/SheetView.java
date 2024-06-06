@@ -208,7 +208,12 @@ public class SheetView extends JFrame implements ISheetView {
         getUpdates.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.getUpdatesForPublished(cells.getName(), cells.getId_version());
+                try {
+                    dispose();
+                    controller.getUpdatesForPublished(cells.getName(), cells.getId_version());
+                } catch(Exception j){
+                    JOptionPane.showMessageDialog(null, j.getMessage());
+                }
             }
         });
 
@@ -386,7 +391,7 @@ public class SheetView extends JFrame implements ISheetView {
     }
 
     @Override
-    public void loadChanges() {
+    public void loadChanges() throws Exception {
         // no implementation
     }
 
