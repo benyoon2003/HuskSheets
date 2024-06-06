@@ -530,6 +530,7 @@ public class UserController implements IUserController {
             this.sheetView.addController(this);
             this.setCurrentSheet(sheetView);
             this.sheetView.makeVisible();
+            //this.sheetView.updateTable();
         } catch(Exception e){
             e.printStackTrace();
         }

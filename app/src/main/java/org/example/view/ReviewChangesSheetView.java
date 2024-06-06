@@ -18,7 +18,7 @@ public class ReviewChangesSheetView extends SheetView {
         super(current);
         this.current = current;
         this.changes = changes;
-        loadChanges();  // Load changes immediately upon initialization
+
     }
 
     public void makeToolbar() {
@@ -106,7 +106,7 @@ public class ReviewChangesSheetView extends SheetView {
         add(toolbar, BorderLayout.NORTH);
     }
 
-    public void loadChanges() {
+    public void updateTable() {
         ArrayList<ArrayList<Cell>> changedCells = this.changes.getCells();
         ArrayList<ArrayList<Cell>> currCells = this.current.getCells();
 
