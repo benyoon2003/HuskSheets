@@ -51,5 +51,7 @@ public interface ISheetView {
      */
     String getExcelColumnName(int columnNumber);
 
+    public void loadChanges() throws Exception;
+
     public void highlightCell(int i, int j, Color pink);
 }

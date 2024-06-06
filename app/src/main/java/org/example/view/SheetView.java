@@ -216,9 +216,9 @@ public class SheetView extends JFrame implements ISheetView {
         toolbar.add(copyButton);
         toolbar.add(pasteButton);
         toolbar.add(getUpdates);
-        toolbar.add(saveButton);
         toolbar.add(zoomInButton);
         toolbar.add(zoomOutButton);
+        toolbar.add(saveButton);
         toolbar.add(conditionalFormattingButton);
         toolbar.add(backButton);
 
@@ -245,7 +245,12 @@ public class SheetView extends JFrame implements ISheetView {
         getUpdates.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.getUpdatesForPublished(cells.getName(), cells.getId_version());
+                try {
+                    dispose();
+                    controller.getUpdatesForPublished(cells.getName(), cells.getId_version());
+                } catch(Exception j){
+                    JOptionPane.showMessageDialog(null, j.getMessage());
+                }
             }
         });
 
@@ -363,7 +368,7 @@ public class SheetView extends JFrame implements ISheetView {
      *
      * @return the JTable instance.
      */
-    private JTable getTable() {
+    protected JTable getTable() {
         return yourTable;
     }
 
@@ -448,10 +453,17 @@ public class SheetView extends JFrame implements ISheetView {
         yourTable.getTableHeader().setFont(tableFont.deriveFont(newSize));
     }
 
+
+    @Override
+    public void loadChanges() throws Exception {
+        // no implementation
+    }
+
     // Displays the right-click window at the location where it was clicked
     private void rightClickCell(JPanel rightClickPanel, int x, int y) {
         rightClickPanel.setLocation(x, y);
         rightClickPanel.setVisible(true);
+
     }
 
     /**

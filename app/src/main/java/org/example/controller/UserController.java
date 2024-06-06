@@ -14,12 +14,7 @@ import org.example.model.Result;
 import org.example.model.SelectedCells;
 import org.example.model.ServerEndpoint;
 import org.example.model.Spreadsheet;
-import org.example.view.HomeView;
-import org.example.view.IHomeView;
-import org.example.view.ILoginView;
-import org.example.view.ISheetView;
-import org.example.view.SheetView;
-import org.example.view.SubscriberSheetView;
+import org.example.view.*;
 
 import java.io.File;
 import java.net.URI;
@@ -206,6 +201,7 @@ public class UserController implements IUserController {
         try {
             Result createSheetResult = serverEndpoint.createSheet(name);
             if (createSheetResult.getSuccess()) {
+                this.homeView.disposeHomePage();
                 this.spreadsheetModel = new Spreadsheet(name);
                 this.sheetView = new SheetView(this.spreadsheetModel);
                 this.setCurrentSheet(sheetView);
@@ -414,6 +410,7 @@ public class UserController implements IUserController {
     @Override
     public void openSheet(String path) {
         try {
+            this.homeView.disposeHomePage();
             this.spreadsheetModel = this.home.readXML(path);
             this.sheetView = new SheetView(spreadsheetModel);
             this.sheetView.makeVisible();
@@ -477,8 +474,6 @@ public class UserController implements IUserController {
                 System.out.println("Payload received: " + payload);
                 fullPayload += payload_string;
             }
-
-
             this.spreadsheetModel = this.home.readPayload(fullPayload, selectedSheet);
             this.sheetView = new SheetView(spreadsheetModel);
             this.setCurrentSheet(sheetView);
@@ -507,14 +502,21 @@ public class UserController implements IUserController {
             Result getUpdatesForSubscriptionResult = this.serverEndpoint.getUpdatesForSubscription(publisher, selectedSheet, "0");
             System.out.println("Response from server: " + getUpdatesForSubscriptionResult.getMessage());
 
-            String payload = getUpdatesForSubscriptionResult.getValue().get(0).getPayload();
-            System.out.println("Payload received: " + payload);
-            this.spreadsheetModel = this.home.readPayload(payload, selectedSheet);
+            String fullPayload = "";
+            List<Argument> payloads = getUpdatesForSubscriptionResult.getValue();
+            for(Argument payload : payloads) {
+                String payload_string = payload.getPayload();
+                System.out.println("Payload received: " + payload);
+                fullPayload += payload_string;
+            }
+            System.out.println("Payload received: " + fullPayload);
+            this.spreadsheetModel = this.home.readPayload(fullPayload, selectedSheet);
             this.sheetView = new SubscriberSheetView(publisher, spreadsheetModel);
             this.sheetView.addController(this);
             this.setCurrentSheet(sheetView);
             this.sheetView.makeVisible();
         } catch (Exception e) {
+            e.printStackTrace();
             e.printStackTrace();
         }
     }
@@ -524,16 +526,30 @@ public class UserController implements IUserController {
      * @param sheet name of the sheet
      * @param id version of sheet
      */
-    public void getUpdatesForPublished(String sheet, int id){
+    public void getUpdatesForPublished(String sheet, int id) throws Exception {
         try{
             Result getUpdatesForPublishedResult = this.serverEndpoint.getUpdatesForPublished(this.appUser.getUsername(), sheet, String.valueOf(id));
-            String payload = getUpdatesForPublishedResult.getValue().get(0).getPayload();
-            ISpreadsheet changes = this.home.readPayload(payload, sheet);
-            System.out.println("Changes payload received: " + payload);
-            //Open new sheetview to review changes
+            //String payload = getUpdatesForPublishedResult.getValue().get(0).getPayload();
 
+            String fullPayload = "";
+            List<Argument> payloads = getUpdatesForPublishedResult.getValue();
+            for(Argument payload : payloads) {
+                String payload_string = payload.getPayload();
+                System.out.println("Payload received: " + payload);
+                fullPayload += payload_string;
+            }
+
+
+            ISpreadsheet changes = this.home.readPayload(fullPayload, sheet);
+            System.out.println("Changes payload received: " + fullPayload);
+            //Open new sheetview to review changes
+            this.sheetView = new ReviewChangesSheetView(changes, this.spreadsheetModel);
+            this.sheetView.addController(this);
+            this.setCurrentSheet(sheetView);
+            this.sheetView.makeVisible();
+            this.sheetView.loadChanges();
         } catch(Exception e){
-            e.printStackTrace();
+            throw new Exception(e.getMessage());
         }
     }
 
@@ -695,7 +711,9 @@ public class UserController implements IUserController {
         return this.spreadsheetModel.getCellFormula(row, col);
     }
 
+    @Override
     public void applyConditionalFormatting() {
+        System.out.println("Applying Conditional Formatting...");
         Cell[][] cells = this.spreadsheetModel.getCellsObject();
         for (int i = 0; i < this.spreadsheetModel.getRows(); i++) {
             for (int j = 0; j < this.spreadsheetModel.getCols(); j++) {
@@ -704,8 +722,10 @@ public class UserController implements IUserController {
                     try {
                         double numericValue = Double.parseDouble(value);
                         if (numericValue < 0) {
+                            System.out.println("Highlighting cell (" + i + ", " + j + ") with PINK");
                             this.highlightCell(i, j, SheetView.PINK);
                         } else if (numericValue > 0) {
+                            System.out.println("Highlighting cell (" + i + ", " + j + ") with GREEN");
                             this.highlightCell(i, j, SheetView.GREEN);
                         }
                     } catch (NumberFormatException e) {
@@ -717,13 +737,19 @@ public class UserController implements IUserController {
             }
         }
         this.sheetView.updateTable();
+        System.out.println("Conditional Formatting Applied.");
     }
-    
+
     public void highlightCell(int row, int col, Color color) {
+        if (color.equals(SheetView.GREEN) || color.equals(SheetView.PINK)) {
+            System.out.println("Calling highlightCell with row: " + row + ", col: " + col + ", color: " + color);
+        }
         if (sheetView instanceof SheetView) {
             ((SheetView) sheetView).highlightCell(row, col, color);
         }
     }
+    
+    
    
     
     /**
