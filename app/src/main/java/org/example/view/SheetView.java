@@ -301,7 +301,7 @@ public class SheetView extends JFrame implements ISheetView {
      *
      * @return the JTable instance.
      */
-    private JTable getTable() {
+    protected JTable getTable() {
         return yourTable;
     }
 

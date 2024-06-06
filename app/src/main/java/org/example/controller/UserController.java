@@ -527,6 +527,9 @@ public class UserController implements IUserController {
             //Open new sheetview to review changes
 
             this.sheetView = new ReviewChangesSheetView(changes, this.spreadsheetModel);
+            this.sheetView.addController(this);
+            this.setCurrentSheet(sheetView);
+            this.sheetView.makeVisible();
         } catch(Exception e){
             e.printStackTrace();
         }

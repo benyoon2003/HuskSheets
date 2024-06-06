@@ -1,19 +1,27 @@
 package org.example.view;
 
+import org.example.model.Cell;
 import org.example.model.ISpreadsheet;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
-public class ReviewChangesSheetView extends SheetView{
+public class ReviewChangesSheetView extends SheetView {
+    private ISpreadsheet current;
+    private ISpreadsheet changes;
 
-    public ReviewChangesSheetView(ISpreadsheet changes, ISpreadsheet current){
+    public ReviewChangesSheetView(ISpreadsheet changes, ISpreadsheet current) {
         super(current);
+        this.current = current;
+        this.changes = changes;
+        loadChanges();  // Load changes immediately upon initialization
     }
 
-    public void makeToolbar(){
+    public void makeToolbar() {
         // Create toolbar
         JToolBar toolbar = new JToolBar();
         JButton cutButton = new JButton("Cut");
@@ -84,18 +92,68 @@ public class ReviewChangesSheetView extends SheetView{
         accept.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                // Accept changes logic here
             }
         });
-
 
         deny.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
-                
+                // Deny changes logic here
             }
         });
+
         add(toolbar, BorderLayout.NORTH);
+    }
+
+    public void loadChanges() {
+        ArrayList<ArrayList<Cell>> changedCells = this.changes.getCells();
+        ArrayList<ArrayList<Cell>> currCells = this.current.getCells();
+
+        for (int i = 0; i < changedCells.size(); i++) {
+            for (int j = 0; j < changedCells.get(i).size(); j++) {
+                Cell change = changedCells.get(i).get(j);
+                Cell curr = currCells.get(i).get(j);
+
+                if (!curr.getRawdata().equals(change.getRawdata())) {
+                    controller.changeSpreadSheetValueAt(i, j + 1, change.getRawdata());
+                }
+            }
+        }
+
+        // Apply custom cell renderer to highlight changes
+        applyCustomCellRenderer();
+    }
+
+    private void applyCustomCellRenderer() {
+        JTable table = getTable();
+        if (table != null) {
+            for (int i = 1; i < table.getColumnCount(); i++) { // Skip first column (row headers)
+                table.getColumnModel().getColumn(i).setCellRenderer(new CustomCellRenderer());
+            }
+        }
+    }
+
+    // Custom cell renderer to highlight changed cells
+    private class CustomCellRenderer extends DefaultTableCellRenderer {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            Component cellComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            // Adjust column index to account for row headers
+            int modelColumn = table.convertColumnIndexToModel(column) - 1;
+            if (modelColumn >= 0) {
+                Cell currentCell = current.getCells().get(row).get(modelColumn);
+                Cell changeCell = changes.getCells().get(row).get(modelColumn);
+
+                if (!currentCell.getRawdata().equals(changeCell.getRawdata())) {
+                    cellComponent.setBackground(Color.YELLOW); // Highlight changed cells
+                } else {
+                    cellComponent.setBackground(Color.WHITE); // Default color for unchanged cells
+                }
+            }
+
+            return cellComponent;
+        }
     }
 }

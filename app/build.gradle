@@ -1,12 +1,12 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '2.7.1'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.springframework.boot' version '3.2.0'
+    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
     id 'application'
     id 'jacoco'
 }
 
-group = 'com.yourcompany'
+group = 'org.example'
 version = '1.0-SNAPSHOT'
 
 repositories {
@@ -14,31 +14,31 @@ repositories {
 }
 
 dependencies {
+    // Application dependencies
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'mysql:mysql-connector-java'
-    implementation 'com.h2database:h2'
     implementation 'com.google.protobuf:protobuf-java:3.21.12'
     implementation 'org.json:json:20210307'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.mockito:mockito-core:3.11.2'
-    testImplementation 'org.mockito:mockito-junit-jupiter:3.11.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.1'
     implementation 'org.graalvm.js:js:21.3.0'
+
+    // Test dependencies
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mockito:mockito-core:4.0.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:4.0.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
 }
 
 application {
-    mainClass = 'com.yourcompany.HuskSheetsApplication'
+    mainClass = 'org.example.HuskSheetsApplication'
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
 jacoco {
-    toolVersion = "0.8.11" // Updated version
+    toolVersion = "0.8.11"
 }
 
 jacocoTestReport {
@@ -55,5 +55,6 @@ test {
 }
 
 tasks.named('test') {
+    useJUnitPlatform()
     finalizedBy jacocoTestReport
 }
