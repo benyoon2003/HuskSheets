@@ -53,9 +53,9 @@ public class SubscriberSheetView extends SheetView{
     toolbar.add(cutButton);
     toolbar.add(copyButton);
     toolbar.add(pasteButton);
-    toolbar.add(saveButton);
     toolbar.add(zoomInButton);
     toolbar.add(zoomOutButton);
+    toolbar.add(saveButton);
     toolbar.add(backButton);
 
     // Add action listeners for buttons

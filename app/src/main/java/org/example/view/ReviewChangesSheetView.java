@@ -2,12 +2,14 @@ package org.example.view;
 
 import org.example.model.Cell;
 import org.example.model.ISpreadsheet;
+import org.example.model.Spreadsheet;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 
 public class ReviewChangesSheetView extends SheetView {
@@ -49,9 +51,9 @@ public class ReviewChangesSheetView extends SheetView {
         toolbar.add(pasteButton);
         toolbar.add(accept);
         toolbar.add(deny);
-        toolbar.add(saveButton);
         toolbar.add(zoomInButton);
         toolbar.add(zoomOutButton);
+        toolbar.add(saveButton);
         toolbar.add(backButton);
 
         // Add action listeners for buttons
@@ -92,6 +94,8 @@ public class ReviewChangesSheetView extends SheetView {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Accept changes logic here
+                handleSave();
+                controller.openServerSheet(current.getName());
             }
         });
 
@@ -99,10 +103,18 @@ public class ReviewChangesSheetView extends SheetView {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Deny changes logic here
+                controller.openServerSheet(current.getName());
             }
         });
 
         add(toolbar, BorderLayout.NORTH);
+    }
+
+
+    public void handleSave(){
+        controller.saveSheetToServer(cells, ((Spreadsheet) cells).getName());
+        System.out.println(((Spreadsheet) cells).getName());
+        makeVisible();
     }
 
     public void loadChanges() {
@@ -119,8 +131,11 @@ public class ReviewChangesSheetView extends SheetView {
                 }
             }
         }
+
         applyCustomCellRenderer();
+        getTable().repaint(); // Refresh table to ensure changes are reflected
     }
+
 
     private void applyCustomCellRenderer() {
         JTable table = getTable();
@@ -131,7 +146,7 @@ public class ReviewChangesSheetView extends SheetView {
         }
     }
 
-    // Custom cell renderer to highlight changed cells
+
     private class CustomCellRenderer extends DefaultTableCellRenderer {
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -153,4 +168,5 @@ public class ReviewChangesSheetView extends SheetView {
             return cellComponent;
         }
     }
+
 }

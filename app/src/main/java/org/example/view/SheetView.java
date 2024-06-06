@@ -180,9 +180,9 @@ public class SheetView extends JFrame implements ISheetView {
         toolbar.add(copyButton);
         toolbar.add(pasteButton);
         toolbar.add(getUpdates);
-        toolbar.add(saveButton);
         toolbar.add(zoomInButton);
         toolbar.add(zoomOutButton);
+        toolbar.add(saveButton);
         toolbar.add(backButton);
 
         // Add action listeners for buttons
