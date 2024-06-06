@@ -1,5 +1,4 @@
 plugins {
-    // Apply the Java and Spring Boot plugins
     id 'java'
     id 'org.springframework.boot' version '2.7.1'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
@@ -11,57 +10,35 @@ group = 'com.yourcompany'
 version = '1.0-SNAPSHOT'
 
 repositories {
-    // Use Maven Central for resolving dependencies.
     mavenCentral()
 }
 
 dependencies {
-    // Spring Boot Starter for web applications
     implementation 'org.springframework.boot:spring-boot-starter-web'
-
-    // Spring Boot Starter for JPA (Java Persistence API)
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-
-    // MySQL connector for Java
     implementation 'mysql:mysql-connector-java'
-
-    // H2 Database
     implementation 'com.h2database:h2'
-
-    // Protocol Buffers
     implementation 'com.google.protobuf:protobuf-java:3.21.12'
-
-    // org.json dependency
     implementation 'org.json:json:20210307'
-
-    // Use JUnit Jupiter for testing.
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
-    // Mockito for mocking
     testImplementation 'org.mockito:mockito-core:3.11.2'
     testImplementation 'org.mockito:mockito-junit-jupiter:3.11.2'
-
-    // JUnit
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.1'
-
-    // Graalvm
-    implementation 'org.graalvm.js:js:21.3.0' // Use the latest version available
+    implementation 'org.graalvm.js:js:21.3.0'
 }
 
 application {
-    mainClass = 'org.example.HuskSheetsApplication'
+    mainClass = 'com.yourcompany.HuskSheetsApplication'
 }
 
-// Apply a specific Java toolchain to ease working on different environments.
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
-// Configure Jacoco plugin for code coverage
 jacoco {
-    toolVersion = "0.8.11"
+    toolVersion = "0.8.11" // Updated version
 }
 
 jacocoTestReport {
@@ -77,8 +54,6 @@ test {
     systemProperty 'java.awt.headless', 'true'
 }
 
-// Ensure Jacoco report is generated after running tests
 tasks.named('test') {
-    useJUnitPlatform()
     finalizedBy jacocoTestReport
 }
