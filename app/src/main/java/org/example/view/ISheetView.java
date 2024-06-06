@@ -48,4 +48,6 @@ public interface ISheetView {
      * @return the Excel-style column name.
      */
     String getExcelColumnName(int columnNumber);
+
+    public void loadChanges();
 }

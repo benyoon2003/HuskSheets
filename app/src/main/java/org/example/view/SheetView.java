@@ -385,6 +385,11 @@ public class SheetView extends JFrame implements ISheetView {
         yourTable.getTableHeader().setFont(tableFont.deriveFont(newSize));
     }
 
+    @Override
+    public void loadChanges() {
+        // no implementation
+    }
+
     /**
      * Inner class to handle toolbar button actions.
      */

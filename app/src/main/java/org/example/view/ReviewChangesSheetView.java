@@ -18,7 +18,6 @@ public class ReviewChangesSheetView extends SheetView {
         super(current);
         this.current = current;
         this.changes = changes;
-
     }
 
     public void makeToolbar() {
@@ -106,7 +105,7 @@ public class ReviewChangesSheetView extends SheetView {
         add(toolbar, BorderLayout.NORTH);
     }
 
-    public void updateTable() {
+    public void loadChanges() {
         ArrayList<ArrayList<Cell>> changedCells = this.changes.getCells();
         ArrayList<ArrayList<Cell>> currCells = this.current.getCells();
 
@@ -116,19 +115,17 @@ public class ReviewChangesSheetView extends SheetView {
                 Cell curr = currCells.get(i).get(j);
 
                 if (!curr.getRawdata().equals(change.getRawdata())) {
-                    controller.changeSpreadSheetValueAt(i, j + 1, change.getRawdata());
+                    controller.changeSpreadSheetValueAt(i, j, change.getRawdata());
                 }
             }
         }
-
-        // Apply custom cell renderer to highlight changes
         applyCustomCellRenderer();
     }
 
     private void applyCustomCellRenderer() {
         JTable table = getTable();
         if (table != null) {
-            for (int i = 1; i < table.getColumnCount(); i++) { // Skip first column (row headers)
+            for (int i = 0; i < table.getColumnCount(); i++) {
                 table.getColumnModel().getColumn(i).setCellRenderer(new CustomCellRenderer());
             }
         }
@@ -141,7 +138,7 @@ public class ReviewChangesSheetView extends SheetView {
             Component cellComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
             // Adjust column index to account for row headers
-            int modelColumn = table.convertColumnIndexToModel(column) - 1;
+            int modelColumn = table.convertColumnIndexToModel(column);
             if (modelColumn >= 0) {
                 Cell currentCell = current.getCells().get(row).get(modelColumn);
                 Cell changeCell = changes.getCells().get(row).get(modelColumn);

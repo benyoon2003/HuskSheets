@@ -525,12 +525,11 @@ public class UserController implements IUserController {
             ISpreadsheet changes = this.home.readPayload(payload, sheet);
             System.out.println("Changes payload received: " + payload);
             //Open new sheetview to review changes
-
             this.sheetView = new ReviewChangesSheetView(changes, this.spreadsheetModel);
             this.sheetView.addController(this);
             this.setCurrentSheet(sheetView);
             this.sheetView.makeVisible();
-            //this.sheetView.updateTable();
+            this.sheetView.loadChanges();
         } catch(Exception e){
             e.printStackTrace();
         }
