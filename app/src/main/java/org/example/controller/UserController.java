@@ -14,12 +14,7 @@ import org.example.model.Result;
 import org.example.model.SelectedCells;
 import org.example.model.ServerEndpoint;
 import org.example.model.Spreadsheet;
-import org.example.view.HomeView;
-import org.example.view.IHomeView;
-import org.example.view.ILoginView;
-import org.example.view.ISheetView;
-import org.example.view.SheetView;
-import org.example.view.SubscriberSheetView;
+import org.example.view.*;
 
 import java.io.File;
 import java.net.URI;
@@ -531,6 +526,7 @@ public class UserController implements IUserController {
             System.out.println("Changes payload received: " + payload);
             //Open new sheetview to review changes
 
+            this.sheetView = new ReviewChangesSheetView(changes, this.spreadsheetModel);
         } catch(Exception e){
             e.printStackTrace();
         }
