@@ -4,7 +4,7 @@ plugins {
     id 'org.springframework.boot' version '2.7.1'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'application'
-    id 'jacoco' // Add Jacoco plugin
+    id 'jacoco'
 }
 
 group = 'com.yourcompany'
@@ -61,7 +61,7 @@ java {
 
 // Configure Jacoco plugin for code coverage
 jacoco {
-    toolVersion = "0.8.7"
+    toolVersion = "0.8.11"
 }
 
 jacocoTestReport {
