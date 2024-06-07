@@ -19,6 +19,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 
@@ -38,6 +40,10 @@ public class SheetView extends JFrame implements ISheetView {
     private double zoomFactor = 1.0;
     private static final int rowSize = 100;
     private static final int colSize = 100;
+    public static final Color PINK = new Color(255, 192, 203);
+    public static final Color GREEN = new Color(0, 255, 0);
+
+    private final Map<Point, Color> highlightedCells = new HashMap<>();
 
     /**
      * Constructs a SheetView with the given spreadsheet.
@@ -100,12 +106,14 @@ public class SheetView extends JFrame implements ISheetView {
         table.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                    boolean hasFocus, int row, int column) {
+                                                           boolean hasFocus, int row, int column) {
                 super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 setHorizontalAlignment(SwingConstants.CENTER); // Align labels to the center
                 return this;
             }
         });
+
+        table.setDefaultRenderer(Object.class, new CustomTableCellRenderer(highlightedCells));
 
         // Add panel for right-clicks
         JPanel rightClickPanel = new JPanel(new GridLayout(1, 1));
@@ -196,26 +204,22 @@ public class SheetView extends JFrame implements ISheetView {
         JButton zoomInButton = new JButton("Zoom In");
         JButton zoomOutButton = new JButton("Zoom Out");
         JButton getUpdates = new JButton("Get Updates");
+        JButton conditionalFormattingButton = new JButton("Add Conditional Formatting");
         backButton = new JButton("Back");
         formulaTextField = new JTextField(20);
         formulaTextField.setEditable(true);
+
+        // Add components to the toolbar
         toolbar.add(new JLabel("Formula:"));
         toolbar.add(formulaTextField);
-        formulaTextField.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                controller.changeSpreadSheetValueAt(controller.getSelectedRowZeroIndex(),
-                        controller.getSelectedColZeroIndex(), formulaTextField.getText());
-            }
-        });
-
         toolbar.add(cutButton);
         toolbar.add(copyButton);
         toolbar.add(pasteButton);
         toolbar.add(getUpdates);
-        toolbar.add(saveButton);
         toolbar.add(zoomInButton);
         toolbar.add(zoomOutButton);
+        toolbar.add(saveButton);
+        toolbar.add(conditionalFormattingButton);
         toolbar.add(backButton);
 
         // Add action listeners for buttons
@@ -236,7 +240,12 @@ public class SheetView extends JFrame implements ISheetView {
         getUpdates.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.getUpdatesForPublished(cells.getName(), cells.getId_version());
+                try {
+                    dispose();
+                    controller.getUpdatesForPublished(cells.getName(), cells.getId_version());
+                } catch(Exception j){
+                    JOptionPane.showMessageDialog(null, j.getMessage());
+                }
             }
         });
 
@@ -254,7 +263,27 @@ public class SheetView extends JFrame implements ISheetView {
             }
         });
 
+        conditionalFormattingButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controller.applyConditionalFormatting();
+            }
+        });
+
+        formulaTextField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controller.changeSpreadSheetValueAt(controller.getSelectedRowZeroIndex(),
+                        controller.getSelectedColZeroIndex(), formulaTextField.getText());
+            }
+        });
+
+        // Add the toolbar to the frame
         add(toolbar, BorderLayout.NORTH);
+
+        // Refresh the JFrame to show the updated toolbar
+        revalidate();
+        repaint();
     }
 
     /**
@@ -264,6 +293,11 @@ public class SheetView extends JFrame implements ISheetView {
      */
     public void changeFormulaTextField(String rawdata) {
         formulaTextField.setText(rawdata);
+    }
+
+    public void highlightCell(int row, int col, Color color) {
+        highlightedCells.put(new Point(row, col + 1), color);
+        yourTable.repaint();
     }
 
     /**
@@ -329,7 +363,7 @@ public class SheetView extends JFrame implements ISheetView {
      *
      * @return the JTable instance.
      */
-    private JTable getTable() {
+    protected JTable getTable() {
         return yourTable;
     }
 
@@ -414,10 +448,17 @@ public class SheetView extends JFrame implements ISheetView {
         yourTable.getTableHeader().setFont(tableFont.deriveFont(newSize));
     }
 
+
+    @Override
+    public void loadChanges() throws Exception {
+        // no implementation
+    }
+
     // Displays the right-click window at the location where it was clicked
     private void rightClickCell(JPanel rightClickPanel, int x, int y) {
         rightClickPanel.setLocation(x, y);
         rightClickPanel.setVisible(true);
+
     }
 
     /**
@@ -496,12 +537,36 @@ public class SheetView extends JFrame implements ISheetView {
             int row = this.view.yourTable.getSelectedRow();
             int col = this.view.yourTable.getSelectedColumn() - 1;
 
-            if (command == "Percentile") {
+            if (command.equals("Percentile")) {
                 System.out.println(command);
                 this.view.getController().getPercentile(row, col);
             }
 
             this.view.updateTable();
+        }
+    }
+
+    /**
+     * Custom TableCellRenderer to highlight cells based on specified colors.
+     */
+    class CustomTableCellRenderer extends DefaultTableCellRenderer {
+        private final Map<Point, Color> highlightedCells;
+
+        public CustomTableCellRenderer(Map<Point, Color> highlightedCells) {
+            this.highlightedCells = highlightedCells;
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            Point cellLocation = new Point(row, column);
+            Color highlightColor = highlightedCells.get(cellLocation);
+            if (highlightColor != null) {
+                c.setBackground(highlightColor);
+            } else {
+                c.setBackground(Color.WHITE);
+            }
+            return c;
         }
     }
 }

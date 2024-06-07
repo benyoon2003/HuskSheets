@@ -216,6 +216,8 @@ public interface IUserController {
 
     public List<String> getSubscribedSheets(String publisher);
 
+    void applyConditionalFormatting();
+
     void openSubscriberSheet(String selectedSheet, String publisher);
 
     public void updateSubscribedSheet(String publisher, IReadOnlySpreadSheet sheet, String name);
@@ -225,5 +227,5 @@ public interface IUserController {
      * @param sheet name of the sheet
      * @param id version of sheet
      */
-    public void getUpdatesForPublished(String sheet, int id);
+    public void getUpdatesForPublished(String sheet, int id) throws Exception;
 }
