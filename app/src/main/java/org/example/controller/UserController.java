@@ -169,10 +169,15 @@ public class UserController implements IUserController {
         for (int row = startRow; row <= endRow; row++) {
             for (int col = startCol; col <= endCol; col++) {
                 System.out.println("Changing value at (" + row + ", " + col + ") to " + value);
-                changeSpreadSheetValueAt(row, col, value);
+                if (value.equals("")) {
+                    changeSpreadSheetValueAt(row, col, "");
+                } else {
+                    changeSpreadSheetValueAt(row, col, value);
+                }
             }
         }
     }
+    
     
 
     public void updateSubscribedSheet(String publisher, IReadOnlySpreadSheet sheet, String name) {

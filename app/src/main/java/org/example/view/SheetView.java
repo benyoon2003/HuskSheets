@@ -88,15 +88,17 @@ public class SheetView extends JFrame implements ISheetView {
         yourTable.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_DELETE) {
-                    System.out.println("Delete key pressed");
-                    controller.updateSelectedCells("");
+                if (e.getKeyCode() == KeyEvent.VK_DELETE || e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+                    System.out.println(e.getKeyCode() == KeyEvent.VK_DELETE ? "Delete key pressed" : "Backspace key pressed");
+                    controller.updateSelectedCells(""); // Pass an empty string to clear cells
                 } else if (Character.isDigit(e.getKeyChar())) {
                     System.out.println("Digit key pressed: " + e.getKeyChar());
                     controller.updateSelectedCells(String.valueOf(e.getKeyChar()));
                 }
             }
         });
+        
+        
 
         yourTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
