@@ -4,6 +4,7 @@ import org.example.controller.IUserController;
 import org.example.model.IReadOnlySpreadSheet;
 import org.example.model.ISpreadsheet;
 import org.example.model.Spreadsheet;
+import org.example.model.SelectedCells;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -14,8 +15,10 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
@@ -34,6 +37,60 @@ public class SubscriberSheetView extends SheetView {
         this.publisher = publisher;
         this.cells = openSheet;
         setup();
+    }
+
+    @Override
+    public void setup() {
+        super.setup();
+
+        yourTable.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_DELETE || e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+                    System.out.println(e.getKeyCode() == KeyEvent.VK_DELETE ? "Delete key pressed" : "Backspace key pressed");
+                    controller.updateSelectedCells(""); // Pass an empty string to clear cells
+                } else if (Character.isDigit(e.getKeyChar())) {
+                    System.out.println("Digit key pressed: " + e.getKeyChar());
+                    controller.updateSelectedCells(String.valueOf(e.getKeyChar()));
+                }
+            }
+        });
+
+        yourTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    int[] selectedRows = yourTable.getSelectedRows();
+                    int[] selectedColumns = yourTable.getSelectedColumns();
+                    controller.selectedCells(selectedRows, selectedColumns);
+                }
+            }
+        });
+
+        yourTable.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    int[] selectedRows = yourTable.getSelectedRows();
+                    int[] selectedColumns = yourTable.getSelectedColumns();
+                    controller.selectedCells(selectedRows, selectedColumns);
+                }
+            }
+        });
+
+        yourTable.getModel().addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                if (!isUpdatingTable) {
+                    int selRow = e.getFirstRow();
+                    int selCol = e.getColumn();
+                    if (selRow != -1 && selCol != -1 && selCol != 0) {
+                        String val = String.valueOf(yourTable.getValueAt(selRow, selCol));
+                        controller.changeSpreadSheetValueAt(selRow, selCol - 1, val);
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -223,23 +280,10 @@ public class SubscriberSheetView extends SheetView {
             } else {
                 c.setBackground(Color.WHITE);
             }
+            if (isSelected) {
+                c.setBackground(Color.CYAN);
+            }
             return c;
         }
-    }
-    
-    @Override
-    public void setup() {
-        super.setup();
-
-        yourTable.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_DELETE) {
-                    controller.updateSelectedCells("");
-                } else if (Character.isDigit(e.getKeyChar())) {
-                    controller.updateSelectedCells(String.valueOf(e.getKeyChar()));
-                }
-            }
-        });
     }
 }

@@ -177,8 +177,6 @@ public class UserController implements IUserController {
             }
         }
     }
-    
-    
 
     public void updateSubscribedSheet(String publisher, IReadOnlySpreadSheet sheet, String name) {
         try {
