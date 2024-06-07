@@ -51,10 +51,28 @@ public interface ISheetView {
      */
     String getExcelColumnName(int columnNumber);
 
+   /**
+     * Loads changes into the SheetView.
+     *
+     * @throws Exception if an error occurs while loading changes.
+     */
     public void loadChanges() throws Exception;
 
+    /**
+     * Highlights a cell with the specified color.
+     *
+     * @param row the row of the cell.
+     * @param col the column of the cell.
+     * @param color the color to highlight.
+     */
     public void highlightCell(int i, int j, Color pink);
-
+    
+    /**
+     * Handles the selection of cells in the table.
+     *
+     * @param selectedRows the selected rows.
+     * @param selectedColumns the selected columns.
+     */
     void selectedCells(int[] selectedRows, int[] selectedColumns);
 
 }

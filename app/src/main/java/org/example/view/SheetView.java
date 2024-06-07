@@ -22,6 +22,9 @@ import java.util.Map;
 
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 
+/**
+ * The SheetView class represents the view for displaying and interacting with a spreadsheet.
+ */
 public class SheetView extends JFrame implements ISheetView {
     final IReadOnlySpreadSheet cells;
     IUserController controller;
@@ -39,11 +42,19 @@ public class SheetView extends JFrame implements ISheetView {
     private final Map<Point, Color> highlightedCells = new HashMap<>();
     private SelectedCells selectedCells;
 
+    /**
+     * Constructs a SheetView with the given spreadsheet.
+     *
+     * @param openSheet the spreadsheet to be displayed.
+     */
     public SheetView(ISpreadsheet openSheet) {
         this.cells = openSheet;
         setup();
     }
 
+    /**
+     * Sets up the components and layout of the SheetView.
+     */
     public void setup() {
         setTitle("Spreadsheet");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -97,8 +108,6 @@ public class SheetView extends JFrame implements ISheetView {
                 }
             }
         });
-        
-        
 
         yourTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -143,6 +152,12 @@ public class SheetView extends JFrame implements ISheetView {
         add(scrollPane, BorderLayout.CENTER);
     }
 
+    /**
+     * Handles the selection of cells in the table.
+     *
+     * @param selectedRows the selected rows.
+     * @param selectedColumns the selected columns.
+     */
     @Override
     public void selectedCells(int[] selectedRows, int[] selectedColumns) {
         if (selectedRows.length > 0 && selectedColumns.length > 0) {
@@ -150,13 +165,13 @@ public class SheetView extends JFrame implements ISheetView {
             int endRow = selectedRows[selectedRows.length - 1];
             int startColumn = selectedColumns[0];
             int endColumn = selectedColumns[selectedColumns.length - 1];
-    
+
             this.selectedCells = new SelectedCells(startRow + 1, endRow + 1, startColumn + 1, endColumn + 1);
-    
+
             System.out.println("Selected range: (" + (selectedCells.getStartRow()) + ", " +
                     selectedCells.getStartCol() + ") to (" + selectedCells.getEndRow() + ", "
                     + selectedCells.getEndCol() + ")");
-    
+
             if (this.singleCellSelected(this.selectedCells)) {
                 this.changeFormulaTextField(this.cells.getCellRawdata(
                         this.selectedCells.getStartRow() - 1, this.selectedCells.getStartCol() - 1));
@@ -165,13 +180,21 @@ public class SheetView extends JFrame implements ISheetView {
             this.selectedCells = new SelectedCells(-1, -1, -1, -1);
         }
     }
-    
 
+    /**
+     * Checks if a single cell is selected.
+     *
+     * @param selectedCells the selected cells.
+     * @return true if a single cell is selected, false otherwise.
+     */
     private boolean singleCellSelected(SelectedCells selectedCells) {
         return selectedCells.getStartRow() == selectedCells.getEndRow() &&
                 selectedCells.getStartCol() == selectedCells.getEndCol();
     }
 
+    /**
+     * Creates the toolbar for the SheetView.
+     */
     public void makeToolbar() {
         JToolBar toolbar = new JToolBar();
         JButton cutButton = new JButton("Cut");
@@ -264,15 +287,33 @@ public class SheetView extends JFrame implements ISheetView {
         repaint();
     }
 
+    /**
+     * Changes the text in the formula text field.
+     *
+     * @param rawdata the raw data to set.
+     */
     public void changeFormulaTextField(String rawdata) {
         formulaTextField.setText(rawdata);
     }
 
+    /**
+     * Highlights a cell with the specified color.
+     *
+     * @param row the row of the cell.
+     * @param col the column of the cell.
+     * @param color the color to highlight.
+     */
     public void highlightCell(int row, int col, Color color) {
         highlightedCells.put(new Point(row, col + 1), color);
         yourTable.repaint();
     }
 
+    /**
+     * Converts a column number to its corresponding Excel column name.
+     *
+     * @param columnNumber the column number.
+     * @return the Excel column name.
+     */
     public String getExcelColumnName(int columnNumber) {
         StringBuilder columnName = new StringBuilder();
         while (columnNumber > 0) {
@@ -283,11 +324,19 @@ public class SheetView extends JFrame implements ISheetView {
         return columnName.toString();
     }
 
+    /**
+     * Adds a controller to the SheetView.
+     *
+     * @param controller the controller to add.
+     */
     @Override
     public void addController(IUserController controller) {
         this.controller = controller;
     }
 
+    /**
+     * Updates the table with the latest data.
+     */
     public void updateTable() {
         isUpdatingTable = true;
         JTable table = getTable();
@@ -321,20 +370,38 @@ public class SheetView extends JFrame implements ISheetView {
         isUpdatingTable = false;
     }
 
+    /**
+     * Gets the table used in the SheetView.
+     *
+     * @return the table.
+     */
     protected JTable getTable() {
         return yourTable;
     }
 
+    /**
+     * Gets the controller associated with the SheetView.
+     *
+     * @return the controller.
+     */
     public IUserController getController() {
         return this.controller;
     }
 
+    /**
+     * Makes the SheetView visible.
+     */
     @Override
     public void makeVisible() {
         this.updateTable();
         this.setVisible(true);
     }
 
+    /**
+     * Saves the spreadsheet to the specified path.
+     *
+     * @param path the path to save the spreadsheet.
+     */
     public void save(String path) {
         try {
             this.controller.saveSheetToServer(this.cells, path);
@@ -344,6 +411,9 @@ public class SheetView extends JFrame implements ISheetView {
         }
     }
 
+    /**
+     * Handles the save action.
+     */
     public void handleSave() {
         int option = JOptionPane.showOptionDialog(
                 null,
@@ -368,11 +438,21 @@ public class SheetView extends JFrame implements ISheetView {
         }
     }
 
+    /**
+     * Displays a message in a dialog box.
+     *
+     * @param s the message to display.
+     */
     @Override
     public void displayMessage(String s) {
         JOptionPane.showMessageDialog(this, s);
     }
 
+    /**
+     * Zooms the table by the specified factor.
+     *
+     * @param factor the zoom factor.
+     */
     void zoomTable(double factor) {
         this.zoomFactor *= factor;
         Font tableFont = yourTable.getFont();
@@ -382,10 +462,18 @@ public class SheetView extends JFrame implements ISheetView {
         yourTable.getTableHeader().setFont(tableFont.deriveFont(newSize));
     }
 
+    /**
+     * Loads changes into the SheetView.
+     *
+     * @throws Exception if an error occurs while loading changes.
+     */
     @Override
     public void loadChanges() throws Exception {
     }
 
+    /**
+     * The ToolbarButtonListener class handles toolbar button actions.
+     */
     class ToolbarButtonListener implements ActionListener {
         private SheetView view;
 
@@ -443,6 +531,9 @@ public class SheetView extends JFrame implements ISheetView {
         }
     }
 
+    /**
+     * The RightClickButtonListener class handles right-click button actions.
+     */
     class RightClickButtonListener implements ActionListener {
         private SheetView view;
 
@@ -464,9 +555,17 @@ public class SheetView extends JFrame implements ISheetView {
         }
     }
 
+    /**
+     * The CustomTableCellRenderer class customizes the rendering of table cells.
+     */
     class CustomTableCellRenderer extends DefaultTableCellRenderer {
         private final Map<Point, Color> highlightedCells;
 
+        /**
+         * Constructs a CustomTableCellRenderer with the specified highlighted cells.
+         *
+         * @param highlightedCells the highlighted cells.
+         */
         public CustomTableCellRenderer(Map<Point, Color> highlightedCells) {
             this.highlightedCells = highlightedCells;
         }

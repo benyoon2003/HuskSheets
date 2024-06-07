@@ -14,6 +14,11 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+/**
+ * The UserController class is responsible for managing user interactions and the flow of data
+ * between the view and the model. It handles user authentication, sheet operations, and 
+ * server communication.
+ */
 public class UserController implements IUserController {
 
     private ILoginView loginPage;
@@ -30,6 +35,11 @@ public class UserController implements IUserController {
     private boolean isCutOperation = false;
     private ServerEndpoint serverEndpoint;
 
+    /**
+     * Constructs a UserController with the given login view.
+     *
+     * @param loginView the login view to be used for user authentication.
+     */
     public UserController(ILoginView loginView) {
         this.loginPage = loginView;
         loginView.addController(this);
@@ -37,6 +47,12 @@ public class UserController implements IUserController {
         this.serverEndpoint = new ServerEndpoint();
     }
 
+    /**
+     * Registers a new user with the given username and password.
+     *
+     * @param username the username of the new user.
+     * @param password the password of the new user.
+     */
     public void registerUser(String username, String password) {
         try {
             if (validateInput(username, password)) {
@@ -58,6 +74,12 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Logs in a user with the given username and password.
+     *
+     * @param username the username of the user.
+     * @param password the password of the user.
+     */
     @Override
     public void loginUser(String username, String password) {
         try {
@@ -80,6 +102,11 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Retrieves a list of publishers.
+     *
+     * @return a list of publisher usernames.
+     */
     @Override
     public List<String> getPublishers() {
         if (appUser == null) {
@@ -102,16 +129,31 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Sets the current sheet view.
+     *
+     * @param sheetView the sheet view to be set as current.
+     */
     @Override
     public void setCurrentSheet(ISheetView sheetView) {
         this.sheetView = sheetView;
         this.sheetView.addController(this);
     }
 
+    /**
+     * Gets the current sheet view.
+     *
+     * @return the current sheet view.
+     */
     public ISheetView getCurrentSheet() {
         return this.sheetView;
     }
 
+    /**
+     * Creates a new sheet with the given name.
+     *
+     * @param name the name of the new sheet.
+     */
     @Override
     public void createNewSheet(String name) {
         try {
@@ -130,6 +172,12 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Saves the given sheet to a local path.
+     *
+     * @param sheet the sheet to be saved.
+     * @param path the path to save the sheet to.
+     */
     @Override
     public void saveSheet(IReadOnlySpreadSheet sheet, String path) {
         try {
@@ -139,6 +187,12 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Saves the given sheet to the server with the specified name.
+     *
+     * @param sheet the sheet to be saved.
+     * @param name the name to save the sheet as on the server.
+     */
     @Override
     public void saveSheetToServer(IReadOnlySpreadSheet sheet, String name) {
         try {
@@ -155,13 +209,18 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Updates the selected cells with the given value.
+     *
+     * @param value the value to update the selected cells with.
+     */
     public void updateSelectedCells(String value) {
         if (selectedCells == null || selectedCells.getStartRow() == -1) return;
     
         int startRow = selectedCells.getStartRow() - 1;
         int endRow = selectedCells.getEndRow() - 1;
-        int startCol = selectedCells.getStartCol() - 2; // Adjust this to correctly reference the selected columns
-        int endCol = selectedCells.getEndCol() - 2; // Adjust this to correctly reference the selected columns
+        int startCol = selectedCells.getStartCol() - 2;
+        int endCol = selectedCells.getEndCol() - 2;
     
         System.out.println("Updating cells from row " + startRow + " to " + endRow +
                 " and columns from " + startCol + " to " + endCol);
@@ -178,6 +237,13 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Updates a subscribed sheet on the server.
+     *
+     * @param publisher the publisher of the sheet.
+     * @param sheet the sheet to be updated.
+     * @param name the name of the sheet.
+     */
     public void updateSubscribedSheet(String publisher, IReadOnlySpreadSheet sheet, String name) {
         try {
             String payload = convertSheetToPayload(sheet);
@@ -193,6 +259,12 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Converts a sheet to a payload string.
+     *
+     * @param sheet the sheet to be converted.
+     * @return the payload string representing the sheet.
+     */
     public static String convertSheetToPayload(IReadOnlySpreadSheet sheet) {
         StringBuilder payload = new StringBuilder();
         Cell[][] values = sheet.getCellsObject();
@@ -208,6 +280,12 @@ public class UserController implements IUserController {
         return payload.toString();
     }
 
+    /**
+     * Gets the Excel column name for a given column number.
+     *
+     * @param columnNumber the column number.
+     * @return the Excel column name.
+     */
     public static String getExcelColumnName(int columnNumber) {
         StringBuilder columnName = new StringBuilder();
         while (columnNumber > 0) {
@@ -218,11 +296,22 @@ public class UserController implements IUserController {
         return columnName.toString();
     }
 
+    /**
+     * Handles toolbar actions.
+     *
+     * @param command the toolbar command.
+     */
     @Override
     public void handleToolbar(String command) {
         this.sheetView.displayMessage(command + " button clicked");
     }
 
+    /**
+     * Updates the selected cells based on the given selected rows and columns.
+     *
+     * @param selectedRows the selected rows.
+     * @param selectedColumns the selected columns.
+     */
     @Override
     public void selectedCells(int[] selectedRows, int[] selectedColumns) {
         if (selectedRows.length > 0 && selectedColumns.length > 0) {
@@ -246,10 +335,20 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Gets the zero-based index of the selected row.
+     *
+     * @return the zero-based index of the selected row.
+     */
     public int getSelectedRowZeroIndex() {
         return selectedCells.getStartRow() - 1;
     }
 
+    /**
+     * Gets the zero-based index of the selected column.
+     *
+     * @return the zero-based index of the selected column.
+     */
     public int getSelectedColZeroIndex() {
         return selectedCells.getStartCol() - 1;
     }
@@ -259,6 +358,11 @@ public class UserController implements IUserController {
                 selectedCells.getStartCol() == selectedCells.getEndCol();
     }
 
+    /**
+     * Opens a sheet from the specified path.
+     *
+     * @param path the path to the sheet.
+     */
     @Override
     public void openSheet(String path) {
         try {
@@ -272,6 +376,11 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Gets a list of saved sheets.
+     *
+     * @return a list of saved sheets.
+     */
     @Override
     public List<String> getSavedSheets() {
         List<String> sheets = new ArrayList<>();
@@ -289,6 +398,11 @@ public class UserController implements IUserController {
         return sheets;
     }
 
+    /**
+     * Gets a list of sheets from the server.
+     *
+     * @return a list of server sheets.
+     */
     @Override
     public List<String> getServerSheets() {
         List<String> sheets = new ArrayList<>();
@@ -301,6 +415,11 @@ public class UserController implements IUserController {
         return sheets;
     }
 
+    /**
+     * Opens a server sheet with the specified name.
+     *
+     * @param selectedSheet the name of the sheet to open.
+     */
     @Override
     public void openServerSheet(String selectedSheet) {
         try {
@@ -323,6 +442,12 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Gets a list of subscribed sheets from the specified publisher.
+     *
+     * @param publisher the publisher of the sheets.
+     * @return a list of subscribed sheets.
+     */
     public List<String> getSubscribedSheets(String publisher) {
         try {
             List<String> sheets = new ArrayList<>();
@@ -335,6 +460,12 @@ public class UserController implements IUserController {
         return null;
     }
 
+    /**
+     * Opens a subscriber sheet with the specified name from the given publisher.
+     *
+     * @param selectedSheet the name of the sheet to open.
+     * @param publisher the publisher of the sheet.
+     */
     @Override
     public void openSubscriberSheet(String selectedSheet, String publisher) {
         try {
@@ -359,6 +490,13 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Gets updates for the published sheet with the specified ID.
+     *
+     * @param sheet the name of the sheet.
+     * @param id the ID of the sheet.
+     * @throws Exception if an error occurs while getting updates.
+     */
     public void getUpdatesForPublished(String sheet, int id) throws Exception {
         try {
             Result getUpdatesForPublishedResult = this.serverEndpoint.getUpdatesForPublished(this.appUser.getUsername(), sheet, String.valueOf(id));
@@ -381,6 +519,11 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Deletes a sheet from the local storage.
+     *
+     * @param path the path to the sheet to be deleted.
+     */
     @Override
     public void deleteSheet(String path) {
         File file = new File("sheets/" + path);
@@ -390,6 +533,11 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Deletes a sheet from the server.
+     *
+     * @param name the name of the sheet to be deleted.
+     */
     @Override
     public void deleteSheetFromServer(String name) {
         try {
@@ -399,6 +547,14 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Handles cell referencing.
+     *
+     * @param row the row of the cell.
+     * @param col the column of the cell.
+     * @param data the data in the cell.
+     * @return the referenced data.
+     */
     @Override
     public String handleReferencingCell(int row, int col, String data) {
         String rawdata = this.spreadsheetModel.getCellRawdata(row, col);
@@ -409,17 +565,32 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Gets the home view.
+     *
+     * @return the home view.
+     */
     @Override
     public IHomeView getHomeView() {
         return this.homeView;
     }
 
+    /**
+     * Opens the home view.
+     */
     public void openHomeView() {
         this.homeView = new HomeView();
         homeView.addController(this);
         this.homeView.makeVisible();
     }
 
+    /**
+     * Changes the value of a cell in the spreadsheet.
+     *
+     * @param selRow the selected row.
+     * @param selCol the selected column.
+     * @param val the value to set.
+     */
     @Override
     public void changeSpreadSheetValueAt(int selRow, int selCol, String val) {
         System.out.println("Changing value at (" + selRow + ", " + selCol + ") to " + val);
@@ -436,11 +607,23 @@ public class UserController implements IUserController {
         this.sheetView.updateTable();
     }
 
+    /**
+     * Evaluates a formula in the spreadsheet.
+     *
+     * @param formula the formula to evaluate.
+     * @return the evaluated result.
+     */
     @Override
     public String evaluateFormula(String formula) {
         return this.spreadsheetModel.evaluateFormula(formula);
     }
 
+    /**
+     * Cuts the content of a cell.
+     *
+     * @param selRow the selected row.
+     * @param selCol the selected column.
+     */
     @Override
     public void cutCell(int selRow, int selCol) {
         this.clipboardContent = this.spreadsheetModel.getCellRawdata(selRow, selCol);
@@ -449,12 +632,24 @@ public class UserController implements IUserController {
         this.isCutOperation = true;
     }
 
+    /**
+     * Copies the content of a cell.
+     *
+     * @param selRow the selected row.
+     * @param selCol the selected column.
+     */
     @Override
     public void copyCell(int selRow, int selCol) {
         this.clipboardContent = this.spreadsheetModel.getCellRawdata(selRow, selCol);
         this.isCutOperation = false;
     }
 
+    /**
+     * Pastes the content of the clipboard into a cell.
+     *
+     * @param selRow the selected row.
+     * @param selCol the selected column.
+     */
     @Override
     public void pasteCell(int selRow, int selCol) {
         if (!clipboardContent.isEmpty()) {
@@ -467,6 +662,12 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Calculates and sets the percentile of the value in the selected cell.
+     *
+     * @param selRow the selected row.
+     * @param selCol the selected column.
+     */
     @Override
     public void getPercentile(int selRow, int selCol) {
         String value = this.spreadsheetModel.getCellValue(selRow, selCol);
@@ -480,11 +681,21 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Gets the formula of a cell.
+     *
+     * @param row the row of the cell.
+     * @param col the column of the cell.
+     * @return the formula of the cell.
+     */
     @Override
     public String getFormula(int row, int col) {
         return this.spreadsheetModel.getCellFormula(row, col);
     }
 
+    /**
+     * Applies conditional formatting to the spreadsheet.
+     */
     @Override
     public void applyConditionalFormatting() {
         System.out.println("Applying Conditional Formatting...");
@@ -514,6 +725,13 @@ public class UserController implements IUserController {
         System.out.println("Conditional Formatting Applied.");
     }
 
+    /**
+     * Highlights a cell with the specified color.
+     *
+     * @param row the row of the cell.
+     * @param col the column of the cell.
+     * @param color the color to highlight the cell with.
+     */
     public void highlightCell(int row, int col, Color color) {
         if (color.equals(SheetView.GREEN) || color.equals(SheetView.PINK)) {
             System.out.println("Calling highlightCell with row: " + row + ", col: " + col + ", color: " + color);
@@ -523,8 +741,14 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Validates the input username and password.
+     *
+     * @param username the username to validate.
+     * @param password the password to validate.
+     * @return true if both the username and password are non-empty, false otherwise.
+     */
     private boolean validateInput(String username, String password) {
         return !username.isEmpty() && !password.isEmpty();
     }
-
 }
