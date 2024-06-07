@@ -6,6 +6,9 @@ import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactor
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
 
+/**
+ * The main application class for HuskSheets, a Spring Boot application.
+ */
 @SpringBootApplication
 public class HuskSheetsApplication {
 
@@ -13,6 +16,11 @@ public class HuskSheetsApplication {
         SpringApplication.run(HuskSheetsApplication.class, args);
     }
 
+    /**
+     * Customizes the embedded Tomcat web server factory to use a port specified by the "PORT" environment variable.
+     *
+     * @return a customizer for the TomcatServletWebServerFactory
+     */
     @Bean
     public WebServerFactoryCustomizer<TomcatServletWebServerFactory> webServerFactoryCustomizer() {
         return factory -> {
