@@ -22,7 +22,7 @@ import org.graalvm.polyglot.Context;
 public class Spreadsheet implements ISpreadsheet {
 
 
-    private ArrayList<ArrayList<Cell>> grid;
+    private List<List<Cell>> grid;
 
     private String name;
     private int id_version;
@@ -90,7 +90,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @return the grid of cells.
      */
-    public ArrayList<ArrayList<Cell>> getCells() {
+    public List<List<Cell>> getCells() {
         return this.grid;
     }
 
@@ -102,7 +102,7 @@ public class Spreadsheet implements ISpreadsheet {
     public Cell[][] getCellsObject() {
         Cell[][] retObject = new Cell[this.getRows()][this.getCols()];
         for (int r = 0; r < this.getRows(); r++) {
-            ArrayList<Cell> row = this.grid.get(r);
+            List<Cell> row = this.grid.get(r);
             for (int c = 0; c < this.getCols(); c++) {
                 retObject[r][c] = row.get(c);
             }
@@ -118,7 +118,7 @@ public class Spreadsheet implements ISpreadsheet {
     public String[][] getCellStringsObject() {
         String[][] retObject = new String[this.getRows()][this.getCols()];
         for (int r = 0; r < this.getRows(); r++) {
-            ArrayList<Cell> row = this.grid.get(r);
+            List<Cell> row = this.grid.get(r);
             for (int c = 0; c < this.getCols(); c++) {
                 retObject[r][c] = row.get(c).getValue();
             }
@@ -282,6 +282,11 @@ public class Spreadsheet implements ISpreadsheet {
      */
     public List<ISpreadsheet> getSubscribedVersions() {
         return this.subscribeVersions;
+    }
+
+    @Override
+    public void setGrid(List<List<Cell>> updatedGrid) {
+        this.grid = updatedGrid;
     }
 
     /**

@@ -220,7 +220,7 @@ public class SubscriberSheetView extends SheetView {
             if (this.controller == null) {
                 System.out.println("Error: Controller is null");
             } else {
-                this.controller.updateSubscribedSheet(this.publisher, cells, ((Spreadsheet) cells).getName());
+                this.controller.updateSubscribedSheet(this.publisher, cells, cells.getName());
                 System.out.println("Spreadsheet Name: " + ((Spreadsheet) cells).getName());
                 makeVisible();
             }

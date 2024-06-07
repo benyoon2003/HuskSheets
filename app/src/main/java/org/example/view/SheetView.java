@@ -433,7 +433,7 @@ public class SheetView extends JFrame implements ISheetView {
                 controller.saveSheetToServer(cells, selectedFile.getAbsolutePath());
             }
         } else if (option == JOptionPane.NO_OPTION) {
-            controller.saveSheetToServer(cells, ((Spreadsheet) cells).getName());
+            controller.saveSheetToServer(cells, cells.getName());
             makeVisible();
         }
     }

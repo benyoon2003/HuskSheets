@@ -276,8 +276,14 @@ public class UserController implements IUserController {
                 }
             }
         }
-        System.out.println("convertSheetToPayload is called here!");
-        return payload.toString();
+
+        if (payload.isEmpty()) {
+            return "";
+        }
+        else {
+            System.out.println("convertSheetToPayload is called here!");
+            return payload.toString();
+        }
     }
 
     /**
@@ -425,14 +431,14 @@ public class UserController implements IUserController {
         try {
             Result getUpdatesForSubscriptionResult = this.serverEndpoint.getUpdatesForSubscription(this.appUser.getUsername(), selectedSheet, "0");
             System.out.println("Response from server: " + getUpdatesForSubscriptionResult.getMessage());
-
-            String fullPayload = "";
-            List<Argument> payloads = getUpdatesForSubscriptionResult.getValue();
-            for (Argument payload : payloads) {
-                String payload_string = payload.getPayload();
-                System.out.println("Payload received: " + payload);
-                fullPayload += payload_string;
-            }
+            String fullPayload = getUpdatesForSubscriptionResult.getValue().getLast().getPayload();
+//            String fullPayload = "";
+//            List<Argument> payloads = getUpdatesForSubscriptionResult.getValue();
+//            for (Argument payload : payloads) {
+//                String payload_string = payload.getPayload();
+//                System.out.println("Payload received: " + payload);
+//                fullPayload += payload_string;
+//            }
             this.spreadsheetModel = this.home.readPayload(fullPayload, selectedSheet);
             this.sheetView = new SheetView(spreadsheetModel);
             this.setCurrentSheet(sheetView);
@@ -471,14 +477,7 @@ public class UserController implements IUserController {
         try {
             Result getUpdatesForSubscriptionResult = this.serverEndpoint.getUpdatesForSubscription(publisher, selectedSheet, "0");
             System.out.println("Response from server: " + getUpdatesForSubscriptionResult.getMessage());
-
-            String fullPayload = "";
-            List<Argument> payloads = getUpdatesForSubscriptionResult.getValue();
-            for (Argument payload : payloads) {
-                String payload_string = payload.getPayload();
-                System.out.println("Payload received: " + payload);
-                fullPayload += payload_string;
-            }
+            String fullPayload = getUpdatesForSubscriptionResult.getValue().getLast().getPayload();
             System.out.println("Payload received: " + fullPayload);
             this.spreadsheetModel = this.home.readPayload(fullPayload, selectedSheet);
             this.sheetView = new SubscriberSheetView(publisher, spreadsheetModel);
