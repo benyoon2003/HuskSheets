@@ -46,4 +46,11 @@ public interface IReadOnlySpreadSheet {
      */
     String getName();
 
+    /**
+     * Gets the raw data of a cell in the spreadsheet.
+     *
+     * @return the raw data of a particular cell at a row and column specified value.
+     */
+    String getCellRawdata(int row, int col);
+
 }
