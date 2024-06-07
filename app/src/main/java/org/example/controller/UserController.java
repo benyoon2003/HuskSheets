@@ -219,8 +219,8 @@ public class UserController implements IUserController {
     
         int startRow = selectedCells.getStartRow() - 1;
         int endRow = selectedCells.getEndRow() - 1;
-        int startCol = selectedCells.getStartCol() - 2;
-        int endCol = selectedCells.getEndCol() - 2;
+        int startCol = selectedCells.getStartCol() - 1;
+        int endCol = selectedCells.getEndCol() - 1;
     
         System.out.println("Updating cells from row " + startRow + " to " + endRow +
                 " and columns from " + startCol + " to " + endCol);
@@ -320,7 +320,7 @@ public class UserController implements IUserController {
             int startColumn = selectedColumns[0];
             int endColumn = selectedColumns[selectedColumns.length - 1];
 
-            this.selectedCells = new SelectedCells(startRow + 1, endRow + 1, startColumn + 1, endColumn + 1);
+            this.selectedCells = new SelectedCells(startRow + 1, endRow + 1, startColumn, endColumn);
 
             System.out.println("Selected range: (" + (selectedCells.getStartRow()) + ", " +
                     selectedCells.getStartCol() + ") to (" + selectedCells.getEndRow() + ", "
