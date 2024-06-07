@@ -46,4 +46,6 @@ public interface IReadOnlySpreadSheet {
      */
     String getName();
 
+    String getCellRawdata(int row, int col);
+
 }

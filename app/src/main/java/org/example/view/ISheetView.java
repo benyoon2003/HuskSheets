@@ -54,4 +54,7 @@ public interface ISheetView {
     public void loadChanges() throws Exception;
 
     public void highlightCell(int i, int j, Color pink);
+
+    void selectedCells(int[] selectedRows, int[] selectedColumns);
+
 }

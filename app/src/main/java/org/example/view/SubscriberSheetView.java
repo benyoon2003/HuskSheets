@@ -14,6 +14,10 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class SubscriberSheetView extends SheetView {
     final IReadOnlySpreadSheet cells;
@@ -226,7 +230,16 @@ public class SubscriberSheetView extends SheetView {
     @Override
     public void setup() {
         super.setup();
-        // Apply the custom renderer after yourTable is initialized
-        yourTable.setDefaultRenderer(Object.class, new CustomTableCellRenderer(highlightedCells));
+
+        yourTable.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+                    controller.updateSelectedCells("");
+                } else if (Character.isDigit(e.getKeyChar())) {
+                    controller.updateSelectedCells(String.valueOf(e.getKeyChar()));
+                }
+            }
+        });
     }
 }

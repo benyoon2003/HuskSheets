@@ -222,6 +222,8 @@ public interface IUserController {
 
     public void updateSubscribedSheet(String publisher, IReadOnlySpreadSheet sheet, String name);
 
+    void updateSelectedCells(String value);
+
     /**
      * Gets all subscriber updates since the specified id
      * @param sheet name of the sheet
