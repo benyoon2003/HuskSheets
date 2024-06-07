@@ -86,7 +86,6 @@ public class Home implements IHome {
             if (payload != null && !payload.isEmpty()) {
                 List<List<String>> data = convertStringTo2DArray(payload);
                 ISpreadsheet ss = new Spreadsheet(sheetName);
-                ArrayList<ArrayList<Cell>> grid = ss.getCells();
 
                 for (List<String> ls : data) {
                     ss.setCellRawdata(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));

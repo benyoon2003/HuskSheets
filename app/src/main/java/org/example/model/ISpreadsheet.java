@@ -13,7 +13,7 @@ public interface ISpreadsheet extends IReadOnlySpreadSheet {
      *
      * @return a 2D ArrayList of Cell objects representing the cells in the spreadsheet.
      */
-    ArrayList<ArrayList<Cell>> getCells();
+    List<List<Cell>> getCells();
 
     /**
      * Evaluates the given formula and returns the result.
@@ -97,4 +97,5 @@ public interface ISpreadsheet extends IReadOnlySpreadSheet {
     public List<ISpreadsheet> getSubscribedVersions();
 
 
+  void setGrid(List<List<Cell>> updatedGrid);
 }

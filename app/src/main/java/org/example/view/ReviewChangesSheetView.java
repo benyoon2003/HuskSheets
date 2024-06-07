@@ -3,6 +3,7 @@ package org.example.view;
 import org.example.model.Cell;
 import org.example.model.ISpreadsheet;
 import org.example.model.Spreadsheet;
+import org.example.model.Cell;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -120,8 +121,8 @@ public class ReviewChangesSheetView extends SheetView {
     }
 
     public void loadChanges() throws Exception {
-        ArrayList<ArrayList<Cell>> changedCells = this.changes.getCells();
-        ArrayList<ArrayList<Cell>> currCells = this.current.getCells();
+        java.util.List<java.util.List<Cell>> changedCells = this.changes.getCells();
+        java.util.List<java.util.List<Cell>> currCells = this.current.getCells();
 
         boolean changed = false;
         for (int i = 0; i < changedCells.size(); i++) {

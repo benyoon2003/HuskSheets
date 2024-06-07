@@ -219,25 +219,34 @@ public class server {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
                         false, "User not found", new ArrayList<>()));
             }
+
             for (ISpreadsheet existingSheet : user.getSheets()) {
                 if (existingSheet.getName().equals(sheet)) {
                     List<List<String>> data = Home.convertStringTo2DArray(payload);
-                    for (List<String> ls : data) {
-                        System.out.println("Row: " + ls.get(0) + " Col: " + ls.get(1) + " Value: " + ls.get(2));
-                        existingSheet.setCellRawdata(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
-                        existingSheet.setCellValue(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
+                    List<List<Cell>> updatedGrid = new ArrayList<>();
+                    for (int i = 0; i < existingSheet.getRows(); i++) {
+                        ArrayList<Cell> row = new ArrayList<>();
+                        for (int j = 0; j < existingSheet.getCols(); j++) {
+                            row.add(new Cell(""));
+                        }
+                        updatedGrid.add(row);
                     }
-                    ISpreadsheet update = new Spreadsheet(existingSheet.getName());
-                    //Copy contents of sheet
-                    ArrayList<ArrayList<Cell>> copy = new ArrayList<>();
-                    ArrayList<ArrayList<Cell>> grid = existingSheet.getCells();
-                    for (int i = 0; i < grid.size(); i++){
-                        for(int j = 0; j < grid.get(i).size(); j++){
-                            update.setCellValue(i, j, grid.get(i).get(j).getValue());
-                            update.setCellRawdata(i, j, grid.get(i).get(j).getRawdata());
+
+                    for (List<String> ls : data) {
+                        updatedGrid.get(Integer.parseInt(ls.get(0))).get(Integer.parseInt(ls.get(1))).setValue(ls.get(2));
+                        updatedGrid.get(Integer.parseInt(ls.get(0))).get(Integer.parseInt(ls.get(1))).setRawData(ls.get(2));
+                    }
+                    existingSheet.setGrid(updatedGrid);
+
+                    ISpreadsheet updatedVersion = new Spreadsheet(existingSheet.getName());
+                    List<List<Cell>> grid = existingSheet.getCells();
+                    for (int i = 0; i < grid.size(); i++) {
+                        for(int j = 0; j < grid.get(i).size(); j++) {
+                            updatedVersion.setCellValue(i, j, grid.get(i).get(j).getValue());
+                            updatedVersion.setCellRawdata(i, j, grid.get(i).get(j).getRawdata());
                         }
                     }
-                    existingSheet.addPublished(update);
+                    existingSheet.addPublished(updatedVersion);
                     return ResponseEntity.ok(new Result(true, "Sheet updated successfully", new ArrayList<>()));
                 }
             }
@@ -253,6 +262,7 @@ public class server {
     @PostMapping("/updateSubscription")
     public ResponseEntity<Result> updateSubscription(@RequestHeader("Authorization") String authHeader,
                                                   @RequestBody Argument argument) {
+
         try {
             // Decode the Basic Auth header
             String[] credentials = decodeBasicAuth(authHeader);
@@ -260,16 +270,12 @@ public class server {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                         false, "Unauthorized", new ArrayList<>()));
             }
-
-            System.out.println("test");
             String publisher = argument.getPublisher();
             String sheet = argument.getSheet();
             String payload = argument.getPayload();
-
             System.out.println("Publisher: " + publisher);
             System.out.println("Sheet: " + sheet);
             System.out.println("Payload: " + payload);
-
             IAppUser user = findUser(publisher);
             if (user == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
@@ -279,26 +285,30 @@ public class server {
             for (ISpreadsheet existingSheet : user.getSheets()) {
                 if (existingSheet.getName().equals(sheet)) {
                     List<List<String>> data = Home.convertStringTo2DArray(payload);
-                    for (List<String> ls : data) {
-                        System.out.println("Row: " + ls.get(0) + " Col: " + ls.get(1) + " Value: " + ls.get(2));
-                        existingSheet.setCellRawdata(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
-                        existingSheet.setCellValue(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
+                    List<List<Cell>> updatedGrid = new ArrayList<>();
+                    for (int i = 0; i < existingSheet.getRows(); i++) {
+                        ArrayList<Cell> row = new ArrayList<>();
+                        for (int j = 0; j < existingSheet.getCols(); j++) {
+                            row.add(new Cell(""));
+                        }
+                        updatedGrid.add(row);
                     }
 
-                    ISpreadsheet update = new Spreadsheet(existingSheet.getName());
+                    for (List<String> ls : data) {
+                        updatedGrid.get(Integer.parseInt(ls.get(0))).get(Integer.parseInt(ls.get(1))).setValue(ls.get(2));
+                        updatedGrid.get(Integer.parseInt(ls.get(0))).get(Integer.parseInt(ls.get(1))).setRawData(ls.get(2));
+                    }
+                    existingSheet.setGrid(updatedGrid);
 
-                    //Copy contents of sheet
-                    ArrayList<ArrayList<Cell>> copy = new ArrayList<>();
-                    ArrayList<ArrayList<Cell>> grid = existingSheet.getCells();
-
-                    for (int i = 0; i < grid.size(); i++){
-                        for(int j = 0; j < grid.get(i).size(); j++){
-                            update.setCellValue(i, j, grid.get(i).get(j).getValue());
-                            update.setCellRawdata(i, j, grid.get(i).get(j).getRawdata());
+                    ISpreadsheet updatedVersion = new Spreadsheet(existingSheet.getName());
+                    List<List<Cell>> grid = existingSheet.getCells();
+                    for (int i = 0; i < grid.size(); i++) {
+                        for(int j = 0; j < grid.get(i).size(); j++) {
+                            updatedVersion.setCellValue(i, j, grid.get(i).get(j).getValue());
+                            updatedVersion.setCellRawdata(i, j, grid.get(i).get(j).getRawdata());
                         }
                     }
-                    existingSheet.addSubscribed(update);
-
+                    existingSheet.addSubscribed(updatedVersion);
                     return ResponseEntity.ok(new Result(true, "Sheet updated successfully", new ArrayList<>()));
                 }
             }
@@ -309,6 +319,7 @@ public class server {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new Result(
                     false, "Internal Server Error: " + e.getMessage(), new ArrayList<>()));
         }
+
     }
     
     /**
