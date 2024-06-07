@@ -222,12 +222,7 @@ public class SheetView extends JFrame implements ISheetView {
         cutButton.addActionListener(new ToolbarButtonListener(this));
         copyButton.addActionListener(new ToolbarButtonListener(this));
         pasteButton.addActionListener(new ToolbarButtonListener(this));
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handleSave();
-            }
-        });
+        saveButton.addActionListener(new ToolbarButtonListener(this));
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -363,37 +358,37 @@ public class SheetView extends JFrame implements ISheetView {
      */
     public void save(String path) {
         try {
-            this.controller.saveSheetToServer(this.cells, path);
+            this.controller.saveSheetLocally(this.cells, path);
             System.out.println("Saved spreadsheet '" + path + ".xml'");
         } catch (Exception e) {
             System.out.println("Could not save spreadsheet: " + e.getMessage());
         }
     }
 
-    public void handleSave() {
-        int option = JOptionPane.showOptionDialog(
-                null,
-                "Choose where to save the sheet:",
-                "Save Option",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                new Object[] { "Save Locally", "Save to Server" },
-                "Save Locally");
+    // public void handleSave() {
+    //     int option = JOptionPane.showOptionDialog(
+    //             null,
+    //             "Choose where to save the sheet:",
+    //             "Save Option",
+    //             JOptionPane.YES_NO_OPTION,
+    //             JOptionPane.QUESTION_MESSAGE,
+    //             null,
+    //             new Object[] { "Save Locally", "Save to Server" },
+    //             "Save Locally");
 
-        if (option == JOptionPane.YES_OPTION) {
-            JFileChooser fileChooser = new JFileChooser();
-            int returnValue = fileChooser.showSaveDialog(null);
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = fileChooser.getSelectedFile();
-                controller.saveSheetToServer(cells, selectedFile.getAbsolutePath());
-            }
-        } else if (option == JOptionPane.NO_OPTION) {
-            controller.saveSheetToServer(cells, ((Spreadsheet) cells).getName());
-            System.out.println(((Spreadsheet) cells).getName());
-            makeVisible();
-        }
-    }
+    //     if (option == JOptionPane.YES_OPTION) {
+    //         JFileChooser fileChooser = new JFileChooser();
+    //         int returnValue = fileChooser.showSaveDialog(null);
+    //         if (returnValue == JFileChooser.APPROVE_OPTION) {
+    //             File selectedFile = fileChooser.getSelectedFile();
+    //             controller.saveSheetToServer(cells, selectedFile.getAbsolutePath());
+    //         }
+    //     } else if (option == JOptionPane.NO_OPTION) {
+    //         controller.saveSheetToServer(cells, ((Spreadsheet) cells).getName());
+    //         System.out.println(((Spreadsheet) cells).getName());
+    //         makeVisible();
+    //     }
+    // }
 
     /**
      * Displays a message in a dialog box.

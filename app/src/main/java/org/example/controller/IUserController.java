@@ -56,7 +56,7 @@ public interface IUserController {
      * @param sheet the sheet to save.
      * @param path the path to save the sheet to.
      */
-    void saveSheet(IReadOnlySpreadSheet sheet, String path);
+    void saveSheetLocally(IReadOnlySpreadSheet sheet, String path);
 
     /**
      * Handles toolbar actions.
