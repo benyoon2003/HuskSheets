@@ -353,9 +353,7 @@ public class server {
             }
 
             // Create a new user
-            AppUser newUser = new AppUser();
-            newUser.setUsername(username);
-            newUser.setPassword(password);
+            AppUser newUser = new AppUser(username, password);
             availUsers.add(newUser);
 
 
@@ -470,7 +468,7 @@ public class server {
                     List<ISpreadsheet> versions = existingSheet.getPublishedVersions();
                     System.out.println("Found sheet: " + sheet + ", Versions: " + versions.size());
                     for (int i = Integer.parseInt(id); i < versions.size(); i++) {
-                        String payload = UserController.convertSheetToPayload(versions.get(i));
+                        String payload = Spreadsheet.convertSheetToPayload(versions.get(i));
                         System.out.println("Payload for version " + i + ": " + payload);
                         Argument arg = new Argument(publisher, sheet, String.valueOf(i), payload);
                         arguments.add(arg);
@@ -526,7 +524,7 @@ public class server {
                     List<ISpreadsheet> versions = existingSheet.getSubscribedVersions();
                     System.out.println("Found sheet: " + sheet + ", Versions: " + versions.size());
                     for (int i = Integer.parseInt(id); i < versions.size(); i++) {
-                        String payload = UserController.convertSheetToPayload(versions.get(i));
+                        String payload = Spreadsheet.convertSheetToPayload(versions.get(i));
                         System.out.println("Payload for version " + i + ": " + payload);
                         Argument arg = new Argument(publisher, sheet, String.valueOf(i), payload);
                         arguments.add(arg);

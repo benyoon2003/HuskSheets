@@ -10,9 +10,7 @@ public class AppUserTest {
 
     @BeforeEach
     public void init() {
-        this.user = new AppUser();
-        this.user.setUsername("testUser");
-        this.user.setPassword("testPassword");
+        this.user = new AppUser("testUser", "testPassword");
     }
 
     @Test

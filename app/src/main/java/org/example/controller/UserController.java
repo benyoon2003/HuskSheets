@@ -146,7 +146,7 @@ public class UserController implements IUserController {
     @Override
     public void saveSheetToServer(IReadOnlySpreadSheet sheet, String sheetName) {
         try {
-            String payload = convertSheetToPayload(sheet);
+            String payload = Spreadsheet.convertSheetToPayload(sheet);
             Result result = serverEndpoint.updatePublished(appUser.getUsername(), sheetName, payload);
             if (!result.getSuccess()) {
                 sheetView.displayMessage(result.getMessage());
@@ -175,7 +175,7 @@ public class UserController implements IUserController {
 
     public void updateSubscribedSheet(String publisher, IReadOnlySpreadSheet sheet, String name) {
         try {
-            String payload = convertSheetToPayload(sheet);
+            String payload = Spreadsheet.convertSheetToPayload(sheet);
             Result result = serverEndpoint.updateSubscription(publisher, name, payload);
             if (!result.getSuccess()) {
                 sheetView.displayMessage(result.getMessage());
@@ -183,41 +183,6 @@ public class UserController implements IUserController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Converts the given IReadOnlySpreadSheet into a valid String payload for transmission
-     * as part of JSON
-     * @param sheet the sheet to convert
-     * @return a payload (e.g $A1 4\n)
-     */
-    public static String convertSheetToPayload(IReadOnlySpreadSheet sheet) {
-        StringBuilder payload = new StringBuilder();
-        Cell[][] values = sheet.getCellsObject();
-        for (int i = 0; i < sheet.getRows(); i++) {
-            for (int j = 0; j < sheet.getCols(); j++) {
-                if (values[i][j] != null && !values[i][j].getRawdata().isEmpty()) {
-                    String cellValue = values[i][j].isFormula() ? values[i][j].getFormula() : values[i][j].getRawdata();
-                    payload.append(String.format("$%s%s %s\\n", getColumnName(j + 1), i + 1, cellValue));
-                }
-            }
-        }
-        return payload.toString();
-    }
-
-    /**
-     * Gets the column label using the given column number.
-     * @param columnNumber a number that corresponds to a column in the spreadsheet
-     * @return a column label (e.g A, D, F, G)
-     */
-    public static String getColumnName(int columnNumber) {
-        StringBuilder columnName = new StringBuilder();
-        while (columnNumber > 0) {
-            int remainder = (columnNumber - 1) % 26;
-            columnName.insert(0, (char) (remainder + 'A'));
-            columnNumber = (columnNumber - 1) / 26;
-        }
-        return columnName.toString();
     }
 
     @Override
@@ -471,33 +436,19 @@ public class UserController implements IUserController {
                     try {
                         double numericValue = Double.parseDouble(value);
                         if (numericValue < 0) {
-                            this.highlightCell(i, j, SheetView.PINK);
+                            sheetView.highlightCell(i, j, SheetView.PINK);
                         } else if (numericValue > 0) {
-                            this.highlightCell(i, j, SheetView.GREEN);
+                            sheetView.highlightCell(i, j, SheetView.GREEN);
                         }
                     } catch (NumberFormatException e) {
-                        this.highlightCell(i, j, Color.WHITE);
+                        sheetView.highlightCell(i, j, Color.WHITE);
                     }
                 } else {
-                    this.highlightCell(i, j, Color.WHITE);
+                    sheetView.highlightCell(i, j, Color.WHITE);
                 }
             }
         }
         this.sheetView.updateTable();
-    }
-
-    /**
-     * Highlights the cell at the specified coordinate to the given color.
-     * @param row coordinate
-     * @param col coordinate
-     * @param color a Color
-     */
-    private void highlightCell(int row, int col, Color color) {
-        if (color.equals(SheetView.GREEN) || color.equals(SheetView.PINK)) {
-        }
-        if (sheetView instanceof SheetView) {
-            ((SheetView) sheetView).highlightCell(row, col, color);
-        }
     }
 
     /**

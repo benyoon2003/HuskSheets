@@ -1,7 +1,8 @@
 package org.example.model;
 
 /**
- * Represents the interface for home operations such as reading and writing spreadsheets.
+ * Represents the interface for home operations such as choosing a publisher and sheet to subscribe
+ * to or opening a saved sheet.
  */
 public interface IHome {
 
@@ -9,16 +10,16 @@ public interface IHome {
      * Reads an XML file from the specified path and returns a Spreadsheet object.
      *
      * @param path the path of the XML file to read.
-     * @return a Spreadsheet object representing the data from the XML file.
+     * @return a ISpreadsheet representing the data from the XML file.
      */
-    Spreadsheet readXML(String path);
+    ISpreadsheet readXML(String path);
 
     /**
      * Reads a payload associated with a given user and selected sheet, and returns a spreadsheet model.
      *
      * @param payload payload to be parsed.
      * @param sheetName name of sheet
-     * @return a spreadsheet model representing the data from the payload.
+     * @return a ISpreadsheet representing the data from the payload.
      */
     ISpreadsheet readPayload(String payload, String sheetName);
 

@@ -25,7 +25,7 @@ public class Home implements IHome {
      * @param path the path of the XML file
      * @return a Spreadsheet object representing the data in the XML file
      */
-    public Spreadsheet readXML(String path) {
+    public ISpreadsheet readXML(String path) {
         try {
             File xmlFile = new File(path);
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
