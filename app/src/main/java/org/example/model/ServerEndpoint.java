@@ -3,7 +3,6 @@ package org.example.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.example.controller.ConfigLoader;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -16,7 +15,7 @@ public class ServerEndpoint {
 
 
   // Base URL for the server endpoints
-  private static String BASE_URL =  "https://husksheet-cb47d5864e1b.herokuapp.com/api/v1/"; //"http://localhost:8080/api/v1/"; //;// //ConfigLoader.getProperty("base.url");
+  private static String BASE_URL =  "http://localhost:8080/api/v1/"; //"https://husksheet-cb47d5864e1b.herokuapp.com/api/v1/"; // //;// //ConfigLoader.getProperty("base.url");
   private static IAppUser user;
 
 
@@ -101,12 +100,12 @@ public class ServerEndpoint {
    * @return Response body containing the list of sheets
    * @throws Exception if an error occurs during the HTTP request
    */
-  public String getSheets(String publisher) throws Exception {
+  public Result getSheets(String publisher) throws Exception {
     String url = BASE_URL + "getSheets";
     String json = String.format("{\"publisher\":\"%s\"}", publisher);
     HttpResponse<String> response = sendPostRequest(url, json);
     System.out.println("Get Sheets Response: " + response.body());
-    return response.body();
+    return new Result(response.body());
   }
 
   /**
@@ -116,11 +115,12 @@ public class ServerEndpoint {
    * @param sheet     Name of the sheet to delete
    * @throws Exception if an error occurs during the HTTP request
    */
-  public void deleteSheet(String publisher, String sheet) throws Exception {
+  public Result deleteSheet(String publisher, String sheet) throws Exception {
     String url = BASE_URL + "deleteSheet";
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\"}", publisher, sheet);
     HttpResponse<String> response = sendPostRequest(url, json);
     System.out.println("Delete Sheet Response: " + response.body());
+    return new Result(response.body());
   }
 
   /**

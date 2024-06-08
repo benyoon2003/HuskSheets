@@ -26,16 +26,10 @@ public interface IUserController {
     void openHomeView();
 
     /**
-     * Gets the current sheet view.
-     * @return the current sheet view.
-     */
-    ISheetView getCurrentSheet();
-
-    /**
-     * Creates a new sheet.
+     * Creates a new sheet with the given name.
      * @param name the name of the new sheet.
      */
-    void createNewSheet(String name);
+    void createNewServerSheet(String name);
 
     /**
      * Saves the given sheet to the specified path.
@@ -45,39 +39,33 @@ public interface IUserController {
     void saveSheetLocally(IReadOnlySpreadSheet sheet, String path);
 
     /**
-     * Handles toolbar actions.
-     * @param command the command to handle.
-     */
-    void handleToolbar(String command);
-
-    /**
-     * Handles cell selection.
+     * Sets the selectedCells with the given array of rows and columns.
      * @param selectedRows the selected rows.
      * @param selectedColumns the selected columns.
      */
-    void selectedCells(int[] selectedRows, int[] selectedColumns);
+    void setSelectedCells(int[] selectedRows, int[] selectedColumns);
 
     /**
-     * Opens a sheet from the specified path.
+     * Opens a sheet from the specified path locally.
      * @param path the path to open the sheet from.
      */
-    void openSheet(String path);
+    void openSheetLocally(String path);
 
     /**
      * Gets the list of saved sheets.
      * @return the list of saved sheets.
      */
-    List<String> getSavedSheets();
+    List<String> getSavedSheetsLocally();
 
     /**
-     * Deletes a sheet at the specified path.
+     * Deletes a sheet locally at the specified path.
      * @param path the path to delete the sheet from.
      */
-    void deleteSheet(String path);
+    void deleteSheetLocally(String path);
 
     /**
      * Gets the home view.
-     * @return the home view.
+     * @return the IHomeView.
      */
     IHomeView getHomeView();
 
@@ -88,13 +76,6 @@ public interface IUserController {
      * @param val the value to set.
      */
     void changeSpreadSheetValueAt(int selRow, int selCol, String val);
-
-    /**
-     * Evaluates a formula.
-     * @param formula the formula to evaluate.
-     * @return the result of the formula evaluation.
-     */
-    String evaluateFormula(String formula);
 
     /**
      * Cuts the content of a cell.
@@ -127,9 +108,9 @@ public interface IUserController {
     /**
      * Saves the sheet to the server.
      * @param sheet the sheet to save.
-     * @param name the name of the sheet.
+     * @param sheetName the name of the sheet.
      */
-    void saveSheetToServer(IReadOnlySpreadSheet sheet, String name);
+    void saveSheetToServer(IReadOnlySpreadSheet sheet, String sheetName);
 
     /**
      * Deletes a sheet from the server.
@@ -138,19 +119,19 @@ public interface IUserController {
     void deleteSheetFromServer(String name);
 
     /**
-     * Handles referencing of a cell.
+     * Handles reevaluating the formula within the cell.
      * @param row the row of the cell.
      * @param col the column of the cell.
      * @param data the data in the cell.
-     * @return the result of the referencing.
+     * @return the result of the formula.
      */
-    String handleReferencingCell(int row, int col, String data);
+    String handleReevaluatingCellFormula(int row, int col, String data);
 
     /**
-     * Gets the list of sheets from the server.
+     * Gets the list of sheets from the server for the current user.
      * @return the list of server sheets.
      */
-    List<String> getServerSheets();
+    List<String> getAppUserSheets();
 
     /**
      * Opens a sheet from the server.
@@ -162,21 +143,13 @@ public interface IUserController {
      * Gets the zero-indexed selected row.
      * @return the zero-indexed selected row.
      */
-    int getSelectedRowZeroIndex();
+    int getSelectedRow();
 
     /**
      * Gets the zero-indexed selected column.
      * @return the zero-indexed selected column.
      */
-    int getSelectedColZeroIndex();
-
-    /**
-     * Gets the formula of a cell.
-     * @param row the row of the cell.
-     * @param col the column of the cell.
-     * @return the formula of the cell.
-     */
-    String getFormula(int row, int col);
+    int getSelectedCol();
 
     /**
      * Registers a new user with the provided username and password.
@@ -196,14 +169,14 @@ public interface IUserController {
      * Gets the list of publishers.
      * @return the list of publishers.
      */
-    List<String> getPublishers();
+    List<String> getPublishersFromServer();
 
     /**
-     * Gets the list of subscribed sheets for the given publisher.
+     * Gets the list of sheets for the given publisher.
      * @param publisher the publisher of the sheets.
      * @return the list of subscribed sheets.
      */
-    List<String> getSubscribedSheets(String publisher);
+    List<String> accessSheetsFromUser(String publisher);
 
     /**
      * Applies conditional formatting to the spreadsheet.

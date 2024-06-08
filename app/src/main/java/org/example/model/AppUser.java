@@ -8,7 +8,6 @@ import java.util.List;
  * It includes methods for user authentication and account creation via HTTP requests.
  */
 public class AppUser implements IAppUser {
-
     private String username;
     private String password;
 
@@ -16,62 +15,27 @@ public class AppUser implements IAppUser {
 
     /**
      * Default constructor for AppUser.
-     * Initializes the sheets list.
+     * @param username a username
+     * @param password a password
      */
-    public AppUser() {
+    public AppUser(String username, String password) {
         this.sheets = new ArrayList<>();
+        this.username = username;
+        this.password = password;
     }
 
-    /**
-     * Getter for username.
-     *
-     * @return the username of the user.
-     */
     public String getUsername() {
         return this.username;
     }
 
-    /**
-     * Setter for username.
-     *
-     * @param username the username to set.
-     */
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    /**
-     * Getter for password.
-     *
-     * @return the password of the user.
-     */
     public String getPassword() {
         return password;
     }
 
-    /**
-     * Setter for password.
-     *
-     * @param password the password to set.
-     */
-    // Setter for password
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    /**
-     * Adds a new sheet with the given name to the user's list of sheets.
-     *
-     * @param sheetName the name of the new sheet.
-     */
     public void addSheet(String sheetName) {
         this.sheets.add(new Spreadsheet(sheetName));
     }
 
-    /**
-     * Removes a given sheet from the list of users sheets.
-     * @param sheetName the name of the sheet
-     */
     public void removeSheet(String sheetName) {
         for (ISpreadsheet sheet : this.sheets) {
             if (sheet.getName().equals(sheetName)) {
@@ -80,12 +44,7 @@ public class AppUser implements IAppUser {
             }
         }
     }
-    /**
-     * Checks if a sheet with the given name already exists in the user's list of sheets.
-     *
-     * @param name the name of the sheet to check.
-     * @return true if the sheet exists, false otherwise.
-     */
+
     public boolean doesSheetExist(String name) {
         for (ISpreadsheet sheet : this.sheets) {
             if (sheet.getName().equals(name)) {
@@ -96,11 +55,6 @@ public class AppUser implements IAppUser {
         return false;
     }
 
-    /**
-     * Getter for the user's list of sheets.
-     *
-     * @return the list of sheets.
-     */
     public List<ISpreadsheet> getSheets() {
         return this.sheets;
     }
