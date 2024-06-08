@@ -33,7 +33,6 @@ public class SheetView extends JFrame implements ISheetView {
     boolean isUpdatingTable = false; // Flag to check if the table is being updated
     JTextField formulaTextField; // Text field to display/edit the formula of the selected cell
 
-    private double zoomFactor = 1.0; // Zoom factor for the table
     private static final int rowSize = 100; // Number of rows in the table
     private static final int colSize = 100; // Number of columns in the table
     public static final Color PINK = new Color(255, 192, 203); // Color constant for pink
@@ -235,12 +234,7 @@ public class SheetView extends JFrame implements ISheetView {
         cutButton.addActionListener(new ToolbarButtonListener(this));
         copyButton.addActionListener(new ToolbarButtonListener(this));
         pasteButton.addActionListener(new ToolbarButtonListener(this));
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handleSave();
-            }
-        });
+        saveButton.addActionListener(new ToolbarButtonListener(this));
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -415,7 +409,7 @@ public class SheetView extends JFrame implements ISheetView {
      */
     public void save(String path) {
         try {
-            this.controller.saveSheetToServer(this.cells, path);
+            this.controller.saveSheetLocally(this.cells, path);
             System.out.println("Saved spreadsheet '" + path + ".xml'");
         } catch (Exception e) {
             System.out.println("Could not save spreadsheet: " + e.getMessage());
@@ -465,7 +459,6 @@ public class SheetView extends JFrame implements ISheetView {
      * @param factor the zoom factor.
      */
     void zoomTable(double factor) {
-        this.zoomFactor *= factor;
         Font tableFont = yourTable.getFont();
         float newSize = (float) (tableFont.getSize() * factor);
         yourTable.setFont(tableFont.deriveFont(newSize));

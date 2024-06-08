@@ -7,23 +7,6 @@ import java.util.List;
  */
 public interface IAppUser {
 
-  /**
-   * Authenticates a user with the given username and password.
-   *
-   * @param username the username of the user.
-   * @param password the password of the user.
-   * @return a message indicating the result of the authentication process.
-   */
-  //String authenticateUser(String username, String password);
-
-  /**
-   * Creates a new account with the given username and password.
-   *
-   * @param username the desired username for the new account.
-   * @param password the desired password for the new account.
-   * @return a message indicating the result of the account creation process.
-   */
-  //String createAccount(String username, String password);
 
   /**
    * Gets the username of the user.
@@ -54,6 +37,19 @@ public interface IAppUser {
   void setPassword(String password);
 
   /**
+   * Adds a new sheet with the given name.
+   *
+   * @param sheetName the name of the sheet to add.
+   */
+  void addSheet(String sheetName);
+  
+  /**
+   * Removes a given sheet name from the users list of sheets.
+   * @param sheetName the name of the sheet
+   */
+  public void removeSheet(String sheetName);
+  
+  /**
    * Checks if a sheet with the given name exists.
    *
    * @param name the name of the sheet to check.
@@ -62,22 +58,10 @@ public interface IAppUser {
   boolean doesSheetExist(String name);
 
   /**
-   * Adds a new sheet with the given name.
-   *
-   * @param sheetName the name of the sheet to add.
-   */
-  void addSheet(String sheetName);
-
-  /**
    * Gets the list of spreadsheets associated with the user.
    *
    * @return a list of spreadsheets.
    */
   List<ISpreadsheet> getSheets();
 
-  /**
-   * Removes a given sheet name from the users list of sheets.
-   * @param sheetName the name of the sheet
-   */
-  public void removeSheet(String sheetName);
 }

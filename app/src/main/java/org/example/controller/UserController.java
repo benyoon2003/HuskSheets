@@ -175,7 +175,7 @@ public class UserController implements IUserController {
      * @param path the path to save the sheet to.
      */
     @Override
-    public void saveSheet(IReadOnlySpreadSheet sheet, String path) {
+    public void saveSheetLocally(IReadOnlySpreadSheet sheet, String path) {
         try {
             this.home.writeXML(sheet, path);
         } catch (Exception e) {
@@ -514,7 +514,7 @@ public class UserController implements IUserController {
      */
     @Override
     public void deleteSheet(String path) {
-        File file = new File("sheets/" + path);
+        File file = new File("HuskSheets/sheets/" + path);
         if (file.exists()) {
             file.delete();
             this.homeView.updateSavedSheets();
