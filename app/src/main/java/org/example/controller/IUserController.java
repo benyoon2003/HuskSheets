@@ -1,7 +1,6 @@
 package org.example.controller;
 
 import java.util.List;
-
 import org.example.model.IReadOnlySpreadSheet;
 import org.example.view.IHomeView;
 import org.example.view.ISheetView;
@@ -16,27 +15,14 @@ import org.example.view.ISheetView;
 public interface IUserController {
 
     /**
-     * Checks if user authentication is complete.
-     * @param username the username of the user.
-     * @param password the password of the user.
-     * @return true if authentication is complete, false otherwise.
-     */
- //   boolean isUserAuthenticationComplete(String username, String password);
-
-    /**
-     * Checks if a new user is created successfully.
-     * @param username the username of the new user.
-     * @param password the password of the new user.
-     * @return true if user is created successfully, false otherwise.
-     */
- //   boolean isUserCreatedSuccessfully(String username, String password);
-
-    /**
      * Sets the current sheet view.
      * @param sheetView the sheet view to set as current.
      */
     void setCurrentSheet(ISheetView sheetView);
 
+    /**
+     * Opens the home view.
+     */
     void openHomeView();
 
     /**
@@ -63,12 +49,6 @@ public interface IUserController {
      * @param command the command to handle.
      */
     void handleToolbar(String command);
-
-    // /**
-    //  * Handles statistics dropdown actions.
-    //  * @param selectedStat the selected statistic to handle.
-    //  */
-    // void handleStatsDropdown(String selectedStat);
 
     /**
      * Handles cell selection.
@@ -212,20 +192,50 @@ public interface IUserController {
      */
     void loginUser(String username, String password);
 
+    /**
+     * Gets the list of publishers.
+     * @return the list of publishers.
+     */
     List<String> getPublishers();
 
-    public List<String> getSubscribedSheets(String publisher);
-
-    void applyConditionalFormatting();
-
-    void openSubscriberSheet(String selectedSheet, String publisher);
-
-    public void updateSubscribedSheet(String publisher, IReadOnlySpreadSheet sheet, String name);
+    /**
+     * Gets the list of subscribed sheets for the given publisher.
+     * @param publisher the publisher of the sheets.
+     * @return the list of subscribed sheets.
+     */
+    List<String> getSubscribedSheets(String publisher);
 
     /**
-     * Gets all subscriber updates since the specified id
-     * @param sheet name of the sheet
-     * @param id version of sheet
+     * Applies conditional formatting to the spreadsheet.
      */
-    public void getUpdatesForPublished(String sheet, int id) throws Exception;
+    void applyConditionalFormatting();
+
+    /**
+     * Opens a subscriber sheet from the specified publisher.
+     * @param selectedSheet the name of the sheet to open.
+     * @param publisher the publisher of the sheet.
+     */
+    void openSubscriberSheet(String selectedSheet, String publisher);
+
+    /**
+     * Updates the subscribed sheet on the server.
+     * @param publisher the publisher of the sheet.
+     * @param sheet the sheet to update.
+     * @param name the name of the sheet.
+     */
+    void updateSubscribedSheet(String publisher, IReadOnlySpreadSheet sheet, String name);
+
+    /**
+     * Updates the selected cells with the given value.
+     * @param value the value to update the selected cells with.
+     */
+    void updateSelectedCells(String value);
+
+    /**
+     * Gets all subscriber updates since the specified id.
+     * @param sheet name of the sheet.
+     * @param id version of the sheet.
+     * @throws Exception if an error occurs while fetching updates.
+     */
+    void getUpdatesForPublished(String sheet, int id) throws Exception;
 }

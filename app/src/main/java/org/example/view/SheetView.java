@@ -4,6 +4,7 @@ import org.example.controller.IUserController;
 import org.example.model.Cell;
 import org.example.model.IReadOnlySpreadSheet;
 import org.example.model.ISpreadsheet;
+import org.example.model.SelectedCells;
 import org.example.model.Spreadsheet;
 
 import javax.swing.*;
@@ -14,10 +15,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,25 +23,24 @@ import java.util.Map;
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 
 /**
- * The SheetView class provides a GUI for interacting with a spreadsheet.
- * It implements the ISheetView interface to interact with the user controller.
+ * The SheetView class represents the view for displaying and interacting with a spreadsheet.
  */
 public class SheetView extends JFrame implements ISheetView {
-    final IReadOnlySpreadSheet cells;
-    IUserController controller;
-    JButton backButton;
-    JTable yourTable;
+    final IReadOnlySpreadSheet cells; // The spreadsheet data
+    IUserController controller; // Controller for handling user actions
+    JButton backButton; // Button to go back to the previous view
+    JTable yourTable; // Table to display the spreadsheet data
+    boolean isUpdatingTable = false; // Flag to check if the table is being updated
+    JTextField formulaTextField; // Text field to display/edit the formula of the selected cell
 
-    boolean isUpdatingTable = false;
-    JTextField formulaTextField;
+    private double zoomFactor = 1.0; // Zoom factor for the table
+    private static final int rowSize = 100; // Number of rows in the table
+    private static final int colSize = 100; // Number of columns in the table
+    public static final Color PINK = new Color(255, 192, 203); // Color constant for pink
+    public static final Color GREEN = new Color(0, 255, 0); // Color constant for green
 
-    private double zoomFactor = 1.0;
-    private static final int rowSize = 100;
-    private static final int colSize = 100;
-    public static final Color PINK = new Color(255, 192, 203);
-    public static final Color GREEN = new Color(0, 255, 0);
-
-    private final Map<Point, Color> highlightedCells = new HashMap<>();
+    private final Map<Point, Color> highlightedCells = new HashMap<>(); // Map to store highlighted cells
+    private SelectedCells selectedCells; // Object to store selected cell range
 
     /**
      * Constructs a SheetView with the given spreadsheet.
@@ -56,18 +53,16 @@ public class SheetView extends JFrame implements ISheetView {
     }
 
     /**
-     * Sets up the GUI components for the spreadsheet view.
+     * Sets up the components and layout of the SheetView.
      */
     public void setup() {
         setTitle("Spreadsheet");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        makeToolbar();
+        makeToolbar(); // Create the toolbar
 
-        JTable table;
-
-        // Get data and set column names
+        // Initialize data array with cell values
         Object[][] data = new Object[rowSize][colSize];
         Cell[][] cellRef = this.cells.getCellsObject();
 
@@ -77,125 +72,141 @@ public class SheetView extends JFrame implements ISheetView {
             }
         }
 
+        // Initialize column names
         String[] columnNames = new String[colSize + 1];
-        columnNames[0] = ""; // Empty first column
+        columnNames[0] = "";
         for (int i = 1; i <= colSize; i++) {
-            columnNames[i] = getExcelColumnName(i); // Generate Excel-like column labels
+            columnNames[i] = getExcelColumnName(i);
         }
 
-        // Custom table model with row labels
+        // Create table model
         DefaultTableModel tableModel = new DefaultTableModel(data, columnNames) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                // Make the first column non-editable (for row labels)
-                return column != 0;
+                return column != 0; // Make all columns except the first one editable
             }
         };
 
-        // Add row labels
+        // Set row headers
         for (int i = 0; i < rowSize; i++) {
-            tableModel.setValueAt(i + 1, i, 0); // Set row label values
+            tableModel.setValueAt(i + 1, i, 0);
         }
 
-        // Create JTable with the model
-        table = new JTable(tableModel);
-        this.yourTable = table; // Set the yourTable variable
-        table.setSelectionMode(MULTIPLE_INTERVAL_SELECTION);
-        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        // Initialize table with the model
+        yourTable = new JTable(tableModel);
+        yourTable.setSelectionMode(MULTIPLE_INTERVAL_SELECTION);
+        yourTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        yourTable.setCellSelectionEnabled(true);
+        yourTable.setShowGrid(true);
 
-        table.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
+        // Set custom cell renderer
+        yourTable.setDefaultRenderer(Object.class, new CustomTableCellRenderer(highlightedCells));
+
+        // Add key listener for delete and digit keys
+        yourTable.addKeyListener(new KeyAdapter() {
             @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                                                           boolean hasFocus, int row, int column) {
-                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                setHorizontalAlignment(SwingConstants.CENTER); // Align labels to the center
-                return this;
-            }
-        });
-
-        table.setDefaultRenderer(Object.class, new CustomTableCellRenderer(highlightedCells));
-
-        // Add panel for right-clicks
-        JPanel rightClickPanel = new JPanel(new GridLayout(1, 1));
-        rightClickPanel.setSize(new Dimension(100, 15));
-
-        // Add buttons to right-click panel
-        JButton percentiles = new JButton("Percentile");
-        percentiles.setPreferredSize(new Dimension(100, 15));
-        percentiles.addActionListener(new RightClickButtonListener(this));
-        percentiles.setVisible(rightClickPanel.isVisible());
-        rightClickPanel.add(percentiles);
-
-        rightClickPanel.setVisible(false);
-        yourTable.add(rightClickPanel);
-
-        table.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON3) { // For right-clicks
-                    int row = table.rowAtPoint(e.getPoint());
-                    int col = table.columnAtPoint(e.getPoint());
-                    if (row >= 0 && row < rowSize && col >= 1 && col < colSize) {
-                        rightClickCell(rightClickPanel, e.getX(), e.getY());
-                    }
-                } else if (e.getButton() == MouseEvent.BUTTON1) { // For left-clicks
-                    if (rightClickPanel != null && rightClickPanel.isVisible()) {
-                        rightClickPanel.setVisible(false);
-                    }
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_DELETE || e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+                    System.out.println(e.getKeyCode() == KeyEvent.VK_DELETE ? "Delete key pressed" : "Backspace key pressed");
+                    controller.updateSelectedCells(""); // Pass an empty string to clear cells
+                } else if (Character.isDigit(e.getKeyChar())) {
+                    System.out.println("Digit key pressed: " + e.getKeyChar());
+                    controller.updateSelectedCells(String.valueOf(e.getKeyChar()));
                 }
             }
         });
 
-        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        table.setCellSelectionEnabled(true);
-        table.setShowGrid(true);
-
-        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+        // Add selection listener for row selection
+        yourTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
-                    int[] selectedRows = table.getSelectedRows();
-                    int[] selectedColumns = table.getSelectedColumns();
-                    controller.selectedCells(selectedRows, selectedColumns);
-                }
-            }
-        });
-        table.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    int[] selectedRows = table.getSelectedRows();
-                    int[] selectedColumns = table.getSelectedColumns();
+                    int[] selectedRows = yourTable.getSelectedRows();
+                    int[] selectedColumns = yourTable.getSelectedColumns();
                     controller.selectedCells(selectedRows, selectedColumns);
                 }
             }
         });
 
-        table.getModel().addTableModelListener(new TableModelListener() {
+        // Add selection listener for column selection
+        yourTable.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    int[] selectedRows = yourTable.getSelectedRows();
+                    int[] selectedColumns = yourTable.getSelectedColumns();
+                    controller.selectedCells(selectedRows, selectedColumns);
+                }
+            }
+        });
+
+        // Add table model listener for data changes
+        yourTable.getModel().addTableModelListener(new TableModelListener() {
             @Override
             public void tableChanged(TableModelEvent e) {
                 if (!isUpdatingTable) {
                     int selRow = e.getFirstRow();
                     int selCol = e.getColumn();
                     if (selRow != -1 && selCol != -1 && selCol != 0) {
-                        String val = String.valueOf(table.getValueAt(selRow, selCol));
-                        controller.changeSpreadSheetValueAt(selRow, selCol - 1, val); // Store the formula
+                        String val = String.valueOf(yourTable.getValueAt(selRow, selCol));
+                        controller.changeSpreadSheetValueAt(selRow, selCol - 1, val);
                     }
                 }
             }
         });
 
-        add(table, BorderLayout.CENTER);
-
-        JScrollPane scrollPane = new JScrollPane(table);
+        // Add table to scroll pane
+        JScrollPane scrollPane = new JScrollPane(yourTable);
         scrollPane.setPreferredSize(new Dimension(800, 600));
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         add(scrollPane, BorderLayout.CENTER);
     }
 
+    /**
+     * Handles the selection of cells in the table.
+     *
+     * @param selectedRows the selected rows.
+     * @param selectedColumns the selected columns.
+     */
+    @Override
+    public void selectedCells(int[] selectedRows, int[] selectedColumns) {
+        if (selectedRows.length > 0 && selectedColumns.length > 0) {
+            int startRow = selectedRows[0];
+            int endRow = selectedRows[selectedRows.length - 1];
+            int startColumn = selectedColumns[0];
+            int endColumn = selectedColumns[selectedColumns.length - 1];
+
+            this.selectedCells = new SelectedCells(startRow + 1, endRow + 1, startColumn + 1, endColumn + 1);
+
+            System.out.println("Selected range: (" + (selectedCells.getStartRow()) + ", " +
+                    selectedCells.getStartCol() + ") to (" + selectedCells.getEndRow() + ", "
+                    + selectedCells.getEndCol() + ")");
+
+            if (this.singleCellSelected(this.selectedCells)) {
+                this.changeFormulaTextField(this.cells.getCellRawdata(
+                        this.selectedCells.getStartRow() - 1, this.selectedCells.getStartCol() - 1));
+            }
+        } else {
+            this.selectedCells = new SelectedCells(-1, -1, -1, -1);
+        }
+    }
+
+    /**
+     * Checks if a single cell is selected.
+     *
+     * @param selectedCells the selected cells.
+     * @return true if a single cell is selected, false otherwise.
+     */
+    private boolean singleCellSelected(SelectedCells selectedCells) {
+        return selectedCells.getStartRow() == selectedCells.getEndRow() &&
+                selectedCells.getStartCol() == selectedCells.getEndCol();
+    }
+
+    /**
+     * Creates the toolbar for the SheetView.
+     */
     public void makeToolbar() {
-        // Create toolbar
         JToolBar toolbar = new JToolBar();
         JButton cutButton = new JButton("Cut");
         JButton copyButton = new JButton("Copy");
@@ -209,7 +220,6 @@ public class SheetView extends JFrame implements ISheetView {
         formulaTextField = new JTextField(20);
         formulaTextField.setEditable(true);
 
-        // Add components to the toolbar
         toolbar.add(new JLabel("Formula:"));
         toolbar.add(formulaTextField);
         toolbar.add(cutButton);
@@ -222,7 +232,6 @@ public class SheetView extends JFrame implements ISheetView {
         toolbar.add(conditionalFormattingButton);
         toolbar.add(backButton);
 
-        // Add action listeners for buttons
         cutButton.addActionListener(new ToolbarButtonListener(this));
         copyButton.addActionListener(new ToolbarButtonListener(this));
         pasteButton.addActionListener(new ToolbarButtonListener(this));
@@ -230,9 +239,9 @@ public class SheetView extends JFrame implements ISheetView {
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                dispose();
+                dispose(); // Close the current view
                 IHomeView homeView = controller.getHomeView();
-                homeView.updateSavedSheets(); // Update the dropdown before making it visible
+                homeView.updateSavedSheets();
                 homeView.makeVisible();
             }
         });
@@ -243,7 +252,7 @@ public class SheetView extends JFrame implements ISheetView {
                 try {
                     dispose();
                     controller.getUpdatesForPublished(cells.getName(), cells.getId_version());
-                } catch(Exception j){
+                } catch (Exception j) {
                     JOptionPane.showMessageDialog(null, j.getMessage());
                 }
             }
@@ -252,14 +261,14 @@ public class SheetView extends JFrame implements ISheetView {
         zoomInButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                zoomTable(1.1); // Zoom in by 10%
+                zoomTable(1.1);
             }
         });
 
         zoomOutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                zoomTable(0.9); // Zoom out by 10%
+                zoomTable(0.9);
             }
         });
 
@@ -278,33 +287,38 @@ public class SheetView extends JFrame implements ISheetView {
             }
         });
 
-        // Add the toolbar to the frame
         add(toolbar, BorderLayout.NORTH);
 
-        // Refresh the JFrame to show the updated toolbar
         revalidate();
         repaint();
     }
 
     /**
-     * Changes the formula text field to display the given raw data.
+     * Changes the text in the formula text field.
      *
-     * @param rawdata the raw data to display in the formula text field.
+     * @param rawdata the raw data to set.
      */
     public void changeFormulaTextField(String rawdata) {
         formulaTextField.setText(rawdata);
     }
 
+    /**
+     * Highlights a cell with the specified color.
+     *
+     * @param row the row of the cell.
+     * @param col the column of the cell.
+     * @param color the color to highlight.
+     */
     public void highlightCell(int row, int col, Color color) {
         highlightedCells.put(new Point(row, col + 1), color);
         yourTable.repaint();
     }
 
     /**
-     * Generates an Excel-like column name based on the given column number.
+     * Converts a column number to its corresponding Excel column name.
      *
-     * @param columnNumber the column number to convert.
-     * @return the Excel-like column name.
+     * @param columnNumber the column number.
+     * @return the Excel column name.
      */
     public String getExcelColumnName(int columnNumber) {
         StringBuilder columnName = new StringBuilder();
@@ -317,9 +331,9 @@ public class SheetView extends JFrame implements ISheetView {
     }
 
     /**
-     * Adds a controller to the sheet view.
+     * Adds a controller to the SheetView.
      *
-     * @param controller the IUserController instance to add.
+     * @param controller the controller to add.
      */
     @Override
     public void addController(IUserController controller) {
@@ -327,7 +341,7 @@ public class SheetView extends JFrame implements ISheetView {
     }
 
     /**
-     * Updates the table with the latest cell data from the spreadsheet.
+     * Updates the table with the latest data.
      */
     public void updateTable() {
         isUpdatingTable = true;
@@ -351,7 +365,11 @@ public class SheetView extends JFrame implements ISheetView {
         }
         for (int row = 0; row < data.length; row++) {
             for (int col = 0; col < data[row].length; col++) {
-                model.setValueAt(controller.handleReferencingCell(row, col, data[row][col]), row, col + 1);
+                String value = controller.handleReferencingCell(row, col, data[row][col]);
+                model.setValueAt(value, row, col + 1);
+                if (!value.isEmpty()) {
+                    System.out.println("Setting cell (" + row + ", " + col + ") to value: " + value);
+                }
             }
         }
         model.fireTableDataChanged();
@@ -359,25 +377,25 @@ public class SheetView extends JFrame implements ISheetView {
     }
 
     /**
-     * Gets the JTable instance used in the view.
+     * Gets the table used in the SheetView.
      *
-     * @return the JTable instance.
+     * @return the table.
      */
     protected JTable getTable() {
         return yourTable;
     }
 
     /**
-     * Gets the controller associated with the sheet view.
+     * Gets the controller associated with the SheetView.
      *
-     * @return the IUserController instance.
+     * @return the controller.
      */
     public IUserController getController() {
         return this.controller;
     }
 
     /**
-     * Makes the sheet view visible and updates the table with the latest data.
+     * Makes the SheetView visible.
      */
     @Override
     public void makeVisible() {
@@ -399,30 +417,32 @@ public class SheetView extends JFrame implements ISheetView {
         }
     }
 
-    // public void handleSave() {
-    //     int option = JOptionPane.showOptionDialog(
-    //             null,
-    //             "Choose where to save the sheet:",
-    //             "Save Option",
-    //             JOptionPane.YES_NO_OPTION,
-    //             JOptionPane.QUESTION_MESSAGE,
-    //             null,
-    //             new Object[] { "Save Locally", "Save to Server" },
-    //             "Save Locally");
+    /**
+     * Handles the save action.
+     */
+    public void handleSave() {
+        int option = JOptionPane.showOptionDialog(
+                null,
+                "Choose where to save the sheet:",
+                "Save Option",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new Object[]{"Save Locally", "Save to Server"},
+                "Save Locally");
 
-    //     if (option == JOptionPane.YES_OPTION) {
-    //         JFileChooser fileChooser = new JFileChooser();
-    //         int returnValue = fileChooser.showSaveDialog(null);
-    //         if (returnValue == JFileChooser.APPROVE_OPTION) {
-    //             File selectedFile = fileChooser.getSelectedFile();
-    //             controller.saveSheetToServer(cells, selectedFile.getAbsolutePath());
-    //         }
-    //     } else if (option == JOptionPane.NO_OPTION) {
-    //         controller.saveSheetToServer(cells, ((Spreadsheet) cells).getName());
-    //         System.out.println(((Spreadsheet) cells).getName());
-    //         makeVisible();
-    //     }
-    // }
+        if (option == JOptionPane.YES_OPTION) {
+            JFileChooser fileChooser = new JFileChooser();
+            int returnValue = fileChooser.showSaveDialog(null);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                controller.saveSheetToServer(cells, selectedFile.getAbsolutePath());
+            }
+        } else if (option == JOptionPane.NO_OPTION) {
+            controller.saveSheetToServer(cells, cells.getName());
+            makeVisible();
+        }
+    }
 
     /**
      * Displays a message in a dialog box.
@@ -435,9 +455,9 @@ public class SheetView extends JFrame implements ISheetView {
     }
 
     /**
-     * Zooms the table view by the specified factor.
+     * Zooms the table by the specified factor.
      *
-     * @param factor the factor to zoom by.
+     * @param factor the zoom factor.
      */
     void zoomTable(double factor) {
         this.zoomFactor *= factor;
@@ -448,21 +468,17 @@ public class SheetView extends JFrame implements ISheetView {
         yourTable.getTableHeader().setFont(tableFont.deriveFont(newSize));
     }
 
-
+    /**
+     * Loads changes into the SheetView.
+     *
+     * @throws Exception if an error occurs while loading changes.
+     */
     @Override
     public void loadChanges() throws Exception {
-        // no implementation
-    }
-
-    // Displays the right-click window at the location where it was clicked
-    private void rightClickCell(JPanel rightClickPanel, int x, int y) {
-        rightClickPanel.setLocation(x, y);
-        rightClickPanel.setVisible(true);
-
     }
 
     /**
-     * Inner class to handle toolbar button actions.
+     * The ToolbarButtonListener class handles toolbar button actions.
      */
     class ToolbarButtonListener implements ActionListener {
         private SheetView view;
@@ -501,7 +517,7 @@ public class SheetView extends JFrame implements ISheetView {
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE,
                         null,
-                        new Object[] { "Save Locally", "Save to Server" },
+                        new Object[]{"Save Locally", "Save to Server"},
                         "Save Locally");
 
                 if (option == JOptionPane.YES_OPTION) {
@@ -522,7 +538,7 @@ public class SheetView extends JFrame implements ISheetView {
     }
 
     /**
-     * Inner class to handle mouse right-click actions
+     * The RightClickButtonListener class handles right-click button actions.
      */
     class RightClickButtonListener implements ActionListener {
         private SheetView view;
@@ -538,7 +554,6 @@ public class SheetView extends JFrame implements ISheetView {
             int col = this.view.yourTable.getSelectedColumn() - 1;
 
             if (command.equals("Percentile")) {
-                System.out.println(command);
                 this.view.getController().getPercentile(row, col);
             }
 
@@ -547,11 +562,16 @@ public class SheetView extends JFrame implements ISheetView {
     }
 
     /**
-     * Custom TableCellRenderer to highlight cells based on specified colors.
+     * The CustomTableCellRenderer class customizes the rendering of table cells.
      */
     class CustomTableCellRenderer extends DefaultTableCellRenderer {
         private final Map<Point, Color> highlightedCells;
 
+        /**
+         * Constructs a CustomTableCellRenderer with the specified highlighted cells.
+         *
+         * @param highlightedCells the highlighted cells.
+         */
         public CustomTableCellRenderer(Map<Point, Color> highlightedCells) {
             this.highlightedCells = highlightedCells;
         }
@@ -565,6 +585,9 @@ public class SheetView extends JFrame implements ISheetView {
                 c.setBackground(highlightColor);
             } else {
                 c.setBackground(Color.WHITE);
+            }
+            if (isSelected) {
+                c.setBackground(Color.CYAN);
             }
             return c;
         }

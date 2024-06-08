@@ -4,6 +4,7 @@ import org.example.controller.IUserController;
 import org.example.model.IReadOnlySpreadSheet;
 import org.example.model.ISpreadsheet;
 import org.example.model.Spreadsheet;
+import org.example.model.SelectedCells;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -14,15 +15,25 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
+/**
+ * The SubscriberSheetView class represents a view for a spreadsheet that is subscribed to a publisher's updates.
+ */
 public class SubscriberSheetView extends SheetView {
     final IReadOnlySpreadSheet cells;
     String publisher;
     private final Map<Point, Color> highlightedCells = new HashMap<>();
 
     /**
-     * Constructs a SheetView with the given spreadsheet.
+     * Constructs a SubscriberSheetView with the given spreadsheet and publisher.
      *
+     * @param publisher the publisher of the spreadsheet.
      * @param openSheet the spreadsheet to be displayed.
      */
     public SubscriberSheetView(String publisher, ISpreadsheet openSheet) {
@@ -32,6 +43,66 @@ public class SubscriberSheetView extends SheetView {
         setup();
     }
 
+    /**
+     * Sets up the view by adding key listeners and selection listeners.
+     */
+    @Override
+    public void setup() {
+        super.setup();
+
+        yourTable.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_DELETE || e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+                    System.out.println(e.getKeyCode() == KeyEvent.VK_DELETE ? "Delete key pressed" : "Backspace key pressed");
+                    controller.updateSelectedCells(""); // Pass an empty string to clear cells
+                } else if (Character.isDigit(e.getKeyChar())) {
+                    System.out.println("Digit key pressed: " + e.getKeyChar());
+                    controller.updateSelectedCells(String.valueOf(e.getKeyChar()));
+                }
+            }
+        });
+
+        yourTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    int[] selectedRows = yourTable.getSelectedRows();
+                    int[] selectedColumns = yourTable.getSelectedColumns();
+                    controller.selectedCells(selectedRows, selectedColumns);
+                }
+            }
+        });
+
+        yourTable.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    int[] selectedRows = yourTable.getSelectedRows();
+                    int[] selectedColumns = yourTable.getSelectedColumns();
+                    controller.selectedCells(selectedRows, selectedColumns);
+                }
+            }
+        });
+
+        yourTable.getModel().addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                if (!isUpdatingTable) {
+                    int selRow = e.getFirstRow();
+                    int selCol = e.getColumn();
+                    if (selRow != -1 && selCol != -1 && selCol != 0) {
+                        String val = String.valueOf(yourTable.getValueAt(selRow, selCol));
+                        controller.changeSpreadSheetValueAt(selRow, selCol - 1, val);
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Creates and sets up the toolbar with various buttons and their action listeners.
+     */
     @Override
     public void makeToolbar() {
         // Create toolbar
@@ -119,6 +190,9 @@ public class SubscriberSheetView extends SheetView {
         repaint();
     }
 
+    /**
+     * Handles saving the spreadsheet either locally or by updating the subscription.
+     */
     @Override
     public void handleSave() {
         System.out.println("handleSave Method Called");
@@ -146,13 +220,20 @@ public class SubscriberSheetView extends SheetView {
             if (this.controller == null) {
                 System.out.println("Error: Controller is null");
             } else {
-                this.controller.updateSubscribedSheet(this.publisher, cells, ((Spreadsheet) cells).getName());
+                this.controller.updateSubscribedSheet(this.publisher, cells, cells.getName());
                 System.out.println("Spreadsheet Name: " + ((Spreadsheet) cells).getName());
                 makeVisible();
             }
         }
     }
 
+    /**
+     * Highlights a cell with the specified color.
+     *
+     * @param row   the row of the cell to highlight.
+     * @param col   the column of the cell to highlight.
+     * @param color the color to highlight the cell with.
+     */
     @Override
     public void highlightCell(int row, int col, Color color) {
         if (color.equals(SheetView.GREEN) || color.equals(SheetView.PINK)) {
@@ -162,6 +243,9 @@ public class SubscriberSheetView extends SheetView {
         yourTable.repaint();
     }
 
+    /**
+     * Updates the table by re-rendering its contents and applying the custom cell renderer.
+     */
     @Override
     public void updateTable() {
         isUpdatingTable = true;
@@ -202,6 +286,11 @@ public class SubscriberSheetView extends SheetView {
     class CustomTableCellRenderer extends DefaultTableCellRenderer {
         private final Map<Point, Color> highlightedCells;
 
+        /**
+         * Constructs a CustomTableCellRenderer with the specified highlighted cells.
+         *
+         * @param highlightedCells a map of cell locations to their highlight colors.
+         */
         public CustomTableCellRenderer(Map<Point, Color> highlightedCells) {
             this.highlightedCells = highlightedCells;
         }
@@ -219,14 +308,10 @@ public class SubscriberSheetView extends SheetView {
             } else {
                 c.setBackground(Color.WHITE);
             }
+            if (isSelected) {
+                c.setBackground(Color.CYAN);
+            }
             return c;
         }
-    }
-    
-    @Override
-    public void setup() {
-        super.setup();
-        // Apply the custom renderer after yourTable is initialized
-        yourTable.setDefaultRenderer(Object.class, new CustomTableCellRenderer(highlightedCells));
     }
 }

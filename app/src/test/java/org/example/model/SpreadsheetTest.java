@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SpreadsheetTest {
 
@@ -47,10 +48,10 @@ public class SpreadsheetTest {
 
     @Test
     public void testGetCells() {
-        ArrayList<ArrayList<Cell>> cells = spreadsheet.getCells();
+        List<List<Cell>> cells = spreadsheet.getCells();
         assertEquals(100, cells.size(), "getCells should return 100 rows");
 
-        for (ArrayList<Cell> row : cells) {
+        for (List<Cell> row : cells) {
             assertEquals(100, row.size(), "Each row should have 100 columns");
         }
     }
