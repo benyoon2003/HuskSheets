@@ -208,7 +208,7 @@ public class HomeView extends JFrame implements IHomeView {
     @Override
     public void openSheet(String path) {
         try {
-            this.controller.openSheet(path);
+            this.controller.openSheetLocally(path);
         } catch (Exception e) {
             System.out.println("Could not load spreadsheet: " + e.getMessage());
         }
@@ -222,7 +222,7 @@ public class HomeView extends JFrame implements IHomeView {
     @Override
     public void openSheetFromServer(String path) {
         try {
-            this.controller.openSheet(path);
+            this.controller.openSheetLocally(path);
         } catch (Exception e) {
             System.out.println("Could not load spreadsheet from server: " + e.getMessage());
         }

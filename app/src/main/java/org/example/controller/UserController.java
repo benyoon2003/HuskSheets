@@ -143,10 +143,8 @@ public class UserController implements IUserController {
         try {
             String payload = convertSheetToPayload(sheet);
             Result result = serverEndpoint.updatePublished(appUser.getUsername(), sheetName, payload);
-            if (result.getSuccess()) {
-                System.out.println("Sheet updated successfully on the server.");
-            } else {
-                System.out.println("Failed to update sheet on the server: " + result.getMessage());
+            if (!result.getSuccess()) {
+                sheetView.displayMessage(result.getMessage());
             }
         } catch (Exception e) {
             this.sheetView.displayMessage(e.getMessage());
@@ -154,18 +152,14 @@ public class UserController implements IUserController {
     }
 
     public void updateSelectedCells(String value) {
-        int startRow = selectedCells.getStartRow() - 1;
-        int endRow = selectedCells.getEndRow() - 1;
-        int startCol = selectedCells.getStartCol() - 1;
-        int endCol = selectedCells.getEndCol() - 1;
-
-        System.out.println("Updating cells from row " + startRow + " to " + endRow +
-                " and columns from " + startCol + " to " + endCol);
+        int startRow = selectedCells.getStartRow();
+        int endRow = selectedCells.getEndRow();
+        int startCol = selectedCells.getStartCol();
+        int endCol = selectedCells.getEndCol();
 
         for (int row = startRow; row <= endRow; row++) {
             for (int col = startCol; col <= endCol; col++) {
-                System.out.println("Changing value at (" + row + ", " + col + ") to " + value);
-                if (value.equals("")) {
+                if (value.isEmpty()) {
                     changeSpreadSheetValueAt(row, col, "");
                 } else {
                     changeSpreadSheetValueAt(row, col, value);
@@ -174,34 +168,18 @@ public class UserController implements IUserController {
         }
     }
 
-    /**
-     * Updates a subscribed sheet on the server.
-     *
-     * @param publisher the publisher of the sheet.
-     * @param sheet the sheet to be updated.
-     * @param name the name of the sheet.
-     */
     public void updateSubscribedSheet(String publisher, IReadOnlySpreadSheet sheet, String name) {
         try {
             String payload = convertSheetToPayload(sheet);
-            System.out.println("Converted Payload:\n" + payload);
             Result result = serverEndpoint.updateSubscription(publisher, name, payload);
-            if (result.getSuccess()) {
-                System.out.println("Sheet updated successfully on the server.");
-            } else {
-                System.out.println("Failed to update sheet on the server: " + result.getMessage());
+            if (!result.getSuccess()) {
+                sheetView.displayMessage(result.getMessage());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    /**
-     * Converts a sheet to a payload string.
-     *
-     * @param sheet the sheet to be converted.
-     * @return the payload string representing the sheet.
-     */
     public static String convertSheetToPayload(IReadOnlySpreadSheet sheet) {
         StringBuilder payload = new StringBuilder();
         Cell[][] values = sheet.getCellsObject();
@@ -209,27 +187,14 @@ public class UserController implements IUserController {
             for (int j = 0; j < sheet.getCols(); j++) {
                 if (values[i][j] != null && !values[i][j].getRawdata().isEmpty()) {
                     String cellValue = values[i][j].isFormula() ? values[i][j].getFormula() : values[i][j].getRawdata();
-                    payload.append(String.format("$%s%s %s\\n", getExcelColumnName(j + 1), i + 1, cellValue));
+                    payload.append(String.format("$%s%s %s\\n", getColumnName(j + 1), i + 1, cellValue));
                 }
             }
         }
-
-        if (payload.isEmpty()) {
-            return "";
-        }
-        else {
-            System.out.println("convertSheetToPayload is called here!");
-            return payload.toString();
-        }
+        return payload.toString();
     }
 
-    /**
-     * Gets the Excel column name for a given column number.
-     *
-     * @param columnNumber the column number.
-     * @return the Excel column name.
-     */
-    public static String getExcelColumnName(int columnNumber) {
+    public static String getColumnName(int columnNumber) {
         StringBuilder columnName = new StringBuilder();
         while (columnNumber > 0) {
             int remainder = (columnNumber - 1) % 26;
@@ -239,12 +204,6 @@ public class UserController implements IUserController {
         return columnName.toString();
     }
 
-    /**
-     * Updates the selected cells based on the given selected rows and columns.
-     *
-     * @param selectedRows the selected rows.
-     * @param selectedColumns the selected columns.
-     */
     @Override
     public void setSelectedCells(int[] selectedRows, int[] selectedColumns) {
         if (selectedRows.length > 0 && selectedColumns.length > 0) {
@@ -255,35 +214,21 @@ public class UserController implements IUserController {
 
             this.selectedCells = new SelectedCells(startRow + 1, endRow + 1, startColumn, endColumn);
 
-            System.out.println("Selected range: (" + (selectedCells.getStartRow()) + ", " +
-                    selectedCells.getStartCol() + ") to (" + selectedCells.getEndRow() + ", "
-                    + selectedCells.getEndCol() + ")");
-
             if (this.singleCellSelected(this.selectedCells)) {
                 this.sheetView.changeFormulaTextField(this.spreadsheetModel.getCellRawdata(
-                        this.selectedCells.getStartRow() - 1, this.selectedCells.getStartCol() - 1));
+                        this.selectedCells.getStartRow(), this.selectedCells.getStartCol()));
             }
         } else {
             this.selectedCells = new SelectedCells(-1, -1, -1, -1);
         }
     }
 
-    /**
-     * Gets the zero-based index of the selected row.
-     *
-     * @return the zero-based index of the selected row.
-     */
-    public int getSelectedRowZeroIndex() {
-        return selectedCells.getStartRow() - 1;
+    public int getSelectedRow() {
+        return selectedCells.getStartRow();
     }
 
-    /**
-     * Gets the zero-based index of the selected column.
-     *
-     * @return the zero-based index of the selected column.
-     */
-    public int getSelectedColZeroIndex() {
-        return selectedCells.getStartCol() - 1;
+    public int getSelectedCol() {
+        return selectedCells.getStartCol();
     }
 
     private boolean singleCellSelected(ISelectedCells selectedCells) {
@@ -291,19 +236,14 @@ public class UserController implements IUserController {
                 selectedCells.getStartCol() == selectedCells.getEndCol();
     }
 
-    /**
-     * Opens a sheet from the specified path.
-     *
-     * @param path the path to the sheet.
-     */
     @Override
-    public void openSheet(String path) {
+    public void openSheetLocally(String path) {
         try {
             this.homeView.disposeHomePage();
             this.spreadsheetModel = this.home.readXML(path);
             setCurrentSheet(new SheetView(spreadsheetModel));
         } catch (Exception e) {
-            e.printStackTrace();
+            homeView.displayErrorBox(e.getMessage());
         }
     }
 
@@ -416,12 +356,7 @@ public class UserController implements IUserController {
         try {
             Result getUpdatesForPublishedResult = this.serverEndpoint.getUpdatesForPublished(this.appUser.getUsername(), sheet, String.valueOf(id));
             String fullPayload = "";
-            List<Argument> payloads = getUpdatesForPublishedResult.getValue();
-            for (Argument payload : payloads) {
-                String payload_string = payload.getPayload();
-                System.out.println("Payload received: " + payload);
-                fullPayload += payload_string;
-            }
+            fullPayload = getUpdatesForPublishedResult.getValue().getLast().getPayload();
             ISpreadsheet changes = this.home.readPayload(fullPayload, sheet);
             System.out.println("Changes payload received: " + fullPayload);
             this.sheetView = new ReviewChangesSheetView(changes, this.spreadsheetModel);

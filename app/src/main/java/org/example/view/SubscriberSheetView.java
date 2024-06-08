@@ -120,8 +120,8 @@ public class SubscriberSheetView extends SheetView {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("FormulaTextField ActionPerformed");
-                controller.changeSpreadSheetValueAt(controller.getSelectedRowZeroIndex(),
-                        controller.getSelectedColZeroIndex(), formulaTextField.getText());
+                controller.changeSpreadSheetValueAt(controller.getSelectedRow(),
+                        controller.getSelectedCol(), formulaTextField.getText());
             }
         });
 

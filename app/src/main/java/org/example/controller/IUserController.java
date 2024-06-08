@@ -49,7 +49,7 @@ public interface IUserController {
      * Opens a sheet from the specified path.
      * @param path the path to open the sheet from.
      */
-    void openSheet(String path);
+    void openSheetLocally(String path);
 
     /**
      * Gets the list of saved sheets.
@@ -143,13 +143,13 @@ public interface IUserController {
      * Gets the zero-indexed selected row.
      * @return the zero-indexed selected row.
      */
-    int getSelectedRowZeroIndex();
+    int getSelectedRow();
 
     /**
      * Gets the zero-indexed selected column.
      * @return the zero-indexed selected column.
      */
-    int getSelectedColZeroIndex();
+    int getSelectedCol();
 
     /**
      * Registers a new user with the provided username and password.

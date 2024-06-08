@@ -174,7 +174,7 @@ public class SheetView extends JFrame implements ISheetView {
 
             if (this.singleCellSelected(this.selectedCells)) {
                 this.changeFormulaTextField(this.cells.getCellRawdata(
-                        this.selectedCells.getStartRow() - 1, this.selectedCells.getStartCol() - 1));
+                        this.selectedCells.getStartRow(), this.selectedCells.getStartCol()));
             }
         } else {
             this.selectedCells = new SelectedCells(-1, -1, -1, -1);
@@ -276,8 +276,8 @@ public class SheetView extends JFrame implements ISheetView {
         formulaTextField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.changeSpreadSheetValueAt(controller.getSelectedRowZeroIndex(),
-                        controller.getSelectedColZeroIndex(), formulaTextField.getText());
+                controller.changeSpreadSheetValueAt(controller.getSelectedRow(),
+                        controller.getSelectedCol(), formulaTextField.getText());
             }
         });
 
