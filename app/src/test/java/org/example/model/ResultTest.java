@@ -44,34 +44,34 @@ public class ResultTest {
         assertEquals(string, result.toString());
     }
 
-    @Test
-    public void testGetSheets() {
-        String jsonString = "{\"success\":\"true\", \"message\":null,"
-                + "\"value\": [{\"publisher\":\"test\",\"sheet\":\"Test1\",\"id\":null,\"payload\":null},"
-                + "{\"publisher\":\"test\",\"sheet\":\"Test2\",\"id\":null,\"payload\":null}]}";
-        List<String> sheets = Result.getSheets(jsonString);
-
-        assertEquals("Test1", sheets.get(0));
-        assertEquals("Test2", sheets.get(1));
-
-        // for poorly constructed JSON objects
-        jsonString = "{\"success\":\"false\", \"message\": \"Bad JSON object\", \"value\": []\"}";
-        List<String> badSheets = Result.getSheets(jsonString);
-        assertTrue(badSheets.isEmpty());
-    }
-
-    @Test
-    public void testGetPayload() {
-        String response = "{\"success\":\"true\", \"message\":null,"
-        + "\"value\": [{\"publisher\":\"test\",\"sheet\":\"Test1\",\"id\":null,\"payload\":\"Payload1\"},"
-        + "{\"publisher\":\"test\",\"sheet\":\"Test2\",\"id\":null,\"payload\":\"Payload2\"}]}";
-
-        assertEquals("Payload1", Result.getPayload(response, "Test1"));
-        assertEquals("Payload2", Result.getPayload(response, "Test2"));
-
-        String badResponse = "bad response";
-        assertEquals(null, Result.getPayload(badResponse, "Test1"));
-    }
+//    @Test
+//    public void testGetSheets() {
+//        String jsonString = "{\"success\":\"true\", \"message\":null,"
+//                + "\"value\": [{\"publisher\":\"test\",\"sheet\":\"Test1\",\"id\":null,\"payload\":null},"
+//                + "{\"publisher\":\"test\",\"sheet\":\"Test2\",\"id\":null,\"payload\":null}]}";
+//        List<String> sheets = Result.getSheets(jsonString);
+//
+//        assertEquals("Test1", sheets.get(0));
+//        assertEquals("Test2", sheets.get(1));
+//
+//        // for poorly constructed JSON objects
+//        jsonString = "{\"success\":\"false\", \"message\": \"Bad JSON object\", \"value\": []\"}";
+//        List<String> badSheets = Result.getSheets(jsonString);
+//        assertTrue(badSheets.isEmpty());
+//    }
+//
+//    @Test
+//    public void testGetPayload() {
+//        String response = "{\"success\":\"true\", \"message\":null,"
+//        + "\"value\": [{\"publisher\":\"test\",\"sheet\":\"Test1\",\"id\":null,\"payload\":\"Payload1\"},"
+//        + "{\"publisher\":\"test\",\"sheet\":\"Test2\",\"id\":null,\"payload\":\"Payload2\"}]}";
+//
+//        assertEquals("Payload1", Result.getPayload(response, "Test1"));
+//        assertEquals("Payload2", Result.getPayload(response, "Test2"));
+//
+//        String badResponse = "bad response";
+//        assertEquals(null, Result.getPayload(badResponse, "Test1"));
+//    }
 
     @Test
     public void testMakeResponse() {

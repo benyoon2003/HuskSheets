@@ -3,7 +3,6 @@ package org.example.view;
 import org.example.model.Cell;
 import org.example.model.ISpreadsheet;
 import org.example.model.Spreadsheet;
-import org.example.model.Cell;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -43,8 +42,8 @@ public class ReviewChangesSheetView extends SheetView {
         formulaTextField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.changeSpreadSheetValueAt(controller.getSelectedRowZeroIndex(),
-                        controller.getSelectedColZeroIndex(), formulaTextField.getText());
+                controller.changeSpreadSheetValueAt(controller.getSelectedRow(),
+                        controller.getSelectedCol(), formulaTextField.getText());
             }
         });
 
@@ -72,9 +71,7 @@ public class ReviewChangesSheetView extends SheetView {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();
-                IHomeView homeView = controller.getHomeView();
-                homeView.updateSavedSheets(); // Update the dropdown before making it visible
-                homeView.makeVisible();
+                controller.openHomeView();
             }
         });
 

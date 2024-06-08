@@ -35,7 +35,7 @@ public class SelectedCells implements ISelectedCells {
    */
   @Override
   public int getStartRow() {
-    return startRow;
+    return startRow - 1;
   }
 
   /**
@@ -45,7 +45,7 @@ public class SelectedCells implements ISelectedCells {
    */
   @Override
   public int getEndRow() {
-    return endRow;
+    return endRow - 1;
   }
 
   /**
@@ -55,7 +55,7 @@ public class SelectedCells implements ISelectedCells {
    */
   @Override
   public int getStartCol() {
-    return startCol;
+    return startCol - 1;
   }
 
   /**
@@ -65,6 +65,6 @@ public class SelectedCells implements ISelectedCells {
    */
   @Override
   public int getEndCol() {
-    return endCol;
+    return endCol - 1;
   }
 }

@@ -91,7 +91,7 @@ public class HomeView extends JFrame implements IHomeView {
                 String sheetName = JOptionPane.showInputDialog(panel, "Enter sheet name:", "Create New Sheet",
                         JOptionPane.PLAIN_MESSAGE);
                 if (sheetName != null && !sheetName.trim().isEmpty()) {
-                    controller.createNewSheet(sheetName);
+                    controller.createNewServerSheet(sheetName);
                 } else {
                     JOptionPane.showMessageDialog(panel, "Sheet name cannot be empty", "Error",
                             JOptionPane.ERROR_MESSAGE);
@@ -116,7 +116,9 @@ public class HomeView extends JFrame implements IHomeView {
         publishers.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                updateSubscribeSheets((String) publishers.getSelectedItem());
+                if (publishers.getSelectedItem() != null) {
+                    updateSubscribeSheets((String) publishers.getSelectedItem());
+                }
             }
         });
         
@@ -148,7 +150,7 @@ public class HomeView extends JFrame implements IHomeView {
                             "Delete Locally");
 
                     if (option == JOptionPane.YES_OPTION) {
-                        controller.deleteSheet(selectedSheet);
+                        controller.deleteSheetFromServer(selectedSheet);
                     } else {
                         controller.deleteSheetFromServer(selectedSheet);
                         makeVisible();
@@ -161,8 +163,49 @@ public class HomeView extends JFrame implements IHomeView {
 
     }
 
+//    private String getSheetToDeleteFromServer() {
+//        try {
+//            HttpClient client = HttpClient.newHttpClient();
+//            HttpRequest request = HttpRequest.newBuilder()
+//                    .uri(new URI("http://localhost:8080/api/getSheets"))
+//                    .header("Content-Type", "application/json")
+//                    .GET()
+//                    .build();
+//            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+//
+//            if (response.statusCode() == 200) {
+//                String responseBody = response.body();
+//                JSONArray sheetsArray = new JSONArray(responseBody);
+//                List<String> sheetNames = new ArrayList<>();
+//                for (int i = 0; i < sheetsArray.length(); i++) {
+//                    JSONObject sheetObject = sheetsArray.getJSONObject(i);
+//                    sheetNames.add(sheetObject.getString("name"));
+//                }
+//
+//                String[] sheetArray = sheetNames.toArray(new String[0]);
+//                return (String) JOptionPane.showInputDialog(
+//                        null,
+//                        "Select a sheet to delete from the server:",
+//                        "Delete Sheet from Server",
+//                        JOptionPane.QUESTION_MESSAGE,
+//                        null,
+//                        sheetArray,
+//                        sheetArray[0]);
+//
+//            } else {
+//                JOptionPane.showMessageDialog(null, "Failed to retrieve sheets from server.");
+//                return null;
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            JOptionPane.showMessageDialog(null, "Error occurred: " + e.getMessage());
+//            return null;
+//        }
+//    }
+
+
     public void updateSubscribeSheets(String selectedPublisher) {
-        List<String> subscribedSheets = controller.getSubscribedSheets(selectedPublisher);
+        List<String> subscribedSheets = controller.accessSheetsFromUser(selectedPublisher);
         openSubscriberDropdown.removeAllItems();
         for (String sheet : subscribedSheets) {
             openSubscriberDropdown.addItem(sheet);
@@ -185,9 +228,9 @@ public class HomeView extends JFrame implements IHomeView {
     @Override
     public void updateSavedSheets() {
         if (controller != null) {
-            List<String> savedSheets = controller.getSavedSheets();
-            List<String> serverSheets = controller.getServerSheets();
-            List<String> listOfPublishers = controller.getPublishers();
+            List<String> savedSheets = controller.getSavedSheetsLocally();
+            List<String> serverSheets = controller.getAppUserSheets();
+            List<String> listOfPublishers = controller.getPublishersFromServer();
             System.out.println("Updating dropdown with saved sheets: " + savedSheets);
             openSheetDropdown.removeAllItems();
             publishers.removeAllItems();
@@ -196,18 +239,8 @@ public class HomeView extends JFrame implements IHomeView {
             }
 
             for (String username : listOfPublishers) {
-
                 publishers.addItem(username);
             }
-
-            if (publishers.getSelectedItem() != null) {
-                updateSubscribeSheets(publishers.getSelectedItem().toString());
-            }
-
-            if (publishers.getSelectedItem() != null) {
-                updateSubscribeSheets(publishers.getSelectedItem().toString());
-            }
-
         }
     }
 
@@ -228,7 +261,6 @@ public class HomeView extends JFrame implements IHomeView {
     public void makeVisible() {
         this.setVisible(true);
         updateSavedSheets();
-        this.controller.getServerSheets();
     }
 
     /**

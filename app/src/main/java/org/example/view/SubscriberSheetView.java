@@ -1,10 +1,8 @@
 package org.example.view;
 
-import org.example.controller.IUserController;
 import org.example.model.IReadOnlySpreadSheet;
 import org.example.model.ISpreadsheet;
 import org.example.model.Spreadsheet;
-import org.example.model.SelectedCells;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -12,7 +10,6 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.event.ListSelectionEvent;
@@ -69,7 +66,7 @@ public class SubscriberSheetView extends SheetView {
                 if (!e.getValueIsAdjusting()) {
                     int[] selectedRows = yourTable.getSelectedRows();
                     int[] selectedColumns = yourTable.getSelectedColumns();
-                    controller.selectedCells(selectedRows, selectedColumns);
+                    controller.setSelectedCells(selectedRows, selectedColumns);
                 }
             }
         });
@@ -80,7 +77,7 @@ public class SubscriberSheetView extends SheetView {
                 if (!e.getValueIsAdjusting()) {
                     int[] selectedRows = yourTable.getSelectedRows();
                     int[] selectedColumns = yourTable.getSelectedColumns();
-                    controller.selectedCells(selectedRows, selectedColumns);
+                    controller.setSelectedCells(selectedRows, selectedColumns);
                 }
             }
         });
@@ -123,8 +120,8 @@ public class SubscriberSheetView extends SheetView {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("FormulaTextField ActionPerformed");
-                controller.changeSpreadSheetValueAt(controller.getSelectedRowZeroIndex(),
-                        controller.getSelectedColZeroIndex(), formulaTextField.getText());
+                controller.changeSpreadSheetValueAt(controller.getSelectedRow(),
+                        controller.getSelectedCol(), formulaTextField.getText());
             }
         });
 
@@ -269,7 +266,7 @@ public class SubscriberSheetView extends SheetView {
         }
         for (int row = 0; row < data.length; row++) {
             for (int col = 0; col < data[row].length; col++) {
-                model.setValueAt(controller.handleReferencingCell(row, col, data[row][col]), row, col + 1);
+                model.setValueAt(controller.handleReevaluatingCellFormula(row, col, data[row][col]), row, col + 1);
             }
         }
         model.fireTableDataChanged();

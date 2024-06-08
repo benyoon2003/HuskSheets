@@ -6,8 +6,7 @@ package org.example.model;
  * It includes methods to get and set these values.
  */
 public class Argument {
-
-  String publisher, sheet, id, payload;
+  private String publisher, sheet, id, payload;
 
   /**
    * Constructs an Argument with the specified publisher, sheet, ID, and payload.
@@ -28,9 +27,7 @@ public class Argument {
    * Default constructor for Argument.
    * Initializes an empty Argument instance.
    */
-  public Argument() {
-
-  }
+  public Argument() {}
 
   /**
    * Gets the publisher associated with this argument.
