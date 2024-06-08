@@ -101,4 +101,7 @@ public class Argument {
     this.payload = payload;
   }
 
+  public String toString() {
+    return "Argument{publisher=" + publisher + ", sheet=" + sheet + ", id=" + id + ", payload='" + payload + "'}";
+  }
 }

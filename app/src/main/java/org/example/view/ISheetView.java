@@ -65,7 +65,7 @@ public interface ISheetView {
      * @param col the column of the cell.
      * @param color the color to highlight.
      */
-    public void highlightCell(int i, int j, Color pink);
+    public void highlightCell(int row, int col, Color color);
     
     /**
      * Handles the selection of cells in the table.
