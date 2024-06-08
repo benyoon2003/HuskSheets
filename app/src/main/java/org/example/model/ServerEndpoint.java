@@ -137,7 +137,7 @@ public class ServerEndpoint {
    * @return Response body containing the list of sheets
    * @throws Exception if an error occurs during the HTTP request
    */
-  public String getSheets(String publisher) throws Exception {
+  public Result getSheets(String publisher) throws Exception {
     String url = BASE_URL + "getSheets";
     HttpClient client = HttpClient.newBuilder().build();
     String json = String.format("{\"publisher\":\"%s\"}", publisher);
@@ -150,7 +150,7 @@ public class ServerEndpoint {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
     System.out.println("Get Sheets Response: " + response.body());
-    return response.body();
+    return new Result(response.body());
   }
 
   /**

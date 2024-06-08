@@ -55,7 +55,7 @@ public interface IUserController {
      * Gets the list of saved sheets.
      * @return the list of saved sheets.
      */
-    List<String> getSavedSheets();
+    List<String> getSavedSheetsLocally();
 
     /**
      * Deletes a sheet at the specified path.

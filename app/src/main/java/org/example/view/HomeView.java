@@ -115,7 +115,9 @@ public class HomeView extends JFrame implements IHomeView {
         publishers.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                updateSubscribeSheets((String) publishers.getSelectedItem());
+                if (publishers.getSelectedItem() != null) {
+                    updateSubscribeSheets((String) publishers.getSelectedItem());
+                }
             }
         });
         openSubscribeButton.addActionListener(new ActionListener() {
@@ -252,7 +254,7 @@ public class HomeView extends JFrame implements IHomeView {
     @Override
     public void updateSavedSheets() {
         if (controller != null) {
-            List<String> savedSheets = controller.getSavedSheets();
+            List<String> savedSheets = controller.getSavedSheetsLocally();
             List<String> serverSheets = controller.getServerSheets();
             List<String> listOfPublishers = controller.getPublishersFromServer();
             System.out.println("Updating dropdown with saved sheets: " + savedSheets);
@@ -263,20 +265,8 @@ public class HomeView extends JFrame implements IHomeView {
             }
 
             for (String username : listOfPublishers) {
-
                 publishers.addItem(username);
             }
-
-
-            if(publishers.getSelectedItem() != null) {
-                updateSubscribeSheets(publishers.getSelectedItem().toString());
-            }
-
-            if (publishers.getSelectedItem() != null) {
-                updateSubscribeSheets(publishers.getSelectedItem().toString());
-            }
-
-
         }
     }
 
@@ -297,7 +287,6 @@ public class HomeView extends JFrame implements IHomeView {
     public void makeVisible() {
         this.setVisible(true);
         updateSavedSheets();
-        this.controller.getServerSheets();
     }
     
     /**

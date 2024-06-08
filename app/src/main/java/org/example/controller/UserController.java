@@ -43,14 +43,14 @@ public class UserController implements IUserController {
         try {
             if (validateInput(username, password)) {
                 IAppUser newUser = new AppUser(username, password);
-                Result registerResult = serverEndpoint.register(newUser);
-                if (registerResult.getSuccess()) {
+                Result result = serverEndpoint.register(newUser);
+                if (result.getSuccess()) {
                     this.loginPage.disposeLoginPage();
                     this.appUser = newUser;
                     openHomeView();
                 }
                 else {
-                    this.loginPage.displayErrorBox(registerResult.getMessage());
+                    this.loginPage.displayErrorBox(result.getMessage());
                 }
             }
             else {
@@ -67,14 +67,14 @@ public class UserController implements IUserController {
         try {
             if (validateInput(username, password)) {
                 IAppUser newUser = new AppUser(username, password);
-                Result loginResult = serverEndpoint.login(newUser);
-                if (loginResult.getSuccess()) {
+                Result result = serverEndpoint.login(newUser);
+                if (result.getSuccess()) {
                     this.loginPage.disposeLoginPage();
                     this.appUser = newUser;
                     openHomeView();
                 }
                 else {
-                    this.loginPage.displayErrorBox(loginResult.getMessage());
+                    this.loginPage.displayErrorBox(result.getMessage());
                 }
             }
             else {
@@ -89,15 +89,20 @@ public class UserController implements IUserController {
     @Override
     public List<String> getPublishersFromServer() {
         try {
-            Result getPublisherResult = serverEndpoint.getPublishers();
+            Result result = serverEndpoint.getPublishers();
             List<String> listOfUsernames = new ArrayList<>();
-            for (Argument argument : getPublisherResult.getValue()) {
-                if (!argument.getPublisher().equals(this.appUser.getUsername())) {
-                    listOfUsernames.add(argument.getPublisher());
+            if (result.getSuccess()) {
+                for (Argument argument : result.getValue()) {
+                    if (!argument.getPublisher().equals(this.appUser.getUsername())) {
+                        listOfUsernames.add(argument.getPublisher());
+                    }
                 }
+                // The list should exclude the current user
+                listOfUsernames.remove(appUser.getUsername());
             }
-            // The list should exclude the current user
-            listOfUsernames.remove(appUser.getUsername());
+            else {
+                homeView.displayErrorBox(result.getMessage());
+            }
             return listOfUsernames;
         }
         catch (Exception e) {
@@ -116,13 +121,13 @@ public class UserController implements IUserController {
     @Override
     public void createNewServerSheet(String name) {
         try {
-            Result createSheetResult = serverEndpoint.createSheet(name);
-            if (createSheetResult.getSuccess()) {
+            Result result = serverEndpoint.createSheet(name);
+            if (result.getSuccess()) {
                 this.homeView.disposeHomePage();
                 this.spreadsheetModel = new Spreadsheet(name);
                 setCurrentSheet(new SheetView(this.spreadsheetModel));
             } else {
-                this.homeView.displayErrorBox(createSheetResult.getMessage());
+                this.homeView.displayErrorBox(result.getMessage());
             }
         } catch (Exception e) {
             this.homeView.displayErrorBox(e.getMessage());
@@ -247,13 +252,8 @@ public class UserController implements IUserController {
         }
     }
 
-    /**
-     * Gets a list of saved sheets.
-     *
-     * @return a list of saved sheets.
-     */
     @Override
-    public List<String> getSavedSheets() {
+    public List<String> getSavedSheetsLocally() {
         List<String> sheets = new ArrayList<>();
         File folder = new File("HuskSheets/sheets");
         if (!folder.exists()) {
@@ -269,19 +269,23 @@ public class UserController implements IUserController {
         return sheets;
     }
 
-    /**
-     * Gets a list of sheets from the server.
-     *
-     * @return a list of server sheets.
-     */
     @Override
     public List<String> getServerSheets() {
         List<String> sheets = new ArrayList<>();
         try {
-            String response = serverEndpoint.getSheets(appUser.getUsername());
-            sheets = Result.getSheets(response);
+            System.out.println("APPUSER " + appUser.getUsername());
+            Result result = serverEndpoint.getSheets(appUser.getUsername());
+            if (result.getSuccess()) {
+                for (Argument argument : result.getValue()) {
+                    sheets.add(argument.getSheet());
+                }
+                return sheets;
+            }
+            else {
+                homeView.displayErrorBox(result.getMessage());
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            homeView.displayErrorBox(e.getMessage());
         }
         return sheets;
     }
@@ -304,22 +308,24 @@ public class UserController implements IUserController {
         }
     }
 
-    /**
-     * Gets a list of subscribed sheets from the specified publisher.
-     *
-     * @param publisher the publisher of the sheets.
-     * @return a list of subscribed sheets.
-     */
     public List<String> getSubscribedSheets(String publisher) {
+        List<String> sheets = new ArrayList<>();
         try {
-            List<String> sheets = new ArrayList<>();
-            String response = this.serverEndpoint.getSheets(publisher);
-            sheets = Result.getSheets(response);
-            return sheets;
+            System.out.println("SUBS " + publisher);
+            Result result = serverEndpoint.getSheets(publisher);
+            if (result.getSuccess()) {
+                for (Argument argument : result.getValue()) {
+                    sheets.add(argument.getSheet());
+                }
+                return sheets;
+            }
+            else {
+                homeView.displayErrorBox(result.getMessage());
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            homeView.displayErrorBox(e.getMessage());
         }
-        return null;
+        return sheets;
     }
 
     /**
