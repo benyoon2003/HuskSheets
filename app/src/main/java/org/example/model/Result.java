@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
  * and value.
  */
 public class Result {
-    private boolean success; // whether or not the HTTP request was successful
-    private String message; // more information on the HTTP request
+    private boolean success;
+    private String message;
     private List<Argument> value;
 
     /**
@@ -42,7 +42,6 @@ public class Result {
         this.message = jsonObject.optString("message", null);
         this.value = new ArrayList<>();
         JSONArray jsonArray = jsonObject.optJSONArray("value");
-
         if (jsonArray != null) {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject entry = jsonArray.optJSONObject(i);
@@ -101,52 +100,5 @@ public class Result {
                 ", message='" + message + '\'' +
                 ", value=" + valueString +
                 '}';
-    }
-
-    /**
-     * Extracts sheet names from a JSON response.
-     *
-     * @param response the JSON response containing sheet information.
-     * @return a list of sheet names.
-     */
-    public static List<String> getSheets(String response) {
-        List<String> sheetNames = new ArrayList<>();
-        try {
-            JSONObject jsonObject = new JSONObject(response);
-            JSONArray jsonArray = jsonObject.getJSONArray("value");
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject entry = jsonArray.getJSONObject(i);
-                String sheetName = entry.getString("sheet");
-                sheetNames.add(sheetName);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return sheetNames;
-    }
-
-    /**
-     * Extracts the payload of a specified sheet from a JSON response.
-     *
-     * @param response  the JSON response containing sheet information.
-     * @param sheetName the name of the sheet for which the payload is to be
-     *                  extracted.
-     * @return the payload of the specified sheet, or null if not found.
-     */
-    public static String getPayload(String response, String sheetName) {
-        try {
-            JSONObject jsonObject = new JSONObject(response);
-            JSONArray jsonArray = jsonObject.getJSONArray("value");
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject entry = jsonArray.getJSONObject(i);
-                String sheet = entry.getString("sheet");
-                if (sheet.equals(sheetName)) {
-                    return entry.getString("payload");
-                }
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 }

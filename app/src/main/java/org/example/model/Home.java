@@ -32,7 +32,6 @@ public class Home implements IHome {
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(xmlFile);
             doc.getDocumentElement().normalize();
-
             NodeList cellNodes = doc.getElementsByTagName("cell");
             int maxCol = 0;
             int maxRow = 0;
@@ -46,30 +45,7 @@ public class Home implements IHome {
                 maxRow = Math.max(maxRow, row);
             }
 
-            // Create 2D cell array
-            ArrayList<ArrayList<Cell>> cellArray = new ArrayList<>();
-
-            // Initialize cells
-            for (int i = 0; i <= maxRow; i++) {
-                ArrayList<Cell> row = new ArrayList<>();
-                for (int j = 0; j <= maxCol; j++) {
-                    Cell c = new Cell();
-                    c.setRow(i);
-                    c.setCol(j);
-                    row.add(c);
-                }
-                cellArray.add(row);
-            }
-
-            // Fill cell values
-            for (int i = 0; i < cellNodes.getLength(); i++) {
-                Element cellElement = (Element) cellNodes.item(i);
-                int col = Integer.parseInt(cellElement.getAttribute("col"));
-                int row = Integer.parseInt(cellElement.getAttribute("row"));
-                String value = cellElement.getTextContent();
-                cellArray.get(row).get(col).setValue(value);
-            }
-            return new Spreadsheet(cellArray, path);
+            return generateSpreadsheet(cellNodes, maxRow, maxCol, path);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -77,28 +53,53 @@ public class Home implements IHome {
     }
 
     /**
+     * Generates a spreadsheet using the given NodeList, max rows, cols, and path.
+     * @param cellNodes NodeList from XML
+     * @param maxRow num rows
+     * @param maxCol num columns
+     * @param path a path
+     * @return a ISpreadsheet
+     */
+    private ISpreadsheet generateSpreadsheet(NodeList cellNodes, int maxRow,
+                                             int maxCol, String path) {
+        // Create 2D cell array
+        ArrayList<ArrayList<Cell>> cellArray = new ArrayList<>();
+        for (int i = 0; i <= maxRow; i++) {
+            ArrayList<Cell> row = new ArrayList<>();
+            for (int j = 0; j <= maxCol; j++) {
+                Cell c = new Cell();
+                c.setRow(i);
+                c.setCol(j);
+                row.add(c);
+            }
+            cellArray.add(row);
+        }
+
+        // Fill cell values
+        for (int i = 0; i < cellNodes.getLength(); i++) {
+            Element cellElement = (Element) cellNodes.item(i);
+            int col = Integer.parseInt(cellElement.getAttribute("col"));
+            int row = Integer.parseInt(cellElement.getAttribute("row"));
+            String value = cellElement.getTextContent();
+            cellArray.get(row).get(col).setValue(value);
+        }
+        return new Spreadsheet(cellArray, path);
+    }
+
+    /**
      * Reads the payload of a sheet from the server.
-     *
-     * @return the spreadsheet data
+     * @param payload payload to be parsed.
+     * @param sheetName name of sheet
+     * @return a ISpreadSheet
      */
     public ISpreadsheet readPayload(String payload, String sheetName) {
-        try {
-            if (payload != null && !payload.isEmpty()) {
-                List<List<String>> data = convertStringTo2DArray(payload);
-                ISpreadsheet ss = new Spreadsheet(sheetName);
-
-                for (List<String> ls : data) {
-                    ss.setCellRawdata(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
-                    ss.setCellValue(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
-                }
-                return ss;
-            } else {
-                System.out.println("Payload is null or empty");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        List<List<String>> data = convertStringTo2DArray(payload);
+        ISpreadsheet spreadsheet = new Spreadsheet(sheetName);
+        for (List<String> ls : data) {
+            spreadsheet.setCellRawdata(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
+            spreadsheet.setCellValue(Integer.parseInt(ls.get(0)), Integer.parseInt(ls.get(1)), ls.get(2));
         }
-        return new Spreadsheet(sheetName);
+        return spreadsheet;
     }
 
     /**
@@ -109,46 +110,93 @@ public class Home implements IHome {
      */
     @Override
     public void writeXML(IReadOnlySpreadSheet sheet, String path) {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         try {
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            Document dom = db.newDocument();
-
-            // root element (sheet)
-            Element root = dom.createElement("sheet");
-            String name = this.trimEnds(path);
-            root.setAttribute("name", name);
-
-            // adding the cell values
-            String[][] values = sheet.getCellStringsObject();
-            for (int i = 0; i < sheet.getRows(); i++) {
-                for (int j = 0; j < sheet.getCols(); j++) {
-                    if (values[i][j] == "") {
-                        continue;
-                    } else {
-                        Element e = dom.createElement("cell");
-                        e.setAttribute("row", Integer.toString(i));
-                        e.setAttribute("col", Integer.toString(j));
-                        e.appendChild(dom.createTextNode(values[i][j]));
-                        root.appendChild(e);
-                    }
-                }
-            }
-
-            dom.appendChild(root);
-
-            // save file
-            Transformer tr = TransformerFactory.newInstance().newTransformer();
-            tr.setOutputProperty(OutputKeys.INDENT, "yes");
-            tr.setOutputProperty(OutputKeys.METHOD, "xml");
-            tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-
-            if (!path.endsWith(".xml"))
-                path += ".xml";
-            tr.transform(new DOMSource(dom), new StreamResult(new FileOutputStream(path)));
+            path = path.trim();
+            Document dom = createDocument();
+            Element root = createRootElement(dom, path);
+            populateDocumentWithSheetData(dom, root, sheet);
+            writeDocumentToFile(dom, path);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Creates a new document.
+     * @return a Document
+     * @throws Exception
+     */
+    private Document createDocument() throws ParserConfigurationException {
+        DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+        return docBuilder.newDocument();
+    }
+
+    /**
+     * Creates a root element for the XML.
+     * @param dom a Document
+     * @param path a path
+     * @return an Element
+     */
+    private Element createRootElement(Document dom, String path) {
+        Element root = dom.createElement("sheet");
+        String name = trimEnds(path);
+        root.setAttribute("name", name);
+        dom.appendChild(root);
+        return root;
+    }
+
+    /**
+     * Places sheet data within the XML.
+     * @param dom a Document
+     * @param root an Element in the XML
+     * @param sheet a IReadOnlySpreadSheet
+     */
+    private void populateDocumentWithSheetData(Document dom, Element root, IReadOnlySpreadSheet sheet) {
+        String[][] values = sheet.getCellStringsObject();
+        for (int i = 0; i < sheet.getRows(); i++) {
+            for (int j = 0; j < sheet.getCols(); j++) {
+                if (!values[i][j].equals("")) {
+                    Element cellElement = createCellElement(dom, i, j, values[i][j]);
+                    root.appendChild(cellElement);
+                }
+            }
+        }
+    }
+
+    /**
+     * Creates a cell Element for the XML.
+     * @param dom a Document
+     * @param row a row index
+     * @param col a column index
+     * @param value the Cell content
+     * @return an XML Element
+     */
+    private Element createCellElement(Document dom, int row, int col, String value) {
+        Element cellElement = dom.createElement("cell");
+        cellElement.setAttribute("row", Integer.toString(row));
+        cellElement.setAttribute("col", Integer.toString(col));
+        cellElement.appendChild(dom.createTextNode(value));
+        return cellElement;
+    }
+
+    /**
+     * Writes the Document to a XML file.
+     * @param dom a Document
+     * @param path a path
+     * @throws Exception a FileNotFoundException, SecurityException or
+     * TransformerConfigurationException
+     */
+    private void writeDocumentToFile(Document dom, String path) throws Exception {
+        Transformer transformer = TransformerFactory.newInstance().newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+        transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+
+        if (!path.endsWith(".xml")) {
+            path += ".xml";
+        }
+        transformer.transform(new DOMSource(dom), new StreamResult(new FileOutputStream(path)));
     }
 
     /**
@@ -162,49 +210,36 @@ public class Home implements IHome {
             System.out.println("Input to convertStringTo2DArray is null or empty");
             return new ArrayList<>();
         }
-
         // Replace literal "\n" with actual newline characters if needed
         if (input.contains("\\n")) {
             input = input.replace("\\n", "\n");
         }
-
-        // Parse input into lines
         String[] lines = input.split("\\r?\\n");
-
-        // List to store the 2D array
         List<List<String>> result = new ArrayList<>();
 
-        // Process each line
+        // Process each line that was split
         for (String line : lines) {
             if (line.trim().isEmpty()) {
                 continue;
             }
-
             String[] parts = line.split(" ", 2);
             if (parts.length < 2) {
                 continue;
             }
-
             String ref = parts[0];
             String content = parts[1];
 
             // Extract row and column from the reference
             int[] rowCol = convertRefToRowCol(ref);
-
-            // Create the nested list for this cell
             List<String> cellData = new ArrayList<>();
             cellData.add(String.valueOf(rowCol[0])); // Row
             cellData.add(String.valueOf(rowCol[1])); // Column
             cellData.add(content); // Content
-
-            // Add to the result list
             result.add(cellData);
         }
-
         return result;
     }
 
-    // Convert cell reference (e.g., $A1) to row and column indices
     /**
      * Converts a cell reference (e.g., $A1, $AA4) to row and column indices.
      *
