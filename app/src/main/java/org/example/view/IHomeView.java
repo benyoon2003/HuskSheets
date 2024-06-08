@@ -30,20 +30,6 @@ public interface IHomeView {
     void updateSavedSheets();
 
     /**
-     * Opens a sheet from the specified local path.
-     *
-     * @param absolutePath the absolute path to the sheet to open.
-     */
-    void openSheet(String absolutePath);
-
-    /**
-     * Opens a sheet from the specified server path.
-     *
-     * @param absolutePath the absolute path to the sheet on the server to open.
-     */
-    void openSheetFromServer(String absolutePath);
-
-    /**
      * Displays an error message in a dialog box.
      *
      * @param message the error message to display.

@@ -1,7 +1,5 @@
 package org.example.model;
 
-import org.example.controller.UserController;
-
 import java.util.ArrayList;
 
 import java.util.List;
@@ -13,14 +11,13 @@ import java.util.regex.Pattern;
 
 import org.graalvm.polyglot.Context;
 
-
 /**
- * Represents a spreadsheet with various functionalities such as evaluating formulas,
+ * Represents a spreadsheet with various functionalities such as evaluating
+ * formulas,
  * managing cells, and handling subscriptions and publications.
  */
 
 public class Spreadsheet implements ISpreadsheet {
-
 
     private List<List<Cell>> grid;
 
@@ -162,67 +159,6 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     /**
-     * Evaluates the given formula and returns the result.
-     *
-     * @param formula the formula to evaluate.
-     * @return the result of evaluating the formula.
-     */
-    @Override
-    public String evaluateFormula(String formula) {
-        System.out.println(formula);
-        if (!formula.startsWith("=")) {
-            return formula;
-        }
-
-        // Remove the initial "="
-        formula = formula.substring(1).stripLeading();
-
-        try {
-            if (formula.contains("SORT")) {
-                return sort(formula);
-            }
-            // Handle operations that need to be parsed before evaluation
-            formula = parseOperations(formula);
-            // Replace cell references with their values
-            formula = replaceCellReferences(formula);
-            System.setProperty("polyglot.engine.WarnInterpreterOnly", "false");
-            // For simplicity, handle basic arithmetic operations using JavaScript engine
-            Object result = formula;
-            if (containsArith((String) result)) {
-                Context context = Context.create("js");
-                result = context.eval("js", formula);
-            }
-            return result.toString();
-        } catch (Exception e) {
-            //e.printStackTrace();
-            return "Error";
-        }
-    }
-
-    /**
-     * Replaces cell references in the formula with their actual values.
-     *
-     * @param formula the formula with cell references.
-     * @return the formula with cell references replaced by values.
-     */
-    private String replaceCellReferences(String formula) {
-        Pattern pattern = Pattern.compile("\\$[A-Z]+[0-9]+");
-        Matcher matcher = pattern.matcher(formula);
-        StringBuffer result = new StringBuffer();
-
-        while (matcher.find()) {
-            String cellReference = matcher.group();
-            int row = getRow(cellReference);
-            int col = getColumn(cellReference);
-            String cellValue = getCellValue(row, col);
-            matcher.appendReplacement(result, cellValue);
-        }
-        matcher.appendTail(result);
-
-        return result.toString();
-    }
-
-    /**
      * Gets the row index from the cell reference.
      *
      * @param cell the cell reference.
@@ -249,38 +185,6 @@ public class Spreadsheet implements ISpreadsheet {
             column = column * 26 + (col.charAt(i) - 'A' + 1);
         }
         return column - 1;
-    }
-
-    /**
-     * Checks if the cell contains a function.
-     *
-     * @param cell the cell content.
-     * @return the function if present, otherwise an empty string.
-     */
-    private String getFunction(String cell) {
-        for (String func : functions) {
-            if (cell.contains(func)) {
-                return func;
-            }
-        }
-
-        return "";
-    }
-
-    /**
-     * Checks if the cell contains a basic arithmetic operation.
-     *
-     * @param cell the cell content.
-     * @return true if it contains an arithmetic operation, otherwise false.
-     */
-    private boolean containsArith(String cell) {
-        for (String op : arith) {
-            if (cell.contains(op)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -313,7 +217,8 @@ public class Spreadsheet implements ISpreadsheet {
 
     /**
      * Gets the list of subscribed modified versions of the spreadsheet
-     * @return
+     * 
+     * @return a list of subscribed modified versions of the spreadsheet
      */
     public List<ISpreadsheet> getSubscribedVersions() {
         return this.subscribeVersions;
@@ -325,12 +230,24 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     /**
+     * Gets the name of the spreadsheet.
+     *
+     * @return the name of the spreadsheet.
+     */
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
+    /**
      * Get the id of current sheet
+     * 
      * @return the id of the sheet
      */
     public int getId_version() {
         return this.id_version;
     }
+
     /**
      * Sets the value of the cell at the specified row and column.
      *
@@ -356,28 +273,6 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     /**
-     * Gets the raw data of the cell at the specified row and column.
-     *
-     * @param row the row index of the cell.
-     * @param col the column index of the cell.
-     * @return the raw data of the cell.
-     */
-    @Override
-    public String getCellRawdata(int row, int col) {
-        return this.grid.get(row).get(col).getRawdata();
-    }
-
-    /**
-     * Gets the name of the spreadsheet.
-     *
-     * @return the name of the spreadsheet.
-     */
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    /**
      * Sets the raw data of the cell at the specified row and column.
      *
      * @param row the row index of the cell.
@@ -390,6 +285,18 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     /**
+     * Gets the raw data of the cell at the specified row and column.
+     *
+     * @param row the row index of the cell.
+     * @param col the column index of the cell.
+     * @return the raw data of the cell.
+     */
+    @Override
+    public String getCellRawdata(int row, int col) {
+        return this.grid.get(row).get(col).getRawdata();
+    }
+
+    /**
      * Gets the formula of the cell at the specified row and column.
      *
      * @param row the row index of the cell.
@@ -399,6 +306,43 @@ public class Spreadsheet implements ISpreadsheet {
     @Override
     public String getCellFormula(int row, int col) {
         return this.grid.get(row).get(col).getFormula();
+    }
+
+    /**
+     * Evaluates the given formula and returns the result.
+     *
+     * @param formula the formula to evaluate.
+     * @return the result of evaluating the formula.
+     */
+    @Override
+    public String evaluateFormula(String formula) {
+        System.out.println(formula);
+        if (!formula.startsWith("=")) {
+            return formula;
+        }
+
+        // Remove the initial "="
+        formula = formula.substring(1).stripLeading();
+
+        try {
+            if (formula.contains("SORT")) {
+                return sort(formula);
+            }
+            // Handle operations that need to be parsed before evaluation
+            formula = parseOperations(formula);
+            // Replace cell references with their values
+            formula = replaceCellReferences(formula);
+            System.setProperty("polyglot.engine.WarnInterpreterOnly", "false");
+            // For simplicity, handle basic arithmetic operations using JavaScript engine
+            Object result = formula;
+            if (containsArith((String) result)) {
+                Context context = Context.create("js");
+                result = context.eval("js", formula);
+            }
+            return result.toString();
+        } catch (Exception e) {
+            return "Error";
+        }
     }
 
     /**
@@ -450,6 +394,61 @@ public class Spreadsheet implements ISpreadsheet {
         }
 
         return formula;
+    }
+
+    /**
+     * Replaces cell references in the formula with their actual values.
+     *
+     * @param formula the formula with cell references.
+     * @return the formula with cell references replaced by values.
+     */
+    private String replaceCellReferences(String formula) {
+        Pattern pattern = Pattern.compile("\\$[A-Z]+[0-9]+");
+        Matcher matcher = pattern.matcher(formula);
+        StringBuffer result = new StringBuffer();
+
+        while (matcher.find()) {
+            String cellReference = matcher.group();
+            int row = getRow(cellReference);
+            int col = getColumn(cellReference);
+            String cellValue = getCellValue(row, col);
+            matcher.appendReplacement(result, cellValue);
+        }
+        matcher.appendTail(result);
+
+        return result.toString();
+    }
+
+    /**
+     * Checks if the cell contains a function.
+     *
+     * @param cell the cell content.
+     * @return the function if present, otherwise an empty string.
+     */
+    private String getFunction(String cell) {
+        for (String func : functions) {
+            if (cell.contains(func)) {
+                return func;
+            }
+        }
+
+        return "";
+    }
+
+    /**
+     * Checks if the cell contains a basic arithmetic operation.
+     *
+     * @param cell the cell content.
+     * @return true if it contains an arithmetic operation, otherwise false.
+     */
+    private boolean containsArith(String cell) {
+        for (String op : arith) {
+            if (cell.contains(op)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -807,7 +806,7 @@ public class Spreadsheet implements ISpreadsheet {
 
         return result.substring(0, result.length() - 1);
     }
-    
+
     /**
      * Sorts the cells based on the formula.
      *
