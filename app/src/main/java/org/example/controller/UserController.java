@@ -185,6 +185,12 @@ public class UserController implements IUserController {
         }
     }
 
+    /**
+     * Converts the given IReadOnlySpreadSheet into a valid String payload for transmission
+     * as part of JSON
+     * @param sheet the sheet to convert
+     * @return a payload (e.g $A1 4\n)
+     */
     public static String convertSheetToPayload(IReadOnlySpreadSheet sheet) {
         StringBuilder payload = new StringBuilder();
         Cell[][] values = sheet.getCellsObject();
@@ -199,6 +205,11 @@ public class UserController implements IUserController {
         return payload.toString();
     }
 
+    /**
+     * Gets the column label using the given column number.
+     * @param columnNumber a number that corresponds to a column in the spreadsheet
+     * @return a column label (e.g A, D, F, G)
+     */
     public static String getColumnName(int columnNumber) {
         StringBuilder columnName = new StringBuilder();
         while (columnNumber > 0) {
@@ -224,18 +235,26 @@ public class UserController implements IUserController {
                         this.selectedCells.getStartRow(), this.selectedCells.getStartCol()));
             }
         } else {
+            // Default selection when no cells have been selected
             this.selectedCells = new SelectedCells(-1, -1, -1, -1);
         }
     }
 
+    @Override
     public int getSelectedRow() {
         return selectedCells.getStartRow();
     }
 
+    @Override
     public int getSelectedCol() {
         return selectedCells.getStartCol();
     }
 
+    /**
+     * Determines if a single cell has been selected.
+     * @param selectedCells an ISelectedCells object
+     * @return boolean
+     */
     private boolean singleCellSelected(ISelectedCells selectedCells) {
         return selectedCells.getStartRow() == selectedCells.getEndRow() &&
                 selectedCells.getStartCol() == selectedCells.getEndCol();
@@ -291,6 +310,7 @@ public class UserController implements IUserController {
         }
     }
 
+    @Override
     public List<String> accessSheetsFromUser(String publisher) {
         List<String> sheets = new ArrayList<>();
         try {
@@ -327,6 +347,7 @@ public class UserController implements IUserController {
         }
     }
 
+    @Override
     public void getUpdatesForPublished(String sheet, int id) throws Exception {
         try {
             Result result = this.serverEndpoint.getUpdatesForPublished(this.appUser.getUsername(), sheet, String.valueOf(id));
@@ -465,7 +486,13 @@ public class UserController implements IUserController {
         this.sheetView.updateTable();
     }
 
-    public void highlightCell(int row, int col, Color color) {
+    /**
+     * Highlights the cell at the specified coordinate to the given color.
+     * @param row coordinate
+     * @param col coordinate
+     * @param color a Color
+     */
+    private void highlightCell(int row, int col, Color color) {
         if (color.equals(SheetView.GREEN) || color.equals(SheetView.PINK)) {
         }
         if (sheetView instanceof SheetView) {

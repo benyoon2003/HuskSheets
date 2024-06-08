@@ -46,7 +46,7 @@ public interface IUserController {
     void setSelectedCells(int[] selectedRows, int[] selectedColumns);
 
     /**
-     * Opens a sheet from the specified path.
+     * Opens a sheet from the specified path locally.
      * @param path the path to open the sheet from.
      */
     void openSheetLocally(String path);
@@ -58,7 +58,7 @@ public interface IUserController {
     List<String> getSavedSheetsLocally();
 
     /**
-     * Deletes a sheet at the specified path.
+     * Deletes a sheet locally at the specified path.
      * @param path the path to delete the sheet from.
      */
     void deleteSheetLocally(String path);
@@ -119,16 +119,16 @@ public interface IUserController {
     void deleteSheetFromServer(String name);
 
     /**
-     * Handles reevaluatiing the formula within the cell.
+     * Handles reevaluating the formula within the cell.
      * @param row the row of the cell.
      * @param col the column of the cell.
      * @param data the data in the cell.
-     * @return the result of the referencing.
+     * @return the result of the formula.
      */
     String handleReevaluatingCellFormula(int row, int col, String data);
 
     /**
-     * Gets the list of sheets from the server.
+     * Gets the list of sheets from the server for the current user.
      * @return the list of server sheets.
      */
     List<String> getAppUserSheets();
@@ -172,7 +172,7 @@ public interface IUserController {
     List<String> getPublishersFromServer();
 
     /**
-     * Gets the list of subscribed sheets for the given publisher.
+     * Gets the list of sheets for the given publisher.
      * @param publisher the publisher of the sheets.
      * @return the list of subscribed sheets.
      */
