@@ -6,13 +6,7 @@ import org.example.view.*;
 import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
-import java.nio.charset.StandardCharsets;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 
 /**
  * The UserController class is responsible for managing user interactions and the flow of data
@@ -20,20 +14,16 @@ import java.net.http.HttpResponse;
  * server communication.
  */
 public class UserController implements IUserController {
-
-    private ILoginView loginPage;
+    private final ILoginView loginPage;
     private ISheetView sheetView;
     private IHomeView homeView;
     private IAppUser appUser;
-    private IHome home;
-
+    private final IHome home;
     private ISpreadsheet spreadsheetModel;
-
     private ISelectedCells selectedCells;
-
-    private String clipboardContent = "";
-    private boolean isCutOperation = false;
-    private ServerEndpoint serverEndpoint;
+    private String clipboardContent;
+    private boolean isCutOperation;
+    private final ServerEndpoint serverEndpoint;
 
     /**
      * Constructs a UserController with the given login view.
@@ -45,141 +35,102 @@ public class UserController implements IUserController {
         loginView.addController(this);
         this.home = new Home();
         this.serverEndpoint = new ServerEndpoint();
+        this.clipboardContent = "";
+        this.isCutOperation = false;
     }
 
-    /**
-     * Registers a new user with the given username and password.
-     *
-     * @param username the username of the new user.
-     * @param password the password of the new user.
-     */
     public void registerUser(String username, String password) {
         try {
             if (validateInput(username, password)) {
-                IAppUser newUser = new AppUser();
-                newUser.setUsername(username);
-                newUser.setPassword(password);
+                IAppUser newUser = new AppUser(username, password);
                 Result registerResult = serverEndpoint.register(newUser);
                 if (registerResult.getSuccess()) {
                     this.loginPage.disposeLoginPage();
                     this.appUser = newUser;
                     openHomeView();
-                } else {
+                }
+                else {
                     this.loginPage.displayErrorBox(registerResult.getMessage());
                 }
-            } else {
+            }
+            else {
                 this.loginPage.displayErrorBox("Empty credentials");
             }
-        } catch (Exception ignored) {
+        }
+        catch (Exception e) {
+            this.loginPage.displayErrorBox(e.getMessage());
         }
     }
 
-    /**
-     * Logs in a user with the given username and password.
-     *
-     * @param username the username of the user.
-     * @param password the password of the user.
-     */
     @Override
     public void loginUser(String username, String password) {
         try {
             if (validateInput(username, password)) {
-                IAppUser newUser = new AppUser();
-                newUser.setUsername(username);
-                newUser.setPassword(password);
+                IAppUser newUser = new AppUser(username, password);
                 Result loginResult = serverEndpoint.login(newUser);
                 if (loginResult.getSuccess()) {
                     this.loginPage.disposeLoginPage();
                     this.appUser = newUser;
                     openHomeView();
-                } else {
+                }
+                else {
                     this.loginPage.displayErrorBox(loginResult.getMessage());
                 }
-            } else {
+            }
+            else {
                 this.loginPage.displayErrorBox("Empty credentials");
             }
-        } catch (Exception ignored) {
+        }
+        catch (Exception e) {
+            this.loginPage.displayErrorBox(e.getMessage());
         }
     }
 
-    /**
-     * Retrieves a list of publishers.
-     *
-     * @return a list of publisher usernames.
-     */
     @Override
-    public List<String> getPublishers() {
-        if (appUser == null) {
-            System.out.println("user is null");
-        }
+    public List<String> getPublishersFromServer() {
         try {
             Result getPublisherResult = serverEndpoint.getPublishers();
             List<String> listOfUsernames = new ArrayList<>();
             for (Argument argument : getPublisherResult.getValue()) {
-                System.out.println(argument.getPublisher());
-                System.out.println("User: " + this.appUser.getUsername());
                 if (!argument.getPublisher().equals(this.appUser.getUsername())) {
                     listOfUsernames.add(argument.getPublisher());
                 }
             }
+            // The list should exclude the current user
             listOfUsernames.remove(appUser.getUsername());
             return listOfUsernames;
-        } catch (Exception ignored) {
-            return new ArrayList<>();
         }
+        catch (Exception e) {
+            this.homeView.displayErrorBox(e.getMessage());
+        }
+        return new ArrayList<>();
     }
 
-    /**
-     * Sets the current sheet view.
-     *
-     * @param sheetView the sheet view to be set as current.
-     */
     @Override
     public void setCurrentSheet(ISheetView sheetView) {
         this.sheetView = sheetView;
         this.sheetView.addController(this);
+        this.sheetView.makeVisible();
     }
 
-    /**
-     * Gets the current sheet view.
-     *
-     * @return the current sheet view.
-     */
-    public ISheetView getCurrentSheet() {
-        return this.sheetView;
-    }
-
-    /**
-     * Creates a new sheet with the given name.
-     *
-     * @param name the name of the new sheet.
-     */
     @Override
-    public void createNewSheet(String name) {
+    public void createNewServerSheet(String name) {
         try {
             Result createSheetResult = serverEndpoint.createSheet(name);
             if (createSheetResult.getSuccess()) {
                 this.homeView.disposeHomePage();
                 this.spreadsheetModel = new Spreadsheet(name);
-                this.sheetView = new SheetView(this.spreadsheetModel);
-                this.setCurrentSheet(sheetView);
-                this.sheetView.makeVisible();
+                setCurrentSheet(new SheetView(this.spreadsheetModel));
             } else {
                 this.homeView.displayErrorBox(createSheetResult.getMessage());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            this.homeView.displayErrorBox(e.getMessage());
         }
     }
 
-    /**
-     * Saves the given sheet to a local path.
-     *
-     * @param sheet the sheet to be saved.
-     * @param path the path to save the sheet to.
-     */
     @Override
-    public void saveSheet(IReadOnlySpreadSheet sheet, String path) {
+    public void saveSheetLocally(IReadOnlySpreadSheet sheet, String path) {
         try {
             this.home.writeXML(sheet, path);
         } catch (Exception e) {
@@ -187,44 +138,30 @@ public class UserController implements IUserController {
         }
     }
 
-    /**
-     * Saves the given sheet to the server with the specified name.
-     *
-     * @param sheet the sheet to be saved.
-     * @param name the name to save the sheet as on the server.
-     */
     @Override
-    public void saveSheetToServer(IReadOnlySpreadSheet sheet, String name) {
+    public void saveSheetToServer(IReadOnlySpreadSheet sheet, String sheetName) {
         try {
             String payload = convertSheetToPayload(sheet);
-            System.out.println("Converted Payload:\n" + payload);
-            Result result = serverEndpoint.updatePublished(appUser.getUsername(), name, payload);
+            Result result = serverEndpoint.updatePublished(appUser.getUsername(), sheetName, payload);
             if (result.getSuccess()) {
                 System.out.println("Sheet updated successfully on the server.");
             } else {
                 System.out.println("Failed to update sheet on the server: " + result.getMessage());
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            this.sheetView.displayMessage(e.getMessage());
         }
     }
 
-    /**
-     * Updates the selected cells with the given value.
-     *
-     * @param value the value to update the selected cells with.
-     */
     public void updateSelectedCells(String value) {
-        if (selectedCells == null || selectedCells.getStartRow() == -1) return;
-    
         int startRow = selectedCells.getStartRow() - 1;
         int endRow = selectedCells.getEndRow() - 1;
         int startCol = selectedCells.getStartCol() - 1;
         int endCol = selectedCells.getEndCol() - 1;
-    
+
         System.out.println("Updating cells from row " + startRow + " to " + endRow +
                 " and columns from " + startCol + " to " + endCol);
-    
+
         for (int row = startRow; row <= endRow; row++) {
             for (int col = startCol; col <= endCol; col++) {
                 System.out.println("Changing value at (" + row + ", " + col + ") to " + value);
@@ -303,23 +240,13 @@ public class UserController implements IUserController {
     }
 
     /**
-     * Handles toolbar actions.
-     *
-     * @param command the toolbar command.
-     */
-    @Override
-    public void handleToolbar(String command) {
-        this.sheetView.displayMessage(command + " button clicked");
-    }
-
-    /**
      * Updates the selected cells based on the given selected rows and columns.
      *
      * @param selectedRows the selected rows.
      * @param selectedColumns the selected columns.
      */
     @Override
-    public void selectedCells(int[] selectedRows, int[] selectedColumns) {
+    public void setSelectedCells(int[] selectedRows, int[] selectedColumns) {
         if (selectedRows.length > 0 && selectedColumns.length > 0) {
             int startRow = selectedRows[0];
             int endRow = selectedRows[selectedRows.length - 1];
@@ -374,9 +301,7 @@ public class UserController implements IUserController {
         try {
             this.homeView.disposeHomePage();
             this.spreadsheetModel = this.home.readXML(path);
-            this.sheetView = new SheetView(spreadsheetModel);
-            this.sheetView.makeVisible();
-            this.setCurrentSheet(sheetView);
+            setCurrentSheet(new SheetView(spreadsheetModel));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -432,17 +357,8 @@ public class UserController implements IUserController {
             Result getUpdatesForSubscriptionResult = this.serverEndpoint.getUpdatesForSubscription(this.appUser.getUsername(), selectedSheet, "0");
             System.out.println("Response from server: " + getUpdatesForSubscriptionResult.getMessage());
             String fullPayload = getUpdatesForSubscriptionResult.getValue().getLast().getPayload();
-//            String fullPayload = "";
-//            List<Argument> payloads = getUpdatesForSubscriptionResult.getValue();
-//            for (Argument payload : payloads) {
-//                String payload_string = payload.getPayload();
-//                System.out.println("Payload received: " + payload);
-//                fullPayload += payload_string;
-//            }
             this.spreadsheetModel = this.home.readPayload(fullPayload, selectedSheet);
-            this.sheetView = new SheetView(spreadsheetModel);
-            this.setCurrentSheet(sheetView);
-            this.sheetView.makeVisible();
+            setCurrentSheet(new SheetView(spreadsheetModel));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -555,7 +471,7 @@ public class UserController implements IUserController {
      * @return the referenced data.
      */
     @Override
-    public String handleReferencingCell(int row, int col, String data) {
+    public String handleReevaluatingCellFormula(int row, int col, String data) {
         String rawdata = this.spreadsheetModel.getCellRawdata(row, col);
         if (rawdata.startsWith("=")) {
             return this.spreadsheetModel.evaluateFormula(rawdata);
@@ -604,17 +520,6 @@ public class UserController implements IUserController {
         }
         System.out.println("Cell updated to: " + val);
         this.sheetView.updateTable();
-    }
-
-    /**
-     * Evaluates a formula in the spreadsheet.
-     *
-     * @param formula the formula to evaluate.
-     * @return the evaluated result.
-     */
-    @Override
-    public String evaluateFormula(String formula) {
-        return this.spreadsheetModel.evaluateFormula(formula);
     }
 
     /**
@@ -678,18 +583,6 @@ public class UserController implements IUserController {
         } catch (NumberFormatException e) {
             this.spreadsheetModel.setCellValue(selRow, selCol, "Error");
         }
-    }
-
-    /**
-     * Gets the formula of a cell.
-     *
-     * @param row the row of the cell.
-     * @param col the column of the cell.
-     * @return the formula of the cell.
-     */
-    @Override
-    public String getFormula(int row, int col) {
-        return this.spreadsheetModel.getCellFormula(row, col);
     }
 
     /**

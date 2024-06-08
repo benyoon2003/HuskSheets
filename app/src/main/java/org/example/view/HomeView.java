@@ -5,14 +5,7 @@ import org.example.controller.IUserController;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.util.ArrayList;
 import java.util.List;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 /**
  * HomeView is the main GUI window that allows users to create, open, and delete spreadsheets.
@@ -97,7 +90,7 @@ public class HomeView extends JFrame implements IHomeView {
             public void actionPerformed(ActionEvent e) {
                 String sheetName = JOptionPane.showInputDialog(panel, "Enter sheet name:", "Create New Sheet", JOptionPane.PLAIN_MESSAGE);
                 if (sheetName != null && !sheetName.trim().isEmpty()) {
-                    controller.createNewSheet(sheetName);
+                    controller.createNewServerSheet(sheetName);
                 } else {
                     JOptionPane.showMessageDialog(panel, "Sheet name cannot be empty", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -261,7 +254,7 @@ public class HomeView extends JFrame implements IHomeView {
         if (controller != null) {
             List<String> savedSheets = controller.getSavedSheets();
             List<String> serverSheets = controller.getServerSheets();
-            List<String> listOfPublishers = controller.getPublishers();
+            List<String> listOfPublishers = controller.getPublishersFromServer();
             System.out.println("Updating dropdown with saved sheets: " + savedSheets);
             openSheetDropdown.removeAllItems();
             publishers.removeAllItems();

@@ -22,6 +22,11 @@ public class AppUser implements IAppUser {
         this.sheets = new ArrayList<>();
     }
 
+    public AppUser(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
     /**
      * Getter for username.
      *

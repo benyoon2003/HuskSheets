@@ -115,7 +115,7 @@ public class SheetView extends JFrame implements ISheetView {
                 if (!e.getValueIsAdjusting()) {
                     int[] selectedRows = yourTable.getSelectedRows();
                     int[] selectedColumns = yourTable.getSelectedColumns();
-                    controller.selectedCells(selectedRows, selectedColumns);
+                    controller.setSelectedCells(selectedRows, selectedColumns);
                 }
             }
         });
@@ -126,7 +126,7 @@ public class SheetView extends JFrame implements ISheetView {
                 if (!e.getValueIsAdjusting()) {
                     int[] selectedRows = yourTable.getSelectedRows();
                     int[] selectedColumns = yourTable.getSelectedColumns();
-                    controller.selectedCells(selectedRows, selectedColumns);
+                    controller.setSelectedCells(selectedRows, selectedColumns);
                 }
             }
         });
@@ -359,7 +359,7 @@ public class SheetView extends JFrame implements ISheetView {
         }
         for (int row = 0; row < data.length; row++) {
             for (int col = 0; col < data[row].length; col++) {
-                String value = controller.handleReferencingCell(row, col, data[row][col]);
+                String value = controller.handleReevaluatingCellFormula(row, col, data[row][col]);
                 model.setValueAt(value, row, col + 1);
                 if (!value.isEmpty()) {
                     System.out.println("Setting cell (" + row + ", " + col + ") to value: " + value);
@@ -525,8 +525,6 @@ public class SheetView extends JFrame implements ISheetView {
                     this.view.getController().saveSheetToServer(this.view.cells,
                             ((Spreadsheet) this.view.cells).getName());
                 }
-            } else {
-                view.getController().handleToolbar(command);
             }
         }
     }
