@@ -26,21 +26,21 @@ import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
  * The SheetView class represents the view for displaying and interacting with a spreadsheet.
  */
 public class SheetView extends JFrame implements ISheetView {
-    final IReadOnlySpreadSheet cells;
-    IUserController controller;
-    JButton backButton;
-    JTable yourTable;
-    boolean isUpdatingTable = false;
-    JTextField formulaTextField;
+    final IReadOnlySpreadSheet cells; // The spreadsheet data
+    IUserController controller; // Controller for handling user actions
+    JButton backButton; // Button to go back to the previous view
+    JTable yourTable; // Table to display the spreadsheet data
+    boolean isUpdatingTable = false; // Flag to check if the table is being updated
+    JTextField formulaTextField; // Text field to display/edit the formula of the selected cell
 
-    private double zoomFactor = 1.0;
-    private static final int rowSize = 100;
-    private static final int colSize = 100;
-    public static final Color PINK = new Color(255, 192, 203);
-    public static final Color GREEN = new Color(0, 255, 0);
+    private double zoomFactor = 1.0; // Zoom factor for the table
+    private static final int rowSize = 100; // Number of rows in the table
+    private static final int colSize = 100; // Number of columns in the table
+    public static final Color PINK = new Color(255, 192, 203); // Color constant for pink
+    public static final Color GREEN = new Color(0, 255, 0); // Color constant for green
 
-    private final Map<Point, Color> highlightedCells = new HashMap<>();
-    private SelectedCells selectedCells;
+    private final Map<Point, Color> highlightedCells = new HashMap<>(); // Map to store highlighted cells
+    private SelectedCells selectedCells; // Object to store selected cell range
 
     /**
      * Constructs a SheetView with the given spreadsheet.
@@ -60,8 +60,9 @@ public class SheetView extends JFrame implements ISheetView {
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        makeToolbar();
+        makeToolbar(); // Create the toolbar
 
+        // Initialize data array with cell values
         Object[][] data = new Object[rowSize][colSize];
         Cell[][] cellRef = this.cells.getCellsObject();
 
@@ -71,31 +72,37 @@ public class SheetView extends JFrame implements ISheetView {
             }
         }
 
+        // Initialize column names
         String[] columnNames = new String[colSize + 1];
         columnNames[0] = "";
         for (int i = 1; i <= colSize; i++) {
             columnNames[i] = getExcelColumnName(i);
         }
 
+        // Create table model
         DefaultTableModel tableModel = new DefaultTableModel(data, columnNames) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column != 0;
+                return column != 0; // Make all columns except the first one editable
             }
         };
 
+        // Set row headers
         for (int i = 0; i < rowSize; i++) {
             tableModel.setValueAt(i + 1, i, 0);
         }
 
+        // Initialize table with the model
         yourTable = new JTable(tableModel);
         yourTable.setSelectionMode(MULTIPLE_INTERVAL_SELECTION);
         yourTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         yourTable.setCellSelectionEnabled(true);
         yourTable.setShowGrid(true);
 
+        // Set custom cell renderer
         yourTable.setDefaultRenderer(Object.class, new CustomTableCellRenderer(highlightedCells));
 
+        // Add key listener for delete and digit keys
         yourTable.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -109,6 +116,7 @@ public class SheetView extends JFrame implements ISheetView {
             }
         });
 
+        // Add selection listener for row selection
         yourTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
@@ -120,6 +128,7 @@ public class SheetView extends JFrame implements ISheetView {
             }
         });
 
+        // Add selection listener for column selection
         yourTable.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
@@ -131,6 +140,7 @@ public class SheetView extends JFrame implements ISheetView {
             }
         });
 
+        // Add table model listener for data changes
         yourTable.getModel().addTableModelListener(new TableModelListener() {
             @Override
             public void tableChanged(TableModelEvent e) {
@@ -145,6 +155,7 @@ public class SheetView extends JFrame implements ISheetView {
             }
         });
 
+        // Add table to scroll pane
         JScrollPane scrollPane = new JScrollPane(yourTable);
         scrollPane.setPreferredSize(new Dimension(800, 600));
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
@@ -233,7 +244,7 @@ public class SheetView extends JFrame implements ISheetView {
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                dispose();
+                dispose(); // Close the current view
                 IHomeView homeView = controller.getHomeView();
                 homeView.updateSavedSheets();
                 homeView.makeVisible();
