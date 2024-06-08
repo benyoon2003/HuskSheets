@@ -231,7 +231,7 @@ public class HomeView extends JFrame implements IHomeView {
     }
 
     public void updateSubscribeSheets(String selectedPublisher) {
-        List<String> subscribedSheets = controller.getSubscribedSheets(selectedPublisher);
+        List<String> subscribedSheets = controller.accessSheetsFromUser(selectedPublisher);
         openSubscriberDropdown.removeAllItems();
         for (String sheet : subscribedSheets){
             openSubscriberDropdown.addItem(sheet);
@@ -255,7 +255,7 @@ public class HomeView extends JFrame implements IHomeView {
     public void updateSavedSheets() {
         if (controller != null) {
             List<String> savedSheets = controller.getSavedSheetsLocally();
-            List<String> serverSheets = controller.getServerSheets();
+            List<String> serverSheets = controller.getAppUserSheets();
             List<String> listOfPublishers = controller.getPublishersFromServer();
             System.out.println("Updating dropdown with saved sheets: " + savedSheets);
             openSheetDropdown.removeAllItems();

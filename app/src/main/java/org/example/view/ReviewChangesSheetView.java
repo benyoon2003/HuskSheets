@@ -71,9 +71,7 @@ public class ReviewChangesSheetView extends SheetView {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();
-                IHomeView homeView = controller.getHomeView();
-                homeView.updateSavedSheets(); // Update the dropdown before making it visible
-                homeView.makeVisible();
+                controller.openHomeView();
             }
         });
 

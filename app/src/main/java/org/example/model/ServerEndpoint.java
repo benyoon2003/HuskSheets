@@ -160,7 +160,7 @@ public class ServerEndpoint {
    * @param sheet     Name of the sheet to delete
    * @throws Exception if an error occurs during the HTTP request
    */
-  public void deleteSheet(String publisher, String sheet) throws Exception {
+  public Result deleteSheet(String publisher, String sheet) throws Exception {
     String url = BASE_URL + "deleteSheet";
     HttpClient client = HttpClient.newBuilder().build();
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\"}", publisher, sheet);
@@ -173,6 +173,7 @@ public class ServerEndpoint {
 
     HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
     System.out.println("Delete Sheet Response: " + response.body());
+    return new Result(response.body());
   }
 
   /**

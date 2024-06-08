@@ -61,7 +61,7 @@ public interface IUserController {
      * Deletes a sheet at the specified path.
      * @param path the path to delete the sheet from.
      */
-    void deleteSheet(String path);
+    void deleteSheetLocally(String path);
 
     /**
      * Gets the home view.
@@ -131,7 +131,7 @@ public interface IUserController {
      * Gets the list of sheets from the server.
      * @return the list of server sheets.
      */
-    List<String> getServerSheets();
+    List<String> getAppUserSheets();
 
     /**
      * Opens a sheet from the server.
@@ -176,7 +176,7 @@ public interface IUserController {
      * @param publisher the publisher of the sheets.
      * @return the list of subscribed sheets.
      */
-    List<String> getSubscribedSheets(String publisher);
+    List<String> accessSheetsFromUser(String publisher);
 
     /**
      * Applies conditional formatting to the spreadsheet.

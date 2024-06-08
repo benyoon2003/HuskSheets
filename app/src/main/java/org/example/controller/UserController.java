@@ -270,16 +270,18 @@ public class UserController implements IUserController {
     }
 
     @Override
-    public List<String> getServerSheets() {
-        List<String> sheets = new ArrayList<>();
+    public List<String> getAppUserSheets() {
+        return accessSheetsFromUser(appUser.getUsername());
+    }
+
+    @Override
+    public void openServerSheet(String selectedSheet) {
         try {
-            System.out.println("APPUSER " + appUser.getUsername());
-            Result result = serverEndpoint.getSheets(appUser.getUsername());
+            Result result = this.serverEndpoint.getUpdatesForSubscription(this.appUser.getUsername(), selectedSheet, "0");
             if (result.getSuccess()) {
-                for (Argument argument : result.getValue()) {
-                    sheets.add(argument.getSheet());
-                }
-                return sheets;
+                String fullPayload = result.getValue().getLast().getPayload();
+                this.spreadsheetModel = this.home.readPayload(fullPayload, selectedSheet);
+                setCurrentSheet(new SheetView(spreadsheetModel));
             }
             else {
                 homeView.displayErrorBox(result.getMessage());
@@ -287,31 +289,11 @@ public class UserController implements IUserController {
         } catch (Exception e) {
             homeView.displayErrorBox(e.getMessage());
         }
-        return sheets;
     }
 
-    /**
-     * Opens a server sheet with the specified name.
-     *
-     * @param selectedSheet the name of the sheet to open.
-     */
-    @Override
-    public void openServerSheet(String selectedSheet) {
-        try {
-            Result getUpdatesForSubscriptionResult = this.serverEndpoint.getUpdatesForSubscription(this.appUser.getUsername(), selectedSheet, "0");
-            System.out.println("Response from server: " + getUpdatesForSubscriptionResult.getMessage());
-            String fullPayload = getUpdatesForSubscriptionResult.getValue().getLast().getPayload();
-            this.spreadsheetModel = this.home.readPayload(fullPayload, selectedSheet);
-            setCurrentSheet(new SheetView(spreadsheetModel));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public List<String> getSubscribedSheets(String publisher) {
+    public List<String> accessSheetsFromUser(String publisher) {
         List<String> sheets = new ArrayList<>();
         try {
-            System.out.println("SUBS " + publisher);
             Result result = serverEndpoint.getSheets(publisher);
             if (result.getSuccess()) {
                 for (Argument argument : result.getValue()) {
@@ -328,60 +310,42 @@ public class UserController implements IUserController {
         return sheets;
     }
 
-    /**
-     * Opens a subscriber sheet with the specified name from the given publisher.
-     *
-     * @param selectedSheet the name of the sheet to open.
-     * @param publisher the publisher of the sheet.
-     */
     @Override
     public void openSubscriberSheet(String selectedSheet, String publisher) {
         try {
-            Result getUpdatesForSubscriptionResult = this.serverEndpoint.getUpdatesForSubscription(publisher, selectedSheet, "0");
-            System.out.println("Response from server: " + getUpdatesForSubscriptionResult.getMessage());
-            String fullPayload = getUpdatesForSubscriptionResult.getValue().getLast().getPayload();
-            System.out.println("Payload received: " + fullPayload);
-            this.spreadsheetModel = this.home.readPayload(fullPayload, selectedSheet);
-            this.sheetView = new SubscriberSheetView(publisher, spreadsheetModel);
-            this.sheetView.addController(this);
-            this.setCurrentSheet(sheetView);
-            this.sheetView.makeVisible();
+            Result result = this.serverEndpoint.getUpdatesForSubscription(publisher, selectedSheet, "0");
+            if (result.getSuccess()) {
+                String fullPayload = result.getValue().getLast().getPayload();
+                this.spreadsheetModel = this.home.readPayload(fullPayload, selectedSheet);
+                this.setCurrentSheet(new SubscriberSheetView(publisher, spreadsheetModel));
+            }
+            else {
+                homeView.displayErrorBox(result.getMessage());
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            homeView.displayErrorBox(e.getMessage());
         }
     }
 
-    /**
-     * Gets updates for the published sheet with the specified ID.
-     *
-     * @param sheet the name of the sheet.
-     * @param id the ID of the sheet.
-     * @throws Exception if an error occurs while getting updates.
-     */
     public void getUpdatesForPublished(String sheet, int id) throws Exception {
         try {
-            Result getUpdatesForPublishedResult = this.serverEndpoint.getUpdatesForPublished(this.appUser.getUsername(), sheet, String.valueOf(id));
-            String fullPayload = "";
-            fullPayload = getUpdatesForPublishedResult.getValue().getLast().getPayload();
-            ISpreadsheet changes = this.home.readPayload(fullPayload, sheet);
-            System.out.println("Changes payload received: " + fullPayload);
-            this.sheetView = new ReviewChangesSheetView(changes, this.spreadsheetModel);
-            this.sheetView.addController(this);
-            this.setCurrentSheet(sheetView);
-            this.sheetView.makeVisible();
-            this.sheetView.loadChanges();
+            Result result = this.serverEndpoint.getUpdatesForPublished(this.appUser.getUsername(), sheet, String.valueOf(id));
+            if (result.getSuccess()) {
+                String fullPayload = result.getValue().getLast().getPayload();
+                ISpreadsheet changes = this.home.readPayload(fullPayload, sheet);
+                this.setCurrentSheet(new ReviewChangesSheetView(changes, this.spreadsheetModel));
+                this.sheetView.loadChanges();
+            }
+            else {
+                sheetView.displayMessage(result.getMessage());
+            }
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
     }
 
-    /**
-     * Deletes a sheet from the local storage.
-     *
-     * @param path the path to the sheet to be deleted.
-     */
     @Override
-    public void deleteSheet(String path) {
+    public void deleteSheetLocally(String path) {
         File file = new File("sheets/" + path);
         if (file.exists()) {
             file.delete();
@@ -389,28 +353,18 @@ public class UserController implements IUserController {
         }
     }
 
-    /**
-     * Deletes a sheet from the server.
-     *
-     * @param name the name of the sheet to be deleted.
-     */
     @Override
     public void deleteSheetFromServer(String name) {
         try {
-            serverEndpoint.deleteSheet(appUser.getUsername(), name);
+            Result result = serverEndpoint.deleteSheet(appUser.getUsername(), name);
+            if (!result.getSuccess()) {
+                homeView.displayErrorBox(result.getMessage());
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            homeView.displayErrorBox(e.getMessage());
         }
     }
 
-    /**
-     * Handles cell referencing.
-     *
-     * @param row the row of the cell.
-     * @param col the column of the cell.
-     * @param data the data in the cell.
-     * @return the referenced data.
-     */
     @Override
     public String handleReevaluatingCellFormula(int row, int col, String data) {
         String rawdata = this.spreadsheetModel.getCellRawdata(row, col);
@@ -421,35 +375,20 @@ public class UserController implements IUserController {
         }
     }
 
-    /**
-     * Gets the home view.
-     *
-     * @return the home view.
-     */
     @Override
     public IHomeView getHomeView() {
         return this.homeView;
     }
 
-    /**
-     * Opens the home view.
-     */
+    @Override
     public void openHomeView() {
         this.homeView = new HomeView();
         homeView.addController(this);
         this.homeView.makeVisible();
     }
 
-    /**
-     * Changes the value of a cell in the spreadsheet.
-     *
-     * @param selRow the selected row.
-     * @param selCol the selected column.
-     * @param val the value to set.
-     */
     @Override
     public void changeSpreadSheetValueAt(int selRow, int selCol, String val) {
-        System.out.println("Changing value at (" + selRow + ", " + selCol + ") to " + val);
         this.spreadsheetModel.setCellRawdata(selRow, selCol, val);
         if (val.startsWith("=")) {
             this.spreadsheetModel.setCellValue(selRow, selCol, val);
@@ -459,16 +398,9 @@ public class UserController implements IUserController {
         } else {
             this.spreadsheetModel.setCellValue(selRow, selCol, val);
         }
-        System.out.println("Cell updated to: " + val);
         this.sheetView.updateTable();
     }
 
-    /**
-     * Cuts the content of a cell.
-     *
-     * @param selRow the selected row.
-     * @param selCol the selected column.
-     */
     @Override
     public void cutCell(int selRow, int selCol) {
         this.clipboardContent = this.spreadsheetModel.getCellRawdata(selRow, selCol);
@@ -477,24 +409,12 @@ public class UserController implements IUserController {
         this.isCutOperation = true;
     }
 
-    /**
-     * Copies the content of a cell.
-     *
-     * @param selRow the selected row.
-     * @param selCol the selected column.
-     */
     @Override
     public void copyCell(int selRow, int selCol) {
         this.clipboardContent = this.spreadsheetModel.getCellRawdata(selRow, selCol);
         this.isCutOperation = false;
     }
 
-    /**
-     * Pastes the content of the clipboard into a cell.
-     *
-     * @param selRow the selected row.
-     * @param selCol the selected column.
-     */
     @Override
     public void pasteCell(int selRow, int selCol) {
         if (!clipboardContent.isEmpty()) {
@@ -507,12 +427,6 @@ public class UserController implements IUserController {
         }
     }
 
-    /**
-     * Calculates and sets the percentile of the value in the selected cell.
-     *
-     * @param selRow the selected row.
-     * @param selCol the selected column.
-     */
     @Override
     public void getPercentile(int selRow, int selCol) {
         String value = this.spreadsheetModel.getCellValue(selRow, selCol);
@@ -526,12 +440,8 @@ public class UserController implements IUserController {
         }
     }
 
-    /**
-     * Applies conditional formatting to the spreadsheet.
-     */
     @Override
     public void applyConditionalFormatting() {
-        System.out.println("Applying Conditional Formatting...");
         Cell[][] cells = this.spreadsheetModel.getCellsObject();
         for (int i = 0; i < this.spreadsheetModel.getRows(); i++) {
             for (int j = 0; j < this.spreadsheetModel.getCols(); j++) {
@@ -540,10 +450,8 @@ public class UserController implements IUserController {
                     try {
                         double numericValue = Double.parseDouble(value);
                         if (numericValue < 0) {
-                            System.out.println("Highlighting cell (" + i + ", " + j + ") with PINK");
                             this.highlightCell(i, j, SheetView.PINK);
                         } else if (numericValue > 0) {
-                            System.out.println("Highlighting cell (" + i + ", " + j + ") with GREEN");
                             this.highlightCell(i, j, SheetView.GREEN);
                         }
                     } catch (NumberFormatException e) {
@@ -555,19 +463,10 @@ public class UserController implements IUserController {
             }
         }
         this.sheetView.updateTable();
-        System.out.println("Conditional Formatting Applied.");
     }
 
-    /**
-     * Highlights a cell with the specified color.
-     *
-     * @param row the row of the cell.
-     * @param col the column of the cell.
-     * @param color the color to highlight the cell with.
-     */
     public void highlightCell(int row, int col, Color color) {
         if (color.equals(SheetView.GREEN) || color.equals(SheetView.PINK)) {
-            System.out.println("Calling highlightCell with row: " + row + ", col: " + col + ", color: " + color);
         }
         if (sheetView instanceof SheetView) {
             ((SheetView) sheetView).highlightCell(row, col, color);
