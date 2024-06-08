@@ -163,47 +163,6 @@ public class HomeView extends JFrame implements IHomeView {
 
     }
 
-//    private String getSheetToDeleteFromServer() {
-//        try {
-//            HttpClient client = HttpClient.newHttpClient();
-//            HttpRequest request = HttpRequest.newBuilder()
-//                    .uri(new URI("http://localhost:8080/api/getSheets"))
-//                    .header("Content-Type", "application/json")
-//                    .GET()
-//                    .build();
-//            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-//
-//            if (response.statusCode() == 200) {
-//                String responseBody = response.body();
-//                JSONArray sheetsArray = new JSONArray(responseBody);
-//                List<String> sheetNames = new ArrayList<>();
-//                for (int i = 0; i < sheetsArray.length(); i++) {
-//                    JSONObject sheetObject = sheetsArray.getJSONObject(i);
-//                    sheetNames.add(sheetObject.getString("name"));
-//                }
-//
-//                String[] sheetArray = sheetNames.toArray(new String[0]);
-//                return (String) JOptionPane.showInputDialog(
-//                        null,
-//                        "Select a sheet to delete from the server:",
-//                        "Delete Sheet from Server",
-//                        JOptionPane.QUESTION_MESSAGE,
-//                        null,
-//                        sheetArray,
-//                        sheetArray[0]);
-//
-//            } else {
-//                JOptionPane.showMessageDialog(null, "Failed to retrieve sheets from server.");
-//                return null;
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            JOptionPane.showMessageDialog(null, "Error occurred: " + e.getMessage());
-//            return null;
-//        }
-//    }
-
-
     public void updateSubscribeSheets(String selectedPublisher) {
         List<String> subscribedSheets = controller.accessSheetsFromUser(selectedPublisher);
         openSubscriberDropdown.removeAllItems();

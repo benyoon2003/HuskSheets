@@ -1,5 +1,8 @@
 package org.example.model;
 
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -10,17 +13,14 @@ import java.util.Base64;
 
 public class ServerEndpoint {
 
+
   // Base URL for the server endpoints
-  //Localhost: "http://localhost:8080/api/v1/";
-  //HuskSheets.fly: ConfigLoader.getProperty("base.url");
-  private static String BASE_URL =  "https://husksheet-cb47d5864e1b.herokuapp.com/api/v1/";
+  private static String BASE_URL =  "http://localhost:8080/api/v1/"; //"https://husksheet-cb47d5864e1b.herokuapp.com/api/v1/"; // //;// //ConfigLoader.getProperty("base.url");
   private static IAppUser user;
 
-  /**
-   * Default ServerEndpoint Constructor.
-   */
-  public ServerEndpoint() {}
 
+  public ServerEndpoint() {
+  }
   /**
    * Constructs the Basic Authentication header using the username and password.
    *
@@ -33,16 +33,18 @@ public class ServerEndpoint {
     return "Basic " + Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
   }
 
-
   /**
-   * Registers a user with the server.
-   * @param user an IAppUser
-   * @return a Result
-   * @throws Exception if an error occurs during the HTTP request.
+   * Registers a publisher with the server.
+   *
+
+   * @throws Exception if an error occurs during the HTTP request
    */
+
   public Result register(IAppUser user) throws Exception {
     this.user = user;
-    String url = BASE_URL + "register";
+    // Encode the publisher name to be URL-safe
+    String encodedPublisher = URLEncoder.encode(user.getUsername(), StandardCharsets.UTF_8);
+    String url = BASE_URL + "register?publisher=" + encodedPublisher;
     HttpResponse<String> response = sendGetRequest(url);
     System.out.println("Register request: " + response.body());
     return new Result(response.body());
@@ -50,13 +52,16 @@ public class ServerEndpoint {
 
     /**
      * Logs in a publisher with the server.
+     *
      * @param user the user to log in.
      * @return the result of the login.
      * @throws Exception if an error occurs during the HTTP request.
      */
   public Result login(IAppUser user) throws Exception {
     this.user = user;
-    String url = BASE_URL + "login";
+    // Encode the publisher name to be URL-safe
+    String encodedPublisher = URLEncoder.encode(user.getUsername(), StandardCharsets.UTF_8);
+    String url = BASE_URL + "login?publisher=" + encodedPublisher;
     HttpResponse<String> response = sendGetRequest(url);
     System.out.println("Login request: " + response.body());
     return new Result(response.body());
@@ -64,7 +69,7 @@ public class ServerEndpoint {
 
   /**
    * Retrieves the list of publishers from the server.
-   * @return the Result of the API call
+   *
    * @throws Exception if an error occurs during the HTTP request
    */
   public Result getPublishers() throws Exception {
@@ -76,8 +81,8 @@ public class ServerEndpoint {
 
   /**
    * Creates a new sheet for a specified publisher on the server.
-   * @param sheet name of the sheet to create
-   * @return the Result from the call
+   *
+   * @param sheet     Name of the sheet to create
    * @throws Exception if an error occurs during the HTTP request
    */
   public Result createSheet(String sheet) throws Exception {
@@ -92,7 +97,7 @@ public class ServerEndpoint {
   /**
    * Retrieves the list of sheets for a specified publisher from the server.
    *
-   * @return the Result from the API call
+   * @return Response body containing the list of sheets
    * @throws Exception if an error occurs during the HTTP request
    */
   public Result getSheets(String publisher) throws Exception {
