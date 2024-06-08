@@ -33,7 +33,6 @@ public class SheetView extends JFrame implements ISheetView {
     boolean isUpdatingTable = false; // Flag to check if the table is being updated
     JTextField formulaTextField; // Text field to display/edit the formula of the selected cell
 
-    private double zoomFactor = 1.0; // Zoom factor for the table
     private static final int rowSize = 100; // Number of rows in the table
     private static final int colSize = 100; // Number of columns in the table
     public static final Color PINK = new Color(255, 192, 203); // Color constant for pink
@@ -460,7 +459,6 @@ public class SheetView extends JFrame implements ISheetView {
      * @param factor the zoom factor.
      */
     void zoomTable(double factor) {
-        this.zoomFactor *= factor;
         Font tableFont = yourTable.getFont();
         float newSize = (float) (tableFont.getSize() * factor);
         yourTable.setFont(tableFont.deriveFont(newSize));

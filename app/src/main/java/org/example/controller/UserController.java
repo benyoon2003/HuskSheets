@@ -514,7 +514,7 @@ public class UserController implements IUserController {
      */
     @Override
     public void deleteSheet(String path) {
-        File file = new File("sheets/" + path);
+        File file = new File("HuskSheets/sheets/" + path);
         if (file.exists()) {
             file.delete();
             this.homeView.updateSavedSheets();
