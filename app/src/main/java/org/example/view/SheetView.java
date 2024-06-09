@@ -25,21 +25,22 @@ import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 /**
  * The SheetView class represents the view for displaying and interacting with a spreadsheet.
  */
-public class SheetView extends JFrame implements ISheetView {
-    final IReadOnlySpreadSheet cells; // The spreadsheet data
-    IUserController controller; // Controller for handling user actions
-    JButton backButton; // Button to go back to the previous view
-    JTable yourTable; // Table to display the spreadsheet data
-    boolean isUpdatingTable = false; // Flag to check if the table is being updated
-    JTextField formulaTextField; // Text field to display/edit the formula of the selected cell
+public class SheetView extends SheetViewFactory<SheetView> implements ISheetView {
+    protected IReadOnlySpreadSheet cells; // The spreadsheet data
+    protected IUserController controller; // Controller for handling user actions
+    protected JButton backButton; // Button to go back to the previous view
+    protected JTable yourTable; // Table to display the spreadsheet data
+    protected boolean isUpdatingTable = false; // Flag to check if the table is being updated
+    protected JTextField formulaTextField; // Text field to display/edit the formula of the selected cell
 
-    private static final int rowSize = 100; // Number of rows in the table
-    private static final int colSize = 100; // Number of columns in the table
+    protected static final int rowSize = 100; // Number of rows in the table
+    protected static final int colSize = 100; // Number of columns in the table
     public static final Color PINK = new Color(255, 192, 203); // Color constant for pink
     public static final Color GREEN = new Color(0, 255, 0); // Color constant for green
 
-    private final Map<Point, Color> highlightedCells = new HashMap<>(); // Map to store highlighted cells
-    private SelectedCells selectedCells; // Object to store selected cell range
+    protected final Map<Point, Color> highlightedCells = new HashMap<>(); // Map to store highlighted cells
+    protected SelectedCells selectedCells; // Object to store selected cell range
+
 
     /**
      * Constructs a SheetView with the given spreadsheet.
