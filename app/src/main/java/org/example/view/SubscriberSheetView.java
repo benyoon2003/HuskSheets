@@ -3,6 +3,7 @@ package org.example.view;
 import org.example.model.IReadOnlySpreadSheet;
 import org.example.model.ISpreadsheet;
 import org.example.model.Spreadsheet;
+import org.example.view.button.*;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -102,87 +103,26 @@ public class SubscriberSheetView extends SheetView {
      */
     @Override
     public void makeToolbar() {
-        // Create toolbar
-        JToolBar toolbar = new JToolBar();
-        JButton cutButton = new JButton("Cut");
-        JButton copyButton = new JButton("Copy");
-        JButton pasteButton = new JButton("Paste");
-        JButton saveButton = new JButton("Save");
-        JButton zoomInButton = new JButton("Zoom In");
-        JButton zoomOutButton = new JButton("Zoom Out");
-        JButton conditionalFormattingButton = new JButton("Add Conditional Formatting");
-        backButton = new JButton("Back");
         formulaTextField = new JTextField(20);
         formulaTextField.setEditable(true);
-        toolbar.add(new JLabel("Formula:"));
-        toolbar.add(formulaTextField);
+        this.addComponent(new JLabel("Formula"))
+                .addComponent(formulaTextField)
+                .addComponent(new Cut(this))
+                .addComponent(new Copy(this))
+                .addComponent(new Paste(this))
+                .addComponent(new ZoomI(this))
+                .addComponent(new ZoomO(this))
+                .addComponent(new SaveSubscirber(this))
+                .addComponent(new AddConditionalFormat(this))
+                .addComponent(new Back(this));
         formulaTextField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("FormulaTextField ActionPerformed");
                 controller.changeSpreadSheetValueAt(controller.getSelectedRow(),
                         controller.getSelectedCol(), formulaTextField.getText());
             }
         });
-
-        toolbar.add(cutButton);
-        toolbar.add(copyButton);
-        toolbar.add(pasteButton);
-        toolbar.add(zoomInButton);
-        toolbar.add(zoomOutButton);
-        toolbar.add(conditionalFormattingButton);
-        toolbar.add(saveButton);
-        toolbar.add(backButton);
-
-        // Add action listeners for buttons
-        cutButton.addActionListener(new ToolbarButtonListener(this));
-        copyButton.addActionListener(new ToolbarButtonListener(this));
-        pasteButton.addActionListener(new ToolbarButtonListener(this));
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Save Button Clicked");
-                handleSave();
-            }
-        });
-        backButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Back Button Clicked");
-                dispose();
-                IHomeView homeView = controller.getHomeView();
-                homeView.updateSavedSheets(); // Update the dropdown before making it visible
-                homeView.makeVisible();
-            }
-        });
-
-        zoomInButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Zoom In Button Clicked");
-                zoomTable(1.1); // Zoom in by 10%
-            }
-        });
-
-        zoomOutButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Zoom Out Button Clicked");
-                zoomTable(0.9); // Zoom out by 10%
-            }
-        });
-
-        conditionalFormattingButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("Conditional Formatting Button Clicked");
-                controller.applyConditionalFormatting();
-            }
-        });
-
-        add(toolbar, BorderLayout.NORTH);
-
-        // Refresh the JFrame to show the updated toolbar
+        build();
         revalidate();
         repaint();
     }

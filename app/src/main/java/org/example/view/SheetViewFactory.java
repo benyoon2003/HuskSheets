@@ -25,8 +25,9 @@ public abstract class SheetViewFactory<T extends SheetViewFactory> extends JFram
 
   protected abstract SheetView build();
 
-  protected T addButton(JButton button){
-
+  protected T addComponent(Component cmp){
+    this.toolBar.add(cmp);
+    return returnView();
   }
 
 }
