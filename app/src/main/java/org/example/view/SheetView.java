@@ -401,30 +401,4 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
         return this;
     }
 
-
-//    /**
-//     * The RightClickButtonListener class handles right-click button actions.
-//     */
-//    class RightClickButtonListener implements ActionListener {
-//        private SheetView view;
-//
-//        RightClickButtonListener(SheetView view) {
-//            this.view = view;
-//        }
-//
-//        @Override
-//        public void actionPerformed(ActionEvent e) {
-//            String command = e.getActionCommand();
-//            int row = this.view.yourTable.getSelectedRow();
-//            int col = this.view.yourTable.getSelectedColumn() - 1;
-//
-//            if (command.equals("Percentile")) {
-//                this.view.getController().getPercentile(row, col);
-//            }
-//
-//            this.view.updateTable();
-//        }
-//    }
-
-
 }

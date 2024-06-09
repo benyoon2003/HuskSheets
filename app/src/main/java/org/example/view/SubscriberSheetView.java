@@ -20,7 +20,6 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-
 /**
  * The SubscriberSheetView class represents a view for a spreadsheet that is subscribed to a publisher's updates.
  */
@@ -39,7 +38,6 @@ public class SubscriberSheetView extends SheetView {
         this.cells = openSheet;
         this.author = publisher;
     }
-
     /**
      * Creates and sets up the toolbar with various buttons and their action listeners.
      */
@@ -67,7 +65,6 @@ public class SubscriberSheetView extends SheetView {
         revalidate();
         repaint();
     }
-
     @Override
     public void addController(IUserController controller) {
         super.addController(controller);
