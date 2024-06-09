@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<sheet name="example">
+    <cell col="0" row="0">2</cell>
+    <cell col="1" row="0">3</cell>
+    <cell col="0" row="1">4</cell>
+    <cell col="1" row="1">5</cell>
+    <cell col="0" row="2">14.0</cell>
+    <cell col="0" row="3">4.317</cell>
+</sheet>

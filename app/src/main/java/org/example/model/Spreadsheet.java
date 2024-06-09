@@ -1,7 +1,5 @@
 package org.example.model;
 
-import org.example.controller.UserController;
-
 import java.util.ArrayList;
 
 import java.util.List;
@@ -13,16 +11,15 @@ import java.util.regex.Pattern;
 
 import org.graalvm.polyglot.Context;
 
-
 /**
- * Represents a spreadsheet with various functionalities such as evaluating formulas,
+ * Represents a spreadsheet with various functionalities such as evaluating
+ * formulas,
  * managing cells, and handling subscriptions and publications.
  */
 
 public class Spreadsheet implements ISpreadsheet {
 
-
-    private ArrayList<ArrayList<Cell>> grid;
+    private List<List<Cell>> grid;
 
     private String name;
     private int id_version;
@@ -34,6 +31,7 @@ public class Spreadsheet implements ISpreadsheet {
 
     private String[] functions = new String[] { "IF", "SUM", "MIN", "MAX", "AVG", "CONCAT", "DEBUG", "STDDEV", "SORT" };
     private String[] arith = new String[] { "+", "-", "*", "/" };
+    private String[] operations = new String[] { "<>", "<", ">", "=", "&", "|", ":" };
 
     /**
      * Constructs a new Spreadsheet with the specified name.
@@ -72,6 +70,44 @@ public class Spreadsheet implements ISpreadsheet {
         }
     }
 
+    /**
+     * Converts the given IReadOnlySpreadSheet into a valid String payload for
+     * transmission
+     * as part of JSON
+     * 
+     * @param sheet the sheet to convert
+     * @return a payload (e.g $A1 4\n)
+     */
+    public static String convertSheetToPayload(IReadOnlySpreadSheet sheet) {
+        StringBuilder payload = new StringBuilder();
+        Cell[][] values = sheet.getCellsObject();
+        for (int i = 0; i < sheet.getRows(); i++) {
+            for (int j = 0; j < sheet.getCols(); j++) {
+                if (values[i][j] != null && !values[i][j].getRawdata().isEmpty()) {
+                    String cellValue = values[i][j].isFormula() ? values[i][j].getFormula() : values[i][j].getRawdata();
+                    payload.append(String.format("$%s%s %s\\n", getColumnName(j + 1), i + 1, cellValue));
+                }
+            }
+        }
+        return payload.toString();
+    }
+
+    /**
+     * Gets the column label using the given column number.
+     * 
+     * @param columnNumber a number that corresponds to a column in the spreadsheet
+     * @return a column label (e.g A, D, F, G)
+     */
+    public static String getColumnName(int columnNumber) {
+        StringBuilder columnName = new StringBuilder();
+        while (columnNumber > 0) {
+            int remainder = (columnNumber - 1) % 26;
+            columnName.insert(0, (char) (remainder + 'A'));
+            columnNumber = (columnNumber - 1) / 26;
+        }
+        return columnName.toString();
+    }
+
     public int getRows() {
         return this.grid.size();
     }
@@ -90,7 +126,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @return the grid of cells.
      */
-    public ArrayList<ArrayList<Cell>> getCells() {
+    public List<List<Cell>> getCells() {
         return this.grid;
     }
 
@@ -102,7 +138,7 @@ public class Spreadsheet implements ISpreadsheet {
     public Cell[][] getCellsObject() {
         Cell[][] retObject = new Cell[this.getRows()][this.getCols()];
         for (int r = 0; r < this.getRows(); r++) {
-            ArrayList<Cell> row = this.grid.get(r);
+            List<Cell> row = this.grid.get(r);
             for (int c = 0; c < this.getCols(); c++) {
                 retObject[r][c] = row.get(c);
             }
@@ -118,12 +154,162 @@ public class Spreadsheet implements ISpreadsheet {
     public String[][] getCellStringsObject() {
         String[][] retObject = new String[this.getRows()][this.getCols()];
         for (int r = 0; r < this.getRows(); r++) {
-            ArrayList<Cell> row = this.grid.get(r);
+            List<Cell> row = this.grid.get(r);
             for (int c = 0; c < this.getCols(); c++) {
                 retObject[r][c] = row.get(c).getValue();
             }
         }
         return retObject;
+    }
+
+    /**
+     * Gets the row index from the cell reference.
+     *
+     * @param cell the cell reference.
+     * @return the row index.
+     */
+    private int getRow(String cell) {
+        try {
+            return Integer.parseInt(cell.replaceAll("[^0-9]", "")) - 1;
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
+    /**
+     * Gets the column index from the cell reference.
+     *
+     * @param cell the cell reference.
+     * @return the column index.
+     */
+    private int getColumn(String cell) {
+        String col = cell.replaceAll("[^A-Z]", "").toUpperCase();
+        int column = 0;
+        for (int i = 0; i < col.length(); i++) {
+            column = column * 26 + (col.charAt(i) - 'A' + 1);
+        }
+        return column - 1;
+    }
+
+    /**
+     * Adds a published version of the spreadsheet.
+     *
+     * @param sheet the published version of the spreadsheet.
+     */
+    public void addPublished(ISpreadsheet sheet) {
+        this.publishVersions.add(sheet);
+        this.id_version++;
+    }
+
+    /**
+     * Adds a subscribed version of the spreadsheet.
+     *
+     * @param sheet the subscribed version of the spreadsheet.
+     */
+    public void addSubscribed(ISpreadsheet sheet) {
+        this.subscribeVersions.add(sheet);
+    }
+
+    /**
+     * Gets the list of published versions of the spreadsheet.
+     *
+     * @return the list of published versions.
+     */
+    public List<ISpreadsheet> getPublishedVersions() {
+        return this.publishVersions;
+    }
+
+    /**
+     * Gets the list of subscribed modified versions of the spreadsheet
+     * 
+     * @return a list of subscribed modified versions of the spreadsheet
+     */
+    public List<ISpreadsheet> getSubscribedVersions() {
+        return this.subscribeVersions;
+    }
+
+    @Override
+    public void setGrid(List<List<Cell>> updatedGrid) {
+        this.grid = updatedGrid;
+    }
+
+    /**
+     * Gets the name of the spreadsheet.
+     *
+     * @return the name of the spreadsheet.
+     */
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
+    /**
+     * Get the id of current sheet
+     * 
+     * @return the id of the sheet
+     */
+    public int getId_version() {
+        return this.id_version;
+    }
+
+    /**
+     * Sets the value of the cell at the specified row and column.
+     *
+     * @param row   the row index of the cell.
+     * @param col   the column index of the cell.
+     * @param value the value to set.
+     */
+    @Override
+    public void setCellValue(int row, int col, String value) {
+        this.grid.get(row).get(col).setValue(evaluateFormula(value));
+    }
+
+    /**
+     * Gets the value of the cell at the specified row and column.
+     *
+     * @param row the row index of the cell.
+     * @param col the column index of the cell.
+     * @return the value of the cell.
+     */
+    @Override
+    public String getCellValue(int row, int col) {
+        return this.grid.get(row).get(col).getValue();
+    }
+
+    /**
+     * Sets the raw data of the cell at the specified row and column.
+     *
+     * @param row the row index of the cell.
+     * @param col the column index of the cell.
+     * @param val the raw data to set.
+     */
+    @Override
+    public void setCellRawdata(int row, int col, String val) {
+        this.grid.get(row).get(col).setRawData(val);
+    }
+
+    /**
+     * Gets the raw data of the cell at the specified row and column.
+     *
+     * @param row the row index of the cell.
+     * @param col the column index of the cell.
+     * @return the raw data of the cell.
+     */
+    @Override
+    public String getCellRawdata(int row, int col) {
+        return this.grid.get(row).get(col).getRawdata();
+    }
+
+    /**
+     * Gets the formula of the cell at the specified row and column.
+     *
+     * @param row the row index of the cell.
+     * @param col the column index of the cell.
+     * @return the formula of the cell.
+     */
+    @Override
+    public String getCellFormula(int row, int col) {
+        return this.grid.get(row).get(col).getFormula();
     }
 
     /**
@@ -159,9 +345,68 @@ public class Spreadsheet implements ISpreadsheet {
             }
             return result.toString();
         } catch (Exception e) {
-            //e.printStackTrace();
             return "Error";
         }
+    }
+
+    /**
+     * Parses and handles various operations in the formula.
+     *
+     * @param formula the formula to parse.
+     * @return the result of parsing the formula.
+     */
+    private String parseOperations(String formula) {
+        // Handle operations
+        String operation = getOperation(formula);
+        if (operation != "") {
+            String[] parts = formula.replaceAll(" ", "").split(operation);
+
+            if (formula.contains("<>")) {
+                return compareNotEqual(parts[0].trim(), parts[1].trim());
+            } else if (formula.contains("<") && !formula.contains("=")) {
+                return compareLess(parts[0].trim(), parts[1].trim());
+            } else if (formula.contains(">") && !formula.contains("=")) {
+                return compareGreater(parts[0].trim(), parts[1].trim());
+            } else if (formula.contains("=") && !formula.contains("<") && !formula.contains(">")) {
+                return compareEqual(parts[0].trim(), parts[1].trim());
+            } else if (formula.contains("&")) {
+                return andOperation(parts[0].trim(), parts[1].trim());
+            } else if (formula.contains("|")) {
+                return orOperation(parts[0].trim(), parts[2].trim());
+            } else if (formula.contains(":")) {
+                return rangeOperation(parts[0].trim(), parts[1].trim());
+            }
+        }
+
+        // Handle functions
+        String function = getFunction(formula);
+        if (function != "") {
+            int start = function.length() + 1;
+            int end = formula.length() - 1;
+            String args = formula.substring(start, end);
+
+            if (formula.startsWith("IF(")) {
+                return evaluateIF(args);
+            } else if (formula.startsWith("SUM(")) {
+                return evaluateSUM(args);
+            } else if (formula.startsWith("MIN(")) {
+                return evaluateMIN(args);
+            } else if (formula.startsWith("MAX(")) {
+                return evaluateMAX(args);
+            } else if (formula.startsWith("AVG(")) {
+                return evaluateAVG(args);
+            } else if (formula.startsWith("CONCAT(")) {
+                return evaluateCONCAT(args);
+            } else if (formula.startsWith("DEBUG(")) {
+                return evaluateDEBUG(args);
+            } else if (formula.startsWith("STDDEV(")) {
+                return evaluateSTDDEV(args);
+            } else if (formula.startsWith("SORT(")) {
+                return evaluateSORT(args);
+            }
+        }
+
+        return formula;
     }
 
     /**
@@ -185,35 +430,6 @@ public class Spreadsheet implements ISpreadsheet {
         matcher.appendTail(result);
 
         return result.toString();
-    }
-
-    /**
-     * Gets the row index from the cell reference.
-     *
-     * @param cell the cell reference.
-     * @return the row index.
-     */
-    private int getRow(String cell) {
-        try {
-            return Integer.parseInt(cell.replaceAll("[^0-9]", "")) - 1;
-        } catch (NumberFormatException e) {
-            return -1;
-        }
-    }
-
-    /**
-     * Gets the column index from the cell reference.
-     *
-     * @param cell the cell reference.
-     * @return the column index.
-     */
-    private int getColumn(String cell) {
-        String col = cell.replaceAll("[^A-Z]", "").toUpperCase();
-        int column = 0;
-        for (int i = 0; i < col.length(); i++) {
-            column = column * 26 + (col.charAt(i) - 'A' + 1);
-        }
-        return column - 1;
     }
 
     /**
@@ -249,167 +465,19 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     /**
-     * Adds a published version of the spreadsheet.
+     * Checks if the cell contains an operation.
      *
-     * @param sheet the published version of the spreadsheet.
+     * @param cell the cell content.
+     * @return the operation if present, otherwise an empty string.
      */
-    public void addPublished(ISpreadsheet sheet) {
-        this.publishVersions.add(sheet);
-        this.id_version++;
-    }
-
-    /**
-     * Adds a subscribed version of the spreadsheet.
-     *
-     * @param sheet the subscribed version of the spreadsheet.
-     */
-    public void addSubscribed(ISpreadsheet sheet) {
-        this.subscribeVersions.add(sheet);
-    }
-
-    /**
-     * Gets the list of published versions of the spreadsheet.
-     *
-     * @return the list of published versions.
-     */
-    public List<ISpreadsheet> getPublishedVersions() {
-        return this.publishVersions;
-    }
-
-    /**
-     * Gets the list of subscribed modified versions of the spreadsheet
-     * @return
-     */
-    public List<ISpreadsheet> getSubscribedVersions() {
-        return this.subscribeVersions;
-    }
-
-    /**
-     * Get the id of current sheet
-     * @return the id of the sheet
-     */
-    public int getId_version() {
-        return this.id_version;
-    }
-    /**
-     * Sets the value of the cell at the specified row and column.
-     *
-     * @param row   the row index of the cell.
-     * @param col   the column index of the cell.
-     * @param value the value to set.
-     */
-    @Override
-    public void setCellValue(int row, int col, String value) {
-        this.grid.get(row).get(col).setValue(evaluateFormula(value));
-    }
-
-    /**
-     * Gets the value of the cell at the specified row and column.
-     *
-     * @param row the row index of the cell.
-     * @param col the column index of the cell.
-     * @return the value of the cell.
-     */
-    @Override
-    public String getCellValue(int row, int col) {
-        return this.grid.get(row).get(col).getValue();
-    }
-
-    /**
-     * Gets the raw data of the cell at the specified row and column.
-     *
-     * @param row the row index of the cell.
-     * @param col the column index of the cell.
-     * @return the raw data of the cell.
-     */
-    @Override
-    public String getCellRawdata(int row, int col) {
-        return this.grid.get(row).get(col).getRawdata();
-    }
-
-    /**
-     * Gets the name of the spreadsheet.
-     *
-     * @return the name of the spreadsheet.
-     */
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    /**
-     * Sets the raw data of the cell at the specified row and column.
-     *
-     * @param row the row index of the cell.
-     * @param col the column index of the cell.
-     * @param val the raw data to set.
-     */
-    @Override
-    public void setCellRawdata(int row, int col, String val) {
-        this.grid.get(row).get(col).setRawData(val);
-    }
-
-    /**
-     * Gets the formula of the cell at the specified row and column.
-     *
-     * @param row the row index of the cell.
-     * @param col the column index of the cell.
-     * @return the formula of the cell.
-     */
-    @Override
-    public String getCellFormula(int row, int col) {
-        return this.grid.get(row).get(col).getFormula();
-    }
-
-    /**
-     * Parses and handles various operations in the formula.
-     *
-     * @param formula the formula to parse.
-     * @return the result of parsing the formula.
-     */
-    private String parseOperations(String formula) {
-        if (formula.contains("<>")) {
-            String[] parts = formula.split("<>");
-            return compareNotEqual(parts[0].trim(), parts[1].trim());
-        } else if (formula.contains("<") && !formula.contains("=")) {
-            String[] parts = formula.split("<");
-            return compareLess(parts[0].trim(), parts[1].trim());
-        } else if (formula.contains(">") && !formula.contains("=")) {
-            String[] parts = formula.split(">");
-            return compareGreater(parts[0].trim(), parts[1].trim());
-        } else if (formula.contains("=") && !formula.contains("<") && !formula.contains(">")) {
-            String[] parts = formula.split("=");
-            return compareEqual(parts[0].trim(), parts[1].trim());
-        } else if (formula.contains("&")) {
-            String[] parts = formula.split("&");
-            return andOperation(parts[0].trim(), parts[1].trim());
-        } else if (formula.contains("|")) {
-            String[] parts = formula.split("\\|");
-            return orOperation(parts[0].trim(), parts[1].trim());
-        } else if (formula.contains(":")) {
-            String[] parts = formula.split(":");
-            return rangeOperation(parts[0].trim(), parts[1].trim());
-        } else if (formula.startsWith("IF(")) {
-            return evaluateIF(formula.substring(3, formula.length() - 1));
-        } else if (formula.startsWith("SUM(")) {
-            return evaluateSUM(formula.substring(4, formula.length() - 1));
-        } else if (formula.startsWith("MIN(")) {
-            return evaluateMIN(formula.substring(4, formula.length() - 1));
-        } else if (formula.startsWith("MAX(")) {
-            return evaluateMAX(formula.substring(4, formula.length() - 1));
-        } else if (formula.startsWith("AVG(")) {
-            return evaluateAVG(formula.substring(4, formula.length() - 1));
-        } else if (formula.startsWith("CONCAT(")) {
-            return evaluateCONCAT(formula.substring(7, formula.length() - 1));
-        } else if (formula.startsWith("DEBUG(")) {
-            return evaluateDEBUG(formula.substring(6, formula.length() - 1));
-        } else if (formula.startsWith("STDDEV(")) {
-            return evaluateSTDDEV(formula.substring(7, formula.length() - 1));
-        } else if (formula.startsWith("SORT(")) {
-            return evaluateSORT(formula.substring(5, formula.length() - 1));
+    private String getOperation(String cell) {
+        for (String op : operations) {
+            if (cell.contains(op)) {
+                return op;
+            }
         }
 
-        return formula;
+        return "";
     }
 
     /**
@@ -767,7 +835,7 @@ public class Spreadsheet implements ISpreadsheet {
 
         return result.substring(0, result.length() - 1);
     }
-    
+
     /**
      * Sorts the cells based on the formula.
      *

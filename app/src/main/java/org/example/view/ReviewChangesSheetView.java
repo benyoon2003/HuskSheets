@@ -42,8 +42,8 @@ public class ReviewChangesSheetView extends SheetView {
         formulaTextField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.changeSpreadSheetValueAt(controller.getSelectedRowZeroIndex(),
-                        controller.getSelectedColZeroIndex(), formulaTextField.getText());
+                controller.changeSpreadSheetValueAt(controller.getSelectedRow(),
+                        controller.getSelectedCol(), formulaTextField.getText());
             }
         });
 
@@ -71,9 +71,7 @@ public class ReviewChangesSheetView extends SheetView {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();
-                IHomeView homeView = controller.getHomeView();
-                homeView.updateSavedSheets(); // Update the dropdown before making it visible
-                homeView.makeVisible();
+                controller.openHomeView();
             }
         });
 
@@ -120,8 +118,8 @@ public class ReviewChangesSheetView extends SheetView {
     }
 
     public void loadChanges() throws Exception {
-        ArrayList<ArrayList<Cell>> changedCells = this.changes.getCells();
-        ArrayList<ArrayList<Cell>> currCells = this.current.getCells();
+        java.util.List<java.util.List<Cell>> changedCells = this.changes.getCells();
+        java.util.List<java.util.List<Cell>> currCells = this.current.getCells();
 
         boolean changed = false;
         for (int i = 0; i < changedCells.size(); i++) {
