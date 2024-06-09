@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SpreadsheetTest {
@@ -62,18 +61,18 @@ public class SpreadsheetTest {
         assertEquals("not a formula", spreadsheet.evaluateFormula("= not a formula"));
     }
 
-//    @Test
-//    public void testEvaluateFormulaArithmetic() {
-//        assertEquals("4", spreadsheet.evaluateFormula("= 2 + 2"));
-//        assertEquals("4", spreadsheet.evaluateFormula("= 6 - 2"));
-//        assertEquals("4", spreadsheet.evaluateFormula("= 2 * 2"));
-//        assertEquals("4", spreadsheet.evaluateFormula("= 8 / 2"));
-//
-//        assertEquals("Error", spreadsheet.evaluateFormula("= e + 2"));
-//        assertEquals("Error", spreadsheet.evaluateFormula("= e - 2"));
-//        assertEquals("Error", spreadsheet.evaluateFormula("= e * 2"));
-//        assertEquals("Error", spreadsheet.evaluateFormula("= e / 2"));
-//    }
+   @Test
+   public void testEvaluateFormulaArithmetic() {
+       assertEquals("4", spreadsheet.evaluateFormula("= 2 + 2"));
+       assertEquals("4", spreadsheet.evaluateFormula("= 6 - 2"));
+       assertEquals("4", spreadsheet.evaluateFormula("= 2 * 2"));
+       assertEquals("4", spreadsheet.evaluateFormula("= 8 / 2"));
+
+       assertEquals("Error", spreadsheet.evaluateFormula("= e + 2"));
+       assertEquals("Error", spreadsheet.evaluateFormula("= e - 2"));
+       assertEquals("Error", spreadsheet.evaluateFormula("= e * 2"));
+       assertEquals("Error", spreadsheet.evaluateFormula("= e / 2"));
+   }
 
     @Test
     public void testEvaluateFormulaComparisons() {
