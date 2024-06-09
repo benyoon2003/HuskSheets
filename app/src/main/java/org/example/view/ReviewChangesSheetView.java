@@ -47,14 +47,6 @@ public class ReviewChangesSheetView extends SheetView {
                         controller.getSelectedCol(), formulaTextField.getText());
             }
         });
-        build();
-    }
-
-    public void handleSave(){
-        dispose();
-        controller.saveSheetToServer(cells, ((Spreadsheet) cells).getName());
-        System.out.println(((Spreadsheet) cells).getName());
-        makeVisible();
     }
 
     public void loadChanges() throws Exception {
@@ -94,31 +86,8 @@ public class ReviewChangesSheetView extends SheetView {
         JTable table = getTable();
         if (table != null) {
             for (int i = 0; i < table.getColumnCount(); i++) {
-                table.getColumnModel().getColumn(i).setCellRenderer(new CustomCellRenderer());
+                table.getColumnModel().getColumn(i).setCellRenderer(new ReviewChangesRenderer(originalCells, changes));
             }
-        }
-    }
-
-    private class CustomCellRenderer extends DefaultTableCellRenderer {
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            Component cellComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-            if (column > 0) { // Skip the row header
-                int modelColumn = column - 1; // Adjust for row header
-                Cell currentCell = originalCells.get(row).get(modelColumn);
-                Cell changeCell = changes.getCells().get(row).get(modelColumn);
-
-                System.out.print("Current: " + currentCell.getRawdata());
-                System.out.println(",       Change: " + changeCell.getRawdata());
-                if (!currentCell.getRawdata().equals(changeCell.getRawdata())) {
-                    cellComponent.setBackground(Color.YELLOW); // Highlight changed cells
-                } else {
-                    cellComponent.setBackground(Color.WHITE); // Default color for unchanged cells
-                }
-            }
-
-            return cellComponent;
         }
     }
 }

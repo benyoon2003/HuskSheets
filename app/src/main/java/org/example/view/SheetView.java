@@ -5,7 +5,6 @@ import org.example.model.Cell;
 import org.example.model.IReadOnlySpreadSheet;
 import org.example.model.ISpreadsheet;
 import org.example.model.SelectedCells;
-import org.example.model.Spreadsheet;
 import org.example.view.button.*;
 
 import javax.swing.*;
@@ -13,11 +12,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,6 +36,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
     public static final Color PINK = new Color(255, 192, 203); // Color constant for pink
     public static final Color GREEN = new Color(0, 255, 0); // Color constant for green
 
+    public String publisher;
     protected final Map<Point, Color> highlightedCells = new HashMap<>(); // Map to store highlighted cells
     protected SelectedCells selectedCells; // Object to store selected cell range
 
@@ -101,7 +99,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
         yourTable.setShowGrid(true);
 
         // Set custom cell renderer
-        yourTable.setDefaultRenderer(Object.class, new CustomTableCellRenderer(highlightedCells));
+        yourTable.setDefaultRenderer(Object.class, new HighlightedCellRenderer(highlightedCells));
 
         // Add key listener for delete and digit keys
         yourTable.addKeyListener(new KeyAdapter() {
@@ -279,6 +277,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
     @Override
     public void addController(IUserController controller) {
         this.controller = controller;
+        this.publisher = controller.getAppUser().getUsername();
     }
 
     /**
@@ -358,32 +357,6 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
         }
     }
 
-    /**
-     * Handles the save action.
-     */
-    public void handleSave() {
-        int option = JOptionPane.showOptionDialog(
-                null,
-                "Choose where to save the sheet:",
-                "Save Option",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                new Object[]{"Save Locally", "Save to Server"},
-                "Save Locally");
-
-        if (option == JOptionPane.YES_OPTION) {
-            JFileChooser fileChooser = new JFileChooser();
-            int returnValue = fileChooser.showSaveDialog(null);
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = fileChooser.getSelectedFile();
-                controller.saveSheetToServer(cells, selectedFile.getAbsolutePath());
-            }
-        } else if (option == JOptionPane.NO_OPTION) {
-            controller.saveSheetToServer(cells, cells.getName());
-            makeVisible();
-        }
-    }
 
     /**
      * Displays a message in a dialog box.
@@ -453,35 +426,5 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
 //        }
 //    }
 
-    /**
-     * The CustomTableCellRenderer class customizes the rendering of table cells.
-     */
-    class CustomTableCellRenderer extends DefaultTableCellRenderer {
-        private final Map<Point, Color> highlightedCells;
 
-        /**
-         * Constructs a CustomTableCellRenderer with the specified highlighted cells.
-         *
-         * @param highlightedCells the highlighted cells.
-         */
-        public CustomTableCellRenderer(Map<Point, Color> highlightedCells) {
-            this.highlightedCells = highlightedCells;
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            Point cellLocation = new Point(row, column);
-            Color highlightColor = highlightedCells.get(cellLocation);
-            if (highlightColor != null) {
-                c.setBackground(highlightColor);
-            } else {
-                c.setBackground(Color.WHITE);
-            }
-            if (isSelected) {
-                c.setBackground(Color.CYAN);
-            }
-            return c;
-        }
-    }
 }

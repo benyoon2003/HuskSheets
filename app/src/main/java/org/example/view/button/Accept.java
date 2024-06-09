@@ -1,5 +1,6 @@
 package org.example.view.button;
 
+import org.example.model.Spreadsheet;
 import org.example.view.SheetView;
 
 import java.awt.event.ActionEvent;
@@ -12,7 +13,8 @@ public class Accept extends Button {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Accept changes logic here
-                view.handleSave();
+                view.dispose();
+                view.getController().saveSheetToServer(view.cells, ( view.cells).getName());
                 view.getController().openServerSheet(view.cells.getName());
             }
         });
