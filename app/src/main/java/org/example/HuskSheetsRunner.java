@@ -1,11 +1,6 @@
 package org.example;
 
-import org.example.controller.IUserController;
 import org.example.controller.UserController;
-import org.example.model.AppUser;
-import org.example.model.Home;
-import org.example.model.Spreadsheet;
-import org.example.view.HomeView;
 import org.example.view.LoginView;
 
 /**

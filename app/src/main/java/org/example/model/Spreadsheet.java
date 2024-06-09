@@ -31,6 +31,7 @@ public class Spreadsheet implements ISpreadsheet {
 
     private String[] functions = new String[] { "IF", "SUM", "MIN", "MAX", "AVG", "CONCAT", "DEBUG", "STDDEV", "SORT" };
     private String[] arith = new String[] { "+", "-", "*", "/" };
+    private String[] operations = new String[] { "<>", "<", ">", "=", "&", "|", ":" };
 
     /**
      * Constructs a new Spreadsheet with the specified name.
@@ -70,8 +71,10 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     /**
-     * Converts the given IReadOnlySpreadSheet into a valid String payload for transmission
+     * Converts the given IReadOnlySpreadSheet into a valid String payload for
+     * transmission
      * as part of JSON
+     * 
      * @param sheet the sheet to convert
      * @return a payload (e.g $A1 4\n)
      */
@@ -91,6 +94,7 @@ public class Spreadsheet implements ISpreadsheet {
 
     /**
      * Gets the column label using the given column number.
+     * 
      * @param columnNumber a number that corresponds to a column in the spreadsheet
      * @return a column label (e.g A, D, F, G)
      */
@@ -352,45 +356,54 @@ public class Spreadsheet implements ISpreadsheet {
      * @return the result of parsing the formula.
      */
     private String parseOperations(String formula) {
-        if (formula.contains("<>")) {
-            String[] parts = formula.split("<>");
-            return compareNotEqual(parts[0].trim(), parts[1].trim());
-        } else if (formula.contains("<") && !formula.contains("=")) {
-            String[] parts = formula.split("<");
-            return compareLess(parts[0].trim(), parts[1].trim());
-        } else if (formula.contains(">") && !formula.contains("=")) {
-            String[] parts = formula.split(">");
-            return compareGreater(parts[0].trim(), parts[1].trim());
-        } else if (formula.contains("=") && !formula.contains("<") && !formula.contains(">")) {
-            String[] parts = formula.split("=");
-            return compareEqual(parts[0].trim(), parts[1].trim());
-        } else if (formula.contains("&")) {
-            String[] parts = formula.split("&");
-            return andOperation(parts[0].trim(), parts[1].trim());
-        } else if (formula.contains("|")) {
-            String[] parts = formula.split("\\|");
-            return orOperation(parts[0].trim(), parts[1].trim());
-        } else if (formula.contains(":")) {
-            String[] parts = formula.split(":");
-            return rangeOperation(parts[0].trim(), parts[1].trim());
-        } else if (formula.startsWith("IF(")) {
-            return evaluateIF(formula.substring(3, formula.length() - 1));
-        } else if (formula.startsWith("SUM(")) {
-            return evaluateSUM(formula.substring(4, formula.length() - 1));
-        } else if (formula.startsWith("MIN(")) {
-            return evaluateMIN(formula.substring(4, formula.length() - 1));
-        } else if (formula.startsWith("MAX(")) {
-            return evaluateMAX(formula.substring(4, formula.length() - 1));
-        } else if (formula.startsWith("AVG(")) {
-            return evaluateAVG(formula.substring(4, formula.length() - 1));
-        } else if (formula.startsWith("CONCAT(")) {
-            return evaluateCONCAT(formula.substring(7, formula.length() - 1));
-        } else if (formula.startsWith("DEBUG(")) {
-            return evaluateDEBUG(formula.substring(6, formula.length() - 1));
-        } else if (formula.startsWith("STDDEV(")) {
-            return evaluateSTDDEV(formula.substring(7, formula.length() - 1));
-        } else if (formula.startsWith("SORT(")) {
-            return evaluateSORT(formula.substring(5, formula.length() - 1));
+        // Handle operations
+        String operation = getOperation(formula);
+        if (operation != "") {
+            String[] parts = formula.replaceAll(" ", "").split(operation);
+
+            if (formula.contains("<>")) {
+                return compareNotEqual(parts[0].trim(), parts[1].trim());
+            } else if (formula.contains("<") && !formula.contains("=")) {
+                return compareLess(parts[0].trim(), parts[1].trim());
+            } else if (formula.contains(">") && !formula.contains("=")) {
+                return compareGreater(parts[0].trim(), parts[1].trim());
+            } else if (formula.contains("=") && !formula.contains("<") && !formula.contains(">")) {
+                return compareEqual(parts[0].trim(), parts[1].trim());
+            } else if (formula.contains("&")) {
+                return andOperation(parts[0].trim(), parts[1].trim());
+            } else if (formula.contains("|")) {
+                return orOperation(parts[0].trim(), parts[2].trim());
+            } else if (formula.contains(":")) {
+                return rangeOperation(parts[0].trim(), parts[1].trim());
+            }
+        }
+
+        // Handle functions
+        String function = getFunction(formula);
+        if (function != "") {
+            int start = function.length() + 1;
+            int end = formula.length() - 1;
+            String args = formula.substring(start, end);
+
+            if (formula.startsWith("IF(")) {
+                return evaluateIF(args);
+            } else if (formula.startsWith("SUM(")) {
+                return evaluateSUM(args);
+            } else if (formula.startsWith("MIN(")) {
+                return evaluateMIN(args);
+            } else if (formula.startsWith("MAX(")) {
+                return evaluateMAX(args);
+            } else if (formula.startsWith("AVG(")) {
+                return evaluateAVG(args);
+            } else if (formula.startsWith("CONCAT(")) {
+                return evaluateCONCAT(args);
+            } else if (formula.startsWith("DEBUG(")) {
+                return evaluateDEBUG(args);
+            } else if (formula.startsWith("STDDEV(")) {
+                return evaluateSTDDEV(args);
+            } else if (formula.startsWith("SORT(")) {
+                return evaluateSORT(args);
+            }
         }
 
         return formula;
@@ -449,6 +462,22 @@ public class Spreadsheet implements ISpreadsheet {
         }
 
         return false;
+    }
+
+    /**
+     * Checks if the cell contains an operation.
+     *
+     * @param cell the cell content.
+     * @return the operation if present, otherwise an empty string.
+     */
+    private String getOperation(String cell) {
+        for (String op : operations) {
+            if (cell.contains(op)) {
+                return op;
+            }
+        }
+
+        return "";
     }
 
     /**
