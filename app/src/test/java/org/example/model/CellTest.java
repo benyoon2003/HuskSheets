@@ -16,6 +16,11 @@ public class CellTest {
         String testValue = "TestValue";
         Cell cell = new Cell(testValue);
         assertEquals(testValue, cell.getValue(), "Constructor should initialize value to the provided string");
+
+        String formula = "= 2 + 2";
+        Cell cell2 = new Cell(formula);
+        assertEquals(formula, cell2.getValue(), "Constructor should initialize value to the provided formula");
+        assertEquals(formula, cell2.getFormula(), "Constructor should initialize formula to the provided formula");
     }
 
     @Test
@@ -37,6 +42,16 @@ public class CellTest {
         Cell cell = new Cell("InitialValue");
         assertEquals("InitialValue", cell.getValue(), "getValue should return the current value of the cell");
         assertEquals("", cell.getFormula(), "Cell formula should be empty");
+    }
+
+    @Test
+    public void testGetAndSetPositions() {
+        Cell cell = new Cell("");
+        cell.setRow(0);
+        cell.setCol(1);
+
+        assertEquals(0, cell.getRow());
+        assertEquals(1, cell.getCol());
     }
 
     @Test

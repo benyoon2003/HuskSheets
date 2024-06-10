@@ -43,15 +43,6 @@ public interface ISpreadsheet extends IReadOnlySpreadSheet {
   String getCellValue(int row, int col);
 
   /**
-   * Gets the formula of the cell at the specified row and column.
-   *
-   * @param row the row index of the cell.
-   * @param col the column index of the cell.
-   * @return the formula of the cell.
-   */
-  String getCellFormula(int row, int col);
-
-  /**
    * Sets the raw data of the cell at the specified row and column.
    *
    * @param selRow the row index of the cell.

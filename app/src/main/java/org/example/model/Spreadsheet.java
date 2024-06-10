@@ -62,10 +62,13 @@ public class Spreadsheet implements ISpreadsheet {
      */
     public Spreadsheet(ArrayList<ArrayList<Cell>> grid, String name) {
         this(name);
-        for (ArrayList<Cell> row : grid) {
-            for (Cell c : row) {
-                String value = this.evaluateFormula(c.getValue());
-                this.grid.get(c.getRow()).get(c.getCol()).setValue(value);
+        for (int i = 0; i < 100; i++) {
+            List<Cell> row = grid.get(i);
+            for (int j = 0; j < 100; j++) {
+                Cell cell = row.get(j);
+                if (!cell.getValue().isEmpty()) {
+                    this.grid.get(i).set(j, cell);
+                }
             }
         }
     }
@@ -301,18 +304,6 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     /**
-     * Gets the formula of the cell at the specified row and column.
-     *
-     * @param row the row index of the cell.
-     * @param col the column index of the cell.
-     * @return the formula of the cell.
-     */
-    @Override
-    public String getCellFormula(int row, int col) {
-        return this.grid.get(row).get(col).getFormula();
-    }
-
-    /**
      * Evaluates the given formula and returns the result.
      *
      * @param formula the formula to evaluate.
@@ -329,17 +320,19 @@ public class Spreadsheet implements ISpreadsheet {
         formula = formula.substring(1).stripLeading();
 
         try {
-            if (formula.contains("SORT")) {
-                return sort(formula);
-            }
+            boolean evaluated = false;
+            Object result = formula;
             // Handle operations that need to be parsed before evaluation
             formula = parseOperations(formula);
             // Replace cell references with their values
             formula = replaceCellReferences(formula);
             System.setProperty("polyglot.engine.WarnInterpreterOnly", "false");
             // For simplicity, handle basic arithmetic operations using JavaScript engine
-            Object result = formula;
-            if (containsArith((String) result)) {
+            if (!((String) result).equals(formula)) {
+                result = formula;
+                evaluated = true;
+            }
+            if (containsArith((String) result) && !evaluated) {
                 Context context = Context.create("js");
                 result = context.eval("js", formula);
             }
@@ -834,38 +827,5 @@ public class Spreadsheet implements ISpreadsheet {
         }
 
         return result.substring(0, result.length() - 1);
-    }
-
-    /**
-     * Sorts the cells based on the formula.
-     *
-     * @param formula the formula containing the SORT function.
-     * @return the sorted value.
-     */
-    private String sort(String formula) {
-        String[] sorted = parseOperations(formula).split(",");
-        if (sorted.length > 1) {
-            String cells = formula.substring(5, formula.length() - 1);
-
-            // Determine which cell should be the start of the sorted list
-            String endCell;
-            if (cells.contains(":")) {
-                endCell = cells.split(":")[1];
-            } else {
-                endCell = cells.split(",")[sorted.length - 1];
-            }
-            int r = getRow(endCell);
-            int c = getColumn(endCell);
-
-            // Set the values
-            for (int i = 0; i < sorted.length; i++) {
-                Cell cell = this.grid.get(r + i + 1).get(c);
-                cell.setValue(sorted[i]);
-                cell.setFormula(sorted[i]);
-            }
-
-            this.grid.get(r + 1).get(c).setFormula("=" + formula);
-        }
-        return sorted[0];
     }
 }
