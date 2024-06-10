@@ -1,6 +1,8 @@
 package org.example.controller;
 
 import java.util.List;
+
+import org.example.model.IAppUser;
 import org.example.model.IReadOnlySpreadSheet;
 import org.example.view.IHomeView;
 import org.example.view.ISheetView;
@@ -211,4 +213,11 @@ public interface IUserController {
      * @throws Exception if an error occurs while fetching updates.
      */
     void getUpdatesForPublished(String sheet, int id) throws Exception;
+
+
+    /**
+     *
+     * @return the current app user
+     */
+    public IAppUser getAppUser();
 }
