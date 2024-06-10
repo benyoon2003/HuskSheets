@@ -1,8 +1,5 @@
 package org.example.model;
 
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -27,8 +24,8 @@ public class ServerEndpoint {
    * @return Basic Authentication header string
    */
   private String getBasicAuthHeader() {
-    String username = this.user.getUsername();
-    String password = this.user.getPassword();
+    String username = user.getUsername();
+    String password = user.getPassword();
     String auth = username + ":" + password;
     return "Basic " + Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
   }
@@ -41,7 +38,7 @@ public class ServerEndpoint {
    */
 
   public Result register(IAppUser user) throws Exception {
-    this.user = user;
+    ServerEndpoint.user = user;
     // Encode the publisher name to be URL-safe
     String encodedPublisher = URLEncoder.encode(user.getUsername(), StandardCharsets.UTF_8);
     String url = BASE_URL + "register?publisher=" + encodedPublisher;
@@ -58,7 +55,7 @@ public class ServerEndpoint {
      * @throws Exception if an error occurs during the HTTP request.
      */
   public Result login(IAppUser user) throws Exception {
-    this.user = user;
+    ServerEndpoint.user = user;
     // Encode the publisher name to be URL-safe
     String encodedPublisher = URLEncoder.encode(user.getUsername(), StandardCharsets.UTF_8);
     String url = BASE_URL + "login?publisher=" + encodedPublisher;
@@ -197,7 +194,7 @@ public class ServerEndpoint {
    * @return response object
    * @throws Exception
    */
-  public HttpResponse sendPostRequest(String url, String json) throws Exception {
+  public HttpResponse<String> sendPostRequest(String url, String json) throws Exception {
     HttpClient client = HttpClient.newBuilder().build();
     HttpRequest request = HttpRequest.newBuilder()
             .uri(new URI(url))
@@ -216,7 +213,7 @@ public class ServerEndpoint {
    * @throws Exception
    */
 
-  public HttpResponse sendGetRequest(String url) throws Exception {
+  public HttpResponse<String> sendGetRequest(String url) throws Exception {
     HttpClient client = HttpClient.newBuilder().build();
     HttpRequest request = HttpRequest.newBuilder()
             .uri(new URI(url))
