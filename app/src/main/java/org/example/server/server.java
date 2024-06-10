@@ -34,6 +34,11 @@ public class server {
     private List<IAppUser> availUsers = new ArrayList<>();
 
     // Method to decode the Basic Auth header
+    /**
+     * 
+     * @param authHeader
+     * @author Tony
+     */
     private String[] decodeBasicAuth(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Basic ")) {
             return null;
@@ -44,6 +49,10 @@ public class server {
         return decodedString.split(":", 2);
     }
 
+    /**
+     * @author Tony
+     * @param credentials
+     */
     private void validateCredentials(String[] credentials) {
         if (credentials == null || credentials.length != 2) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
@@ -56,6 +65,7 @@ public class server {
      * @param sheet     the sheet name.
      * @param publisher the publisher name.
      * @return true if the sheet exists, false otherwise.
+     * @author Tony
      */
     private boolean hasSheet(String sheet, String publisher) {
         for (IAppUser user : availUsers) {
@@ -71,6 +81,7 @@ public class server {
      *
      * @param username the username.
      * @return the user if found, null otherwise.
+     * @author Ben
      */
     private IAppUser findUser(String username) {
         for (IAppUser user : this.availUsers) {
@@ -81,6 +92,12 @@ public class server {
         return null;
     }
 
+    /**
+     * @author Ben
+     * @param username
+     * @param password
+     * @return
+     */
     private boolean existingUser(String username, String password) {
         for (IAppUser user : availUsers) {
             if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
@@ -90,7 +107,11 @@ public class server {
         return false;
     }
 
-    // Method to find a user by username
+    /**
+     * @author Tony
+     * @param username
+     * @return
+     */
     private boolean findByUsername(String username) {
         for (IAppUser user : availUsers) {
             if (user.getUsername().equals(username)) {
@@ -100,6 +121,11 @@ public class server {
         return false;
     }
 
+    /**
+     * @author Ben
+     * @param authHeader
+     * @return
+     */
     @GetMapping("/getPublishers")
     public ResponseEntity<?> getPublishers(@RequestHeader("Authorization") String authHeader) {
         try {
@@ -126,6 +152,7 @@ public class server {
      * @param authHeader the authorization header containing the credentials.
      * @param argument   the argument containing the sheet details.
      * @return a ResponseEntity containing the result of the sheet creation.
+     * @author Ben
      */
     @PostMapping("/createSheet")
     public ResponseEntity<Result> createSheet(@RequestHeader("Authorization") String authHeader,
@@ -163,6 +190,12 @@ public class server {
         }
     }
 
+    /**
+     * @author Ben
+     * @param authHeader
+     * @param argument
+     * @return
+     */
     @PostMapping("/deleteSheet")
     public ResponseEntity<Result> deleteSheet(@RequestHeader("Authorization") String authHeader,
                                               @RequestBody Argument argument) {
@@ -202,6 +235,7 @@ public class server {
      * @param authHeader the authorization header containing the credentials.
      * @param argument   the argument containing the publisher details.
      * @return a ResponseEntity containing the result of the sheets retrieval.
+     * @author Tony
      */
     @PostMapping("/getSheets")
     public ResponseEntity<Result> getSheets(@RequestHeader("Authorization") String authHeader,
@@ -233,6 +267,7 @@ public class server {
      * @param authHeader the authorization header containing the credentials.
      * @param argument   the argument containing the sheet details.
      * @return a ResponseEntity containing the result of the sheet update.
+     * @author - Tony
      */
     @PostMapping("/updatePublished")
     public ResponseEntity<Result> updatePublished(@RequestHeader("Authorization") String authHeader,
@@ -293,6 +328,12 @@ public class server {
                     false, "Sheet not found", new ArrayList<>()));
         }
 
+        /**
+         * @author Ben
+         * @param authHeader
+         * @param argument
+         * @return
+         */
     @PostMapping("/updateSubscription")
     public ResponseEntity<Result> updateSubscription(@RequestHeader("Authorization") String authHeader,
                                                   @RequestBody Argument argument) {
@@ -352,6 +393,7 @@ public class server {
      *
      * @param authHeader the authorization header containing the credentials.
      * @return a ResponseEntity containing the result of the registration.
+     * @author Tony
      */
     @GetMapping("/register")
     public ResponseEntity<Result> register(@RequestHeader("Authorization") String authHeader) {
@@ -385,6 +427,7 @@ public class server {
      *
      * @param authHeader the authorization header containing the credentials.
      * @return a ResponseEntity containing the result of the login.
+     * @author Ben
      */
     @GetMapping("/login")
     public ResponseEntity<Result> login(@RequestHeader("Authorization") String authHeader) {
@@ -417,6 +460,7 @@ public class server {
      * @param authHeader the authorization header containing the credentials.
      * @param argument   the argument containing the subscription details.
      * @return a ResponseEntity containing the result of the updates retrieval.
+     * @author Tony
      */
     @PostMapping("/getUpdatesForSubscription")
     public ResponseEntity<?> getUpdatesForSubscription(@RequestHeader("Authorization") String authHeader,
@@ -466,6 +510,7 @@ public class server {
      * @param authHeader the authorization header containing the credentials.
      * @param argument   the argument containing the subscription details.
      * @return a ResponseEntity containing the result of the updates retrieval.
+     * @author Tony
      */
     @PostMapping("/getUpdatesForPublished")
     public ResponseEntity<?> getUpdatesForPublished(@RequestHeader("Authorization") String authHeader,

@@ -23,7 +23,7 @@ public class UserController implements IUserController {
     private ISelectedCells selectedCells;
     private String clipboardContent;
     private boolean isCutOperation;
-    private final ServerEndpoint serverEndpoint;
+    protected final ServerEndpoint serverEndpoint;
 
     /**
      * Constructs a UserController with the given login view.
@@ -222,6 +222,7 @@ public class UserController implements IUserController {
      * Determines if a single cell has been selected.
      * @param selectedCells an ISelectedCells object
      * @return boolean
+     * @author Vinay
      */
     private boolean singleCellSelected(ISelectedCells selectedCells) {
         return selectedCells.getStartRow() == selectedCells.getEndRow() &&
@@ -460,6 +461,7 @@ public class UserController implements IUserController {
      * @param username the username to validate.
      * @param password the password to validate.
      * @return true if both the username and password are non-empty, false otherwise.
+     * @author Ben
      */
     private boolean validateInput(String username, String password) {
         return !username.isEmpty() && !password.isEmpty();

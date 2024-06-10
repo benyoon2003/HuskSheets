@@ -170,6 +170,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param cell the cell reference.
      * @return the row index.
+     * @author Theo
      */
     private int getRow(String cell) {
         try {
@@ -184,6 +185,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param cell the cell reference.
      * @return the column index.
+     * @author Vinay
      */
     private int getColumn(String cell) {
         String col = cell.replaceAll("[^A-Z]", "").toUpperCase();
@@ -347,6 +349,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param formula the formula to parse.
      * @return the result of parsing the formula.
+     * @author Vinay
      */
     private String parseOperations(String formula) {
         // Handle operations
@@ -407,6 +410,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param formula the formula with cell references.
      * @return the formula with cell references replaced by values.
+     * @author Vinay
      */
     private String replaceCellReferences(String formula) {
         Pattern pattern = Pattern.compile("\\$[A-Z]+[0-9]+");
@@ -430,6 +434,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param cell the cell content.
      * @return the function if present, otherwise an empty string.
+     * @author Theo
      */
     private String getFunction(String cell) {
         for (String func : functions) {
@@ -446,6 +451,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param cell the cell content.
      * @return true if it contains an arithmetic operation, otherwise false.
+     * @author Vinay
      */
     private boolean containsArith(String cell) {
         for (String op : arith) {
@@ -462,6 +468,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param cell the cell content.
      * @return the operation if present, otherwise an empty string.
+     * @author Theo
      */
     private String getOperation(String cell) {
         for (String op : operations) {
@@ -479,6 +486,7 @@ public class Spreadsheet implements ISpreadsheet {
      * @param x the first value.
      * @param y the second value.
      * @return "1" if x is less than y, otherwise "0".
+     * @author Vinay
      */
     private String compareLess(String x, String y) {
         x = replaceCellReferences(x);
@@ -498,6 +506,7 @@ public class Spreadsheet implements ISpreadsheet {
      * @param x the first value.
      * @param y the second value.
      * @return "1" if x is greater than y, otherwise "0".
+     * @author Vinay
      */
     private String compareGreater(String x, String y) {
         x = replaceCellReferences(x);
@@ -517,6 +526,7 @@ public class Spreadsheet implements ISpreadsheet {
      * @param x the first value.
      * @param y the second value.
      * @return "1" if x is equal to y, otherwise "0".
+     * @author Vinay
      */
     private String compareEqual(String x, String y) {
         x = replaceCellReferences(x);
@@ -540,6 +550,7 @@ public class Spreadsheet implements ISpreadsheet {
      * @param x the first value.
      * @param y the second value.
      * @return "1" if x is not equal to y, otherwise "0".
+     * @author Theo
      */
     private String compareNotEqual(String x, String y) {
         x = replaceCellReferences(x);
@@ -563,6 +574,7 @@ public class Spreadsheet implements ISpreadsheet {
      * @param x the first value.
      * @param y the second value.
      * @return "1" if both values are non-zero, otherwise "0".
+     * @author Vinay
      */
     private String andOperation(String x, String y) {
         x = replaceCellReferences(x);
@@ -582,6 +594,7 @@ public class Spreadsheet implements ISpreadsheet {
      * @param x the first value.
      * @param y the second value.
      * @return "1" if either value is non-zero, otherwise "0".
+     * @author Vinay
      */
     private String orOperation(String x, String y) {
         x = replaceCellReferences(x);
@@ -601,6 +614,7 @@ public class Spreadsheet implements ISpreadsheet {
      * @param startCell the start cell.
      * @param endCell   the end cell.
      * @return the result of the range operation.
+     * @author Theo
      */
     private String rangeOperation(String startCell, String endCell) {
         // Check if this cell has a function value
@@ -649,6 +663,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param parameters the parameters for the IF function.
      * @return the result of the IF function.
+     * @author Theo
      */
     private String evaluateIF(String parameters) {
         String[] parts = parameters.split(",");
@@ -672,6 +687,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param parameters the parameters for the SUM function.
      * @return the result of the SUM function.
+     * @author Theo
      */
     private String evaluateSUM(String parameters) {
         String[] parts = parameters.split(",");
@@ -691,6 +707,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param parameters the parameters for the MIN function.
      * @return the result of the MIN function.
+     * @author Vinay
      */
     private String evaluateMIN(String parameters) {
         String[] parts = parameters.split(",");
@@ -713,6 +730,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param parameters the parameters for the MAX function.
      * @return the result of the MAX function.
+     * @author Vinay
      */
     private String evaluateMAX(String parameters) {
         String[] parts = parameters.split(",");
@@ -735,6 +753,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param parameters the parameters for the AVG function.
      * @return the result of the AVG function.
+     * @author Vinay
      */
     private String evaluateAVG(String parameters) {
         String[] parts = parameters.split(",");
@@ -754,6 +773,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param parameters the parameters for the CONCAT function.
      * @return the result of the CONCAT function.
+     * @author Theo
      */
     private String evaluateCONCAT(String parameters) {
         String[] parts = parameters.split(",");
@@ -774,6 +794,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param parameter the parameter for the DEBUG function.
      * @return the result of the DEBUG function.
+     * @author Theo
      */
     private String evaluateDEBUG(String parameter) {
         return parameter.trim();
@@ -784,6 +805,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param parameter the parameter for the STDDEV function.
      * @return the result of the STDDEV function.
+     * @author Theo
      */
     private String evaluateSTDDEV(String parameter) {
         String[] nums = parameter.split(",");
@@ -807,6 +829,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param parameter the parameter for the SORT function.
      * @return the result of the SORT function.
+     * @author Theo
      */
     private String evaluateSORT(String parameter) {
         String[] s = parameter.split(",");
