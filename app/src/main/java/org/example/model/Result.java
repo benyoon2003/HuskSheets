@@ -23,6 +23,7 @@ public class Result {
      * @param success whether the operation was successful.
      * @param message the message associated with the result.
      * @param value   the value associated with the result.
+     * @author Ben
      */
     public Result(boolean success, String message, List<Argument> value) {
         this.success = success;
@@ -35,6 +36,7 @@ public class Result {
      *
      * @param jsonString the JSON string representing the result.
      * @throws JSONException if there is an error parsing the JSON string.
+     * @author Ben
      */
     public Result(String jsonString) throws JSONException {
         JSONObject jsonObject = new JSONObject(jsonString);
@@ -61,6 +63,7 @@ public class Result {
      * Gets the success status of the result.
      *
      * @return true if the operation was successful, false otherwise.
+     * @author Ben
      */
     public boolean getSuccess() {
         return this.success;
@@ -70,6 +73,7 @@ public class Result {
      * Gets the message associated with the result.
      *
      * @return the message associated with the result.
+     * @author Tony
      */
     public String getMessage() {
         return this.message;
@@ -79,6 +83,7 @@ public class Result {
      * Gets the value associated with the result.
      *
      * @return a list of Argument objects representing the value.
+     * @author Tony
      */
     public List<Argument> getValue() {
         return this.value;
@@ -88,6 +93,7 @@ public class Result {
      * Converts the Result object to a string representation.
      *
      * @return a string representation of the Result object.
+     * @author Tony
      */
     @Override
     public String toString() {

@@ -11,6 +11,7 @@ public interface IAppUser {
    * Gets the username of the user.
    *
    * @return the username of the user.
+   * @author Ben
    */
   String getUsername();
 
@@ -18,6 +19,7 @@ public interface IAppUser {
    * Gets the password of the user.
    *
    * @return the password of the user.
+   * @author Ben
    */
   String getPassword();
 
@@ -25,6 +27,7 @@ public interface IAppUser {
    * Adds a new sheet with the given name.
    *
    * @param sheetName the name of the sheet to add.
+   * @author Tony
    */
   void addSheet(String sheetName);
 
@@ -33,6 +36,7 @@ public interface IAppUser {
    *
    * @param name the name of the sheet to check.
    * @return true if the sheet exists, false otherwise.
+   * @author Ben
    */
   boolean doesSheetExist(String name);
 
@@ -40,6 +44,7 @@ public interface IAppUser {
    * Gets the list of spreadsheets associated with the user.
    *
    * @return a list of spreadsheets.
+   * @author Ben
    */
   List<ISpreadsheet> getSheets();
 
@@ -47,6 +52,7 @@ public interface IAppUser {
    * Removes a given sheet name from the users list of sheets.
    *
    * @param sheetName the name of the sheet
+   * @author Tony
    */
   void removeSheet(String sheetName);
 }
