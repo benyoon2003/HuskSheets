@@ -39,6 +39,9 @@ public class UserController implements IUserController {
         this.isCutOperation = false;
     }
 
+    public IAppUser getAppUser(){
+        return appUser;
+    }
     public void registerUser(String username, String password) {
         try {
             if (validateInput(username, password)) {

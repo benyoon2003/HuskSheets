@@ -3,6 +3,7 @@ package org.example.view;
 import org.example.model.Cell;
 import org.example.model.ISpreadsheet;
 import org.example.model.Spreadsheet;
+import org.example.view.button.*;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -25,20 +26,20 @@ public class ReviewChangesSheetView extends SheetView {
 
     public void makeToolbar() {
         // Create toolbar
-        JToolBar toolbar = new JToolBar();
-        JButton cutButton = new JButton("Cut");
-        JButton copyButton = new JButton("Copy");
-        JButton pasteButton = new JButton("Paste");
-        JButton saveButton = new JButton("Save");
-        JButton zoomInButton = new JButton("Zoom In");
-        JButton zoomOutButton = new JButton("Zoom Out");
-        JButton accept = new JButton("Accept Changes");
-        JButton deny = new JButton("Deny Changes");
-        backButton = new JButton("Back");
         formulaTextField = new JTextField(20);
         formulaTextField.setEditable(true);
-        toolbar.add(new JLabel("Formula:"));
-        toolbar.add(formulaTextField);
+        this.addComponent(new JLabel("Formula"))
+                .addComponent(formulaTextField)
+                .addComponent(new Cut(this))
+                .addComponent(new Copy(this))
+                .addComponent(new Paste(this))
+                .addComponent(new Accept(this))
+                .addComponent(new Deny(this))
+                .addComponent(new ZoomI(this))
+                .addComponent(new ZoomO(this))
+                .addComponent(new SaveSubscirber(this))
+                .addComponent(new AddConditionalFormat(this))
+                .addComponent(new Back(this));
         formulaTextField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -46,75 +47,6 @@ public class ReviewChangesSheetView extends SheetView {
                         controller.getSelectedCol(), formulaTextField.getText());
             }
         });
-
-        toolbar.add(cutButton);
-        toolbar.add(copyButton);
-        toolbar.add(pasteButton);
-        toolbar.add(accept);
-        toolbar.add(deny);
-        toolbar.add(zoomInButton);
-        toolbar.add(zoomOutButton);
-        toolbar.add(saveButton);
-        toolbar.add(backButton);
-
-        // Add action listeners for buttons
-        cutButton.addActionListener(new ToolbarButtonListener(this));
-        copyButton.addActionListener(new ToolbarButtonListener(this));
-        pasteButton.addActionListener(new ToolbarButtonListener(this));
-        saveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                handleSave();
-            }
-        });
-        backButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-                controller.openHomeView();
-            }
-        });
-
-        zoomInButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                zoomTable(1.1); //Zoom in by 10%
-            }
-        });
-
-        zoomOutButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                zoomTable(0.9); //Zoom out by 10%
-            }
-        });
-
-        accept.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Accept changes logic here
-                handleSave();
-                controller.openServerSheet(current.getName());
-            }
-        });
-
-        deny.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Deny changes logic here
-                dispose();
-                controller.openServerSheet(current.getName());
-            }
-        });
-
-        add(toolbar, BorderLayout.NORTH);
-    }
-
-    public void handleSave(){
-        dispose();
-        controller.saveSheetToServer(cells, ((Spreadsheet) cells).getName());
-        System.out.println(((Spreadsheet) cells).getName());
-        makeVisible();
     }
 
     public void loadChanges() throws Exception {
@@ -154,31 +86,8 @@ public class ReviewChangesSheetView extends SheetView {
         JTable table = getTable();
         if (table != null) {
             for (int i = 0; i < table.getColumnCount(); i++) {
-                table.getColumnModel().getColumn(i).setCellRenderer(new CustomCellRenderer());
+                table.getColumnModel().getColumn(i).setCellRenderer(new ReviewChangesRenderer(originalCells, changes));
             }
-        }
-    }
-
-    private class CustomCellRenderer extends DefaultTableCellRenderer {
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            Component cellComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-            if (column > 0) { // Skip the row header
-                int modelColumn = column - 1; // Adjust for row header
-                Cell currentCell = originalCells.get(row).get(modelColumn);
-                Cell changeCell = changes.getCells().get(row).get(modelColumn);
-
-                System.out.print("Current: " + currentCell.getRawdata());
-                System.out.println(",       Change: " + changeCell.getRawdata());
-                if (!currentCell.getRawdata().equals(changeCell.getRawdata())) {
-                    cellComponent.setBackground(Color.YELLOW); // Highlight changed cells
-                } else {
-                    cellComponent.setBackground(Color.WHITE); // Default color for unchanged cells
-                }
-            }
-
-            return cellComponent;
         }
     }
 }

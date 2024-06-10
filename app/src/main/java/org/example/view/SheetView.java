@@ -5,18 +5,16 @@ import org.example.model.Cell;
 import org.example.model.IReadOnlySpreadSheet;
 import org.example.model.ISpreadsheet;
 import org.example.model.SelectedCells;
-import org.example.model.Spreadsheet;
+import org.example.view.button.*;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,21 +23,23 @@ import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 /**
  * The SheetView class represents the view for displaying and interacting with a spreadsheet.
  */
-public class SheetView extends JFrame implements ISheetView {
-    final IReadOnlySpreadSheet cells; // The spreadsheet data
-    IUserController controller; // Controller for handling user actions
-    JButton backButton; // Button to go back to the previous view
-    JTable yourTable; // Table to display the spreadsheet data
-    boolean isUpdatingTable = false; // Flag to check if the table is being updated
-    JTextField formulaTextField; // Text field to display/edit the formula of the selected cell
+public class SheetView extends SheetViewFactory<SheetView> implements ISheetView {
+    public IReadOnlySpreadSheet cells; // The spreadsheet data
+    protected IUserController controller; // Controller for handling user actions
+    protected JButton backButton; // Button to go back to the previous view
+    public JTable yourTable; // Table to display the spreadsheet data
+    protected boolean isUpdatingTable = false; // Flag to check if the table is being updated
+    protected JTextField formulaTextField; // Text field to display/edit the formula of the selected cell
 
-    private static final int rowSize = 100; // Number of rows in the table
-    private static final int colSize = 100; // Number of columns in the table
+    protected static final int rowSize = 100; // Number of rows in the table
+    protected static final int colSize = 100; // Number of columns in the table
     public static final Color PINK = new Color(255, 192, 203); // Color constant for pink
     public static final Color GREEN = new Color(0, 255, 0); // Color constant for green
 
-    private final Map<Point, Color> highlightedCells = new HashMap<>(); // Map to store highlighted cells
-    private SelectedCells selectedCells; // Object to store selected cell range
+    public String publisher;
+    protected final Map<Point, Color> highlightedCells = new HashMap<>(); // Map to store highlighted cells
+    protected SelectedCells selectedCells; // Object to store selected cell range
+
 
     /**
      * Constructs a SheetView with the given spreadsheet.
@@ -99,7 +99,7 @@ public class SheetView extends JFrame implements ISheetView {
         yourTable.setShowGrid(true);
 
         // Set custom cell renderer
-        yourTable.setDefaultRenderer(Object.class, new CustomTableCellRenderer(highlightedCells));
+        yourTable.setDefaultRenderer(Object.class, new HighlightedCellRenderer(highlightedCells));
 
         // Add key listener for delete and digit keys
         yourTable.addKeyListener(new KeyAdapter() {
@@ -160,6 +160,7 @@ public class SheetView extends JFrame implements ISheetView {
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         add(scrollPane, BorderLayout.CENTER);
+        build();
     }
 
     /**
@@ -206,77 +207,19 @@ public class SheetView extends JFrame implements ISheetView {
      * Creates the toolbar for the SheetView.
      */
     public void makeToolbar() {
-        JToolBar toolbar = new JToolBar();
-        JButton cutButton = new JButton("Cut");
-        JButton copyButton = new JButton("Copy");
-        JButton pasteButton = new JButton("Paste");
-        JButton saveButton = new JButton("Save");
-        JButton zoomInButton = new JButton("Zoom In");
-        JButton zoomOutButton = new JButton("Zoom Out");
-        JButton getUpdates = new JButton("Get Updates");
-        JButton conditionalFormattingButton = new JButton("Add Conditional Formatting");
-        backButton = new JButton("Back");
         formulaTextField = new JTextField(20);
         formulaTextField.setEditable(true);
-
-        toolbar.add(new JLabel("Formula:"));
-        toolbar.add(formulaTextField);
-        toolbar.add(cutButton);
-        toolbar.add(copyButton);
-        toolbar.add(pasteButton);
-        toolbar.add(getUpdates);
-        toolbar.add(zoomInButton);
-        toolbar.add(zoomOutButton);
-        toolbar.add(saveButton);
-        toolbar.add(conditionalFormattingButton);
-        toolbar.add(backButton);
-
-        cutButton.addActionListener(new ToolbarButtonListener(this));
-        copyButton.addActionListener(new ToolbarButtonListener(this));
-        pasteButton.addActionListener(new ToolbarButtonListener(this));
-        saveButton.addActionListener(new ToolbarButtonListener(this));
-        backButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose(); // Close the current view
-                IHomeView homeView = controller.getHomeView();
-                homeView.updateSavedSheets();
-                homeView.makeVisible();
-            }
-        });
-
-        getUpdates.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    dispose();
-                    controller.getUpdatesForPublished(cells.getName(), cells.getId_version());
-                } catch (Exception j) {
-                    JOptionPane.showMessageDialog(null, j.getMessage());
-                }
-            }
-        });
-
-        zoomInButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                zoomTable(1.1);
-            }
-        });
-
-        zoomOutButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                zoomTable(0.9);
-            }
-        });
-
-        conditionalFormattingButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                controller.applyConditionalFormatting();
-            }
-        });
+        this.addComponent(new JLabel("Formula"))
+                .addComponent(formulaTextField)
+                .addComponent(new Cut(this))
+                .addComponent(new Copy(this))
+                .addComponent(new Paste(this))
+                .addComponent(new ZoomI(this))
+                .addComponent(new ZoomO(this))
+                .addComponent(new GetUpdates(this))
+                .addComponent(new SavePublisher(this))
+                .addComponent(new AddConditionalFormat(this))
+                .addComponent(new Back(this));
 
         formulaTextField.addActionListener(new ActionListener() {
             @Override
@@ -285,9 +228,6 @@ public class SheetView extends JFrame implements ISheetView {
                         controller.getSelectedCol(), formulaTextField.getText());
             }
         });
-
-        add(toolbar, BorderLayout.NORTH);
-
         revalidate();
         repaint();
     }
@@ -337,6 +277,7 @@ public class SheetView extends JFrame implements ISheetView {
     @Override
     public void addController(IUserController controller) {
         this.controller = controller;
+        this.publisher = controller.getAppUser().getUsername();
     }
 
     /**
@@ -416,32 +357,6 @@ public class SheetView extends JFrame implements ISheetView {
         }
     }
 
-    /**
-     * Handles the save action.
-     */
-    public void handleSave() {
-        int option = JOptionPane.showOptionDialog(
-                null,
-                "Choose where to save the sheet:",
-                "Save Option",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                new Object[]{"Save Locally", "Save to Server"},
-                "Save Locally");
-
-        if (option == JOptionPane.YES_OPTION) {
-            JFileChooser fileChooser = new JFileChooser();
-            int returnValue = fileChooser.showSaveDialog(null);
-            if (returnValue == JFileChooser.APPROVE_OPTION) {
-                File selectedFile = fileChooser.getSelectedFile();
-                controller.saveSheetToServer(cells, selectedFile.getAbsolutePath());
-            }
-        } else if (option == JOptionPane.NO_OPTION) {
-            controller.saveSheetToServer(cells, cells.getName());
-            makeVisible();
-        }
-    }
 
     /**
      * Displays a message in a dialog box.
@@ -458,7 +373,7 @@ public class SheetView extends JFrame implements ISheetView {
      *
      * @param factor the zoom factor.
      */
-    void zoomTable(double factor) {
+    public void zoomTable(double factor) {
         Font tableFont = yourTable.getFont();
         float newSize = (float) (tableFont.getSize() * factor);
         yourTable.setFont(tableFont.deriveFont(newSize));
@@ -475,117 +390,15 @@ public class SheetView extends JFrame implements ISheetView {
     public void loadChanges() throws Exception {
     }
 
-    /**
-     * The ToolbarButtonListener class handles toolbar button actions.
-     */
-    class ToolbarButtonListener implements ActionListener {
-        private SheetView view;
-
-        ToolbarButtonListener(SheetView view) {
-            this.view = view;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String command = e.getActionCommand();
-
-            if (command.equals("Cut")) {
-                int selRow = view.yourTable.getSelectedRow();
-                int selCol = view.yourTable.getSelectedColumn();
-                if (selRow != -1 && selCol != -1 && selCol != 0) {
-                    view.getController().cutCell(selRow, selCol - 1);
-                }
-            } else if (command.equals("Copy")) {
-                int selRow = view.yourTable.getSelectedRow();
-                int selCol = view.yourTable.getSelectedColumn();
-                if (selRow != -1 && selCol != -1 && selCol != 0) {
-                    view.getController().copyCell(selRow, selCol - 1);
-                }
-            } else if (command.equals("Paste")) {
-                int selRow = view.yourTable.getSelectedRow();
-                int selCol = view.yourTable.getSelectedColumn();
-                if (selRow != -1 && selCol != -1 && selCol != 0) {
-                    view.getController().pasteCell(selRow, selCol - 1);
-                }
-            } else if (command.equals("Save")) {
-                int option = JOptionPane.showOptionDialog(
-                        null,
-                        "Choose where to save the sheet:",
-                        "Save Option",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE,
-                        null,
-                        new Object[]{"Save Locally", "Save to Server"},
-                        "Save Locally");
-
-                if (option == JOptionPane.YES_OPTION) {
-                    JFileChooser fileChooser = new JFileChooser();
-                    int returnValue = fileChooser.showSaveDialog(null);
-                    if (returnValue == JFileChooser.APPROVE_OPTION) {
-                        File selectedFile = fileChooser.getSelectedFile();
-                        this.view.save(selectedFile.getAbsolutePath());
-                    }
-                } else if (option == JOptionPane.NO_OPTION) {
-                    this.view.getController().saveSheetToServer(this.view.cells,
-                            ((Spreadsheet) this.view.cells).getName());
-                }
-            }
-        }
+    @Override
+    protected SheetView returnView() {
+        return this;
     }
 
-    /**
-     * The RightClickButtonListener class handles right-click button actions.
-     */
-    class RightClickButtonListener implements ActionListener {
-        private SheetView view;
-
-        RightClickButtonListener(SheetView view) {
-            this.view = view;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String command = e.getActionCommand();
-            int row = this.view.yourTable.getSelectedRow();
-            int col = this.view.yourTable.getSelectedColumn() - 1;
-
-            if (command.equals("Percentile")) {
-                this.view.getController().getPercentile(row, col);
-            }
-
-            this.view.updateTable();
-        }
+    @Override
+    protected SheetView build() {
+        this.add(toolBar, BorderLayout.NORTH);
+        return this;
     }
 
-    /**
-     * The CustomTableCellRenderer class customizes the rendering of table cells.
-     */
-    class CustomTableCellRenderer extends DefaultTableCellRenderer {
-        private final Map<Point, Color> highlightedCells;
-
-        /**
-         * Constructs a CustomTableCellRenderer with the specified highlighted cells.
-         *
-         * @param highlightedCells the highlighted cells.
-         */
-        public CustomTableCellRenderer(Map<Point, Color> highlightedCells) {
-            this.highlightedCells = highlightedCells;
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            Point cellLocation = new Point(row, column);
-            Color highlightColor = highlightedCells.get(cellLocation);
-            if (highlightColor != null) {
-                c.setBackground(highlightColor);
-            } else {
-                c.setBackground(Color.WHITE);
-            }
-            if (isSelected) {
-                c.setBackground(Color.CYAN);
-            }
-            return c;
-        }
-    }
 }
