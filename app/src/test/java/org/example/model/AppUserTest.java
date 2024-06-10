@@ -43,6 +43,44 @@ public class AppUserTest {
     }
 
     @Test
+    public void testRemoveNonExistentSheet() {
+        this.user.addSheet("Sheet1");
+        this.user.addSheet("Sheet2");
+        assertEquals(2, this.user.getSheets().size());
+
+        this.user.removeSheet("Sheet3");
+        assertEquals(2, this.user.getSheets().size());
+        assertEquals("Sheet1", this.user.getSheets().get(0).getName());
+        assertEquals("Sheet2", this.user.getSheets().get(1).getName());
+    }
+
+    @Test
+    public void testRemoveSheetFromEmptyList() {
+        assertEquals(0, this.user.getSheets().size());
+
+        this.user.removeSheet("Sheet1");
+        assertEquals(0, this.user.getSheets().size());
+    }
+
+    @Test
+    public void testRemoveAllSheetsOneByOne() {
+        this.user.addSheet("Sheet1");
+        this.user.addSheet("Sheet2");
+        this.user.addSheet("Sheet3");
+        assertEquals(3, this.user.getSheets().size());
+
+        this.user.removeSheet("Sheet1");
+        assertEquals(2, this.user.getSheets().size());
+        this.user.removeSheet("Sheet2");
+        assertEquals(1, this.user.getSheets().size());
+        this.user.removeSheet("Sheet3");
+        assertEquals(0, this.user.getSheets().size());
+    }
+
+
+
+
+    @Test
     public void testDoesSheetExist() {
         assertFalse(this.user.doesSheetExist("Sheet1"));
 
