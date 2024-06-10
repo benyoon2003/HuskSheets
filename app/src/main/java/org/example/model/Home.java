@@ -277,13 +277,15 @@ public class Home implements IHome {
     private String trimEnds(String s) {
         String result = new StringBuilder(s).reverse().toString();
 
-        if (result.contains("\\"))
+        if (result.contains("\\")) {
             result = result.substring(0, result.indexOf('\\'));
-        else
+        } else if (result.contains("/")) {
             result = result.substring(0, result.indexOf('/'));
+        }
         result = new StringBuilder(result).reverse().toString();
-        if (result.endsWith(".xml"))
-            result = result.substring(0, result.indexOf('.'));
+        if (result.endsWith(".xml")) {
+            result = result.substring(0, result.lastIndexOf('.'));
+        }
 
         return result;
     }

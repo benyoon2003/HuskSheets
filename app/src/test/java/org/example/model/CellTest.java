@@ -24,6 +24,14 @@ public class CellTest {
     }
 
     @Test
+    public void testConstructorWithFormula() {
+        String formula = "=SUM(A1:A10)";
+        Cell cell = new Cell(formula);
+        assertEquals(formula, cell.getValue(), "Constructor should initialize value to the provided formula");
+        assertEquals(formula, cell.getFormula(), "Constructor should initialize formula to the provided formula");
+    }
+
+    @Test
     public void testSetValue() {
         Cell cell = new Cell();
         
@@ -45,6 +53,28 @@ public class CellTest {
     }
 
     @Test
+    public void testSetAndGetRow() {
+        Cell cell = new Cell();
+        cell.setRow(5);
+        assertEquals(5, cell.getRow(), "getRow should return the row index that was set");
+    }
+
+    @Test
+    public void testSetAndGetCol() {
+        Cell cell = new Cell();
+        cell.setCol(3);
+        assertEquals(3, cell.getCol(), "getCol should return the column index that was set");
+    }
+
+    @Test
+    public void testSetAndGetRawData() {
+        Cell cell = new Cell();
+        String rawData = "Raw data";
+        cell.setRawData(rawData);
+        assertEquals(rawData, cell.getRawdata(), "getRawdata should return the raw data that was set");
+    }
+
+    @Test
     public void testGetAndSetPositions() {
         Cell cell = new Cell("");
         cell.setRow(0);
@@ -61,5 +91,16 @@ public class CellTest {
 
         cell.setValue("= 2 + 2");
         assertTrue(cell.isFormula(), "Cell is now a formula, should return true");
+    }
+
+    @Test
+    public void testSetFormula() {
+        Cell cell = new Cell();
+        assertEquals("", cell.getFormula(), "Cell formula should be empty");
+
+        String formula = "=SUM(A1:A10)";
+        cell.setFormula(formula);
+
+        assertEquals(formula, cell.getFormula(), "setFormula should update the formula field");
     }
 }
