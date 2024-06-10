@@ -64,9 +64,9 @@ public class Home implements IHome {
                                              int maxCol, String path) {
         // Create 2D cell array
         ArrayList<ArrayList<Cell>> cellArray = new ArrayList<>();
-        for (int i = 0; i <= maxRow; i++) {
+        for (int i = 0; i < 100; i++) {
             ArrayList<Cell> row = new ArrayList<>();
-            for (int j = 0; j <= maxCol; j++) {
+            for (int j = 0; j < 100; j++) {
                 Cell c = new Cell();
                 c.setRow(i);
                 c.setCol(j);
@@ -83,7 +83,7 @@ public class Home implements IHome {
             String value = cellElement.getTextContent();
             cellArray.get(row).get(col).setValue(value);
         }
-        return new Spreadsheet(cellArray, path);
+        return new Spreadsheet(cellArray, trimEnds(path));
     }
 
     /**

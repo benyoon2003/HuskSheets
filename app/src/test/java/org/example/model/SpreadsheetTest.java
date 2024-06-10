@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SpreadsheetTest {
@@ -19,6 +20,42 @@ public class SpreadsheetTest {
     public void testConstructor() {
         assertEquals(100, spreadsheet.getRows(), "Constructor should initialize 100 rows");
         assertEquals(100, spreadsheet.getCols(), "Constructor should initialize 100 columns");
+    }
+
+    @Test
+    public void testConstructorExistingGrid() {
+        ArrayList<ArrayList<Cell>> grid = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            ArrayList<Cell> row = new ArrayList<>();
+            for (int j = 0; j < 100; j++) {
+                row.add(new Cell(""));
+            }
+            grid.add(row);
+        }
+        grid.get(0).get(0).setValue("00");
+        grid.get(0).get(1).setValue("01");
+        grid.get(1).get(0).setValue("10");
+        grid.get(1).get(1).setValue("11");
+
+        spreadsheet = new Spreadsheet(grid, "Test");
+
+        assertNotNull(spreadsheet);
+        assertEquals("00", spreadsheet.getCellValue(0, 0));
+        assertEquals("01", spreadsheet.getCellValue(0, 1));
+        assertEquals("10", spreadsheet.getCellValue(1, 0));
+        assertEquals("11", spreadsheet.getCellValue(1, 1));
+    }
+
+    @Test
+    public void testConvertSheetToPayload() {
+        spreadsheet.setCellRawdata(0, 0, "00");
+        spreadsheet.setCellRawdata(0, 1, "01");
+        spreadsheet.setCellRawdata(1, 0, "10");
+        spreadsheet.setCellRawdata(1, 1, "11");
+
+        String payload = Spreadsheet.convertSheetToPayload(spreadsheet);
+
+        assertEquals("$A1 00\\n$B1 01\\n$A2 10\\n$B2 11\\n", payload);
     }
 
     @Test
@@ -61,18 +98,18 @@ public class SpreadsheetTest {
         assertEquals("not a formula", spreadsheet.evaluateFormula("= not a formula"));
     }
 
-   @Test
-   public void testEvaluateFormulaArithmetic() {
-       assertEquals("4", spreadsheet.evaluateFormula("= 2 + 2"));
-       assertEquals("4", spreadsheet.evaluateFormula("= 6 - 2"));
-       assertEquals("4", spreadsheet.evaluateFormula("= 2 * 2"));
-       assertEquals("4", spreadsheet.evaluateFormula("= 8 / 2"));
+    @Test
+    public void testEvaluateFormulaArithmetic() {
+        assertEquals("4", spreadsheet.evaluateFormula("= 2 + 2"));
+        assertEquals("4", spreadsheet.evaluateFormula("= 6 - 2"));
+        assertEquals("4", spreadsheet.evaluateFormula("= 2 * 2"));
+        assertEquals("4", spreadsheet.evaluateFormula("= 8 / 2"));
 
-       assertEquals("Error", spreadsheet.evaluateFormula("= e + 2"));
-       assertEquals("Error", spreadsheet.evaluateFormula("= e - 2"));
-       assertEquals("Error", spreadsheet.evaluateFormula("= e * 2"));
-       assertEquals("Error", spreadsheet.evaluateFormula("= e / 2"));
-   }
+        assertEquals("Error", spreadsheet.evaluateFormula("= e + 2"));
+        assertEquals("Error", spreadsheet.evaluateFormula("= e - 2"));
+        assertEquals("Error", spreadsheet.evaluateFormula("= e * 2"));
+        assertEquals("Error", spreadsheet.evaluateFormula("= e / 2"));
+    }
 
     @Test
     public void testEvaluateFormulaComparisons() {
@@ -180,13 +217,7 @@ public class SpreadsheetTest {
         spreadsheet.setCellValue(3, 0, "-1");
         spreadsheet.setCellValue(4, 0, "5");
 
-        spreadsheet.evaluateFormula("=SORT($A1:$A5)");
-
-        assertEquals("-1.0", spreadsheet.getCellValue(5, 0));
-        assertEquals("2.0", spreadsheet.getCellValue(6, 0));
-        assertEquals("3.0", spreadsheet.getCellValue(7, 0));
-        assertEquals("5.0", spreadsheet.getCellValue(8, 0));
-        assertEquals("13.0", spreadsheet.getCellValue(9, 0));
+        assertEquals("-1.0,2.0,3.0,5.0,13.0", spreadsheet.evaluateFormula("=SORT($A1:$A5)"));
     }
 
     @Test
@@ -197,8 +228,6 @@ public class SpreadsheetTest {
         spreadsheet.setCellValue(3, 0, "-1");
         spreadsheet.setCellValue(4, 0, "5");
 
-        spreadsheet.evaluateFormula("=SORT($A1:$A5)");
-
-        assertEquals("", spreadsheet.getCellValue(5, 0));
+        assertEquals("Error", spreadsheet.evaluateFormula("=SORT($A1:$A5)"));
     }
 }
