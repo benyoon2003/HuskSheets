@@ -177,6 +177,9 @@ public class SpreadsheetTest {
     public void testEvaluateFormulaSUM() {
         assertEquals("10.0", spreadsheet.evaluateFormula("=SUM(1,2,3,4)"));
         assertEquals("Error", spreadsheet.evaluateFormula("=SUM(e,2,3,4)"));
+
+        assertEquals("5.0", spreadsheet.evaluateFormula("=SUM(SUM(1,1),1,2)"));
+        assertEquals("5.0", spreadsheet.evaluateFormula("=SUM(SUM(1,1),SUM(1,2))"));
     }
 
     @Test

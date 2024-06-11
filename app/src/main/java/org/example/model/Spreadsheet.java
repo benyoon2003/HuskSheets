@@ -655,6 +655,7 @@ public class Spreadsheet implements ISpreadsheet {
         if (parts.length != 3) {
             return "Error";
         }
+
         String condition = replaceCellReferences(parts[0].trim());
         String trueResult = replaceCellReferences(parts[1].trim());
         String falseResult = replaceCellReferences(parts[2].trim());
@@ -678,6 +679,24 @@ public class Spreadsheet implements ISpreadsheet {
         double sum = 0;
         try {
             for (String part : parts) {
+                String func = getFunction(part);
+                if (func != "" && part.contains("(")) {
+                    int index = parameters.indexOf("(", parameters.indexOf(part));
+                    String nestedParameters = "";
+                    while (!nestedParameters.contains(")")) {
+                        nestedParameters += parameters.charAt(index);
+                        index += 1;
+                    }
+                    func += nestedParameters;
+                    if (func.length() + parameters.indexOf(part) >= parameters.length()) {
+                        return "Error";
+                    }
+                    parameters = parameters.substring(index) + 1;
+                    part = parseOperations(func);
+                } else if (!part.contains("(") && part.contains(")")) {
+                    continue;
+                }
+
                 sum += Double.parseDouble(replaceCellReferences(part.trim()));
             }
             return String.valueOf(sum);
@@ -786,19 +805,19 @@ public class Spreadsheet implements ISpreadsheet {
      * @return the result of the STDDEV function.
      */
     private String evaluateSTDDEV(String parameter) {
-        String[] nums = parameter.split(",");
+        String[] parts = parameter.split(",");
         double sum = 0;
 
         try {
             double avg = Double.parseDouble(evaluateAVG(parameter));
-            for (String num : nums) {
-                sum += Math.pow(Double.parseDouble(replaceCellReferences(num)) - avg, 2);
+            for (String part : parts) {
+                sum += Math.pow(Double.parseDouble(replaceCellReferences(part)) - avg, 2);
             }
         } catch (NumberFormatException e) {
             return "Error";
         }
 
-        double result = Math.pow(sum / nums.length, 0.5);
+        double result = Math.pow(sum / parts.length, 0.5);
         return "" + (double) Math.round(result * 1000) / 1000;
     }
 
@@ -809,11 +828,11 @@ public class Spreadsheet implements ISpreadsheet {
      * @return the result of the SORT function.
      */
     private String evaluateSORT(String parameter) {
-        String[] s = parameter.split(",");
-        double[] nums = new double[s.length];
+        String[] parts = parameter.split(",");
+        double[] nums = new double[parts.length];
         try {
             for (int i = 0; i < nums.length; i++) {
-                nums[i] = Double.parseDouble(replaceCellReferences(s[i]));
+                nums[i] = Double.parseDouble(replaceCellReferences(parts[i]));
             }
         } catch (NumberFormatException e) {
             return "Error";
