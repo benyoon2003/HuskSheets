@@ -6,7 +6,7 @@ DOCKER_IMAGE = husksheets-image
 
 # Default target
 .PHONY: all
-all: build
+all: create-build-dir build
 
 # Use Gradle to build the project
 .PHONY: build
@@ -24,12 +24,13 @@ run:
 	$(GRADLEW) bootRun
 
 # Create build directory if it doesn't exist
-$(BUILD_DIR):
+.PHONY: create-build-dir
+create-build-dir:
 	@if not exist $(BUILD_DIR) mkdir $(BUILD_DIR)
 
 # Docker build
 .PHONY: docker-build
-docker-build:
+docker-build: build
 	docker build -t $(DOCKER_IMAGE) .
 
 # Docker run with command-line arguments
@@ -40,4 +41,4 @@ docker-run:
 # Run the main class with arguments
 .PHONY: run-with-args
 run-with-args:
-	$(GRADLEW) bootRun --args='--local --name="$(USERNAME)" --password="$(PASSWORD)" --verbose --url="https://husksheets.fly.dev" --publisher="team2" --sheet="Sheet1"'
+	$(GRADLEW) bootRun --args="--local --name='$(USERNAME)' --password='$(PASSWORD)' --verbose --url='https://husksheets.fly.dev' --publisher='team2' --sheet='Sheet1'"
