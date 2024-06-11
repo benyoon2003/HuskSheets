@@ -21,7 +21,7 @@ import java.util.List;
 public class Server {
 
     //List of all available users
-    private List<IAppUser> availUsers = new ArrayList<>();
+    List<IAppUser> availUsers = new ArrayList<>();
 
     /**
      * Decodes the basic authentication and returns a String array of the credentials.
@@ -46,7 +46,8 @@ public class Server {
      * @author Tony
      */
     private void validateCredentials(String[] credentials) {
-        if (credentials == null || credentials.length != 2) {
+        if (credentials == null || credentials.length != 2
+                || credentials[0].isEmpty() || credentials[1].isEmpty()) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
         }
     }
@@ -127,16 +128,22 @@ public class Server {
      */
     @GetMapping("/getPublishers")
     public ResponseEntity<?> getPublishers(@RequestHeader("Authorization") String authHeader) {
+        String[] credentials = decodeBasicAuth(authHeader);
         try {
-            String[] credentials = decodeBasicAuth(authHeader);
             validateCredentials(credentials);
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(401).body(new Result(
                     false, e.getMessage(), new ArrayList<>()));
         }
+        String username = credentials[0];
+        IAppUser user = findUser(username);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
+                    false, "User not found", new ArrayList<>()));
+        }
         List<Argument> listOfArgument = new ArrayList<>();
-        for (IAppUser user : availUsers) {
-            listOfArgument.add(new Argument(user.getUsername(), null, null, null));
+        for (IAppUser appUser : availUsers) {
+            listOfArgument.add(new Argument(appUser.getUsername(), null, null, null));
         }
         return ResponseEntity.ok(new Result(
                 true, null, listOfArgument));
@@ -218,7 +225,7 @@ public class Server {
                     false, "Sheet does not exist: " + sheet, new ArrayList<>()));
         } else {
             user.removeSheet(sheet);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new Result(
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(new Result(
                     true, "Sheet deleted successfully", new ArrayList<>()));
         }
     }
