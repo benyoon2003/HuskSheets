@@ -8,7 +8,7 @@ import java.awt.event.ActionListener;
 public class RightClickButtonListener implements ActionListener {
     private SheetView view;
 
-    RightClickButtonListener(SheetView view) {
+    public RightClickButtonListener(SheetView view) {
         this.view = view;
     }
 

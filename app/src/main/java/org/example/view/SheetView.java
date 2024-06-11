@@ -59,143 +59,22 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
         setTitle("Spreadsheet");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
         makeToolbar(); // Create the toolbar
-
-        // Initialize data array with cell values
-        Object[][] data = new Object[rowSize][colSize];
-        Cell[][] cellRef = this.cells.getCellsObject();
-
-        for (Cell[] row : cellRef) {
-            for (Cell c : row) {
-                data[c.getRow()][c.getCol()] = c.getValue();
-            }
-        }
-
-        // Initialize column names
-        String[] columnNames = new String[colSize + 1];
-        columnNames[0] = "";
-        for (int i = 1; i <= colSize; i++) {
-            columnNames[i] = getExcelColumnName(i);
-        }
-
-        // Create table model
-        DefaultTableModel tableModel = new DefaultTableModel(data, columnNames) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return column != 0; // Make all columns except the first one editable
-            }
-        };
-
-        // Set row headers
-        for (int i = 0; i < rowSize; i++) {
-            tableModel.setValueAt(i + 1, i, 0);
-        }
-
-        // Initialize table with the model
-        yourTable = new JTable(tableModel);
-        yourTable.setSelectionMode(MULTIPLE_INTERVAL_SELECTION);
-        yourTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        yourTable.setCellSelectionEnabled(true);
-        yourTable.setShowGrid(true);
-
-        // Set custom cell renderer
-        yourTable.setDefaultRenderer(Object.class, new HighlightedCellRenderer(highlightedCells));
-
-        // Add panel for right-clicks
-        JPanel rightClickPanel = new JPanel(new GridLayout(1, 1));
-        rightClickPanel.setSize(new Dimension(100, 15));
-
-        // Add buttons to right-click panel
-        JButton percentiles = new JButton("Percentile");
-        percentiles.setPreferredSize(new Dimension(100, 15));
-        percentiles.addActionListener(new RightClickButtonListener(this));
-        percentiles.setVisible(rightClickPanel.isVisible());
-        rightClickPanel.add(percentiles);
-
-        rightClickPanel.setVisible(false);
-        yourTable.add(rightClickPanel);
-
-        yourTable.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON3) { // For right-clicks
-                    int row = yourTable.rowAtPoint(e.getPoint());
-                    int col = yourTable.columnAtPoint(e.getPoint());
-                    if (row >= 0 && row < rowSize && col >= 1 && col < colSize) {
-                        rightClickPanel.setLocation(e.getX(), e.getY());
-                        rightClickPanel.setVisible(true);
-                    }
-                } else if (e.getButton() == MouseEvent.BUTTON1) { // For left-clicks
-                    if (rightClickPanel.isVisible()) {
-                        rightClickPanel.setVisible(false);
-                    }
-                }
-            }
-        });
-
-        // Add key listener for delete and digit keys
-        yourTable.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_DELETE || e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-                    System.out.println(
-                            e.getKeyCode() == KeyEvent.VK_DELETE ? "Delete key pressed" : "Backspace key pressed");
-                    controller.updateSelectedCells(""); // Pass an empty string to clear cells
-                } else if (Character.isDigit(e.getKeyChar())) {
-                    System.out.println("Digit key pressed: " + e.getKeyChar());
-                    controller.updateSelectedCells(String.valueOf(e.getKeyChar()));
-                }
-            }
-        });
-
-        // Add selection listener for row selection
-        yourTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    int[] selectedRows = yourTable.getSelectedRows();
-                    int[] selectedColumns = yourTable.getSelectedColumns();
-                    controller.setSelectedCells(selectedRows, selectedColumns);
-                }
-            }
-        });
-
-        // Add selection listener for column selection
-        yourTable.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    int[] selectedRows = yourTable.getSelectedRows();
-                    int[] selectedColumns = yourTable.getSelectedColumns();
-                    controller.setSelectedCells(selectedRows, selectedColumns);
-                }
-            }
-        });
-
-        // Add table model listener for data changes
-        yourTable.getModel().addTableModelListener(new TableModelListener() {
-            @Override
-            public void tableChanged(TableModelEvent e) {
-                if (!isUpdatingTable) {
-                    int selRow = e.getFirstRow();
-                    int selCol = e.getColumn();
-                    if (selRow != -1 && selCol != -1 && selCol != 0) {
-                        String val = String.valueOf(yourTable.getValueAt(selRow, selCol));
-                        controller.changeSpreadSheetValueAt(selRow, selCol - 1, val);
-                    }
-                }
-            }
-        });
-
-        // Add table to scroll pane
-        JScrollPane scrollPane = new JScrollPane(yourTable);
-        scrollPane.setPreferredSize(new Dimension(800, 600));
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        add(scrollPane, BorderLayout.CENTER);
-        build();
+        Object[][] data = initializeData();
+        initializeColumnNames();
+        String[] columnNames = initializeColumnNames();
+        DefaultTableModel tableModel = createTableModel(data, columnNames);
+        setRowHeaders(tableModel);
+        initalizeTableModel(tableModel);
+        JPanel rightClickPanel = configureCells();
+        addMouseListener(rightClickPanel);
+        listenForDelete();
+        listenForSelectionRow();
+        listenForSelectionCol();
+        listenForDataChanges();
+        addTableToScroll();
     }
+
 
     /**
      * Handles the selection of cells in the table.
@@ -240,7 +119,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
     /**
      * Creates the toolbar for the SheetView.
      */
-    public void makeToolbar() {
+    protected void makeToolbar() {
         formulaTextField = new JTextField(20);
         formulaTextField.setEditable(true);
         this.addComponent(new JLabel("Formula"))
@@ -435,24 +314,160 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
         return this;
     }
 
-    class RightClickButtonListener implements ActionListener {
-        private SheetView view;
+    protected Object[][] initializeData(){
+        // Initialize data array with cell values
+        Object[][] data = new Object[rowSize][colSize];
+        Cell[][] cellRef = this.cells.getCellsObject();
 
-        RightClickButtonListener(SheetView view) {
-            this.view = view;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String command = e.getActionCommand();
-            int row = this.view.yourTable.getSelectedRow();
-            int col = this.view.yourTable.getSelectedColumn() - 1;
-
-            if (command.equals("Percentile")) {
-                this.view.getController().getPercentile(row, col);
+        for (Cell[] row : cellRef) {
+            for (Cell c : row) {
+                data[c.getRow()][c.getCol()] = c.getValue();
             }
+        }
+        return data;
+    }
 
-            this.view.updateTable();
+    protected String[] initializeColumnNames(){
+        // Initialize column names
+        String[] columnNames = new String[colSize + 1];
+        columnNames[0] = "";
+        for (int i = 1; i <= colSize; i++) {
+            columnNames[i] = getExcelColumnName(i);
+        }
+        return columnNames;
+    }
+
+    protected JPanel configureCells(){
+        // Set custom cell renderer
+        yourTable.setDefaultRenderer(Object.class, new HighlightedCellRenderer(highlightedCells));
+
+        // Add panel for right-clicks
+        JPanel rightClickPanel = new JPanel(new GridLayout(1, 1));
+        rightClickPanel.setSize(new Dimension(100, 15));
+
+        // Add buttons to right-click panel
+        JButton percentiles = new JButton("Percentile");
+        percentiles.setPreferredSize(new Dimension(100, 15));
+        percentiles.addActionListener(new RightClickButtonListener(this));
+        percentiles.setVisible(rightClickPanel.isVisible());
+        rightClickPanel.add(percentiles);
+        rightClickPanel.setVisible(false);
+
+        yourTable.add(rightClickPanel);
+        return rightClickPanel;
+    }
+    protected void initalizeTableModel(DefaultTableModel tableModel) {
+        // Initialize table with the model
+        yourTable = new JTable(tableModel);
+        yourTable.setSelectionMode(MULTIPLE_INTERVAL_SELECTION);
+        yourTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        yourTable.setCellSelectionEnabled(true);
+        yourTable.setShowGrid(true);
+    }
+    protected void setRowHeaders(DefaultTableModel tableModel){
+        // Set row headers
+        for (int i = 0; i < rowSize; i++) {
+            tableModel.setValueAt(i + 1, i, 0);
         }
     }
+    protected void addMouseListener(JPanel rightClickPanel) {
+        yourTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON3) { // For right-clicks
+                    int row = yourTable.rowAtPoint(e.getPoint());
+                    int col = yourTable.columnAtPoint(e.getPoint());
+                    if (row >= 0 && row < rowSize && col >= 1 && col < colSize) {
+                        rightClickPanel.setLocation(e.getX(), e.getY());
+                        rightClickPanel.setVisible(true);
+                    }
+                } else if (e.getButton() == MouseEvent.BUTTON1) { // For left-clicks
+                    if (rightClickPanel.isVisible()) {
+                        rightClickPanel.setVisible(false);
+                    }
+                }
+            }
+        });
+    }
+    protected void listenForDelete(){
+        // Add key listener for delete and digit keys
+        yourTable.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_DELETE || e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+                    System.out.println(
+                            e.getKeyCode() == KeyEvent.VK_DELETE ? "Delete key pressed" : "Backspace key pressed");
+                    controller.updateSelectedCells(""); // Pass an empty string to clear cells
+                } else if (Character.isDigit(e.getKeyChar())) {
+                    System.out.println("Digit key pressed: " + e.getKeyChar());
+                    controller.updateSelectedCells(String.valueOf(e.getKeyChar()));
+                }
+            }
+        });
+    }
+    protected void listenForSelectionRow(){
+        // Add selection listener for row selection
+        yourTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    int[] selectedRows = yourTable.getSelectedRows();
+                    int[] selectedColumns = yourTable.getSelectedColumns();
+                    controller.setSelectedCells(selectedRows, selectedColumns);
+                }
+            }
+        });
+    }
+    protected void listenForSelectionCol(){
+        // Add selection listener for column selection
+        yourTable.getColumnModel().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    int[] selectedRows = yourTable.getSelectedRows();
+                    int[] selectedColumns = yourTable.getSelectedColumns();
+                    controller.setSelectedCells(selectedRows, selectedColumns);
+                }
+            }
+        });
+    }
+    protected void listenForDataChanges(){
+        // Add table model listener for data changes
+        yourTable.getModel().addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                if (!isUpdatingTable) {
+                    int selRow = e.getFirstRow();
+                    int selCol = e.getColumn();
+                    if (selRow != -1 && selCol != -1 && selCol != 0) {
+                        String val = String.valueOf(yourTable.getValueAt(selRow, selCol));
+                        controller.changeSpreadSheetValueAt(selRow, selCol - 1, val);
+                    }
+                }
+            }
+        });
+    }
+
+    protected void addTableToScroll() {
+        // Add table to scroll pane
+        JScrollPane scrollPane = new JScrollPane(yourTable);
+        scrollPane.setPreferredSize(new Dimension(800, 600));
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        add(scrollPane, BorderLayout.CENTER);
+        build();
+    }
+
+    public DefaultTableModel createTableModel(Object[][] data, String[] columnNames){
+        // Create table model
+        DefaultTableModel tableModel = new DefaultTableModel(data, columnNames) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column != 0; // Make all columns except the first one editable
+            }
+        };
+        return tableModel;
+    }
+
+
 }
