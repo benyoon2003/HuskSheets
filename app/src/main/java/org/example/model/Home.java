@@ -59,14 +59,15 @@ public class Home implements IHome {
      * @param maxCol num columns
      * @param path a path
      * @return a ISpreadsheet
+     * @author Ben
      */
     private ISpreadsheet generateSpreadsheet(NodeList cellNodes, int maxRow,
                                              int maxCol, String path) {
         // Create 2D cell array
         ArrayList<ArrayList<Cell>> cellArray = new ArrayList<>();
-        for (int i = 0; i <= maxRow; i++) {
+        for (int i = 0; i < 100; i++) {
             ArrayList<Cell> row = new ArrayList<>();
-            for (int j = 0; j <= maxCol; j++) {
+            for (int j = 0; j < 100; j++) {
                 Cell c = new Cell();
                 c.setRow(i);
                 c.setCol(j);
@@ -83,7 +84,7 @@ public class Home implements IHome {
             String value = cellElement.getTextContent();
             cellArray.get(row).get(col).setValue(value);
         }
-        return new Spreadsheet(cellArray, path);
+        return new Spreadsheet(cellArray, trimEnds(path));
     }
 
     /**
@@ -125,6 +126,7 @@ public class Home implements IHome {
      * Creates a new document.
      * @return a Document
      * @throws Exception
+     * @author Theo
      */
     private Document createDocument() throws ParserConfigurationException {
         DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -137,6 +139,7 @@ public class Home implements IHome {
      * @param dom a Document
      * @param path a path
      * @return an Element
+     * @author Theo
      */
     private Element createRootElement(Document dom, String path) {
         Element root = dom.createElement("sheet");
@@ -151,6 +154,7 @@ public class Home implements IHome {
      * @param dom a Document
      * @param root an Element in the XML
      * @param sheet a IReadOnlySpreadSheet
+     * @author Theo
      */
     private void populateDocumentWithSheetData(Document dom, Element root, IReadOnlySpreadSheet sheet) {
         String[][] values = sheet.getCellStringsObject();
@@ -171,6 +175,7 @@ public class Home implements IHome {
      * @param col a column index
      * @param value the Cell content
      * @return an XML Element
+     * @author Theo
      */
     private Element createCellElement(Document dom, int row, int col, String value) {
         Element cellElement = dom.createElement("cell");
@@ -186,6 +191,7 @@ public class Home implements IHome {
      * @param path a path
      * @throws Exception a FileNotFoundException, SecurityException or
      * TransformerConfigurationException
+     * @author Theo
      */
     private void writeDocumentToFile(Document dom, String path) throws Exception {
         Transformer transformer = TransformerFactory.newInstance().newTransformer();
@@ -204,6 +210,7 @@ public class Home implements IHome {
      *
      * @param input the string representation of the 2D array
      * @return a list of lists representing the 2D array
+     * @author Vinay
      */
     public static List<List<String>> convertStringTo2DArray(String input) {
         if (input == null || input.trim().isEmpty()) {
@@ -245,6 +252,7 @@ public class Home implements IHome {
      *
      * @param ref the cell reference
      * @return an array with the row and column indices
+     * @author Tony
      */
 
     private static int[] convertRefToRowCol(String ref) {
@@ -273,17 +281,20 @@ public class Home implements IHome {
      *
      * @param s the string to trim
      * @return the trimmed string
+     * @author Theo
      */
     private String trimEnds(String s) {
         String result = new StringBuilder(s).reverse().toString();
 
-        if (result.contains("\\"))
+        if (result.contains("\\")) {
             result = result.substring(0, result.indexOf('\\'));
-        else
+        } else if (result.contains("/")) {
             result = result.substring(0, result.indexOf('/'));
+        }
         result = new StringBuilder(result).reverse().toString();
-        if (result.endsWith(".xml"))
-            result = result.substring(0, result.indexOf('.'));
+        if (result.endsWith(".xml")) {
+            result = result.substring(0, result.lastIndexOf('.'));
+        }
 
         return result;
     }

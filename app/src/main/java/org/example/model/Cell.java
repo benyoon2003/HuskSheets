@@ -23,6 +23,7 @@ public class Cell {
      * Constructor that initializes a cell with a specified value.
      *
      * @param value the value to set for the cell.
+     * @author Vinay
      */
     public Cell(String value) {
         this();
@@ -36,6 +37,7 @@ public class Cell {
      * Sets the raw data of the cell.
      *
      * @param rawdata the raw data to set for the cell.
+     * @author Ben
      */
     public void setRawData(String rawdata) {
         this.rawdata = rawdata;
@@ -45,6 +47,7 @@ public class Cell {
      * Returns the value of the cell.
      *
      * @return the value of the cell.
+     * @author Tony
      */
     public String getValue() {
         return this.value;
@@ -54,6 +57,7 @@ public class Cell {
      * Returns the raw data of the cell.
      *
      * @return the raw data of the cell.
+     * @author Ben
      */
     public String getRawdata() {
         return this.rawdata;
@@ -63,6 +67,7 @@ public class Cell {
      * Sets the value of the cell.
      *
      * @param value the value to set for the cell.
+     * @author Vinay
      */
     public void setValue(String value) {
         this.value = value;
@@ -77,6 +82,7 @@ public class Cell {
      * Returns the row index of the cell.
      *
      * @return the row index of the cell.
+     * @author Tony
      */
     public int getRow() {
         return this.row;
@@ -86,6 +92,7 @@ public class Cell {
      * Sets the row index of the cell.
      *
      * @param row the row index to set for the cell.
+     * @author Theo
      */
     public void setRow(int row) {
         this.row = row;
@@ -95,6 +102,7 @@ public class Cell {
      * Returns the column index of the cell.
      *
      * @return the column index of the cell.
+     * @author Tony
      */
     public int getCol() {
         return this.col;
@@ -104,6 +112,7 @@ public class Cell {
      * Sets the column index of the cell.
      *
      * @param col the column index to set for the cell.
+     * @author Theo
      */
     public void setCol(int col) {
         this.col = col;
@@ -113,6 +122,7 @@ public class Cell {
      * Returns the formula of the cell.
      *
      * @return the formula of the cell.
+     * @author Vinay
      */
     public String getFormula() {
         return this.formula;
@@ -122,6 +132,7 @@ public class Cell {
      * Sets the formula of the cell.
      *
      * @param formula the formula to set for the cell.
+     * @author Vinay
      */
     public void setFormula(String formula) {
         this.formula = formula;
@@ -131,6 +142,7 @@ public class Cell {
      * Checks if the cell contains a formula.
      *
      * @return true if the cell contains a formula, false otherwise.
+     * @author Vinay
      */
     public boolean isFormula() {
         return this.value.startsWith("=");

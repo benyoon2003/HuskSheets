@@ -13,6 +13,7 @@ public interface ISpreadsheet extends IReadOnlySpreadSheet {
    *
    * @return a 2D ArrayList of Cell objects representing the cells in the
    *         spreadsheet.
+   * @author Theo
    */
   List<List<Cell>> getCells();
 
@@ -21,6 +22,7 @@ public interface ISpreadsheet extends IReadOnlySpreadSheet {
    *
    * @param formula the formula to evaluate.
    * @return the result of evaluating the formula.
+   * @author Vinay
    */
   String evaluateFormula(String formula);
 
@@ -30,6 +32,7 @@ public interface ISpreadsheet extends IReadOnlySpreadSheet {
    * @param row   the row index of the cell.
    * @param col   the column index of the cell.
    * @param value the value to set.
+   * @author Vinay
    */
   void setCellValue(int row, int col, String value);
 
@@ -39,17 +42,9 @@ public interface ISpreadsheet extends IReadOnlySpreadSheet {
    * @param row the row index of the cell.
    * @param col the column index of the cell.
    * @return the value of the cell.
+   * @author Vinay
    */
   String getCellValue(int row, int col);
-
-  /**
-   * Gets the formula of the cell at the specified row and column.
-   *
-   * @param row the row index of the cell.
-   * @param col the column index of the cell.
-   * @return the formula of the cell.
-   */
-  String getCellFormula(int row, int col);
 
   /**
    * Sets the raw data of the cell at the specified row and column.
@@ -57,6 +52,7 @@ public interface ISpreadsheet extends IReadOnlySpreadSheet {
    * @param selRow the row index of the cell.
    * @param selCol the column index of the cell.
    * @param val    the raw data to set.
+   * @author Ben
    */
   void setCellRawdata(int selRow, int selCol, String val);
 
@@ -66,6 +62,7 @@ public interface ISpreadsheet extends IReadOnlySpreadSheet {
    * @param row the row index of the cell.
    * @param col the column index of the cell.
    * @return the raw data of the cell.
+   * @author Ben
    */
   String getCellRawdata(int row, int col);
 
@@ -73,29 +70,37 @@ public interface ISpreadsheet extends IReadOnlySpreadSheet {
    * Adds a published version of the spreadsheet.
    *
    * @param sheet the published spreadsheet to add.
+   * @author Tony
    */
-  public void addPublished(ISpreadsheet sheet);
+  void addPublished(ISpreadsheet sheet);
 
   /**
    * Adds a subscribed version of the spreadsheet.
    *
    * @param sheet the subscribed spreadsheet to add.
+   * @author Tony
    */
-  public void addSubscribed(ISpreadsheet sheet);
+  void addSubscribed(ISpreadsheet sheet);
 
   /**
    * Gets the list of published versions of the spreadsheet.
    *
    * @return a list of published versions of the spreadsheet.
+   * @author Tony
    */
-  public List<ISpreadsheet> getPublishedVersions();
+  List<ISpreadsheet> getPublishedVersions();
 
   /**
    * Gets the list of subscribed modified versions of the spreadsheet
    * 
    * @return a list of subscribed modified versions of the spreadsheet
+   * @author Tony
    */
-  public List<ISpreadsheet> getSubscribedVersions();
+  List<ISpreadsheet> getSubscribedVersions();
 
+  /**
+   * Sets a grid 
+   * @param updatedGrid - a grid
+   */
   void setGrid(List<List<Cell>> updatedGrid);
 }

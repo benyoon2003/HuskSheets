@@ -62,10 +62,13 @@ public class Spreadsheet implements ISpreadsheet {
      */
     public Spreadsheet(ArrayList<ArrayList<Cell>> grid, String name) {
         this(name);
-        for (ArrayList<Cell> row : grid) {
-            for (Cell c : row) {
-                String value = this.evaluateFormula(c.getValue());
-                this.grid.get(c.getRow()).get(c.getCol()).setValue(value);
+        for (int i = 0; i < 100; i++) {
+            List<Cell> row = grid.get(i);
+            for (int j = 0; j < 100; j++) {
+                Cell cell = row.get(j);
+                if (!cell.getValue().isEmpty()) {
+                    this.grid.get(i).set(j, cell);
+                }
             }
         }
     }
@@ -167,6 +170,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param cell the cell reference.
      * @return the row index.
+     * @author Theo
      */
     private int getRow(String cell) {
         try {
@@ -181,6 +185,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param cell the cell reference.
      * @return the column index.
+     * @author Vinay
      */
     private int getColumn(String cell) {
         String col = cell.replaceAll("[^A-Z]", "").toUpperCase();
@@ -301,18 +306,6 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     /**
-     * Gets the formula of the cell at the specified row and column.
-     *
-     * @param row the row index of the cell.
-     * @param col the column index of the cell.
-     * @return the formula of the cell.
-     */
-    @Override
-    public String getCellFormula(int row, int col) {
-        return this.grid.get(row).get(col).getFormula();
-    }
-
-    /**
      * Evaluates the given formula and returns the result.
      *
      * @param formula the formula to evaluate.
@@ -329,17 +322,19 @@ public class Spreadsheet implements ISpreadsheet {
         formula = formula.substring(1).stripLeading();
 
         try {
-            if (formula.contains("SORT")) {
-                return sort(formula);
-            }
+            boolean evaluated = false;
+            Object result = formula;
             // Handle operations that need to be parsed before evaluation
             formula = parseOperations(formula);
             // Replace cell references with their values
             formula = replaceCellReferences(formula);
             System.setProperty("polyglot.engine.WarnInterpreterOnly", "false");
             // For simplicity, handle basic arithmetic operations using JavaScript engine
-            Object result = formula;
-            if (containsArith((String) result)) {
+            if (!((String) result).equals(formula)) {
+                result = formula;
+                evaluated = true;
+            }
+            if (containsArith((String) result) && !evaluated) {
                 Context context = Context.create("js");
                 result = context.eval("js", formula);
             }
@@ -354,6 +349,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param formula the formula to parse.
      * @return the result of parsing the formula.
+     * @author Vinay
      */
     private String parseOperations(String formula) {
         // Handle operations
@@ -414,6 +410,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param formula the formula with cell references.
      * @return the formula with cell references replaced by values.
+     * @author Vinay
      */
     private String replaceCellReferences(String formula) {
         Pattern pattern = Pattern.compile("\\$[A-Z]+[0-9]+");
@@ -437,6 +434,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param cell the cell content.
      * @return the function if present, otherwise an empty string.
+     * @author Theo
      */
     private String getFunction(String cell) {
         for (String func : functions) {
@@ -453,6 +451,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param cell the cell content.
      * @return true if it contains an arithmetic operation, otherwise false.
+     * @author Vinay
      */
     private boolean containsArith(String cell) {
         for (String op : arith) {
@@ -469,6 +468,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param cell the cell content.
      * @return the operation if present, otherwise an empty string.
+     * @author Theo
      */
     private String getOperation(String cell) {
         for (String op : operations) {
@@ -486,6 +486,7 @@ public class Spreadsheet implements ISpreadsheet {
      * @param x the first value.
      * @param y the second value.
      * @return "1" if x is less than y, otherwise "0".
+     * @author Vinay
      */
     private String compareLess(String x, String y) {
         x = replaceCellReferences(x);
@@ -505,6 +506,7 @@ public class Spreadsheet implements ISpreadsheet {
      * @param x the first value.
      * @param y the second value.
      * @return "1" if x is greater than y, otherwise "0".
+     * @author Vinay
      */
     private String compareGreater(String x, String y) {
         x = replaceCellReferences(x);
@@ -524,6 +526,7 @@ public class Spreadsheet implements ISpreadsheet {
      * @param x the first value.
      * @param y the second value.
      * @return "1" if x is equal to y, otherwise "0".
+     * @author Vinay
      */
     private String compareEqual(String x, String y) {
         x = replaceCellReferences(x);
@@ -547,6 +550,7 @@ public class Spreadsheet implements ISpreadsheet {
      * @param x the first value.
      * @param y the second value.
      * @return "1" if x is not equal to y, otherwise "0".
+     * @author Theo
      */
     private String compareNotEqual(String x, String y) {
         x = replaceCellReferences(x);
@@ -570,6 +574,7 @@ public class Spreadsheet implements ISpreadsheet {
      * @param x the first value.
      * @param y the second value.
      * @return "1" if both values are non-zero, otherwise "0".
+     * @author Vinay
      */
     private String andOperation(String x, String y) {
         x = replaceCellReferences(x);
@@ -589,6 +594,7 @@ public class Spreadsheet implements ISpreadsheet {
      * @param x the first value.
      * @param y the second value.
      * @return "1" if either value is non-zero, otherwise "0".
+     * @author Vinay
      */
     private String orOperation(String x, String y) {
         x = replaceCellReferences(x);
@@ -608,6 +614,7 @@ public class Spreadsheet implements ISpreadsheet {
      * @param startCell the start cell.
      * @param endCell   the end cell.
      * @return the result of the range operation.
+     * @author Theo
      */
     private String rangeOperation(String startCell, String endCell) {
         // Check if this cell has a function value
@@ -656,6 +663,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param parameters the parameters for the IF function.
      * @return the result of the IF function.
+     * @author Theo
      */
     private String evaluateIF(String parameters) {
         String[] parts = parameters.split(",");
@@ -679,6 +687,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param parameters the parameters for the SUM function.
      * @return the result of the SUM function.
+     * @author Theo
      */
     private String evaluateSUM(String parameters) {
         String[] parts = parameters.split(",");
@@ -698,6 +707,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param parameters the parameters for the MIN function.
      * @return the result of the MIN function.
+     * @author Vinay
      */
     private String evaluateMIN(String parameters) {
         String[] parts = parameters.split(",");
@@ -720,6 +730,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param parameters the parameters for the MAX function.
      * @return the result of the MAX function.
+     * @author Vinay
      */
     private String evaluateMAX(String parameters) {
         String[] parts = parameters.split(",");
@@ -742,6 +753,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param parameters the parameters for the AVG function.
      * @return the result of the AVG function.
+     * @author Vinay
      */
     private String evaluateAVG(String parameters) {
         String[] parts = parameters.split(",");
@@ -761,6 +773,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param parameters the parameters for the CONCAT function.
      * @return the result of the CONCAT function.
+     * @author Theo
      */
     private String evaluateCONCAT(String parameters) {
         String[] parts = parameters.split(",");
@@ -781,6 +794,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param parameter the parameter for the DEBUG function.
      * @return the result of the DEBUG function.
+     * @author Theo
      */
     private String evaluateDEBUG(String parameter) {
         return parameter.trim();
@@ -791,6 +805,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param parameter the parameter for the STDDEV function.
      * @return the result of the STDDEV function.
+     * @author Theo
      */
     private String evaluateSTDDEV(String parameter) {
         String[] nums = parameter.split(",");
@@ -814,6 +829,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param parameter the parameter for the SORT function.
      * @return the result of the SORT function.
+     * @author Theo
      */
     private String evaluateSORT(String parameter) {
         String[] s = parameter.split(",");
@@ -834,38 +850,5 @@ public class Spreadsheet implements ISpreadsheet {
         }
 
         return result.substring(0, result.length() - 1);
-    }
-
-    /**
-     * Sorts the cells based on the formula.
-     *
-     * @param formula the formula containing the SORT function.
-     * @return the sorted value.
-     */
-    private String sort(String formula) {
-        String[] sorted = parseOperations(formula).split(",");
-        if (sorted.length > 1) {
-            String cells = formula.substring(5, formula.length() - 1);
-
-            // Determine which cell should be the start of the sorted list
-            String endCell;
-            if (cells.contains(":")) {
-                endCell = cells.split(":")[1];
-            } else {
-                endCell = cells.split(",")[sorted.length - 1];
-            }
-            int r = getRow(endCell);
-            int c = getColumn(endCell);
-
-            // Set the values
-            for (int i = 0; i < sorted.length; i++) {
-                Cell cell = this.grid.get(r + i + 1).get(c);
-                cell.setValue(sorted[i]);
-                cell.setFormula(sorted[i]);
-            }
-
-            this.grid.get(r + 1).get(c).setFormula("=" + formula);
-        }
-        return sorted[0];
     }
 }

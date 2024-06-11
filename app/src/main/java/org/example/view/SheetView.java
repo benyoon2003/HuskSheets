@@ -21,7 +21,8 @@ import java.util.Map;
 import static javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION;
 
 /**
- * The SheetView class represents the view for displaying and interacting with a spreadsheet.
+ * The SheetView class represents the view for displaying and interacting with a
+ * spreadsheet.
  */
 public class SheetView extends SheetViewFactory<SheetView> implements ISheetView {
     public IReadOnlySpreadSheet cells; // The spreadsheet data
@@ -101,12 +102,45 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
         // Set custom cell renderer
         yourTable.setDefaultRenderer(Object.class, new HighlightedCellRenderer(highlightedCells));
 
+        // Add panel for right-clicks
+        JPanel rightClickPanel = new JPanel(new GridLayout(1, 1));
+        rightClickPanel.setSize(new Dimension(100, 15));
+
+        // Add buttons to right-click panel
+        JButton percentiles = new JButton("Percentile");
+        percentiles.setPreferredSize(new Dimension(100, 15));
+        percentiles.addActionListener(new RightClickButtonListener(this));
+        percentiles.setVisible(rightClickPanel.isVisible());
+        rightClickPanel.add(percentiles);
+
+        rightClickPanel.setVisible(false);
+        yourTable.add(rightClickPanel);
+
+        yourTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON3) { // For right-clicks
+                    int row = yourTable.rowAtPoint(e.getPoint());
+                    int col = yourTable.columnAtPoint(e.getPoint());
+                    if (row >= 0 && row < rowSize && col >= 1 && col < colSize) {
+                        rightClickPanel.setLocation(e.getX(), e.getY());
+                        rightClickPanel.setVisible(true);
+                    }
+                } else if (e.getButton() == MouseEvent.BUTTON1) { // For left-clicks
+                    if (rightClickPanel.isVisible()) {
+                        rightClickPanel.setVisible(false);
+                    }
+                }
+            }
+        });
+
         // Add key listener for delete and digit keys
         yourTable.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_DELETE || e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
-                    System.out.println(e.getKeyCode() == KeyEvent.VK_DELETE ? "Delete key pressed" : "Backspace key pressed");
+                    System.out.println(
+                            e.getKeyCode() == KeyEvent.VK_DELETE ? "Delete key pressed" : "Backspace key pressed");
                     controller.updateSelectedCells(""); // Pass an empty string to clear cells
                 } else if (Character.isDigit(e.getKeyChar())) {
                     System.out.println("Digit key pressed: " + e.getKeyChar());
@@ -166,7 +200,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
     /**
      * Handles the selection of cells in the table.
      *
-     * @param selectedRows the selected rows.
+     * @param selectedRows    the selected rows.
      * @param selectedColumns the selected columns.
      */
     @Override
@@ -216,7 +250,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
                 .addComponent(new Paste(this))
                 .addComponent(new ZoomI(this))
                 .addComponent(new ZoomO(this))
-                .addComponent(new GetUpdates(this))
+                .addComponent(new GetUpdatesFromSubscriber(this))
                 .addComponent(new SavePublisher(this))
                 .addComponent(new AddConditionalFormat(this))
                 .addComponent(new Back(this));
@@ -244,8 +278,8 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
     /**
      * Highlights a cell with the specified color.
      *
-     * @param row the row of the cell.
-     * @param col the column of the cell.
+     * @param row   the row of the cell.
+     * @param col   the column of the cell.
      * @param color the color to highlight.
      */
     public void highlightCell(int row, int col, Color color) {
@@ -401,4 +435,24 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
         return this;
     }
 
+    class RightClickButtonListener implements ActionListener {
+        private SheetView view;
+
+        RightClickButtonListener(SheetView view) {
+            this.view = view;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String command = e.getActionCommand();
+            int row = this.view.yourTable.getSelectedRow();
+            int col = this.view.yourTable.getSelectedColumn() - 1;
+
+            if (command.equals("Percentile")) {
+                this.view.getController().getPercentile(row, col);
+            }
+
+            this.view.updateTable();
+        }
+    }
 }

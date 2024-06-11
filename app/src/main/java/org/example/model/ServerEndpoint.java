@@ -1,8 +1,5 @@
 package org.example.model;
 
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.net.URI;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
@@ -25,10 +22,11 @@ public class ServerEndpoint {
    * Constructs the Basic Authentication header using the username and password.
    *
    * @return Basic Authentication header string
+   * @author Ben
    */
   private String getBasicAuthHeader() {
-    String username = this.user.getUsername();
-    String password = this.user.getPassword();
+    String username = user.getUsername();
+    String password = user.getPassword();
     String auth = username + ":" + password;
     return "Basic " + Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
   }
@@ -38,10 +36,11 @@ public class ServerEndpoint {
    *
 
    * @throws Exception if an error occurs during the HTTP request
+   * @author Vinay
    */
 
   public Result register(IAppUser user) throws Exception {
-    this.user = user;
+    ServerEndpoint.user = user;
     // Encode the publisher name to be URL-safe
     String encodedPublisher = URLEncoder.encode(user.getUsername(), StandardCharsets.UTF_8);
     String url = BASE_URL + "register?publisher=" + encodedPublisher;
@@ -55,10 +54,11 @@ public class ServerEndpoint {
      *
      * @param user the user to log in.
      * @return the result of the login.
-     * @throws Exception if an error occurs during the HTTP request.
+     * @throws Exception if an error occurs during the HTTP request
+     * @author Ben
      */
   public Result login(IAppUser user) throws Exception {
-    this.user = user;
+    ServerEndpoint.user = user;
     // Encode the publisher name to be URL-safe
     String encodedPublisher = URLEncoder.encode(user.getUsername(), StandardCharsets.UTF_8);
     String url = BASE_URL + "login?publisher=" + encodedPublisher;
@@ -71,6 +71,7 @@ public class ServerEndpoint {
    * Retrieves the list of publishers from the server.
    *
    * @throws Exception if an error occurs during the HTTP request
+   * @author Tony
    */
   public Result getPublishers() throws Exception {
     String url = BASE_URL + "getPublishers";
@@ -84,6 +85,7 @@ public class ServerEndpoint {
    *
    * @param sheet     Name of the sheet to create
    * @throws Exception if an error occurs during the HTTP request
+   * @author Tony
    */
   public Result createSheet(String sheet) throws Exception {
     String url = BASE_URL + "createSheet"; // Ensure the endpoint is correct
@@ -99,6 +101,7 @@ public class ServerEndpoint {
    *
    * @return Response body containing the list of sheets
    * @throws Exception if an error occurs during the HTTP request
+   * @author Vinay
    */
   public Result getSheets(String publisher) throws Exception {
     String url = BASE_URL + "getSheets";
@@ -114,6 +117,7 @@ public class ServerEndpoint {
    * @param publisher Name of the publisher
    * @param sheet     Name of the sheet to delete
    * @throws Exception if an error occurs during the HTTP request
+   * @author Tony
    */
   public Result deleteSheet(String publisher, String sheet) throws Exception {
     String url = BASE_URL + "deleteSheet";
@@ -129,6 +133,7 @@ public class ServerEndpoint {
    * @param sheet Name of sheet
    * @param id id of last version
    * @return Respones body containing payload of sheet updates
+   * @author Tony
    * @throws Exception
    */
   public Result getUpdatesForSubscription(String publisher, String sheet, String id) throws Exception {
@@ -146,6 +151,7 @@ public class ServerEndpoint {
      * @param sheet     the name of the sheet.
      * @param id        the id of the last version.
      * @throws Exception if an error occurs during the HTTP request.
+     * @author Tony
      */
   public Result getUpdatesForPublished(String publisher, String sheet, String id) throws Exception {
     String url = BASE_URL + "getUpdatesForPublished";
@@ -163,6 +169,7 @@ public class ServerEndpoint {
      * @param payload   the new payload data.
      * @return the result of the update operation.
      * @throws Exception if an error occurs during the HTTP request.
+     * @author Vinay
      */
   public Result updatePublished(String publisher, String sheet, String payload) throws Exception {
     String url = BASE_URL + "updatePublished";
@@ -180,6 +187,7 @@ public class ServerEndpoint {
      * @param sheet     the name of the sheet.
      * @param payload   the new payload data.
      * @throws Exception if an error occurs during the HTTP request.
+     * @author Tony
      */
   public Result updateSubscription(String publisher, String sheet, String payload) throws Exception {
     String url = BASE_URL + "updateSubscription";
@@ -195,9 +203,10 @@ public class ServerEndpoint {
    * @param url destination of request
    * @param json content of request
    * @return response object
+   * @author Tony
    * @throws Exception
    */
-  public HttpResponse sendPostRequest(String url, String json) throws Exception {
+  public HttpResponse<String> sendPostRequest(String url, String json) throws Exception {
     HttpClient client = HttpClient.newBuilder().build();
     HttpRequest request = HttpRequest.newBuilder()
             .uri(new URI(url))
@@ -214,9 +223,10 @@ public class ServerEndpoint {
    * @param url destination of request
    * @return response object
    * @throws Exception
+   * @author Ben
    */
 
-  public HttpResponse sendGetRequest(String url) throws Exception {
+  public HttpResponse<String> sendGetRequest(String url) throws Exception {
     HttpClient client = HttpClient.newBuilder().build();
     HttpRequest request = HttpRequest.newBuilder()
             .uri(new URI(url))

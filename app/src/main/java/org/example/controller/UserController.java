@@ -23,7 +23,8 @@ public class UserController implements IUserController {
     private ISelectedCells selectedCells;
     private String clipboardContent;
     private boolean isCutOperation;
-    private final ServerEndpoint serverEndpoint;
+    protected final ServerEndpoint serverEndpoint;
+    private String currentSubscribedPublisher;
 
     /**
      * Constructs a UserController with the given login view.
@@ -37,6 +38,7 @@ public class UserController implements IUserController {
         this.serverEndpoint = new ServerEndpoint();
         this.clipboardContent = "";
         this.isCutOperation = false;
+        this.currentSubscribedPublisher = "";
     }
 
     public IAppUser getAppUser(){
@@ -222,6 +224,7 @@ public class UserController implements IUserController {
      * Determines if a single cell has been selected.
      * @param selectedCells an ISelectedCells object
      * @return boolean
+     * @author Vinay
      */
     private boolean singleCellSelected(ISelectedCells selectedCells) {
         return selectedCells.getStartRow() == selectedCells.getEndRow() &&
@@ -303,6 +306,7 @@ public class UserController implements IUserController {
         try {
             Result result = this.serverEndpoint.getUpdatesForSubscription(publisher, selectedSheet, "0");
             if (result.getSuccess()) {
+                this.currentSubscribedPublisher = publisher;
                 String fullPayload = result.getValue().getLast().getPayload();
                 this.spreadsheetModel = this.home.readPayload(fullPayload, selectedSheet);
                 this.setCurrentSheet(new SubscriberSheetView(publisher, spreadsheetModel));
@@ -327,6 +331,26 @@ public class UserController implements IUserController {
             }
             else {
                 sheetView.displayMessage(result.getMessage());
+            }
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    @Override
+    public void getUpdatesForSubscribed(String sheet, int id) throws Exception {
+        try {
+            if (!this.currentSubscribedPublisher.isEmpty()) {
+                Result result = this.serverEndpoint.getUpdatesForSubscription(
+                        currentSubscribedPublisher, sheet, String.valueOf(id));
+                if (result.getSuccess()) {
+                    String fullpayload = result.getValue().getLast().getPayload();
+                    this.spreadsheetModel = this.home.readPayload(fullpayload, sheet);
+                    this.setCurrentSheet(new SubscriberSheetView(currentSubscribedPublisher,
+                            this.spreadsheetModel));
+                } else {
+                    sheetView.displayMessage(result.getMessage());
+                }
             }
         } catch (Exception e) {
             throw new Exception(e.getMessage());
@@ -460,6 +484,7 @@ public class UserController implements IUserController {
      * @param username the username to validate.
      * @param password the password to validate.
      * @return true if both the username and password are non-empty, false otherwise.
+     * @author Ben
      */
     private boolean validateInput(String username, String password) {
         return !username.isEmpty() && !password.isEmpty();

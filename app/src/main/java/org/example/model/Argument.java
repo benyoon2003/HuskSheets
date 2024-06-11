@@ -33,6 +33,7 @@ public class Argument {
    * Gets the publisher associated with this argument.
    *
    * @return the publisher
+   * @author Theo
    */
   public String getPublisher() {
     return this.publisher;
@@ -42,6 +43,7 @@ public class Argument {
    * Gets the sheet associated with this argument.
    *
    * @return the sheet
+   * @author Theo
    */
   public String getSheet() {
     return this.sheet;
@@ -51,6 +53,7 @@ public class Argument {
    * Gets the ID associated with this argument.
    *
    * @return the ID
+   * @author Tony
    */
   public String getId() {
     return this.id;
@@ -60,6 +63,7 @@ public class Argument {
    * Gets the payload associated with this argument.
    *
    * @return the payload
+   * @author Ben
    */
   public String getPayload() {
     return this.payload;
@@ -69,6 +73,7 @@ public class Argument {
    * Sets the publisher associated with this argument.
    *
    * @param publisher the publisher to set
+   * @author Theo
    */
   public void setPublisher(String publisher) {
     this.publisher = publisher;
@@ -78,6 +83,7 @@ public class Argument {
    * Sets the sheet associated with this argument.
    *
    * @param sheet the sheet to set
+   * @author Theo
    */
   public void setSheet(String sheet) {
     this.sheet = sheet;
@@ -87,6 +93,7 @@ public class Argument {
    * Sets the ID associated with this argument.
    *
    * @param id the ID to set
+   * @author Tony
    */
   public void setId(String id) {
     this.id = id;
@@ -96,11 +103,17 @@ public class Argument {
    * Sets the payload associated with this argument.
    *
    * @param payload the payload to set
+   * @author ben
    */
   public void setPayload(String payload) {
     this.payload = payload;
   }
 
+  /**
+   * toString function used for testing
+   *
+   * @author Theo
+   */
   public String toString() {
     return "Argument{publisher=" + publisher + ", sheet=" + sheet + ", id=" + id + ", payload='" + payload + "'}";
   }

@@ -3,23 +3,16 @@ package org.example.view;
 import org.example.controller.IUserController;
 import org.example.model.IReadOnlySpreadSheet;
 import org.example.model.ISpreadsheet;
-import org.example.model.Spreadsheet;
 import org.example.view.button.*;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+
 /**
  * The SubscriberSheetView class represents a view for a spreadsheet that is subscribed to a publisher's updates.
  */
@@ -52,6 +45,7 @@ public class SubscriberSheetView extends SheetView {
                 .addComponent(new Paste(this))
                 .addComponent(new ZoomI(this))
                 .addComponent(new ZoomO(this))
+                .addComponent(new GetUpdatesFromPublisher(this))
                 .addComponent(new SaveSubscirber(this))
                 .addComponent(new AddConditionalFormat(this))
                 .addComponent(new Back(this));
