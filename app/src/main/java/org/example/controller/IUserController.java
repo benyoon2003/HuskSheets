@@ -259,5 +259,5 @@ public interface IUserController {
      * @return the current app user
      * @author Ben
      */
-    public IAppUser getAppUser();
+    IAppUser getAppUser();
 }
