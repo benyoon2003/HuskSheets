@@ -10,9 +10,6 @@
 
  import javax.swing.*;
  import java.awt.*;
- import java.awt.event.KeyEvent;
- import java.security.Key;
- import java.util.Map;
  import java.util.Set;
 
  public class SheetViewTest {
@@ -28,13 +25,13 @@
          this.testSpreadSheet = new Spreadsheet("test");
          this.sheetView = new SheetView(testSpreadSheet);
          this.controller = new UserController(login);
-
+         this.controller.loginUser(this.user.getUsername(), this.user.getPassword());
+         this.sheetView.addController(this.controller);
      }
 
      @Test
      public void testAddController() throws Exception {
-         this.controller.loginUser(this.user.getUsername(), this.user.getPassword());
-         this.sheetView.addController(this.controller);
+
          //test if user is correctly logged into sheetview
 
          IUserController sheetController = this.sheetView.getController();
@@ -115,10 +112,6 @@
      }
 
 
-//     @Test
-//     public void testUpdateTable() {
-//
-//     }
 
      @Test
      public void testGetTable(){
@@ -126,6 +119,36 @@
          this.sheetView.yourTable = testTable;
 
          assertEquals(testTable, this.sheetView.getTable());
+
+     }
+     @Test
+     public void testGetController(){
+         assertEquals(this.controller, this.sheetView.getController());
+     }
+
+//     @Test
+//     public void testSave(){
+//
+//     }
+
+     @Test
+     public void testZoomTable(){
+         JTable testTable = new JTable();
+         Font initialFont = new Font("Arial", Font.PLAIN, 12);
+         testTable.setFont(initialFont);
+         testTable.setRowHeight(20);
+         testTable.getTableHeader().setFont(initialFont);
+         double factor = 1.5;
+         this.sheetView.yourTable = testTable;
+         this.sheetView.zoomTable(factor);
+
+         Font tableFont = testTable.getFont();
+         float expectedFontSize = 12 * (float) factor;
+         int expectedRowHeight = (int) (20 * factor);
+
+         assertEquals(expectedFontSize, tableFont.getSize2D(), 0.01);
+         assertEquals(expectedRowHeight, testTable.getRowHeight());
+         assertEquals(expectedFontSize, testTable.getTableHeader().getFont().getSize2D(), 0.01);
 
      }
 
