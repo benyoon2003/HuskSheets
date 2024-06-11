@@ -691,6 +691,7 @@ public class Spreadsheet implements ISpreadsheet {
      */
     private String evaluateSUM(String parameters) {
         String[] parts = parameters.split(",");
+        System.out.println("Formula SUM: " + parameters);
         double sum = 0;
         try {
             for (String part : parts) {
