@@ -246,6 +246,15 @@ public interface IUserController {
 
 
     /**
+     * Gets all publisher updates since the specified id.
+     * @param sheet name of the sheet.
+     * @param id version of the sheet.
+     * @throws Exception if an error occurs while fetching updates.
+     * @author Ben
+     */
+    void getUpdatesForSubscribed(String sheet, int id) throws Exception;
+
+    /**
      *
      * @return the current app user
      * @author Ben

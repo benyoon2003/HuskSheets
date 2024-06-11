@@ -250,7 +250,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
                 .addComponent(new Paste(this))
                 .addComponent(new ZoomI(this))
                 .addComponent(new ZoomO(this))
-                .addComponent(new GetUpdates(this))
+                .addComponent(new GetUpdatesFromSubscriber(this))
                 .addComponent(new SavePublisher(this))
                 .addComponent(new AddConditionalFormat(this))
                 .addComponent(new Back(this));
