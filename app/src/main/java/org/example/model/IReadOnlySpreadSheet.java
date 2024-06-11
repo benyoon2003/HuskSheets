@@ -9,6 +9,7 @@ public interface IReadOnlySpreadSheet {
      * Gets the number of rows in the spreadsheet.
      *
      * @return the number of rows in the spreadsheet.
+     * @author Ben
      */
     int getRows();
 
@@ -16,6 +17,7 @@ public interface IReadOnlySpreadSheet {
      * Gets the number of columns in the spreadsheet.
      *
      * @return the number of columns in the spreadsheet.
+     * @author Ben
      */
     int getCols();
 
@@ -23,6 +25,7 @@ public interface IReadOnlySpreadSheet {
      * Gets a 2D array of Cell objects representing the cells in the spreadsheet.
      *
      * @return a 2D array of Cell objects representing the cells in the spreadsheet.
+     * @author Ben
      */
     Cell[][] getCellsObject();
 
@@ -30,19 +33,22 @@ public interface IReadOnlySpreadSheet {
      * Gets a 2D array of strings representing the values of cells in the spreadsheet.
      *
      * @return a 2D array of strings representing the values of cells in the spreadsheet.
+     * @author Tony
      */
     String[][] getCellStringsObject();
 
     /**
      * Get the id of the sheet
      * @return the id as an int
+     * @author Tony
      */
-    public int getId_version();
+    int getId_version();
 
     /**
      * Gets the name of the spreadsheet.
      *
      * @return the name of the spreadsheet.
+     * @author Tony
      */
     String getName();
 
@@ -50,6 +56,7 @@ public interface IReadOnlySpreadSheet {
      * Gets the raw data of a cell in the spreadsheet.
      *
      * @return the raw data of a particular cell at a row and column specified value.
+     * @author Ben
      */
     String getCellRawdata(int row, int col);
 

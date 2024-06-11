@@ -77,9 +77,6 @@ public class AppUserTest {
         assertEquals(0, this.user.getSheets().size());
     }
 
-
-
-
     @Test
     public void testDoesSheetExist() {
         assertFalse(this.user.doesSheetExist("Sheet1"));

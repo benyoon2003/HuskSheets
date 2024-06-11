@@ -28,7 +28,7 @@ dependencies {
 }
 
 application {
-    mainClass = 'org.example.HuskSheetsApplication'
+    mainClass = 'org.example.HuskSheetsRunner'
 }
 
 java {

@@ -11,6 +11,7 @@ public interface IHome {
      *
      * @param path the path of the XML file to read.
      * @return a ISpreadsheet representing the data from the XML file.
+     * @author Theo
      */
     ISpreadsheet readXML(String path);
 
@@ -20,6 +21,7 @@ public interface IHome {
      * @param payload payload to be parsed.
      * @param sheetName name of sheet
      * @return a ISpreadsheet representing the data from the payload.
+     * @author Tony
      */
     ISpreadsheet readPayload(String payload, String sheetName);
 
@@ -28,6 +30,7 @@ public interface IHome {
      *
      * @param sheet the read-only spreadsheet to write.
      * @param path the path where the XML file will be written.
+     * @author Theo
      */
     void writeXML(IReadOnlySpreadSheet sheet, String path);
 }

@@ -6,8 +6,8 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class GetUpdates extends Button{
-    public GetUpdates(SheetView view) {
+public class GetUpdatesFromSubscriber extends Button{
+    public GetUpdatesFromSubscriber(SheetView view) {
         super("Get Updates");
 
         this.addActionListener(new ActionListener() {
