@@ -119,7 +119,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
     /**
      * Creates the toolbar for the SheetView.
      */
-    public void makeToolbar() {
+    protected void makeToolbar() {
         formulaTextField = new JTextField(20);
         formulaTextField.setEditable(true);
         this.addComponent(new JLabel("Formula"))

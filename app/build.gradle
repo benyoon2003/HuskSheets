@@ -52,7 +52,7 @@ jacocoTestReport {
 
 test {
     useJUnitPlatform()
-    systemProperty 'java.awt.headless', 'true'
+    systemProperty 'java.awt.headless', 'false'
 }
 
 tasks.named('test') {
