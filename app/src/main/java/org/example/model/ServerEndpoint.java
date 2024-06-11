@@ -41,9 +41,7 @@ public class ServerEndpoint {
 
   public Result register(IAppUser user) throws Exception {
     ServerEndpoint.user = user;
-    // Encode the publisher name to be URL-safe
-    String encodedPublisher = URLEncoder.encode(user.getUsername(), StandardCharsets.UTF_8);
-    String url = BASE_URL + "register?publisher=" + encodedPublisher;
+    String url = BASE_URL + "register";
     HttpResponse<String> response = sendGetRequest(url);
     System.out.println("Register request: " + response.body());
     return new Result(response.body());
@@ -59,9 +57,7 @@ public class ServerEndpoint {
      */
   public Result login(IAppUser user) throws Exception {
     ServerEndpoint.user = user;
-    // Encode the publisher name to be URL-safe
-    String encodedPublisher = URLEncoder.encode(user.getUsername(), StandardCharsets.UTF_8);
-    String url = BASE_URL + "login?publisher=" + encodedPublisher;
+    String url = BASE_URL + "login";
     HttpResponse<String> response = sendGetRequest(url);
     System.out.println("Login request: " + response.body());
     return new Result(response.body());
