@@ -268,8 +268,14 @@ public class UserController implements IUserController {
     public void openServerSheet(String selectedSheet) {
         try {
             Result result = this.serverEndpoint.getUpdatesForSubscription(this.appUser.getUsername(), selectedSheet, "0");
+            System.out.println("test result: " + result);
+            String fullPayload = "";
             if (result.getSuccess()) {
-                String fullPayload = result.getValue().getLast().getPayload();
+                try {
+                     fullPayload = result.getValue().getLast().getPayload();
+                } catch (Exception e) {
+                    //payload is empty
+                }
                 this.spreadsheetModel = this.home.readPayload(fullPayload, selectedSheet);
                 setCurrentSheet(new SheetView(spreadsheetModel));
             }
