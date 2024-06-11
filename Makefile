@@ -1,34 +1,44 @@
 # Variables
-JAVAC = javac
-JAVA = java
-SRC_DIR = app/src
-BIN_DIR = app/bin
+GRADLEW = gradlew.bat
+BUILD_DIR = build
 MAIN_CLASS = org.example.HuskSheetsRunner
-
-# Source files
-SOURCES := $(shell find $(SRC_DIR) -name "*.java")
-# Object files
-CLASSES := $(SOURCES:$(SRC_DIR)/%.java=$(BIN_DIR)/%.class)
+DOCKER_IMAGE = husksheets-image
 
 # Default target
 .PHONY: all
-all: $(BIN_DIR) $(CLASSES)
+all: create-build-dir build
 
-# Rule to compile Java files
-$(BIN_DIR)/%.class: $(SRC_DIR)/%.java
-	@mkdir -p $(dir $@)
-	$(JAVAC) -d $(BIN_DIR) $<
+# Use Gradle to build the project
+.PHONY: build
+build:
+	$(GRADLEW) build
 
-# Clean up build files
+# Clean up build files using Gradle
 .PHONY: clean
 clean:
-	@if exist $(BIN_DIR) (rmdir /s /q $(BIN_DIR))
+	$(GRADLEW) clean
 
-# Run the main class
+# Run the main class using Gradle
 .PHONY: run
-run: all
-	$(JAVA) -cp $(BIN_DIR) $(MAIN_CLASS)
+run:
+	$(GRADLEW) bootRun
 
-# Create bin directory if it doesn't exist
-$(BIN_DIR):
-	@mkdir -p $(BIN_DIR)
+# Create build directory if it doesn't exist
+.PHONY: create-build-dir
+create-build-dir:
+	@if not exist $(BUILD_DIR) mkdir $(BUILD_DIR)
+
+# Docker build
+.PHONY: docker-build
+docker-build: build
+	docker build -t $(DOCKER_IMAGE) .
+
+# Docker run with command-line arguments
+.PHONY: docker-run
+docker-run:
+	docker run -e USERNAME=$(USERNAME) -e PASSWORD=$(PASSWORD) $(DOCKER_IMAGE)
+
+# Run the main class with arguments
+.PHONY: run-with-args
+run-with-args:
+	$(GRADLEW) bootRun --args="--local --name='$(USERNAME)' --password='$(PASSWORD)' --verbose --url='https://husksheets.fly.dev' --publisher='team2' --sheet='Sheet1'"
