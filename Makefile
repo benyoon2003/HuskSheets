@@ -1,34 +1,27 @@
 # Variables
-JAVAC = javac
-JAVA = java
-SRC_DIR = app/src
-BIN_DIR = app/bin
+GRADLEW = gradlew.bat
+BUILD_DIR = build
 MAIN_CLASS = org.example.HuskSheetsRunner
-
-# Source files
-SOURCES := $(shell find $(SRC_DIR) -name "*.java")
-# Object files
-CLASSES := $(SOURCES:$(SRC_DIR)/%.java=$(BIN_DIR)/%.class)
 
 # Default target
 .PHONY: all
-all: $(BIN_DIR) $(CLASSES)
+all: build
 
-# Rule to compile Java files
-$(BIN_DIR)/%.class: $(SRC_DIR)/%.java
-	@mkdir -p $(dir $@)
-	$(JAVAC) -d $(BIN_DIR) $<
+# Use Gradle to build the project
+.PHONY: build
+build:
+	$(GRADLEW) build
 
-# Clean up build files
+# Clean up build files using Gradle
 .PHONY: clean
 clean:
-	@if exist $(BIN_DIR) (rmdir /s /q $(BIN_DIR))
+	$(GRADLEW) clean
 
-# Run the main class
+# Run the main class using Gradle
 .PHONY: run
-run: all
-	$(JAVA) -cp $(BIN_DIR) $(MAIN_CLASS)
+run:
+	$(GRADLEW) bootRun
 
-# Create bin directory if it doesn't exist
-$(BIN_DIR):
-	@mkdir -p $(BIN_DIR)
+# Create build directory if it doesn't exist
+$(BUILD_DIR):
+	@if not exist $(BUILD_DIR) mkdir $(BUILD_DIR)
