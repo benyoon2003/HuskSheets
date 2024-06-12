@@ -38,7 +38,8 @@ public class ServerEndpointTest {
     @Test
     public void testRegister() {
         String newUsername = this.randomString();
-        IAppUser newUser = new AppUser(newUsername, "");
+        String newPassword = this.randomString();
+        IAppUser newUser = new AppUser(newUsername, newPassword);
         try {
             result = this.se.register(newUser);
             assertTrue(result.getSuccess());
