@@ -17,11 +17,8 @@ public class HomeView extends JFrame implements IHomeView {
 
     private JButton createSheet;
     private JComboBox<String> openSheetDropdown;
-
     private JComboBox<String> publishers;
-
     private JComboBox<String> openSubscriberDropdown;
-
     private JButton openSheetButton;
     private JButton openSubscribeButton;
     private JButton deleteSheetButton;
@@ -228,5 +225,30 @@ public class HomeView extends JFrame implements IHomeView {
     @Override
     public void disposeHomePage() {
         this.dispose();
+    }
+
+    // Getter methods
+    public JButton getCreateSheetButton() {
+        return createSheet;
+    }
+
+    public JComboBox<String> getOpenSheetDropdown() {
+        return openSheetDropdown;
+    }
+
+    public JComboBox<String> getPublishersDropdown() {
+        return publishers;
+    }
+
+    public JButton getOpenSheetButton() {
+        return openSheetButton;
+    }
+
+    public JButton getDeleteSheetButton() {
+        return deleteSheetButton;
+    }
+
+    public IUserController getController() {
+        return controller;
     }
 }
