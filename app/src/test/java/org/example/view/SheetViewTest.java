@@ -163,4 +163,14 @@
 
      }
 
+     @Test
+     public void testReturnView(){
+         SheetView testView = this.sheetView.returnView();
+         assertEquals(this.sheetView, testView);
+     }
+
+     public void testUpdateTable(){
+         
+     }
+
  }

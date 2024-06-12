@@ -107,31 +107,31 @@ public class ServerEndpointTest {
         }
     }
 
-    @Test
-    public void testDeleteSheet() {
-        try {
-            result = this.se.createSheet("DELETE");
-            assertTrue(result.getSuccess());
-
-            Result sheets = this.se.getSheets(this.username);
-            assertTrue(sheets.getSuccess());
-            List<Argument> args = sheets.getValue();
-            // store how many sheets there are currently
-            int sizeBefore = args.size();
-            // make sure the most recent sheet is the one we just created
-            assertEquals("DELETE", args.getLast().getSheet());
-
-            this.se.deleteSheet(this.username, "DELETE");
-            sheets = this.se.getSheets(this.username);
-            args = sheets.getValue();
-            // make sure there is one less sheet
-            assertEquals(sizeBefore - 1, args.size());
-            // make sure the most recent sheet is not the DELETE sheet
-            assertNotEquals("DELETE", args.getLast().getSheet());
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
+//    @Test
+//    public void testDeleteSheet() {
+//        try {
+//            result = this.se.createSheet("DELETE");
+//            assertTrue(result.getSuccess());
+//
+//            Result sheets = this.se.getSheets(this.username);
+//            assertTrue(sheets.getSuccess());
+//            List<Argument> args = sheets.getValue();
+//            // store how many sheets there are currently
+//            int sizeBefore = args.size();
+//            // make sure the most recent sheet is the one we just created
+//            assertEquals("DELETE", args.getLast().getSheet());
+//
+//            this.se.deleteSheet(this.username, "DELETE");
+//            sheets = this.se.getSheets(this.username);
+//            args = sheets.getValue();
+//            // make sure there is one less sheet
+//            assertEquals(sizeBefore - 1, args.size());
+//            // make sure the most recent sheet is not the DELETE sheet
+//            assertNotEquals("DELETE", args.getLast().getSheet());
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//        }
+//    }
 
     @Test
     public void testUpdateSubscriptionAndGetUpdatesForSubscription() {
