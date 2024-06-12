@@ -101,7 +101,11 @@ public class LoginView extends JFrame implements ILoginView {
             public void actionPerformed(ActionEvent e) {
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
-                controller.loginUser(username, password);
+                try {
+                    controller.loginUser(username, password);
+                } catch (Exception e1) {
+                    displayErrorBox(e1.getMessage());
+                }
             }
         });
 
@@ -110,7 +114,11 @@ public class LoginView extends JFrame implements ILoginView {
             public void actionPerformed(ActionEvent e) {
                 String username = usernameField.getText();
                 String password = new String(passwordField.getPassword());
-                controller.registerUser(username, password);
+                try {
+                    controller.registerUser(username, password);
+                } catch (Exception e1) {
+                    displayErrorBox(e1.getMessage());
+                }
             }
         });
     }

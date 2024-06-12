@@ -44,7 +44,15 @@ public class UserController implements IUserController {
     public IAppUser getAppUser(){
         return appUser;
     }
-    public void registerUser(String username, String password) {
+
+    public String getClipboardContent() {
+        return clipboardContent;
+    }
+    
+    public boolean isCutOperation() {
+        return isCutOperation;
+    }
+    public void registerUser(String username, String password) throws Exception {
         try {
             if (validateInput(username, password)) {
                 IAppUser newUser = new AppUser(username, password);
@@ -55,7 +63,8 @@ public class UserController implements IUserController {
                     openHomeView();
                 }
                 else {
-                    this.loginPage.displayErrorBox(result.getMessage());
+                    throw new Exception(result.getMessage());
+                    //this.loginPage.displayErrorBox(result.getMessage());
                 }
             }
             else {
@@ -63,12 +72,13 @@ public class UserController implements IUserController {
             }
         }
         catch (Exception e) {
-            this.loginPage.displayErrorBox(e.getMessage());
+            throw new Exception(e.getMessage());
+            //this.loginPage.displayErrorBox(e.getMessage());
         }
     }
 
     @Override
-    public void loginUser(String username, String password) {
+    public void loginUser(String username, String password) throws Exception {
         try {
             if (validateInput(username, password)) {
                 IAppUser newUser = new AppUser(username, password);
@@ -79,7 +89,8 @@ public class UserController implements IUserController {
                     openHomeView();
                 }
                 else {
-                    this.loginPage.displayErrorBox(result.getMessage());
+                    throw new Exception(result.getMessage());
+                    //this.loginPage.displayErrorBox(result.getMessage());
                 }
             }
             else {
@@ -87,7 +98,8 @@ public class UserController implements IUserController {
             }
         }
         catch (Exception e) {
-            this.loginPage.displayErrorBox(e.getMessage());
+            throw new Exception(e.getMessage());
+            //this.loginPage.displayErrorBox(e.getMessage());
         }
     }
 
@@ -122,6 +134,11 @@ public class UserController implements IUserController {
         this.sheetView.addController(this);
         this.sheetView.makeVisible();
     }
+
+    public ISpreadsheet getSpreadsheetModel() {
+        return spreadsheetModel;
+    }
+    
 
     @Override
     public void createNewServerSheet(String name) {
@@ -495,4 +512,5 @@ public class UserController implements IUserController {
     private boolean validateInput(String username, String password) {
         return !username.isEmpty() && !password.isEmpty();
     }
+
 }

@@ -180,7 +180,7 @@ public interface IUserController {
      * @param password the password of the new user.
      * @author Ben
      */
-    void registerUser(String username, String password);
+    void registerUser(String username, String password) throws Exception;
 
     /**
      * Logs in a user with the provided username and password.
@@ -188,7 +188,7 @@ public interface IUserController {
      * @param password the password of the user.
      * @author Ben
      */
-    void loginUser(String username, String password);
+    void loginUser(String username, String password) throws Exception;
 
     /**
      * Gets the list of publishers.
