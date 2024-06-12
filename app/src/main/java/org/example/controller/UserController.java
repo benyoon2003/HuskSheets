@@ -44,6 +44,14 @@ public class UserController implements IUserController {
     public IAppUser getAppUser(){
         return appUser;
     }
+
+    public String getClipboardContent() {
+        return clipboardContent;
+    }
+    
+    public boolean isCutOperation() {
+        return isCutOperation;
+    }
     public void registerUser(String username, String password) throws Exception {
         try {
             if (validateInput(username, password)) {
@@ -504,4 +512,5 @@ public class UserController implements IUserController {
     private boolean validateInput(String username, String password) {
         return !username.isEmpty() && !password.isEmpty();
     }
+
 }
