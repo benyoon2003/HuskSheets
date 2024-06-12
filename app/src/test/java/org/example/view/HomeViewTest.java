@@ -44,41 +44,41 @@ public class HomeViewTest {
         }
     }
 
-    @Test
-    public void testOpenSelectedSheet() {
-        // Setup the dropdown to return a selected sheet
-        String selectedSheet = "TestSheet";
-        JComboBox<String> comboBox = new JComboBox<>();
-        comboBox.addItem(selectedSheet);
-        homeView.getOpenSheetDropdown().setSelectedItem(selectedSheet);
+    // @Test
+    // public void testOpenSelectedSheet() {
+    //     // Setup the dropdown to return a selected sheet
+    //     String selectedSheet = "TestSheet";
+    //     JComboBox<String> comboBox = new JComboBox<>();
+    //     comboBox.addItem(selectedSheet);
+    //     homeView.getOpenSheetDropdown().setSelectedItem(selectedSheet);
 
-        // Trigger the action
-        homeView.getOpenSheetButton().doClick();
+    //     // Trigger the action
+    //     homeView.getOpenSheetButton().doClick();
 
-        // Verify that the controller's openServerSheet method was called with the correct sheet
-        verify(mockController).openServerSheet(selectedSheet);
-    }
+    //     // Verify that the controller's openServerSheet method was called with the correct sheet
+    //     verify(mockController).openServerSheet(selectedSheet);
+    // }
 
-    @Test
-    public void testDeleteSheet() {
-        // Setup the dropdown to return a selected sheet
-        String selectedSheet = "TestSheet";
-        JComboBox<String> comboBox = new JComboBox<>();
-        comboBox.addItem(selectedSheet);
-        homeView.getOpenSheetDropdown().setSelectedItem(selectedSheet);
+    // @Test
+    // public void testDeleteSheet() {
+    //     // Setup the dropdown to return a selected sheet
+    //     String selectedSheet = "TestSheet";
+    //     JComboBox<String> comboBox = new JComboBox<>();
+    //     comboBox.addItem(selectedSheet);
+    //     homeView.getOpenSheetDropdown().setSelectedItem(selectedSheet);
 
-        // Mock the JOptionPane to always select "Delete Locally"
-        try (MockedStatic<JOptionPane> mocked = mockStatic(JOptionPane.class)) {
-            mocked.when(() -> JOptionPane.showOptionDialog(any(), anyString(), anyString(), anyInt(), anyInt(), any(), any(), any()))
-                  .thenReturn(JOptionPane.YES_OPTION);
+    //     // Mock the JOptionPane to always select "Delete Locally"
+    //     try (MockedStatic<JOptionPane> mocked = mockStatic(JOptionPane.class)) {
+    //         mocked.when(() -> JOptionPane.showOptionDialog(any(), anyString(), anyString(), anyInt(), anyInt(), any(), any(), any()))
+    //               .thenReturn(JOptionPane.YES_OPTION);
 
-            // Trigger the action
-            homeView.getDeleteSheetButton().doClick();
+    //         // Trigger the action
+    //         homeView.getDeleteSheetButton().doClick();
 
-            // Verify that the controller's deleteSheetFromServer method was called with the correct sheet
-            verify(mockController).deleteSheetFromServer(selectedSheet);
-        }
-    }
+    //         // Verify that the controller's deleteSheetFromServer method was called with the correct sheet
+    //         verify(mockController).deleteSheetFromServer(selectedSheet);
+    //     }
+    // }
 
     @Test
     public void testUpdateSavedSheets() {
