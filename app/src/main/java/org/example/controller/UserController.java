@@ -44,7 +44,7 @@ public class UserController implements IUserController {
     public IAppUser getAppUser(){
         return appUser;
     }
-    public void registerUser(String username, String password) {
+    public void registerUser(String username, String password) throws Exception {
         try {
             if (validateInput(username, password)) {
                 IAppUser newUser = new AppUser(username, password);
@@ -55,7 +55,8 @@ public class UserController implements IUserController {
                     openHomeView();
                 }
                 else {
-                    this.loginPage.displayErrorBox(result.getMessage());
+                    throw new Exception(result.getMessage());
+                    //this.loginPage.displayErrorBox(result.getMessage());
                 }
             }
             else {
@@ -63,12 +64,13 @@ public class UserController implements IUserController {
             }
         }
         catch (Exception e) {
-            this.loginPage.displayErrorBox(e.getMessage());
+            throw new Exception(e.getMessage());
+            //this.loginPage.displayErrorBox(e.getMessage());
         }
     }
 
     @Override
-    public void loginUser(String username, String password) {
+    public void loginUser(String username, String password) throws Exception {
         try {
             if (validateInput(username, password)) {
                 IAppUser newUser = new AppUser(username, password);
@@ -79,7 +81,8 @@ public class UserController implements IUserController {
                     openHomeView();
                 }
                 else {
-                    this.loginPage.displayErrorBox(result.getMessage());
+                    throw new Exception(result.getMessage());
+                    //this.loginPage.displayErrorBox(result.getMessage());
                 }
             }
             else {
@@ -87,7 +90,8 @@ public class UserController implements IUserController {
             }
         }
         catch (Exception e) {
-            this.loginPage.displayErrorBox(e.getMessage());
+            throw new Exception(e.getMessage());
+            //this.loginPage.displayErrorBox(e.getMessage());
         }
     }
 
