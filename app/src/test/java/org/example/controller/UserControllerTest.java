@@ -13,6 +13,9 @@ import java.awt.Color;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class UserControllerTest {
@@ -189,6 +192,78 @@ public class UserControllerTest {
         verify(spreadsheetModel, times(4)).setCellRawdata(anyInt(), anyInt(), eq("value"));
     }
 
+    @Test
+    public void testChangeSpreadSheetValueAt() {
+        int row = 1;
+        int col = 1;
+        String value = "=SUM(A1:B2)";
+    
+        userController.changeSpreadSheetValueAt(row, col, value);
+    
+        verify(spreadsheetModel).setCellRawdata(row, col, value);
+        verify(spreadsheetModel).setCellValue(row, col, value);
+        verify(spreadsheetModel).evaluateFormula(value);
+        verify(sheetView).updateTable();
+    }
+    
+    @Test
+    public void testCutCell() {
+        int row = 1;
+        int col = 1;
+        String value = "cutValue";
+    
+        when(spreadsheetModel.getCellRawdata(row, col)).thenReturn(value);
+    
+        userController.cutCell(row, col);
+    
+        verify(spreadsheetModel).setCellValue(row, col, "");
+        verify(sheetView).updateTable();
+        assertEquals(value, userController.getClipboardContent());
+        assertTrue(userController.isCutOperation());
+    }
+    
+    @Test
+    public void testCopyCell() {
+        int row = 1;
+        int col = 1;
+        String value = "copyValue";
+    
+        when(spreadsheetModel.getCellRawdata(row, col)).thenReturn(value);
+    
+        userController.copyCell(row, col);
+    
+        assertEquals(value, userController.getClipboardContent());
+        assertFalse(userController.isCutOperation());
+    }
+    
+    // @Test
+    // public void testPasteCell() {
+    //     int row = 1;
+    //     int col = 1;
+    //     userController.clipboardContent = "pastedValue";
+    //     userController.isCutOperation = true;
+    
+    //     userController.pasteCell(row, col);
+    
+    //     verify(spreadsheetModel).setCellValue(row, col, userController.getClipboardContent());
+    //     verify(sheetView).updateTable();
+    //     assertEquals("", userController.getClipboardContent());
+    //     assertFalse(userController.isCutOperation());
+    // }
+    
+    @Test
+    public void testGetPercentile() {
+        int row = 1;
+        int col = 1;
+        String value = "0.75";
+    
+        when(spreadsheetModel.getCellValue(row, col)).thenReturn(value);
+    
+        userController.getPercentile(row, col);
+    
+        verify(spreadsheetModel).setCellValue(row, col, "75.0%");
+    }
+    
     @Test
     public void testApplyConditionalFormatting() throws Exception {
         Cell[][] cells = new Cell[100][100];
