@@ -21,8 +21,8 @@ public class UserController implements IUserController {
     private final IHome home;
     private ISpreadsheet spreadsheetModel;
     private ISelectedCells selectedCells;
-    private String clipboardContent;
-    private boolean isCutOperation;
+    String clipboardContent;
+    boolean isCutOperation;
     protected final ServerEndpoint serverEndpoint;
     private String currentSubscribedPublisher;
 
@@ -228,13 +228,23 @@ public class UserController implements IUserController {
     }
 
     @Override
-    public int getSelectedRow() {
+    public int getSelectedStartRow() {
         return selectedCells.getStartRow();
     }
 
     @Override
-    public int getSelectedCol() {
+    public int getSelectedStartCol() {
         return selectedCells.getStartCol();
+    }
+
+    @Override
+    public int getSelectedEndRow() {
+        return selectedCells.getEndRow();
+    }
+
+    @Override
+    public int getSelectedEndCol() {
+        return selectedCells.getEndCol();
     }
 
     /**
