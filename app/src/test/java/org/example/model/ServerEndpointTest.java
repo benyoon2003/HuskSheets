@@ -110,7 +110,8 @@ public class ServerEndpointTest {
     @Test
     public void testDeleteSheet() {
         try {
-            result = this.se.createSheet("DELETE");
+            String delete = this.randomString();
+            result = this.se.createSheet(delete);
             assertTrue(result.getSuccess());
 
             Result sheets = this.se.getSheets(this.username);
@@ -119,15 +120,15 @@ public class ServerEndpointTest {
             // store how many sheets there are currently
             int sizeBefore = args.size();
             // make sure the most recent sheet is the one we just created
-            assertEquals("DELETE", args.getLast().getSheet());
+            assertEquals(delete, args.getLast().getSheet());
 
-            this.se.deleteSheet(this.username, "DELETE");
+            this.se.deleteSheet(this.username, delete);
             sheets = this.se.getSheets(this.username);
             args = sheets.getValue();
             // make sure there is one less sheet
             assertEquals(sizeBefore - 1, args.size());
             // make sure the most recent sheet is not the DELETE sheet
-            assertNotEquals("DELETE", args.getLast().getSheet());
+            assertNotEquals(delete, args.getLast().getSheet());
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
