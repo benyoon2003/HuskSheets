@@ -1,75 +1,79 @@
-// package org.example.view;
+package org.example.view;
 
-// import static org.junit.jupiter.api.Assertions.assertEquals;
-// import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-// import java.io.StringWriter;
+import java.io.StringWriter;
 
-// import org.example.controller.IUserController;
-// import org.example.controller.MockUserController;
-// import org.junit.jupiter.api.AfterEach;
-// import org.junit.jupiter.api.BeforeEach;
-// import org.junit.jupiter.api.Test;
+import org.example.controller.IUserController;
+import org.example.controller.UserController;
 
-// public class LoginViewTest {
-//     private ILoginView loginView;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
-//     @BeforeEach
-//     public void init() {
-//         this.loginView = new MockLoginView();
-//     }
+public class LoginViewTest {
+    private MockLoginView loginView = new MockLoginView();
 
-//     @Test
-//     public void testAddController() {
-//         IUserController controller = new MockUserController();
-//         this.loginView.addController(controller);
+    @Test
+    public void testAddController() {
+        IUserController controller = new UserController(this.loginView);
+        this.loginView.addController(controller);
 
-//         assertTrue(this.loginView.toString().contains("Controller added\n"));
-//     }
+        assertEquals(controller, this.loginView.getController());
+        assertTrue(this.loginView.toString().contains("Controller added\n"));
+    }
     
-//     @Test
-//     public void testDisplayErrorBox() {
-//         this.loginView.displayErrorBox("Could not log in");
-//         assertTrue(this.loginView.toString().contains("Error: Could not log in\n"));
-//     }
+    @Test
+    public void testDisplayErrorBox() {
+        this.loginView.displayErrorBox("Could not log in");
+        assertTrue(this.loginView.toString().contains("Error: Could not log in\n"));
+    }
     
-//     @Test
-//     public void testDisposeLoginPage() {
-//         this.loginView.disposeLoginPage();
-//         assertTrue(this.loginView.toString().contains("Login page disposed\n"));
-//     }
+    @Test
+    public void testDisposeLoginPage() {
+        this.loginView.disposeLoginPage();
+        assertTrue(this.loginView.toString().contains("Login page disposed\n"));
+    }
 
-//     @AfterEach
-//     public void after() {
-//         this.loginView.disposeLoginPage();
-//     }
+    @AfterEach
+    public void after() {
+        this.loginView.disposeLoginPage();
+    }
 
-//     private class MockLoginView extends LoginView {
-//         private StringWriter out;
+    private class MockLoginView extends LoginView {
+        private StringWriter out;
+        private IUserController controller;
 
-//         MockLoginView() {
-//             this.out = new StringWriter();
-//         }
+        MockLoginView() {
+            this.out = new StringWriter();
+        }
 
-//         @Override
-//         public void addController(IUserController controller) {
-//             this.out.append("Controller added\n");
-//         }
+        @Override
+        public void addController(IUserController controller) {
+            super.addController(controller);
+            this.controller = controller;
+            this.out.append("Controller added\n");
+        }
 
-//         @Override
-//         public void displayErrorBox(String message) {
-//             this.out.append("Error: " + message + "\n");
-//         }
+        public IUserController getController() {
+            return this.controller;
+        }
 
-//         @Override
-//         public void disposeLoginPage() {
-//             this.out.append("Login page disposed\n");
-//             super.disposeLoginPage();
-//         }
+        @Override
+        public void displayErrorBox(String message) {
+            super.displayErrorBox(message);
+            this.out.append("Error: " + message + "\n");
+        }
 
-//         @Override
-//         public String toString() {
-//             return this.out.toString();
-//         }
-//     }
-// }
+        @Override
+        public void disposeLoginPage() {
+            this.out.append("Login page disposed\n");
+            super.disposeLoginPage();
+        }
+
+        @Override
+        public String toString() {
+            return this.out.toString();
+        }
+    }
+}

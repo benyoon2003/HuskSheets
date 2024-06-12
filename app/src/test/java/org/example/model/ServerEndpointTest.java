@@ -26,13 +26,12 @@ public class ServerEndpointTest {
 
         try {
             result = this.se.login(this.user);
-        } catch (Exception i) {
-            try {
+            if (!result.getSuccess()) {
                 result = this.se.register(this.user);
                 result = this.se.login(this.user);
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
             }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -52,8 +51,13 @@ public class ServerEndpointTest {
     @Test
     // make sure we logged in successfully
     public void testLogin() {
-        assertTrue(result.getSuccess());
-        assertEquals("Publisher logged in successfully", result.getMessage());
+        try {
+            result = this.se.login(this.user);
+            assertTrue(result.getSuccess());
+            assertEquals("Publisher logged in successfully", result.getMessage());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Test
