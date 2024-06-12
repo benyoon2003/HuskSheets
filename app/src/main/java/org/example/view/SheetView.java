@@ -137,8 +137,8 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
         formulaTextField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.changeSpreadSheetValueAt(controller.getSelectedRow(),
-                        controller.getSelectedCol(), formulaTextField.getText());
+                controller.changeSpreadSheetValueAt(controller.getSelectedStartRow(),
+                        controller.getSelectedStartCol(), formulaTextField.getText());
             }
         });
         revalidate();
