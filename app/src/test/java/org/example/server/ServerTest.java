@@ -15,17 +15,20 @@ import java.util.List;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Tests the methods within the Server class.
+ * @Author Ben
+ */
 @WebMvcTest(Server.class)
 class ServerTests {
 
     @Autowired
     private MockMvc mockMvc;
-
     @InjectMocks
     private Server server;
-
     private List<IAppUser> availUsers;
 
+    // Registers testuser before every test method
     @BeforeEach
     void setUp() throws Exception {
         availUsers = new ArrayList<>();
@@ -38,11 +41,21 @@ class ServerTests {
                         "testuser", "password")));
     }
 
+    /**
+     * Creates a basic auth header.
+     * @param username a username
+     * @param password a password
+     * @return an encoded String
+     */
     private String createBasicAuthHeader(String username, String password) {
         String auth = username + ":" + password;
         return "Basic " + Base64.getEncoder().encodeToString(auth.getBytes());
     }
 
+    /**
+     * Tests the basic authentication for getPublishers.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testBasicAuthUnauthorizedGetPublishers() throws Exception {
         mockMvc.perform(get("/api/v1/getPublishers")
@@ -52,6 +65,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.success").value(false));
     }
 
+    /**
+     * Tests when user (in basic auth) is not found.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testUserNotFoundGetPublishers() throws Exception {
         mockMvc.perform(get("/api/v1/getPublishers")
@@ -62,6 +79,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.message").value("User not found"));
     }
 
+    /**
+     * Tests when getPublishers is successful.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testGetPublishersSuccess() throws Exception {
         mockMvc.perform(get("/api/v1/getPublishers")
@@ -74,6 +95,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.value[0].payload").isEmpty());
     }
 
+    /**
+     * Tests when user in basic auth header is invalid.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testBasicAuthUnauthorizedCreateSheet() throws Exception {
         String json = "{\"publisher\":\"otherUser\", \"sheet\":\"newsheet\"}";
@@ -86,6 +111,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.success").value(false));
     }
 
+    /**
+     * Tests when user in basic auth is not the one creating the sheet.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testSenderIsNotOwnerCreateSheet() throws Exception {
         String json = "{\"publisher\":\"otherUser\", \"sheet\":\"newsheet\"}";
@@ -100,6 +129,10 @@ class ServerTests {
                         "Unauthorized: sender is not owner of sheet"));
     }
 
+    /**
+     * Tests when sheet name is blank when trying to create sheet.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testSheetNameCannotBeBlankCreateSheet() throws Exception {
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"\"}";
@@ -114,6 +147,10 @@ class ServerTests {
                         "Sheet name cannot be blank"));
     }
 
+    /**
+     * Tests when sheet name is already taken when trying to create a sheet.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testSheetNameExistsCreateSheet() throws Exception {
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"sheet\"}";
@@ -134,6 +171,10 @@ class ServerTests {
                         "Sheet already exists: sheet"));
     }
 
+    /**
+     * Tests when the user in the basic auth is not found when creating a sheet.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testUserNotFoundCreateSheet() throws Exception {
         String json = "{\"publisher\":\"random\", \"sheet\":\"sheet\"}";
@@ -148,6 +189,10 @@ class ServerTests {
                         "User not found"));
     }
 
+    /**
+     * Tests when the user successfully creates a new sheet.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testCreateSheetSuccess() throws Exception {
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"newsheet\"}";
@@ -159,6 +204,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.message").value("Sheet created successfully"));
     }
 
+    /**
+     * Tests when the sender of the delete sheet request is not the owner of the sheet.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testSenderIsNotOwnerDeleteSheet() throws Exception {
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"newsheet\"}";
@@ -173,6 +222,10 @@ class ServerTests {
                         "Unauthorized: sender is not owner of sheet"));
     }
 
+    /**
+     * Tests when user tries to delete a sheet with an empty name.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testEmptySheetNameDeleteSheet() throws Exception {
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"\"}";
@@ -187,6 +240,10 @@ class ServerTests {
                         "Sheet name cannot be blank"));
     }
 
+    /**
+     * Tests when the basic auth is invalid for the deleteSheet request.
+     * @throws Exception
+     */
     @Test
     void testBasicAuthUnauthorizedDeleteSheet() throws Exception {
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"newsheet\"}";
@@ -199,7 +256,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.success").value(false));
     }
 
-
+    /**
+     * Tests when the user tries to delete a sheet that does not exist.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testSheetDoesNotExistDeleteSheet() throws Exception {
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"random\"}";
@@ -214,6 +274,10 @@ class ServerTests {
                         "Sheet does not exist: random"));
     }
 
+    /**
+     * Tests when the deleteSheet request is successful.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testDeleteSheetSuccess() throws Exception {
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"newsheet\"}";
@@ -226,6 +290,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.message").value("Sheet deleted successfully"));
     }
 
+    /**
+     * Tests when the user tries to access the sheets of a user that does not exist.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testUserDoesNotExistGetSheets() throws Exception {
         String json = "{\"publisher\":\"random\"}";
@@ -238,6 +306,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.message").value("User not found"));
     }
 
+    /**
+     * Tests when a user attempts a getSheets call with invalid basic auth.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testUnauthorizedBasicAuthsGetSheets() throws Exception {
         String json = "{\"publisher\":\"testuser\"}";
@@ -249,6 +321,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.success").value(false));
     }
 
+    /**
+     * Tests when getSheets call is successful.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testGetSheetsSuccess() throws Exception {
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"sheet\"}";
@@ -270,6 +346,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.value[1].payload").isEmpty());
     }
 
+    /**
+     * Tests when invalid basic auth is used to register.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testUnauthorizedBasicAuthRegister() throws Exception {
         mockMvc.perform(get("/api/v1/register")
@@ -278,6 +358,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.success").value(false));
     }
 
+    /**
+     * Tests when the user tries to register as a user that already exists.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testRegisterUserAlreadyExists() throws Exception {
         mockMvc.perform(get("/api/v1/register")
@@ -287,6 +371,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.message").value("User already exists"));
     }
 
+    /**
+     * Tests when the user registers successfully.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testRegisterSuccess() throws Exception {
         mockMvc.perform(get("/api/v1/register")
@@ -296,6 +384,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.message").value("Publisher registered successfully"));
     }
 
+    /**
+     * Tests when the user logs in with the wrong credentials.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testLoginWrongCredentials() throws Exception {
         mockMvc.perform(get("/api/v1/login")
@@ -305,6 +397,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.message").value("Wrong username or password"));
     }
 
+    /**
+     * Tests when the user logs in successfully.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testLoginSuccess() throws Exception {
         mockMvc.perform(get("/api/v1/login")
@@ -314,6 +410,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.message").value("Publisher logged in successfully"));
     }
 
+    /**
+     * Tests when the suer tries to log in with invalid basic auth.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testUnauthorizedBasicAuthLogin() throws Exception {
         mockMvc.perform(get("/api/v1/login")
@@ -322,6 +422,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.success").value(false));
     }
 
+    /**
+     * Tsts when the user tries to update a published sheet when the publisher does not nexist.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testUserNotFoundUpdatePublished() throws Exception {
         String json = "{\"publisher\":\"random\", \"sheet\":\"newsheet\", \"payload\":\"\"}";
@@ -334,6 +438,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.message").value("User not found"));
     }
 
+    /**
+     * Tests when the user tries to update a published sheet with a sheet that does not exist.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testSheetNotFoundUpdatePublished() throws Exception {
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"random\", \"payload\":\"\"}";
@@ -346,6 +454,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.message").value("Sheet not found"));
     }
 
+    /**
+     * Tests when the user tries to update a published sheetq successfully.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testUpdatePublishedSuccess() throws Exception {
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"sheet1\"}";
@@ -363,6 +475,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.message").value("Sheet updated successfully"));
     }
 
+    /**
+     * Tests when the user tries to update a published sheet with an invalid basic auth.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testUnauthorizedBasicAuthUpdatePublished() throws Exception {
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"sheet1\", \"payload\":\"$A1 2\\n\"}";
@@ -374,6 +490,11 @@ class ServerTests {
                 .andExpect(jsonPath("$.success").value(false));
     }
 
+    /**
+     * Tests when the user tries to update a subscribed sheet when the sheet's publisher does not
+     * exist.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testUserNotFoundUpdateSubscription() throws Exception {
         String json = "{\"publisher\":\"random\", \"sheet\":\"sheet1\", \"payload\":\"$A1 3\\n\"}";
@@ -385,6 +506,11 @@ class ServerTests {
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.message").value("User not found"));
     }
+
+    /**
+     * Tests when a user updates a subscribed sheet successfully.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testUpdateSubscriptionSuccess() throws Exception {
         mockMvc.perform(get("/api/v1/register")
@@ -400,6 +526,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.message").value("Sheet updated successfully"));
     }
 
+    /**
+     * Tests when user tries to update a subscribed sheet with invalid basic auth.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testUnauthorizedBasicAuthUpdateSubscription() throws Exception {
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"sheet1\", \"payload\":\"$A1 3\\n\"}";
@@ -411,6 +541,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.success").value(false));
     }
 
+    /**
+     * Tests when user tries to update a subscribed sheet when that sheet does not exist.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testSheetNotFoundUpdateSubscription() throws Exception {
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"randomSheet\", \"payload\":\"$A1 3\\n\"}";
@@ -423,6 +557,12 @@ class ServerTests {
                 .andExpect(jsonPath("$.message").value("Sheet not found"));
     }
 
+    /**
+     * Tests when the subscriber tries to get updates from the publisher when the publisher does not
+     * exist.
+     * not exist.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testUserNotFoundGetUpdatesSubscription() throws Exception {
         String json = String.format("{\"publisher\":\"f\", \"sheet\":\"randomsheet\", \"id\":\"0\"}");
@@ -435,6 +575,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.message").value("User not found"));
     }
 
+    /**
+     * Tests when subscriber gets updates from the publisher successfully.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testGetUpdatesSubscriptionSuccess() throws Exception {
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"sheet2\"}";
@@ -461,6 +605,11 @@ class ServerTests {
                 .andExpect(jsonPath("$.value[0].payload").value("$A1 2\\n"));
     }
 
+    /**
+     * Tests when a subscriber tries to get updates from the publisher when the basic auth of the
+     * subscriber is invalid.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testUnauthorizedBasicAuthGetUpdatesSubscription() throws Exception {
         String json = String.format("{\"publisher\":\"testuser\", \"sheet\":\"sheet2\", \"id\":\"0\"}");
@@ -472,6 +621,11 @@ class ServerTests {
                 .andExpect(jsonPath("$.success").value(false));
     }
 
+    /**
+     * Tests when a subscriber tries to get updates from a publisher when the publisher's sheet does
+     * not exist.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testSheetNotFoundGetUpdatesSubscription() throws Exception {
         String json = String.format("{\"publisher\":\"testuser\", \"sheet\":\"sheet10\", \"id\":\"0\"}");
@@ -484,6 +638,11 @@ class ServerTests {
                 .andExpect(jsonPath("$.message").value("Sheet not found"));
     }
 
+    /**
+     * Tests when the publisher tries to get updates from subscribers when the publisher does
+     * not exist.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testUserNotFoundGetUpdatesPublisher() throws Exception {
         String json = String.format("{\"publisher\":\"2\", \"sheet\":\"sheet\", \"id\":\"0\"}");
@@ -496,6 +655,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.message").value("User not found"));
     }
 
+    /**
+     * Tests when a publisher gets updates from subscribers successfully.
+     * @throws Exception irrelevant to the actual test
+     */
     @Test
     void testGetUpdatesPublisherSuccess() throws Exception {
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"sheet4\"}";
@@ -522,6 +685,10 @@ class ServerTests {
                 .andExpect(jsonPath("$.value[0].payload").value("$A1 Hey\\n"));
     }
 
+    /**
+     * Tests when the publisher tries to get updates from subscribers when the basic auth is invalid.
+     * @throws Exception
+     */
     @Test
     void testUnauthorizedBasicAuthGetUpdatesPublisher() throws Exception {
         String json = String.format("{\"publisher\":\"testuser\", \"sheet\":\"sheet4\", \"id\":\"0\"}");
@@ -533,6 +700,11 @@ class ServerTests {
                 .andExpect(jsonPath("$.success").value(false));
     }
 
+    /**
+     * Tests when the publisher tries to get updates from subscribers when the publisher's sheet
+     * does not exist.
+     * @throws Exception
+     */
     @Test
     void testSheetNotFoundGetUpdatesPublisher() throws Exception {
         String json = String.format("{\"publisher\":\"testuser\", \"sheet\":\"random\", \"id\":\"0\"}");
