@@ -1,116 +1,129 @@
-// package org.example.view;
+package org.example.view;
 
-// import static org.junit.jupiter.api.Assertions.assertEquals;
-// import static org.junit.jupiter.api.Assertions.assertTrue;
-// import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
-// import java.io.StringWriter;
+import java.util.List;
 
-// import org.example.controller.IUserController;
-// import org.example.controller.MockUserController;
-// import org.example.controller.UserController;
-// import org.junit.jupiter.api.BeforeEach;
-// import org.junit.jupiter.api.Test;
+import org.example.controller.IUserController;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
-// public class HomeViewTest {
-//     private MockHomeView homeView;
-//     private IUserController controller;
+import javax.swing.*;
 
-//     @BeforeEach
-//     public void init() {
-//         this.homeView = new MockHomeView();
-//         this.controller = mock(IUserController.class);
-//         this.homeView.addController(this.controller);
-//     }
+public class HomeViewTest {
+    private HomeView homeView;
+    private IUserController mockController;
 
-//     @Test
-//     public void testAddController() {
-//         assertEquals(this.controller, this.homeView.controller);
-//     }
+    @BeforeEach
+    public void init() {
+        homeView = new HomeView();
+        mockController = mock(IUserController.class);
+        homeView.addController(mockController);
+    }
 
-//     @Test
-//     public void testMakeVisible() {
-//         this.homeView.makeVisible();
-//         assertTrue(this.homeView.toString().contains("Home page is now visible\n"));
-//     }
+    @Test
+    public void testAddController() {
+        assertEquals(mockController, homeView.getController());
+    }
 
-//     @Test
-//     public void testDisposeHomePage() {
-//         this.homeView.disposeHomePage();
-//         assertTrue(this.homeView.toString().contains("Home page disposed\n"));
-//     }
+    @Test
+    public void testCreateSheet() {
+        String sheetName = "TestSheet";
 
-//     @Test
-//     public void testUpdateSavedSheets() {
-//         this.homeView.updateSavedSheets();
-//         assertTrue(this.homeView.toString().contains("List of saved sheets updated\n"));
-//     }
+        try (MockedStatic<JOptionPane> mocked = mockStatic(JOptionPane.class)) {
+            mocked.when(() -> JOptionPane.showInputDialog(any(), anyString(), anyString(), anyInt()))
+                  .thenReturn(sheetName);
 
-//     @Test
-//     public void testOpenSheet() {
-//         this.homeView.openSheet("..\\sheets\\test.xml");
-//         assertTrue(this.homeView.toString().contains("Sheet '..\\sheets\\test.xml' opened\n"));
-//     }
+            // Trigger the action
+            homeView.getCreateSheetButton().doClick();
 
-//     @Test
-//     public void testOpenSheetFromServer() {
-//         this.homeView.openSheetFromServer("..\\sheets\\test.xml");
-//         assertTrue(this.homeView.toString().contains("Sheet '..\\sheets\\test.xml' opened from server\n"));
-//     }
+            // Verify that the controller's createNewServerSheet method was called with the correct name
+            verify(mockController).createNewServerSheet(sheetName);
+        }
+    }
 
-//     @Test
-//     public void testDisplayErrorBox() {
-//         this.homeView.displayErrorBox("This is a test error");
-//         assertTrue(this.homeView.toString().contains("Error: This is a test error\n"));
-//     }
+    // @Test
+    // public void testOpenSelectedSheet() {
+    //     // Setup the dropdown to return a selected sheet
+    //     String selectedSheet = "TestSheet";
+    //     JComboBox<String> comboBox = new JComboBox<>();
+    //     comboBox.addItem(selectedSheet);
+    //     homeView.getOpenSheetDropdown().setSelectedItem(selectedSheet);
 
-//     // A mock version of the HomeView class used for testing
-//     private class MockHomeView extends HomeView {
-//         private StringWriter out;
-//         private IUserController controller;
+    //     // Trigger the action
+    //     homeView.getOpenSheetButton().doClick();
 
-//         MockHomeView() {
-//             this.out = new StringWriter();
-//         }
+    //     // Verify that the controller's openServerSheet method was called with the correct sheet
+    //     verify(mockController).openServerSheet(selectedSheet);
+    // }
 
-//         @Override
-//         public void addController(IUserController controller) {
-//             this.controller = controller;
-//         }
+    // @Test
+    // public void testDeleteSheet() {
+    //     // Setup the dropdown to return a selected sheet
+    //     String selectedSheet = "TestSheet";
+    //     JComboBox<String> comboBox = new JComboBox<>();
+    //     comboBox.addItem(selectedSheet);
+    //     homeView.getOpenSheetDropdown().setSelectedItem(selectedSheet);
 
-//         @Override
-//         public void makeVisible() {
-//             this.out.append("Home page is now visible\n");
-//         }
+    //     // Mock the JOptionPane to always select "Delete Locally"
+    //     try (MockedStatic<JOptionPane> mocked = mockStatic(JOptionPane.class)) {
+    //         mocked.when(() -> JOptionPane.showOptionDialog(any(), anyString(), anyString(), anyInt(), anyInt(), any(), any(), any()))
+    //               .thenReturn(JOptionPane.YES_OPTION);
 
-//         @Override
-//         public void disposeHomePage() {
-//             this.out.append("Home page disposed\n");
-//         }
+    //         // Trigger the action
+    //         homeView.getDeleteSheetButton().doClick();
 
-//         @Override
-//         public void updateSavedSheets() {
-//             this.out.append("List of saved sheets updated\n");
-//         }
+    //         // Verify that the controller's deleteSheetFromServer method was called with the correct sheet
+    //         verify(mockController).deleteSheetFromServer(selectedSheet);
+    //     }
+    // }
 
-//         @Override
-//         public void displayErrorBox(String message) {
-//             this.out.append("Error: ").append(message).append("\n");
-//         }
+    @Test
+    public void testUpdateSavedSheets() {
+        // Mock the controller to return some sheets
+        when(mockController.getSavedSheetsLocally()).thenReturn(List.of("LocalSheet1", "LocalSheet2"));
+        when(mockController.getAppUserSheets()).thenReturn(List.of("ServerSheet1", "ServerSheet2"));
+        when(mockController.getPublishersFromServer()).thenReturn(List.of("Publisher1", "Publisher2"));
 
-//         @Override
-//         public void openSheet(String path) {
-//             this.out.append("Sheet '").append(path).append("' opened\n");
-//         }
-        
-//         @Override
-//         public void openSheetFromServer(String path) {
-//             this.out.append("Sheet '").append(path).append("' opened from server\n");
-//         }
+        // Call the method to update saved sheets
+        homeView.updateSavedSheets();
 
-//         @Override
-//         public String toString() {
-//             return this.out.toString();
-//         }
-//     }
-// }
+        // Verify the dropdowns have been populated correctly
+        assertEquals(2, homeView.getOpenSheetDropdown().getItemCount());
+        assertEquals(2, homeView.getPublishersDropdown().getItemCount());
+
+        assertEquals("ServerSheet1", homeView.getOpenSheetDropdown().getItemAt(0));
+        assertEquals("ServerSheet2", homeView.getOpenSheetDropdown().getItemAt(1));
+
+        assertEquals("Publisher1", homeView.getPublishersDropdown().getItemAt(0));
+        assertEquals("Publisher2", homeView.getPublishersDropdown().getItemAt(1));
+    }
+
+    @Test
+    public void testDisplayErrorBox() {
+        String errorMessage = "Test Error";
+
+        try (MockedStatic<JOptionPane> mocked = mockStatic(JOptionPane.class)) {
+            homeView.displayErrorBox(errorMessage);
+
+            // Verify the error message is displayed
+            mocked.verify(() -> JOptionPane.showMessageDialog(homeView, errorMessage));
+        }
+    }
+
+    @Test
+    public void testDisposeHomePage() {
+        homeView.disposeHomePage();
+        // Verify the home page is disposed
+        assertEquals(false, homeView.isDisplayable());
+    }
+
+    @Test
+    public void testMakeVisible() {
+        homeView.makeVisible();
+        // Verify the home page is visible
+        assertEquals(true, homeView.isVisible());
+    }
+}

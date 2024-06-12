@@ -23,6 +23,10 @@ clean:
 run:
 	$(GRADLEW) bootRun
 
+.PHONY: test
+run:
+	$(GRADLEW) test
+
 # Create build directory if it doesn't exist
 .PHONY: create-build-dir
 create-build-dir:

@@ -127,6 +127,11 @@ public class UserController implements IUserController {
         this.sheetView.makeVisible();
     }
 
+    public ISpreadsheet getSpreadsheetModel() {
+        return spreadsheetModel;
+    }
+    
+
     @Override
     public void createNewServerSheet(String name) {
         try {

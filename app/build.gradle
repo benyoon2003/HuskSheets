@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'org.springframework.boot' version '3.2.0'
-    id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+    id 'io.spring.dependency-management' version '1.1.0'
     id 'application'
     id 'jacoco'
 }
@@ -20,22 +20,33 @@ dependencies {
     implementation 'org.json:json:20210307'
     implementation 'org.graalvm.js:js:21.3.0'
 
-    // Test dependencies
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.mockito:mockito-core:4.0.0'
-    testImplementation 'org.mockito:mockito-junit-jupiter:4.0.0'
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    testImplementation 'org.mockito:mockito-core'
+    testImplementation 'org.mockito:mockito-junit-jupiter'
+
+    // Test dependencies
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testImplementation 'org.mockito:mockito-core:4.11.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:4.11.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+    testImplementation 'org.mockito:mockito-inline:4.0.0'
+
 }
 
 application {
     mainClass = 'org.example.HuskSheetsRunner'
+    //mainClass = 'org.example.HuskSheetsApplication'
 }
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
-    sourceCompatibility = "1.21"
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 jacoco {
