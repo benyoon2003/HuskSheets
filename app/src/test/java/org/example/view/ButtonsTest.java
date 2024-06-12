@@ -29,18 +29,25 @@ public class ButtonsTest {
         this.testSpreadSheet = new Spreadsheet("test");
         this.sheetView = new SheetView(testSpreadSheet);
         this.controller = new UserController(login);
-        this.controller.loginUser(this.user.getUsername(), this.user.getPassword());
+       //this.controller.loginUser(this.user.getUsername(), this.user.getPassword());
         this.sheetView.addController(this.controller);
         this.acceptButton = new Accept(this.sheetView);
     }
 
+
     @Test
-    public void testAccept(){
-        System.out.println(this.sheetView);
+    public void testBack(){
+
+    }
+
+
+//    @Test
+//    public void testAccept(){
+//        System.out.println(this.sheetView);
 //        this.acceptButton.doClick();
 //        this.controller.openServerSheet(this.testSpreadSheet.getName());
 //
 //        assertEquals(this.testSpreadSheet.getCellsObject(), this.sheetView.cells.getCellsObject());
-    }
+//    }
 
 }

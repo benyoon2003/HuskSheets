@@ -93,7 +93,7 @@ public class Server {
      * @return true if the user exists already and false otherwise
      * @author Ben
      */
-    private boolean existingUser(String username, String password) {
+    public boolean existingUser(String username, String password) {
         for (IAppUser user : availUsers) {
             if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
                 return true;

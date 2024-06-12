@@ -5,6 +5,7 @@
  import org.example.controller.IUserController;
  import org.example.controller.UserController;
  import org.example.model.*;
+ import org.example.server.Server;
  import org.junit.jupiter.api.BeforeEach;
  import org.junit.jupiter.api.Test;
 
@@ -25,7 +26,17 @@
          this.testSpreadSheet = new Spreadsheet("test");
          this.sheetView = new SheetView(testSpreadSheet);
          this.controller = new UserController(login);
-         this.controller.loginUser(this.user.getUsername(), this.user.getPassword());
+
+         //check if user is registered first.
+         try{
+             this.controller.registerUser(this.user.getUsername(), this.user.getPassword());
+         } catch (Exception e){
+             try {
+                 this.controller.loginUser(this.user.getUsername(), this.user.getPassword());
+             } catch (Exception e1) {
+                 e1.printStackTrace();
+             }
+         }
          this.sheetView.addController(this.controller);
      }
 
