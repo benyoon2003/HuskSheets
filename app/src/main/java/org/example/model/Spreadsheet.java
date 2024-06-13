@@ -60,7 +60,7 @@ public class Spreadsheet implements ISpreadsheet {
      * @param grid the grid of cells.
      * @param name the name of the spreadsheet.
      */
-    public Spreadsheet(ArrayList<ArrayList<Cell>> grid, String name) {
+    public Spreadsheet(List<List<Cell>> grid, String name) {
         this(name);
         for (int i = 0; i < 100; i++) {
             List<Cell> row = grid.get(i);
@@ -847,7 +847,7 @@ public class Spreadsheet implements ISpreadsheet {
     /**
      * Evaluates the STDDEV function with the given parameter.
      *
-     * @param parameter the parameter for the STDDEV function.
+     * @param parameters the parameter for the STDDEV function.
      * @return the result of the STDDEV function.
      * @author Theo
      */
@@ -881,7 +881,7 @@ public class Spreadsheet implements ISpreadsheet {
     /**
      * Evaluates the SORT function with the given parameter.
      *
-     * @param parameter the parameter for the SORT function.
+     * @param parameters the parameter for the SORT function.
      * @return the result of the SORT function.
      * @author Theo
      */

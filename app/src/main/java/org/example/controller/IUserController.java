@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.example.model.IAppUser;
 import org.example.model.IReadOnlySpreadSheet;
+import org.example.model.ISpreadsheet;
 import org.example.view.IHomeView;
 import org.example.view.ISheetView;
 
@@ -22,7 +23,7 @@ public interface IUserController {
      * @author Vinay
      */
     void setCurrentSheet(ISheetView sheetView);
-
+    public ISpreadsheet getSpreadsheetModel();
     /**
      * Opens the home view.
      * @author Vinay

@@ -64,7 +64,7 @@ public class Home implements IHome {
     private ISpreadsheet generateSpreadsheet(NodeList cellNodes, int maxRow,
                                              int maxCol, String path) {
         // Create 2D cell array
-        ArrayList<ArrayList<Cell>> cellArray = new ArrayList<>();
+        List<List<Cell>> cellArray = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             ArrayList<Cell> row = new ArrayList<>();
             for (int j = 0; j < 100; j++) {

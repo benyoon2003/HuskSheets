@@ -107,7 +107,7 @@ public class ServerEndpointTest {
         }
     }
 
-<<<<<<< HEAD
+
 //    @Test
 //    public void testDeleteSheet() {
 //        try {
@@ -133,7 +133,7 @@ public class ServerEndpointTest {
 //            System.out.println(e.getMessage());
 //        }
 //    }
-=======
+
     @Test
     public void testDeleteSheet() {
         try {
@@ -160,7 +160,6 @@ public class ServerEndpointTest {
             System.out.println(e.getMessage());
         }
     }
->>>>>>> 8be407510f8a863d704469f82f169450ba2e4cce
 
     @Test
     public void testUpdateSubscriptionAndGetUpdatesForSubscription() {

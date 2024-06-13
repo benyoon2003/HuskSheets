@@ -9,6 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.util.Set;
 
@@ -243,16 +245,35 @@ public class SheetViewTest {
                 assertEquals(cell.getValue(), data[cell.getRow()][cell.getCol()]);
             }
         }
-
-//        // Test with modified spreadsheet data
-//        testSpreadSheet.setCellValue(0, 0, "Test Value");
-//        testSpreadSheet.setCellValue(0, 0, "Test Value");
-//        sheetView.cells = testSpreadSheet;
-//        data = sheetView.initializeData();
-//        for (Cell[] row : testSpreadSheet.getCellsObject()) {
-//            for (Cell cell : row) {
-//                assertEquals(cell.getValue(), data[cell.getRow()][cell.getCol()]);
-//            }
-//        }
     }
+
+//    @Test
+//    public void testLoadChanges(){
+//        Spreadsheet subscriberTestSpreadsheet = new Spreadsheet(testSpreadSheet.getCells(), testSpreadSheet.getName());
+//        ISheetView newView = new ReviewChangesSheetView(testSpreadSheet, subscriberTestSpreadsheet);
+//        newView.addController(this.controller);
+//        try{
+//            this.controller.setCurrentSheet(newView);
+//            newView.loadChanges();
+//        } catch (Exception e){
+//            assertEquals(testSpreadSheet, this.controller.getSpreadsheetModel());
+//        }
+//
+//
+//    }
+
+    @Test
+    public void testSetRowHeaders(){
+        DefaultTableModel sheetTable = (DefaultTableModel) sheetView.getTable().getModel();
+        sheetView.setRowHeaders(sheetTable);
+        DefaultTableModel compareTable = new DefaultTableModel();
+        for(int i = 0; i < sheetView.cells.getRows(); i++){
+            compareTable.setValueAt(i, i, 0);
+        }
+
+        for(int i = 0; i < sheetView.cells.getRows(); i++){
+            assertEquals(compareTable.getValueAt(1, 0), sheetTable.getValueAt(i, 0));
+        }
+    }
+
 }

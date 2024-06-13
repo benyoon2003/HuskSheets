@@ -24,7 +24,7 @@ public class SpreadsheetTest {
 
     @Test
     public void testConstructorExistingGrid() {
-        ArrayList<ArrayList<Cell>> grid = new ArrayList<>();
+        List<List<Cell>> grid = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             ArrayList<Cell> row = new ArrayList<>();
             for (int j = 0; j < 100; j++) {
