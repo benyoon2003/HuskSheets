@@ -13,6 +13,9 @@ import java.awt.Color;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class UserControllerTest {
@@ -65,15 +68,18 @@ public class UserControllerTest {
         verify(loginView, never()).displayErrorBox(anyString());
     }
 
-    // @Test
-    // public void testRegisterUser_Failure() throws Exception {
-    //     when(serverEndpoint.register(any(IAppUser.class))).thenReturn(new Result(false, "Error", null));
-
-    //     userController.registerUser("username", "password");
-
-    //     verify(loginView).displayErrorBox("Error");
-    //     assertNull(userController.getAppUser());
-    // }
+    @Test
+    public void testRegisterUser_Failure() {
+        try {
+            when(serverEndpoint.register(any(IAppUser.class))).thenReturn(new Result(false, "Error", null));
+            userController.registerUser("username", "password");
+            fail("Exception not thrown");
+        } catch (Exception e) {
+            assertEquals("Error", e.getMessage());
+        }
+        //appUser does not change after failed register
+        assertEquals(userController.getAppUser(), appUser);
+    }
 
     @Test
     public void testLoginUser_Success() throws Exception {
@@ -86,15 +92,19 @@ public class UserControllerTest {
         verify(loginView, never()).displayErrorBox(anyString());
     }
 
-    // @Test
-    // public void testLoginUser_Failure() throws Exception {
-    //     when(serverEndpoint.login(any(IAppUser.class))).thenReturn(new Result(false, "Error", null));
+    @Test
+    public void testLoginUser_Failure() {
+        try {
+            when(serverEndpoint.login(any(IAppUser.class))).thenReturn(new Result(false, "Error", null));
+            userController.loginUser("username", "password");
+            fail("Exception not thrown");
+        } catch (Exception e) {
+            assertEquals("Error", e.getMessage());
+        }
 
-    //     userController.loginUser("username", "password");
-
-    //     verify(loginView).displayErrorBox("Error");
-    //     assertNull(userController.getAppUser());
-    // }
+        // Current appuser must not change after failed login
+        assertEquals(userController.getAppUser(), appUser);
+    }
 
     @Test
     public void testGetPublishersFromServer_Success() throws Exception {
@@ -139,43 +149,35 @@ public class UserControllerTest {
         verify(homeView).displayErrorBox("Error");
     }
 
-    // @Test
-    // public void testSaveSheetToServer_Success() throws Exception {
-    //     when(serverEndpoint.updatePublished(anyString(), anyString(), anyString())).thenReturn(new Result(true, null, null));
-    //     IReadOnlySpreadSheet sheet = mock(IReadOnlySpreadSheet.class);
+    @Test
+    public void testSaveSheetToServer_Success() throws Exception {
+        // Mocking the serverEndpoint to return a successful result
+        when(serverEndpoint.updatePublished(anyString(), anyString(), anyString())).thenReturn(
+                new Result(true, "Sheet updated successfully", new ArrayList<>()));
+        when(appUser.getUsername()).thenReturn("testUser");
+        IReadOnlySpreadSheet sheet = mock(IReadOnlySpreadSheet.class);
+        userController.saveSheetToServer(sheet, "sheetName");
+        verify(sheetView, never()).displayMessage(anyString());
+    }
 
-    //     userController.saveSheetToServer(sheet, "sheetName");
+    @Test
+    public void testSaveSheetToServer_Failure() throws Exception {
+        when(serverEndpoint.updatePublished(anyString(), anyString(), anyString())).thenReturn(
+                new Result(false, "Error", null));
+        when(appUser.getUsername()).thenReturn("testUser");
+        IReadOnlySpreadSheet sheet = mock(IReadOnlySpreadSheet.class);
+        userController.saveSheetToServer(sheet, "sheetName");
+        verify(sheetView).displayMessage("Error");
+    }
 
-    //     verify(sheetView, never()).displayMessage(anyString());
-    // }
-
-    // @Test
-    // public void testSaveSheetToServer_Failure() throws Exception {
-    //     when(serverEndpoint.updatePublished(anyString(), anyString(), anyString())).thenReturn(new Result(false, "Error", null));
-    //     IReadOnlySpreadSheet sheet = mock(IReadOnlySpreadSheet.class);
-
-    //     userController.saveSheetToServer(sheet, "sheetName");
-
-    //     verify(sheetView).displayMessage("Error");
-    // }
-
-    // @Test
-    // public void testDeleteSheetFromServer_Success() throws Exception {
-    //     when(serverEndpoint.deleteSheet(anyString(), anyString())).thenReturn(new Result(true, null, null));
-
-    //     userController.deleteSheetFromServer("sheetName");
-
-    //     verify(homeView, never()).displayErrorBox(anyString());
-    // }
-
-    // @Test
-    // public void testDeleteSheetFromServer_Failure() throws Exception {
-    //     when(serverEndpoint.deleteSheet(anyString(), anyString())).thenReturn(new Result(false, "Error", null));
-
-    //     userController.deleteSheetFromServer("sheetName");
-
-    //     verify(homeView).displayErrorBox("Error");
-    // }
+    @Test
+    public void testDeleteSheetFromServer_Failure() throws Exception {
+        when(serverEndpoint.deleteSheet(anyString(), anyString())).thenReturn(
+                new Result(false, "Error", null));
+        when(appUser.getUsername()).thenReturn("testUser");
+        userController.deleteSheetFromServer("sheetName");
+        verify(homeView).displayErrorBox("Error");
+    }
 
     @Test
     public void testUpdateSelectedCells() throws Exception {
@@ -189,6 +191,78 @@ public class UserControllerTest {
         verify(spreadsheetModel, times(4)).setCellRawdata(anyInt(), anyInt(), eq("value"));
     }
 
+    @Test
+    public void testChangeSpreadSheetValueAt() {
+        int row = 1;
+        int col = 1;
+        String value = "=SUM(A1:B2)";
+    
+        userController.changeSpreadSheetValueAt(row, col, value);
+    
+        verify(spreadsheetModel).setCellRawdata(row, col, value);
+        verify(spreadsheetModel).setCellValue(row, col, value);
+        verify(spreadsheetModel).evaluateFormula(value);
+        verify(sheetView).updateTable();
+    }
+    
+    @Test
+    public void testCutCell() {
+        int row = 1;
+        int col = 1;
+        String value = "cutValue";
+    
+        when(spreadsheetModel.getCellRawdata(row, col)).thenReturn(value);
+    
+        userController.cutCell(row, col);
+    
+        verify(spreadsheetModel).setCellValue(row, col, "");
+        verify(sheetView).updateTable();
+        assertEquals(value, userController.getClipboardContent());
+        assertTrue(userController.isCutOperation());
+    }
+    
+    @Test
+    public void testCopyCell() {
+        int row = 1;
+        int col = 1;
+        String value = "copyValue";
+    
+        when(spreadsheetModel.getCellRawdata(row, col)).thenReturn(value);
+    
+        userController.copyCell(row, col);
+    
+        assertEquals(value, userController.getClipboardContent());
+        assertFalse(userController.isCutOperation());
+    }
+    
+//     @Test
+//     public void testPasteCell() {
+//         int row = 1;
+//         int col = 1;
+//         userController.clipboardContent = "pastedValue";
+//         userController.isCutOperation = true;
+//
+//         userController.pasteCell(row, col);
+//
+//         verify(spreadsheetModel).setCellValue(row, col, userController.getClipboardContent());
+//         verify(sheetView).updateTable();
+//         assertEquals("", userController.getClipboardContent());
+//         assertFalse(userController.isCutOperation());
+//     }
+    
+    @Test
+    public void testGetPercentile() {
+        int row = 1;
+        int col = 1;
+        String value = "0.75";
+    
+        when(spreadsheetModel.getCellValue(row, col)).thenReturn(value);
+    
+        userController.getPercentile(row, col);
+    
+        verify(spreadsheetModel).setCellValue(row, col, "75.0%");
+    }
+    
     @Test
     public void testApplyConditionalFormatting() throws Exception {
         Cell[][] cells = new Cell[100][100];
@@ -206,4 +280,37 @@ public class UserControllerTest {
         verify(sheetView, times(10000)).highlightCell(anyInt(), anyInt(), any(Color.class));
         verify(sheetView).updateTable();
     }
+
+    @Test
+    public void testSetSelectedCells() {
+        userController.setSelectedCells(new int[]{1, 3}, new int[]{5, 10});
+        assertEquals(userController.getSelectedStartRow(), 1);
+        assertEquals(userController.getSelectedEndRow(), 3);
+        assertEquals(userController.getSelectedStartCol(), 4);
+        assertEquals(userController.getSelectedEndCol(), 9);
+    }
+
+    private void attemptSignIn() {
+        this.appUser = new AppUser("username1", "password1");
+        //check if user is registered first.
+        try {
+            userController.registerUser(appUser.getUsername(), appUser.getPassword());
+        } catch (Exception e) {
+            try {
+                userController.loginUser(appUser.getUsername(), appUser.getPassword());
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        }
+    }
+
+//    @Test
+//    public void testOpenServerSheet() {
+//        attemptSignIn();
+//        userController.createNewServerSheet("newsheet");
+//        userController.openServerSheet("newsheet");
+//        userController.
+//        assertEquals(spreadsheetModel.getName(), "newsheet");
+//    }
+
 }

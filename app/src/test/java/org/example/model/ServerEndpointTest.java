@@ -107,6 +107,7 @@ public class ServerEndpointTest {
         }
     }
 
+<<<<<<< HEAD
 //    @Test
 //    public void testDeleteSheet() {
 //        try {
@@ -132,6 +133,34 @@ public class ServerEndpointTest {
 //            System.out.println(e.getMessage());
 //        }
 //    }
+=======
+    @Test
+    public void testDeleteSheet() {
+        try {
+            Argument deleteArg = new Argument();
+            deleteArg.setSheet("DELETE");
+            deleteArg.setPublisher(this.username);
+            if (!this.se.getSheets(this.username).getValue().contains(deleteArg)) {
+                result = this.se.createSheet("DELETE");
+            }
+
+            Result sheets = this.se.getSheets(this.username);
+            assertTrue(sheets.getSuccess());
+            List<Argument> args = sheets.getValue();
+            // store how many sheets there are currently
+            int sizeBefore = args.size();
+            this.se.deleteSheet(this.username, "DELETE");
+            sheets = this.se.getSheets(this.username);
+            args = sheets.getValue();
+            // make sure there is one less sheet
+            assertEquals(sizeBefore - 1, args.size());
+            // make sure the most recent sheet is not the DELETE sheet
+            assertFalse(args.contains(deleteArg));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+>>>>>>> 8be407510f8a863d704469f82f169450ba2e4cce
 
     @Test
     public void testUpdateSubscriptionAndGetUpdatesForSubscription() {

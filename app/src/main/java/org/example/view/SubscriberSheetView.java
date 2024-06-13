@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class SubscriberSheetView extends SheetView {
     final IReadOnlySpreadSheet cells;
-    private final Map<Point, Color> highlightedCells = new HashMap<>();
+    final Map<Point, Color> highlightedCells = new HashMap<>();
     private String author;
     /**
      * Constructs a SubscriberSheetView with the given spreadsheet and publisher.
@@ -52,8 +52,8 @@ public class SubscriberSheetView extends SheetView {
         formulaTextField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.changeSpreadSheetValueAt(controller.getSelectedRow(),
-                        controller.getSelectedCol(), formulaTextField.getText());
+                controller.changeSpreadSheetValueAt(controller.getSelectedStartRow(),
+                        controller.getSelectedStartCol(), formulaTextField.getText());
             }
         });
         revalidate();
