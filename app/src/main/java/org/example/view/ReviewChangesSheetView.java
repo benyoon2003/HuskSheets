@@ -2,12 +2,10 @@ package org.example.view;
 
 import org.example.model.Cell;
 import org.example.model.ISpreadsheet;
-import org.example.model.Spreadsheet;
 import org.example.view.button.*;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
-import java.awt.*;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -43,8 +41,8 @@ public class ReviewChangesSheetView extends SheetView {
         formulaTextField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.changeSpreadSheetValueAt(controller.getSelectedRow(),
-                        controller.getSelectedCol(), formulaTextField.getText());
+                controller.changeSpreadSheetValueAt(controller.getSelectedStartRow(),
+                        controller.getSelectedStartCol(), formulaTextField.getText());
             }
         });
     }
