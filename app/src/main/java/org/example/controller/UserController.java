@@ -41,6 +41,35 @@ public class UserController implements IUserController {
         this.currentSubscribedPublisher = "";
     }
 
+    public UserController(String url, String username, String password, String publisher, String sheetname) {
+        this.serverEndpoint = new ServerEndpoint(url);
+        this.loginPage = new LoginView();
+        this.loginPage.disposeLoginPage();
+        this.home = new Home();
+        this.homeView = new HomeView();
+        handleCommandLine(username, password, sheetname, publisher);
+    }
+
+    private void handleCommandLine(String username, String password,
+                                   String sheetname, String publisher) {
+        try {
+            registerUser(username, password);
+        }
+        catch (Exception registerError) {
+            if (registerError.getMessage().equals("User already exists")) {
+                try {
+                    loginUser(username, password);
+                }
+                catch (Exception loginError) {
+                    this.homeView.displayErrorBox(loginError.getMessage());
+                }
+            }
+            this.homeView.displayErrorBox(registerError.getMessage());
+            System.out.println(registerError.getMessage());
+        }
+        openSubscriberSheet(sheetname, publisher);
+    }
+
     public IAppUser getAppUser(){
         return appUser;
     }
