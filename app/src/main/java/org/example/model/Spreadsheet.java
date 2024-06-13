@@ -696,25 +696,17 @@ public class Spreadsheet implements ISpreadsheet {
         double sum = 0;
         try {
             for (String part : parts) {
+                // check for any nested functions
                 String func = getFunction(part);
-                if (func != "" && part.contains("(")) {
-                    int index = parameters.indexOf("(", parameters.indexOf(part));
-                    String nestedParameters = "";
-                    while (!nestedParameters.contains(")")) {
-                        nestedParameters += parameters.charAt(index);
-                        index += 1;
+                part = parseNestedOperations(func, part, parameters);
+                if (part != "") {
+                    sum += Double.parseDouble(replaceCellReferences(part.trim()));
+                    // shift to next parameters
+                    int index = parameters.indexOf(")");
+                    if (func != "" && index != -1) {
+                        parameters = parameters.substring(index + 1);
                     }
-                    func += nestedParameters;
-                    if (func.length() + parameters.indexOf(part) >= parameters.length()) {
-                        return "Error";
-                    }
-                    parameters = parameters.substring(index) + 1;
-                    part = parseOperations(func);
-                } else if (!part.contains("(") && part.contains(")")) {
-                    continue;
                 }
-
-                sum += Double.parseDouble(replaceCellReferences(part.trim()));
             }
             return String.valueOf(sum);
         } catch (NumberFormatException e) {
@@ -734,9 +726,20 @@ public class Spreadsheet implements ISpreadsheet {
         double min = Double.MAX_VALUE;
         try {
             for (String part : parts) {
-                double value = Double.parseDouble(replaceCellReferences(part.trim()));
-                if (value < min) {
-                    min = value;
+                // check for any nested functions
+                String func = getFunction(part);
+                part = parseNestedOperations(func, part, parameters);
+                if (part != "") {
+                    double value = Double.parseDouble(replaceCellReferences(part.trim()));
+                    // shift to next parameters
+                    int index = parameters.indexOf(")");
+                    if (func != "" && index != -1) {
+                        parameters = parameters.substring(index + 1);
+                    }
+
+                    if (value < min) {
+                        min = value;
+                    }
                 }
             }
             return String.valueOf(min);
@@ -757,9 +760,20 @@ public class Spreadsheet implements ISpreadsheet {
         double max = Double.MIN_VALUE;
         try {
             for (String part : parts) {
-                double value = Double.parseDouble(replaceCellReferences(part.trim()));
-                if (value > max) {
-                    max = value;
+                // check for any nested functions
+                String func = getFunction(part);
+                part = parseNestedOperations(func, part, parameters);
+                if (part != "") {
+                    double value = Double.parseDouble(replaceCellReferences(part.trim()));
+                    // shift to next parameters
+                    int index = parameters.indexOf(")");
+                    if (func != "" && index != -1) {
+                        parameters = parameters.substring(index + 1);
+                    }
+
+                    if (value > max) {
+                        max = value;
+                    }
                 }
             }
             return String.valueOf(max);
@@ -780,7 +794,17 @@ public class Spreadsheet implements ISpreadsheet {
         double sum = 0;
         try {
             for (String part : parts) {
-                sum += Double.parseDouble(replaceCellReferences(part.trim()));
+                // check for any nested functions
+                String func = getFunction(part);
+                part = parseNestedOperations(func, part, parameters);
+                if (part != "") {
+                    sum += Double.parseDouble(replaceCellReferences(part.trim()));
+                    // shift to next parameters
+                    int index = parameters.indexOf(")");
+                    if (func != "" && index != -1) {
+                        parameters = parameters.substring(index + 1);
+                    }
+                }
             }
             return String.valueOf(sum / parts.length);
         } catch (NumberFormatException e) {
@@ -827,14 +851,24 @@ public class Spreadsheet implements ISpreadsheet {
      * @return the result of the STDDEV function.
      * @author Theo
      */
-    private String evaluateSTDDEV(String parameter) {
-        String[] parts = parameter.split(",");
+    private String evaluateSTDDEV(String parameters) {
+        String[] parts = parameters.split(",");
         double sum = 0;
 
         try {
-            double avg = Double.parseDouble(evaluateAVG(parameter));
+            double avg = Double.parseDouble(evaluateAVG(parameters));
             for (String part : parts) {
-                sum += Math.pow(Double.parseDouble(replaceCellReferences(part)) - avg, 2);
+                // check for any nested functions
+                String func = getFunction(part);
+                part = parseNestedOperations(func, part, parameters);
+                if (part != "") {
+                    sum += Math.pow(Double.parseDouble(replaceCellReferences(part)) - avg, 2);
+                    // shift to next parameters
+                    int index = parameters.indexOf(")");
+                    if (func != "" && index != -1) {
+                        parameters = parameters.substring(index + 1);
+                    }
+                }
             }
         } catch (NumberFormatException e) {
             return "Error";
@@ -851,12 +885,23 @@ public class Spreadsheet implements ISpreadsheet {
      * @return the result of the SORT function.
      * @author Theo
      */
-    private String evaluateSORT(String parameter) {
-        String[] parts = parameter.split(",");
+    private String evaluateSORT(String parameters) {
+        String[] parts = parameters.split(",");
         double[] nums = new double[parts.length];
         try {
             for (int i = 0; i < nums.length; i++) {
-                nums[i] = Double.parseDouble(replaceCellReferences(parts[i]));
+                String part = parts[i];
+                // check for any nested functions
+                String func = getFunction(part);
+                part = parseNestedOperations(func, part, parameters);
+                if (part != "") {
+                    nums[i] = Double.parseDouble(replaceCellReferences(part));
+                    // shift to next parameters
+                    int index = parameters.indexOf(")");
+                    if (func != "" && index != -1) {
+                        parameters = parameters.substring(index + 1);
+                    }
+                }
             }
         } catch (NumberFormatException e) {
             return "Error";
@@ -870,5 +915,37 @@ public class Spreadsheet implements ISpreadsheet {
         }
 
         return result.substring(0, result.length() - 1);
+    }
+
+    /**
+     * Parses and evaluated any nested functions within the formula parameters.
+     *
+     * @param func the nested function within the given part.
+     * @param part the section of the parameters being evaluated
+     * @param parameters the entire parameter.
+     * @return the result of the nested function, or an empty string for the ends of functions.
+     * @author Theo
+     */
+    private String parseNestedOperations(String func, String part, String parameters) {
+        // see if there is a nested function to be evaluated
+        if (func != "" && part.contains("(")) {
+            int index = parameters.indexOf("(", parameters.indexOf(part));
+            // parse the nested parameters
+            String nestedParameters = "";
+            while (!nestedParameters.contains(")")) {
+                nestedParameters += parameters.charAt(index);
+                index += 1;
+            }
+            // evaluate the function
+            func += nestedParameters;
+            part = parseOperations(func);
+            return part;
+        // for the ends of already evaluated functions
+        } else if (!part.contains("(") && part.contains(")")) {
+            return "";
+        // for parts that don't need evaluation
+        } else {
+            return part;
+        }
     }
 }
