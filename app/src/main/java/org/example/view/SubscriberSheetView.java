@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class SubscriberSheetView extends SheetView {
     final IReadOnlySpreadSheet cells;
-    private final Map<Point, Color> highlightedCells = new HashMap<>();
+    final Map<Point, Color> highlightedCells = new HashMap<>();
     private String author;
     /**
      * Constructs a SubscriberSheetView with the given spreadsheet and publisher.
