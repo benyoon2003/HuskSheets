@@ -172,7 +172,7 @@ public class Spreadsheet implements ISpreadsheet {
      * @return the row index.
      * @author Theo
      */
-    private int getRow(String cell) {
+    public int getRow(String cell) {
         try {
             return Integer.parseInt(cell.replaceAll("[^0-9]", "")) - 1;
         } catch (NumberFormatException e) {
@@ -187,7 +187,7 @@ public class Spreadsheet implements ISpreadsheet {
      * @return the column index.
      * @author Vinay
      */
-    private int getColumn(String cell) {
+    public int getColumn(String cell) {
         String col = cell.replaceAll("[^A-Z]", "").toUpperCase();
         int column = 0;
         for (int i = 0; i < col.length(); i++) {
@@ -237,6 +237,11 @@ public class Spreadsheet implements ISpreadsheet {
     public void setGrid(List<List<Cell>> updatedGrid) {
         this.grid = updatedGrid;
     }
+
+    public List<List<Cell>> getGrid() {
+        return this.grid;
+    }
+    
 
     /**
      * Gets the name of the spreadsheet.

@@ -1,7 +1,6 @@
 package org.example.model;
 
 import java.net.URI;
-import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -12,12 +11,16 @@ public class ServerEndpoint {
 
 
   // Base URL for the server endpoints
-  private static String BASE_URL = "https://husksheet-cb47d5864e1b.herokuapp.com/api/v1/";
+  private String url = "https://husksheet-cb47d5864e1b.herokuapp.com/api/v1/";
   private static IAppUser user;
-
 
   public ServerEndpoint() {
   }
+
+  public ServerEndpoint(String url) {
+    this.url = url;
+  }
+
   /**
    * Constructs the Basic Authentication header using the username and password.
    *
@@ -41,7 +44,7 @@ public class ServerEndpoint {
 
   public Result register(IAppUser user) throws Exception {
     ServerEndpoint.user = user;
-    String url = BASE_URL + "register";
+    String url = this.url + "register";
     HttpResponse<String> response = sendGetRequest(url);
     System.out.println("Register request: " + response.body());
     return new Result(response.body());
@@ -57,7 +60,7 @@ public class ServerEndpoint {
      */
   public Result login(IAppUser user) throws Exception {
     ServerEndpoint.user = user;
-    String url = BASE_URL + "login";
+    String url = this.url + "login";
     HttpResponse<String> response = sendGetRequest(url);
     System.out.println("Login request: " + response.body());
     return new Result(response.body());
@@ -70,7 +73,7 @@ public class ServerEndpoint {
    * @author Tony
    */
   public Result getPublishers() throws Exception {
-    String url = BASE_URL + "getPublishers";
+    String url = this.url + "getPublishers";
     HttpResponse<String> response = sendGetRequest(url);
     System.out.println("Get Publishers Response: " + response.body());
     return new Result(response.body());
@@ -84,7 +87,7 @@ public class ServerEndpoint {
    * @author Tony
    */
   public Result createSheet(String sheet) throws Exception {
-    String url = BASE_URL + "createSheet"; // Ensure the endpoint is correct
+    String url = this.url + "createSheet"; // Ensure the endpoint is correct
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\"}", user.getUsername(), sheet);
     HttpResponse<String> response = sendPostRequest(url, json);
     System.out.println("Create Sheet Response: " + response.body());
@@ -100,7 +103,7 @@ public class ServerEndpoint {
    * @author Vinay
    */
   public Result getSheets(String publisher) throws Exception {
-    String url = BASE_URL + "getSheets";
+    String url = this.url + "getSheets";
     String json = String.format("{\"publisher\":\"%s\"}", publisher);
     HttpResponse<String> response = sendPostRequest(url, json);
     System.out.println("Get Sheets Response: " + response.body());
@@ -116,7 +119,7 @@ public class ServerEndpoint {
    * @author Tony
    */
   public Result deleteSheet(String publisher, String sheet) throws Exception {
-    String url = BASE_URL + "deleteSheet";
+    String url = this.url + "deleteSheet";
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\"}", publisher, sheet);
     HttpResponse<String> response = sendPostRequest(url, json);
     System.out.println("Delete Sheet Response: " + response.body());
@@ -133,7 +136,7 @@ public class ServerEndpoint {
    * @throws Exception
    */
   public Result getUpdatesForSubscription(String publisher, String sheet, String id) throws Exception {
-    String url = BASE_URL + "getUpdatesForSubscription";
+    String url = this.url + "getUpdatesForSubscription";
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"id\":\"%s\"}", publisher, sheet, id);
     HttpResponse<String> response = sendPostRequest(url, json);
     System.out.println("Get Updates For Subscription Response: " + response.body());
@@ -150,7 +153,7 @@ public class ServerEndpoint {
      * @author Tony
      */
   public Result getUpdatesForPublished(String publisher, String sheet, String id) throws Exception {
-    String url = BASE_URL + "getUpdatesForPublished";
+    String url = this.url + "getUpdatesForPublished";
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"id\":\"%s\"}", publisher, sheet, id);
     HttpResponse<String> response = sendPostRequest(url, json);
     System.out.println("Get Updates For Published Response: " + response.body());
@@ -168,7 +171,7 @@ public class ServerEndpoint {
      * @author Vinay
      */
   public Result updatePublished(String publisher, String sheet, String payload) throws Exception {
-    String url = BASE_URL + "updatePublished";
+    String url = this.url + "updatePublished";
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"payload\":\"%s\"}", publisher, sheet, payload);
     HttpResponse<String> response = sendPostRequest(url, json);
     System.out.println("Update Published Response: " + response.body());
@@ -186,7 +189,7 @@ public class ServerEndpoint {
      * @author Tony
      */
   public Result updateSubscription(String publisher, String sheet, String payload) throws Exception {
-    String url = BASE_URL + "updateSubscription";
+    String url = this.url + "updateSubscription";
     String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"payload\":\"%s\"}", publisher, sheet, payload);
     HttpResponse<String> response = sendPostRequest(url, json);
     System.out.println("Update Subscription Response: " + response.body());
