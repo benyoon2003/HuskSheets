@@ -67,8 +67,8 @@ public class LoginViewTest {
 
         @Override
         public void disposeLoginPage() {
-            this.out.append("Login page disposed\n");
             super.disposeLoginPage();
+            this.out.append("Login page disposed\n");
         }
 
         @Override
