@@ -161,18 +161,32 @@ public interface IUserController {
     void openServerSheet(String selectedSheet);
 
     /**
-     * Gets the zero-indexed selected row.
+     * Gets the zero-indexed selected start row.
      * @return the zero-indexed selected row.
      * @author Vinay
      */
-    int getSelectedRow();
+    int getSelectedStartRow();
 
     /**
-     * Gets the zero-indexed selected column.
+     * Gets the zero-indexed selected start column.
      * @return the zero-indexed selected column.
      * @author Vinay
      */
-    int getSelectedCol();
+    int getSelectedStartCol();
+
+    /**
+     * Gets the zero-indexed selected end row.
+     * @return the zero-indexed selected row.
+     * @author Ben
+     */
+    int getSelectedEndRow();
+
+    /**
+     * Gets the zero-indexed selected end column.
+     * @return the zero-indexed selected column.
+     * @author Ben
+     */
+    int getSelectedEndCol();
 
     /**
      * Registers a new user with the provided username and password.
