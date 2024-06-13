@@ -17,6 +17,11 @@ public class HuskSheetsRunner {
      * @param args command line arguments passed to the application.
      */
   public static void main(String[] args) {
-    new UserController(new LoginView());
+
+      for(String arg : args) {
+          System.out.println(arg);
+      }
+
+      new UserController(new LoginView());
   }
 }
