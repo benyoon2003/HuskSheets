@@ -13,9 +13,9 @@ import java.util.stream.Collectors;
  * and value.
  */
 public class Result {
-    private boolean success;
-    private String message;
-    private List<Argument> value;
+    private final boolean success;
+    private final String message;
+    private final List<Argument> value;
 
     /**
      * Constructs a Result with the specified success status, message, and value.
