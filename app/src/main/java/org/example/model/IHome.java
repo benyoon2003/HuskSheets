@@ -18,7 +18,7 @@ public interface IHome {
     /**
      * Reads a payload associated with a given user and selected sheet, and returns a spreadsheet model.
      *
-     * @param payload payload to be parsed.
+     * @param payload   payload to be parsed.
      * @param sheetName name of sheet
      * @return a ISpreadsheet representing the data from the payload.
      * @author Tony
@@ -29,7 +29,7 @@ public interface IHome {
      * Writes the given read-only spreadsheet to an XML file at the specified path.
      *
      * @param sheet the read-only spreadsheet to write.
-     * @param path the path where the XML file will be written.
+     * @param path  the path where the XML file will be written.
      * @author Theo
      */
     void writeXML(IReadOnlySpreadSheet sheet, String path);
