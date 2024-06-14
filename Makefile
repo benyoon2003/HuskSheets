@@ -23,8 +23,9 @@ clean:
 run:
 	$(GRADLEW) bootRun
 
+# Run tests using Gradle
 .PHONY: test
-run:
+test:
 	$(GRADLEW) test
 
 # Create build directory if it doesn't exist
@@ -41,8 +42,3 @@ docker-build: build
 .PHONY: docker-run
 docker-run:
 	docker run -e USERNAME=$(USERNAME) -e PASSWORD=$(PASSWORD) $(DOCKER_IMAGE)
-
-# Run the main class with arguments
-.PHONY: run-with-args
-run-with-args:
-	$(GRADLEW) bootRun --args="--local --name='$(USERNAME)' --password='$(PASSWORD)' --verbose --url='https://husksheets.fly.dev' --publisher='team2' --sheet='Sheet1'"
