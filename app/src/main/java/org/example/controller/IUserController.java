@@ -24,7 +24,13 @@ public interface IUserController {
      * @author Vinay
      */
     void setCurrentSheet(ISheetView sheetView);
-    public ISpreadsheet getSpreadsheetModel();
+
+    /**
+     * Gets the current spreadsheet model.
+     * @return
+     */
+    ISpreadsheet getSpreadsheetModel();
+
     /**
      * Opens the home view.
      *
