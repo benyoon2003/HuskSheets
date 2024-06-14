@@ -64,6 +64,10 @@ public class UserControllerTest {
         field.set(target, value);
     }
 
+    /**
+     * Tests the registerUser method for a successful registration.
+     * @throws Exception if there is an error during registration
+     */
     @Test
     public void testRegisterUser_Success() throws Exception {
         when(serverEndpoint.register(any(IAppUser.class))).thenReturn(new Result(true, null, null));
@@ -75,6 +79,9 @@ public class UserControllerTest {
         verify(loginView, never()).displayErrorBox(anyString());
     }
 
+    /**
+     * Tests the registerUser method for a failed registration.
+     */
     @Test
     public void testRegisterUser_Failure() {
         try {
@@ -88,6 +95,10 @@ public class UserControllerTest {
         assertEquals(userController.getAppUser(), appUser);
     }
 
+    /**
+     * Tests the loginUser method for a successful login.
+     * @throws Exception if there is an error during login
+     */
     @Test
     public void testLoginUser_Success() throws Exception {
         when(serverEndpoint.login(any(IAppUser.class))).thenReturn(new Result(true, null, null));
@@ -99,6 +110,9 @@ public class UserControllerTest {
         verify(loginView, never()).displayErrorBox(anyString());
     }
 
+    /**
+     * Tests the loginUser method for a failed login.
+     */
     @Test
     public void testLoginUser_Failure() {
         try {
@@ -113,6 +127,10 @@ public class UserControllerTest {
         assertEquals(userController.getAppUser(), appUser);
     }
 
+    /**
+     * Tests the getPublishersFromServer method for a successful response.
+     * @throws Exception if there is an error during the request
+     */
     @Test
     public void testGetPublishersFromServer_Success() throws Exception {
         List<Argument> arguments = new ArrayList<>();
@@ -126,6 +144,10 @@ public class UserControllerTest {
         verify(homeView, never()).displayErrorBox(anyString());
     }
 
+    /**
+     * Tests the getPublishersFromServer method for a failed response.
+     * @throws Exception if there is an error during the request
+     */
     @Test
     public void testGetPublishersFromServer_Failure() throws Exception {
         when(serverEndpoint.getPublishers()).thenReturn(new Result(false, "Error", null));
@@ -136,6 +158,10 @@ public class UserControllerTest {
         verify(homeView).displayErrorBox("Error");
     }
 
+    /**
+     * Tests the createNewServerSheet method for a successful sheet creation.
+     * @throws Exception if there is an error during the request
+     */
     @Test
     public void testCreateNewServerSheet_Success() throws Exception {
         when(serverEndpoint.createSheet(anyString())).thenReturn(new Result(true, null, null));
@@ -147,6 +173,10 @@ public class UserControllerTest {
         verify(homeView, never()).displayErrorBox(anyString());
     }
 
+    /**
+     * Tests the createNewServerSheet method for a failed sheet creation.
+     * @throws Exception if there is an error during the request
+     */
     @Test
     public void testCreateNewServerSheet_Failure() throws Exception {
         when(serverEndpoint.createSheet(anyString())).thenReturn(new Result(false, "Error", null));
@@ -156,6 +186,10 @@ public class UserControllerTest {
         verify(homeView).displayErrorBox("Error");
     }
 
+    /**
+     * Tests the saveSheetToServer method for a successful save.
+     * @throws Exception if there is an error during the request
+     */
     @Test
     public void testSaveSheetToServer_Success() throws Exception {
         // Mocking the serverEndpoint to return a successful result
@@ -167,6 +201,10 @@ public class UserControllerTest {
         verify(sheetView, never()).displayMessage(anyString());
     }
 
+    /**
+     * Tests the saveSheetToServer method for a failed save.
+     * @throws Exception if there is an error during the request
+     */
     @Test
     public void testSaveSheetToServer_Failure() throws Exception {
         when(serverEndpoint.updatePublished(anyString(), anyString(), anyString())).thenReturn(
@@ -177,6 +215,10 @@ public class UserControllerTest {
         verify(sheetView).displayMessage("Error");
     }
 
+    /**
+     * Tests the deleteSheetFromServer method for a failed deletion.
+     * @throws Exception if there is an error during the request
+     */
     @Test
     public void testDeleteSheetFromServer_Failure() throws Exception {
         when(serverEndpoint.deleteSheet(anyString(), anyString())).thenReturn(
@@ -186,6 +228,10 @@ public class UserControllerTest {
         verify(homeView).displayErrorBox("Error");
     }
 
+    /**
+     * Tests the updateSelectedCells method.
+     * @throws Exception if there is an error during the update
+     */
     @Test
     public void testUpdateSelectedCells() throws Exception {
         when(selectedCells.getStartRow()).thenReturn(0);
@@ -198,6 +244,9 @@ public class UserControllerTest {
         verify(spreadsheetModel, times(4)).setCellRawdata(anyInt(), anyInt(), eq("value"));
     }
 
+    /**
+     * Tests the changeSpreadSheetValueAt method.
+     */
     @Test
     public void testChangeSpreadSheetValueAt() {
         int row = 1;
@@ -211,7 +260,10 @@ public class UserControllerTest {
         verify(spreadsheetModel).evaluateFormula(value);
         verify(sheetView).updateTable();
     }
-    
+
+    /**
+     * Tests the cutCell method.
+     */
     @Test
     public void testCutCell() {
         int row = 1;
@@ -227,7 +279,10 @@ public class UserControllerTest {
         assertEquals(value, userController.getClipboardContent());
         assertTrue(userController.isCutOperation());
     }
-    
+
+    /**
+     * Tests the copyCell method.
+     */
     @Test
     public void testCopyCell() {
         int row = 1;
@@ -256,7 +311,10 @@ public class UserControllerTest {
 //         assertEquals("", userController.getClipboardContent());
 //         assertFalse(userController.isCutOperation());
 //     }
-    
+
+    /**
+     * Tests the getPercentile method.
+     */
     @Test
     public void testGetPercentile() {
         int row = 1;
@@ -269,7 +327,11 @@ public class UserControllerTest {
     
         verify(spreadsheetModel).setCellValue(row, col, "75.0%");
     }
-    
+
+    /**
+     * Tests the applyConditionalFormatting method.
+     * @throws Exception if there is an error during the application
+     */
     @Test
     public void testApplyConditionalFormatting() throws Exception {
         Cell[][] cells = new Cell[100][100];
@@ -287,7 +349,10 @@ public class UserControllerTest {
         verify(sheetView, times(10000)).highlightCell(anyInt(), anyInt(), any(Color.class));
         verify(sheetView).updateTable();
     }
-
+    
+    /**
+     * Tests the setSelectedCells method.
+     */
     @Test
     public void testSetSelectedCells() {
         userController.setSelectedCells(new int[]{1, 3}, new int[]{5, 10});

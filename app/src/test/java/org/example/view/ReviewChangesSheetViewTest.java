@@ -15,6 +15,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Tests the methods within the ReviewChangesSheetView class.
+ */
 public class ReviewChangesSheetViewTest {
     private ReviewChangesSheetView reviewChangesSheetView;
     private IUserController controller;
@@ -23,6 +26,9 @@ public class ReviewChangesSheetViewTest {
     private IAppUser user = new AppUser("John", "12345");
     private ILoginView login;
 
+    /**
+     * Initializes the test environment by setting up the necessary components.
+     */
     @BeforeEach
     public void init() {
         this.login = new LoginView();
@@ -44,6 +50,10 @@ public class ReviewChangesSheetViewTest {
         this.reviewChangesSheetView.addController(this.controller);
     }
 
+    /**
+     * Tests the addController method of the ReviewChangesSheetView class.
+     * @throws Exception if there is an error during the test
+     */
     @Test
     public void testAddController() throws Exception {
         // Test if user is correctly logged into reviewChangesSheetView
@@ -58,6 +68,9 @@ public class ReviewChangesSheetViewTest {
         assertEquals(this.user.getPassword(), password);
     }
 
+    /**
+     * Tests the selectedCells method of the ReviewChangesSheetView class.
+     */
     @Test
     public void testSelectedCells() {
         int[] selectedRows = {0, 1, 2, 3, 4};
@@ -75,6 +88,9 @@ public class ReviewChangesSheetViewTest {
         assertEquals(this.reviewChangesSheetView.selectedCells.getEndRow(), 4);
     }
 
+    /**
+     * Tests the changeFormulaTextField method of the ReviewChangesSheetView class.
+     */
     @Test
     public void testChangeFormulaTextField() {
         String rawData1 = "hello";
@@ -83,6 +99,9 @@ public class ReviewChangesSheetViewTest {
         assertEquals("hello", this.reviewChangesSheetView.formulaTextField.getText());
     }
 
+    /**
+     * Tests the highlightCell method of the ReviewChangesSheetView class.
+     */
     @Test
     public void testHighlightCell() {
         int row = 0;
@@ -103,6 +122,9 @@ public class ReviewChangesSheetViewTest {
         }
     }
 
+    /**
+     * Tests the getExcelColumnName method of the ReviewChangesSheetView class.
+     */
     @Test
     public void testExcelColumnName() {
         int colNum = 1;
@@ -118,6 +140,9 @@ public class ReviewChangesSheetViewTest {
         assertEquals("AA", col);
     }
 
+    /**
+     * Tests the getTable method of the ReviewChangesSheetView class.
+     */
     @Test
     public void testGetTable() {
         JTable testTable = new JTable();
@@ -126,11 +151,17 @@ public class ReviewChangesSheetViewTest {
         assertEquals(testTable, this.reviewChangesSheetView.getTable());
     }
 
+    /**
+     * Tests the getController method of the ReviewChangesSheetView class.
+     */
     @Test
     public void testGetController() {
         assertEquals(this.controller, this.reviewChangesSheetView.getController());
     }
 
+    /**
+     * Tests the zoomTable method of the ReviewChangesSheetView class.
+     */
     @Test
     public void testZoomTable() {
         JTable testTable = new JTable();
@@ -179,7 +210,10 @@ public class ReviewChangesSheetViewTest {
     //         }
     //     }
     // }
-
+    
+    /**
+     * Tests the loadChanges method of the ReviewChangesSheetView class when no changes are found.
+     */
     @Test
     public void testNoChangesFound() {
         // Setting up current and changes spreadsheets with the same data

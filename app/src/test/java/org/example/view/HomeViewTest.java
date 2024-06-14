@@ -1,6 +1,9 @@
 package org.example.view;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import java.util.List;
@@ -12,10 +15,16 @@ import org.mockito.MockedStatic;
 
 import javax.swing.*;
 
+/**
+ * Tests the methods within the HomeView class.
+ */
 public class HomeViewTest {
     private HomeView homeView;
     private IUserController mockController;
 
+    /**
+     * Initializes the test environment by creating a HomeView instance and mocking the IUserController.
+     */
     @BeforeEach
     public void init() {
         homeView = new HomeView();
@@ -23,11 +32,17 @@ public class HomeViewTest {
         homeView.addController(mockController);
     }
 
+    /**
+     * Tests the addController method of the HomeView class.
+     */
     @Test
     public void testAddController() {
         assertEquals(mockController, homeView.getController());
     }
 
+    /**
+     * Tests the createSheet method of the HomeView class.
+     */
     @Test
     public void testCreateSheet() {
         String sheetName = "TestSheet";
@@ -80,6 +95,9 @@ public class HomeViewTest {
     //     }
     // }
 
+    /**
+     * Tests the updateSavedSheets method of the HomeView class.
+     */
     @Test
     public void testUpdateSavedSheets() {
         // Mock the controller to return some sheets
@@ -101,6 +119,9 @@ public class HomeViewTest {
         assertEquals("Publisher2", homeView.getPublishersDropdown().getItemAt(1));
     }
 
+    /**
+     * Tests the displayErrorBox method of the HomeView class.
+     */
     @Test
     public void testDisplayErrorBox() {
         String errorMessage = "Test Error";
@@ -113,13 +134,19 @@ public class HomeViewTest {
         }
     }
 
+    /**
+     * Tests the disposeHomePage method of the HomeView class.
+     */
     @Test
     public void testDisposeHomePage() {
         homeView.disposeHomePage();
         // Verify the home page is disposed
         assertEquals(false, homeView.isDisplayable());
     }
-
+    
+    /**
+     * Tests the makeVisible method of the HomeView class.
+     */
     @Test
     public void testMakeVisible() {
         homeView.makeVisible();

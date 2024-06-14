@@ -84,7 +84,7 @@ public interface IUserController {
      * Deletes a sheet locally at the specified path.
      *
      * @param path the path to delete the sheet from.
-     * @author Vinay
+     * @author Theo
      */
     void deleteSheetLocally(String path);
 
@@ -222,6 +222,7 @@ public interface IUserController {
      * Getter for the clipboard content.
      *
      * @return clipboard content
+     * @author Vinay
      */
     String getClipboardContent();
 
@@ -324,6 +325,7 @@ public interface IUserController {
     /**
      * Getter for isCutOperation.
      * @return boolean
+     * @author Vinay
      */
     boolean isCutOperation();
 }

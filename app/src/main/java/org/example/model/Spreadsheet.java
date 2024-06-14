@@ -582,7 +582,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param parameters the parameters for the IF function.
      * @return the result of the IF function.
-     * @author Theo
+     * @author Vinay
      */
     private String evaluateIF(String parameters) {
         String[] parts = parameters.split(",");
