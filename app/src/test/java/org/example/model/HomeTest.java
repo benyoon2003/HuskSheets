@@ -14,14 +14,24 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests the methods within the Home class.
+ */
 public class HomeTest {
     private IHome home;
 
+    /**
+     * Initializes the Home instance before each test.
+     */
     @BeforeEach
     public void init() {
         this.home = new Home();
     }
 
+    /**
+     * Tests the readXML method with a valid XML file.
+     * @throws IOException if there is an I/O error
+     */
     @Test
     public void testReadXML() throws IOException {
         File file = new File("..\\sheets\\readTestSheet.xml");
@@ -39,12 +49,18 @@ public class HomeTest {
         assertEquals("", sheet.getCellValue(0, 1));
     }
 
+    /**
+     * Tests the readXML method with a bad file path.
+     */
     @Test
     public void testReadXMLBadFilepath() {
         File file = new File("does not exist");
         assertNull(this.home.readXML(file.getAbsolutePath()));
     }
 
+    /**
+     * Tests the readPayload method with a valid payload.
+     */
     @Test
     public void testReadPayload() {
         String payload = "$A1 00\\n$B1 01\\n$A2 10\\n$B2 11\\n";
@@ -59,6 +75,9 @@ public class HomeTest {
         assertEquals("11", sheet.getCellValue(1, 1));
     }
 
+    /**
+     * Tests the writeXML method with a valid sheet and path.
+     */
     @Test
     public void testWriteXML() {
         Spreadsheet sheet = new Spreadsheet("Test");
@@ -84,6 +103,9 @@ public class HomeTest {
         }
     }
 
+    /**
+     * Tests the writeXML method with a trimmed path.
+     */
     @Test
     public void testWriteXMLPathTrim() {
         Spreadsheet sheet = new Spreadsheet("Test");
@@ -109,6 +131,9 @@ public class HomeTest {
         }
     }
 
+    /**
+     * Tests the writeXML method with a path that has a different extension.
+     */
     @Test
     public void testWriteXMLWithDifferentExtension() {
         Spreadsheet sheet = new Spreadsheet("Test");
@@ -134,6 +159,9 @@ public class HomeTest {
         }
     }
 
+    /**
+     * Tests the convertStringTo2DArray method with a valid input string.
+     */
     @Test
     public void testConvertStringTo2DArray() {
         String input = "$A1 00\n$B1 01\n$A2 10\n$B2 11\n";
@@ -157,6 +185,9 @@ public class HomeTest {
         assertEquals("11", result.get(3).get(2));
     }
 
+    /**
+     * Tests the convertStringTo2DArray method with a null input string.
+     */
     @Test
     public void testConvertStringTo2DArrayWithNullInput() {
         String input = null;
@@ -165,6 +196,9 @@ public class HomeTest {
         assertTrue(result.isEmpty());
     }
 
+    /**
+     * Tests the convertStringTo2DArray method with an empty input string.
+     */
     @Test
     public void testConvertStringTo2DArrayWithEmptyInput() {
         String input = "";
@@ -173,6 +207,9 @@ public class HomeTest {
         assertTrue(result.isEmpty());
     }
 
+    /**
+     * Tests the convertStringTo2DArray method with an input string containing an empty line.
+     */
     @Test
     public void testConvertStringTo2DArrayWithEmptyLine() {
         String input = "$A1 00\n\n$B1 01\n$A2 10\n$B2 11\n";
@@ -196,6 +233,9 @@ public class HomeTest {
         assertEquals("11", result.get(3).get(2));
     }
 
+    /**
+     * Tests the convertStringTo2DArray method with an input string containing an invalid parts length.
+     */
     @Test
     public void testConvertStringTo2DArrayWithInvalidPartsLength() {
         String input = "$A1 00\n$B1\n$A2 10\n$B2 11\n";
@@ -215,6 +255,10 @@ public class HomeTest {
         assertEquals("11", result.get(2).get(2));
     }
 
+    /**
+     * Tests the private trimEnds method using reflection.
+     * @throws Exception if there is an error during reflection
+     */
     @Test
     public void testTrimEnds() throws Exception {
         String path = "C:\\Users\\user\\Desktop\\file.xml";
@@ -232,6 +276,10 @@ public class HomeTest {
         assertEquals("file", result);
     }
 
+    /**
+     * Tests the private trimEnds method without an extension using reflection.
+     * @throws Exception if there is an error during reflection
+     */
     @Test
     public void testTrimEndsWithoutExtension() throws Exception {
         String path = "C:\\Users\\user\\Desktop\\file";
@@ -249,6 +297,10 @@ public class HomeTest {
         assertEquals("file", result);
     }
 
+    /**
+     * Tests the private convertRefToRowCol method using reflection.
+     * @throws Exception if there is an error during reflection
+     */
     @Test
     public void testConvertRefToRowCol() throws Exception {
         Method method = Home.class.getDeclaredMethod("convertRefToRowCol", String.class);
@@ -266,7 +318,11 @@ public class HomeTest {
         assertEquals(9, result[0]);
         assertEquals(26, result[1]);
     }
-
+    
+    /**
+     * Tests the private convertRefToRowCol method with an invalid reference using reflection.
+     * @throws Exception if there is an error during reflection
+     */
     @Test
     public void testConvertRefToRowColInvalidRef() throws Exception {
         Method method = Home.class.getDeclaredMethod("convertRefToRowCol", String.class);
@@ -281,6 +337,9 @@ public class HomeTest {
         assertEquals(0, result[1]);
     }
     
+    /**
+     * Tests the writeXML method with an invalid path.
+     */
     @Test
     public void testWriteXMLWithInvalidPath() {
         Spreadsheet sheet = new Spreadsheet("Test");

@@ -8,10 +8,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Tests the methods within the Result class.
+ */
 public class ResultTest {
     private Result result;
     private List<Argument> initialArguments;
 
+    /**
+     * Sets up the initial conditions before each test.
+     */
     @BeforeEach
     public void setUp() {
         initialArguments = new ArrayList<>();
@@ -19,6 +25,9 @@ public class ResultTest {
         result = new Result(true, "Initial success", initialArguments);
     }
 
+    /**
+     * Tests the constructor and getter methods of the Result class.
+     */
     @Test
     public void testConstructorAndGetters() {
         assertTrue(result.getSuccess(), "Constructor should correctly initialize the success field");
@@ -26,6 +35,9 @@ public class ResultTest {
         assertEquals(initialArguments, result.getValue(), "Constructor should correctly initialize the value field");
     }
 
+    /**
+     * Tests the constructor with a null value.
+     */
     @Test
     public void testConstructorWithNullValue() {
         Result resultWithNullValue = new Result(true, "Success with null value", null);
@@ -35,6 +47,9 @@ public class ResultTest {
         assertTrue(resultWithNullValue.getValue().isEmpty(), "Value should be an empty list if null is passed");
     }
 
+    /**
+     * Tests the constructor that initializes a Result object from a JSON string.
+     */
     @Test
     public void testConstructorFromJSONString() {
         String jsonString = "{\"success\":true, \"message\":null, \"value\": [{\"publisher\":\"test\",\"sheet\":\"Test\",\"id\":null,\"payload\":null}]}";
@@ -50,6 +65,9 @@ public class ResultTest {
         assertEquals("Test", arg.getSheet());
     }
 
+    /**
+     * Tests the constructor that initializes a Result object from a JSON string with an empty value.
+     */
     @Test
     public void testConstructorFromJSONStringWithEmptyValue() {
         String jsonString = "{\"success\":true, \"message\":null, \"value\": []}";
@@ -62,6 +80,9 @@ public class ResultTest {
         assertTrue(test.getValue().isEmpty(), "Value should be an empty list");
     }
 
+    /**
+     * Tests the constructor that initializes a Result object from a JSON string with a null value.
+     */
     @Test
     public void testConstructorFromJSONStringWithNullValue() {
         String jsonString = "{\"success\":true, \"message\":null}";
@@ -74,24 +95,36 @@ public class ResultTest {
         assertTrue(test.getValue().isEmpty(), "Value should be an empty list if not provided in JSON");
     }
 
+    /**
+     * Tests the constructor that initializes a Result object from a malformed JSON string.
+     */
     @Test
     public void testConstructorFromJSONStringWithMalformedJSON() {
         String jsonString = "{success:true, message:null, value: [{publisher:test,sheet:Test,id:null,payload:null}"; // Missing closing brackets
         assertThrows(JSONException.class, () -> new Result(jsonString), "Malformed JSON should throw JSONException");
     }
 
+    /**
+     * Tests the constructor that initializes a Result object from an invalid JSON string.
+     */
     @Test
     public void testConstructorFromJSONStringWithInvalidJSON() {
         String jsonString = "{\"success\":true, \"message\":null, \"value\": [{\"publisher\":\"test\",\"sheet\":\"Test\",\"id\":\"1\",\"payload\":\"payload\"}, {\"publisher\":}}"; // Invalid JSON
         assertThrows(JSONException.class, () -> new Result(jsonString), "Invalid JSON should throw JSONException");
     }
-    
+
+    /**
+     * Tests the toString method of the Result class.
+     */
     @Test
     public void testToString() {
         String string = "Result{success=true, message='Initial success', value=[Argument{publisher=publisher1, sheet=sheet1, id=id1, payload='payload1'}]}";
         assertEquals(string, result.toString());
     }
 
+    /**
+     * Tests the toString method of the Result class with an empty value.
+     */
     @Test
     public void testToStringWithEmptyValue() {
         Result resultWithEmptyValue = new Result(true, "Success with empty value", new ArrayList<>());
@@ -99,6 +132,9 @@ public class ResultTest {
         assertEquals(expectedString, resultWithEmptyValue.toString());
     }
 
+    /**
+     * Tests the toString method of the Result class with a null message.
+     */
     @Test
     public void testToStringWithNullMessage() {
         Result resultWithNullMessage = new Result(true, null, initialArguments);
@@ -136,6 +172,9 @@ public class ResultTest {
 //        assertEquals(null, Result.getPayload(badResponse, "Test1"));
 //    }
 
+    /**
+     * Tests the makeResponse method of the Result class.
+     */
     @Test
     public void testMakeResponse() {
         

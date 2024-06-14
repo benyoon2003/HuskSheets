@@ -8,21 +8,33 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Tests the methods within the Spreadsheet class.
+ */
 public class SpreadsheetTest {
 
     private Spreadsheet spreadsheet;
 
+    /**
+     * Sets up the test environment by initializing a Spreadsheet instance.
+     */
     @BeforeEach
     public void setUp() {
         spreadsheet = new Spreadsheet("Test");
     }
 
+    /**
+     * Tests the constructor of the Spreadsheet class.
+     */
     @Test
     public void testConstructor() {
         assertEquals(100, spreadsheet.getRows(), "Constructor should initialize 100 rows");
         assertEquals(100, spreadsheet.getCols(), "Constructor should initialize 100 columns");
     }
 
+    /**
+     * Tests the getIdVersion method of the Spreadsheet class.
+     */
     @Test
     public void testGetIdVersion() {
     Spreadsheet spreadsheet = new Spreadsheet("Test");
@@ -33,7 +45,9 @@ public class SpreadsheetTest {
     assertEquals(1, spreadsheet.getId_version(), "id_version should be incremented after adding a published version");
 }
 
-
+    /**
+     * Tests the setGrid method of the Spreadsheet class.
+     */
     @Test
     public void testSetGrid() {
         List<List<Cell>> newGrid = new ArrayList<>();
@@ -52,6 +66,9 @@ public class SpreadsheetTest {
         assertEquals(newGrid, spreadsheet.getGrid());
     }
 
+    /**
+     * Tests the constructor of the Spreadsheet class with an existing grid.
+     */
     @Test
     public void testConstructorExistingGrid() {
         List<List<Cell>> grid = new ArrayList<>();
@@ -76,6 +93,9 @@ public class SpreadsheetTest {
         assertEquals("11", spreadsheet.getCellValue(1, 1));
     }
 
+    /**
+     * Tests the convertSheetToPayload method of the Spreadsheet class.
+     */
     @Test
     public void testConvertSheetToPayload() {
         spreadsheet.setCellRawdata(0, 0, "00");
@@ -88,16 +108,25 @@ public class SpreadsheetTest {
         assertEquals("$A1 00\\n$B1 01\\n$A2 10\\n$B2 11\\n", payload);
     }
 
+    /**
+     * Tests the getRows method of the Spreadsheet class.
+     */
     @Test
     public void testGetRows() {
         assertEquals(100, spreadsheet.getRows(), "getRows should return the correct number of rows");
     }
 
+    /**
+     * Tests the getCols method of the Spreadsheet class.
+     */
     @Test
     public void testGetCols() {
         assertEquals(100, spreadsheet.getCols(), "getCols should return the correct number of columns");
     }
 
+    /**
+     * Tests the getCellsObject method of the Spreadsheet class.
+     */
     @Test
     public void testGetCellsObject() {
         Cell[][] cellsObject = spreadsheet.getCellsObject();
@@ -105,6 +134,9 @@ public class SpreadsheetTest {
         assertEquals(100, cellsObject[0].length, "Each row in the 2D array should have 100 columns");
     }
 
+    /**
+     * Tests the getCellStringsObject method of the Spreadsheet class.
+     */
     @Test
     public void testGetCellStringsObject() {
         String[][] cellStringsObject = spreadsheet.getCellStringsObject();
@@ -112,6 +144,9 @@ public class SpreadsheetTest {
         assertEquals(100, cellStringsObject[0].length, "Each row in the 2D array should have 100 columns");
     }
 
+    /**
+     * Tests the getCells method of the Spreadsheet class.
+     */
     @Test
     public void testGetCells() {
         List<List<Cell>> cells = spreadsheet.getCells();
@@ -122,6 +157,10 @@ public class SpreadsheetTest {
         }
     }
 
+    /**
+     * Tests the private getRow method of the Spreadsheet class using reflection.
+     * @throws Exception if there is an error during reflection
+     */
     @Test
     public void testGetRow() throws Exception {
         Method getRowMethod = Spreadsheet.class.getDeclaredMethod("getRow", String.class);
@@ -131,6 +170,10 @@ public class SpreadsheetTest {
         assertEquals(-1, getRowMethod.invoke(spreadsheet, "$AX"));
     }
 
+    /**
+     * Tests the private getColumn method of the Spreadsheet class using reflection.
+     * @throws Exception if there is an error during reflection
+     */
     @Test
     public void testGetColumn() throws Exception {
         Method getColumnMethod = Spreadsheet.class.getDeclaredMethod("getColumn", String.class);
@@ -140,6 +183,9 @@ public class SpreadsheetTest {
         assertEquals(26, getColumnMethod.invoke(spreadsheet, "$AA1"));
     }
 
+    /**
+     * Tests the getColumnName method of the Spreadsheet class.
+     */
     @Test
     public void testGetColumnName() {
         assertEquals("A", Spreadsheet.getColumnName(1));
@@ -147,6 +193,9 @@ public class SpreadsheetTest {
         assertEquals("AA", Spreadsheet.getColumnName(27));
     }
 
+    /**
+     * Tests the addPublished and addSubscribed methods of the Spreadsheet class.
+     */
     @Test
     public void testAddPublishedAndSubscribed() {
         Spreadsheet newSheet = new Spreadsheet("NewTest");
@@ -159,18 +208,27 @@ public class SpreadsheetTest {
         assertEquals(newSheet, spreadsheet.getSubscribedVersions().get(0));
     }
 
+    /**
+     * Tests the setCellRawdata and getCellRawdata methods of the Spreadsheet class.
+     */
     @Test
     public void testSetAndGetCellRawdata() {
         spreadsheet.setCellRawdata(0, 0, "Test Raw Data");
         assertEquals("Test Raw Data", spreadsheet.getCellRawdata(0, 0));
     }
 
+    /**
+     * Tests the evaluateFormula method of the Spreadsheet class when the input is not a formula.
+     */
     @Test
     public void testEvaluateFormulaNotAFormula() {
         assertEquals("not a formula", spreadsheet.evaluateFormula("not a formula"));
         assertEquals("not a formula", spreadsheet.evaluateFormula("= not a formula"));
     }
 
+    /**
+     * Tests the evaluateFormula method of the Spreadsheet class with arithmetic operations.
+     */
     @Test
     public void testEvaluateFormulaArithmetic() {
         assertEquals("4", spreadsheet.evaluateFormula("= 2 + 2"));
@@ -184,6 +242,9 @@ public class SpreadsheetTest {
         assertEquals("Error", spreadsheet.evaluateFormula("= e / 2"));
     }
 
+    /**
+     * Tests the evaluateFormula method of the Spreadsheet class with comparison operations.
+     */
     @Test
     public void testEvaluateFormulaComparisons() {
         // less than
@@ -211,6 +272,9 @@ public class SpreadsheetTest {
         // assertEquals("Error", spreadsheet.evaluateFormula("= e <> 1"));
     }
 
+    /**
+     * Tests the evaluateFormula method of the Spreadsheet class with boolean operations.
+     */
     @Test
     public void testEvaluateFormulaBoolean() {
         // and
@@ -228,6 +292,10 @@ public class SpreadsheetTest {
         assertEquals("Error", spreadsheet.evaluateFormula("= e | 1"));
     }
 
+    /**
+     * Tests the private rangeOperation method of the Spreadsheet class using reflection.
+     * @throws Exception if there is an error during reflection
+     */
     @Test
     public void testRangeOperation() throws Exception {
         // Create a new Spreadsheet and set some values
@@ -260,7 +328,10 @@ public class SpreadsheetTest {
         assertEquals("", result);
     }
     
-
+    /**
+     * Tests the private evaluateIF method of the Spreadsheet class using reflection.
+     * @throws Exception if there is an error during reflection
+     */
     @Test
     public void testEvaluateIF() throws Exception {
         Method evaluateIFMethod = Spreadsheet.class.getDeclaredMethod("evaluateIF", String.class);
@@ -293,7 +364,9 @@ public class SpreadsheetTest {
         assertEquals("Error", result);
     }
     
-
+    /**
+     * Tests the evaluateFormula method of the Spreadsheet class with the SUM function.
+     */
     @Test
     public void testEvaluateFormulaSUM() {
         assertEquals("10.0", spreadsheet.evaluateFormula("=SUM(1,2,3,4)"));
@@ -304,6 +377,9 @@ public class SpreadsheetTest {
         assertEquals("7.0", spreadsheet.evaluateFormula("=SUM(SUM(1,1),SUM(1,2),2)"));
     }
 
+    /**
+     * Tests the evaluateFormula method of the Spreadsheet class with the MAX function.
+     */
     @Test
     public void testEvaluateMAX() {
         // Test with simple numerical values
@@ -323,6 +399,9 @@ public class SpreadsheetTest {
         assertEquals("8.0", spreadsheet.evaluateFormula("=MAX(MAX(2,4),3,8)"));
     }
 
+    /**
+     * Tests the evaluateFormula method of the Spreadsheet class with the AVG function.
+     */
     @Test
     public void testEvaluateAVG() {
         // Test with simple numerical values
@@ -342,12 +421,18 @@ public class SpreadsheetTest {
         assertEquals("2.0", spreadsheet.evaluateFormula("=AVG(AVG(2,4),3,2)"));
     }
 
+    /**
+     * Tests the evaluateFormula method of the Spreadsheet class with the CONCAT and DEBUG functions.
+     */
     @Test
     public void testEvaluateFormulaCONCATAndDEBUG() {
         assertEquals("1234", spreadsheet.evaluateFormula("=CONCAT(1,2,3,4)"));
         assertEquals("1,2,3,4", spreadsheet.evaluateFormula("=DEBUG(1,2,3,4)"));
     }
 
+    /**
+     * Tests the evaluateFormula method of the Spreadsheet class with the CONCAT function.
+     */
     @Test
     public void testEvaluateCONCAT() {
         // Test with simple string values
@@ -363,6 +448,9 @@ public class SpreadsheetTest {
         assertEquals("foobar", spreadsheet.evaluateFormula("=CONCAT($A1,$A2)"));
     }
 
+    /**
+     * Tests the evaluateFormula method of the Spreadsheet class with the STDDEV function.
+     */
     @Test
     public void testEvaluateSTDDEV() {
         // Test with simple numerical values
@@ -385,6 +473,9 @@ public class SpreadsheetTest {
         assertEquals("2.136", spreadsheet.evaluateFormula("=STDDEV(STDDEV(1,2,3,4),STDDEV(5,6,7,8))"));
     }
 
+    /**
+     * Tests the evaluateFormula method of the Spreadsheet class with the SORT function.
+     */
     @Test
     public void testEvaluateFormulaSORT() {
         spreadsheet.setCellValue(0, 0, "2");
@@ -395,7 +486,10 @@ public class SpreadsheetTest {
 
         assertEquals("-1.0,2.0,3.0,5.0,13.0", spreadsheet.evaluateFormula("=SORT($A1:$A5)"));
     }
-
+    
+    /**
+     * Tests the evaluateFormula method of the Spreadsheet class with the SORT function when an error occurs.
+     */
     @Test
     public void testEvaluateFormulaSORTError() {
         spreadsheet.setCellValue(0, 0, "e");
@@ -407,6 +501,9 @@ public class SpreadsheetTest {
         assertEquals("Error", spreadsheet.evaluateFormula("=SORT($A1:$A5)"));
     }
 
+    /**
+     * Tests the evaluateFormula method of the Spreadsheet class with the MIN function.
+     */
     @Test
     public void testEvaluateMIN() {
         // Test with simple numerical values

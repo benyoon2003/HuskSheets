@@ -12,14 +12,19 @@ import java.util.Random;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests the methods within the ServerEndpoint class.
+ */
 public class ServerEndpointTest {
     private ServerEndpoint se;
     private IAppUser user;
     private String username = "TestUser";
     private Result result;
 
+    /**
+     * Initializes the fields and logs in the user before each test.
+     */
     @BeforeEach
-    // initialize fields, log in user
     public void init() {
         this.se = new ServerEndpoint();
         this.user = new AppUser(this.username, "password");
@@ -35,6 +40,9 @@ public class ServerEndpointTest {
         }
     }
 
+    /**
+     * Tests the register method of the ServerEndpoint class.
+     */
     @Test
     public void testRegister() {
         String newUsername = this.randomString();
@@ -49,6 +57,9 @@ public class ServerEndpointTest {
         }
     }
 
+    /**
+     * Tests the login method of the ServerEndpoint class.
+     */
     @Test
     // make sure we logged in successfully
     public void testLogin() {
@@ -61,6 +72,9 @@ public class ServerEndpointTest {
         }
     }
 
+    /**
+     * Tests the getPublishers method of the ServerEndpoint class.
+     */
     @Test
     public void testGetPublishers() {
         try {
@@ -81,6 +95,9 @@ public class ServerEndpointTest {
         }
     }
 
+    /**
+     * Tests the createSheet method of the ServerEndpoint class.
+     */
     @Test
     public void testCreateSheet() {
         try {
@@ -92,6 +109,9 @@ public class ServerEndpointTest {
         }
     }
 
+    /**
+     * Tests the getSheets method of the ServerEndpoint class.
+     */
     @Test
     public void testGetSheets() {
         try {
@@ -134,6 +154,9 @@ public class ServerEndpointTest {
 //        }
 //    }
 
+    /**
+     * Tests the deleteSheet method of the ServerEndpoint class.
+     */
     @Test
     public void testDeleteSheet() {
         try {
@@ -161,6 +184,9 @@ public class ServerEndpointTest {
         }
     }
 
+    /**
+     * Tests the updateSubscription and getUpdatesForSubscription methods of the ServerEndpoint class.
+     */
     @Test
     public void testUpdateSubscriptionAndGetUpdatesForSubscription() {
         try {
@@ -184,6 +210,9 @@ public class ServerEndpointTest {
         }
     }
 
+    /**
+     * Tests the updatePublished and getUpdatesForPublished methods of the ServerEndpoint class.
+     */
     @Test
     public void testUpdatePublishedAndGetUpdatesForPublished() {
         try {
@@ -206,7 +235,11 @@ public class ServerEndpointTest {
             System.out.println(e.getMessage());
         }
     }
-
+    
+    /**
+     * Generates a random string for testing purposes.
+     * @return a random string
+     */
     private String randomString() {
         String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
         Random rnd = new Random();

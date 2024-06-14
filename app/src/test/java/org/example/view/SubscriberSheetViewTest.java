@@ -12,6 +12,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Set;
 
+/**
+ * Unit test for the SubscriberSheetView class.
+ */
 public class SubscriberSheetViewTest {
     private SubscriberSheetView subscriberSheetView;
     private IUserController controller;
@@ -19,6 +22,9 @@ public class SubscriberSheetViewTest {
     private IAppUser user = new AppUser("John", "12345");
     private ILoginView login;
 
+    /**
+     * Initializes the test environment before each test.
+     */
     @BeforeEach
     public void init() {
         this.login = new LoginView();
@@ -39,6 +45,10 @@ public class SubscriberSheetViewTest {
         this.subscriberSheetView.addController(this.controller);
     }
 
+    /**
+     * Tests if the controller is correctly added to the subscriberSheetView and if the user is correctly logged in.
+     * @throws Exception if there is an error during the test.
+     */
     @Test
     public void testAddController() throws Exception {
         // Test if user is correctly logged into subscriberSheetView
@@ -53,6 +63,9 @@ public class SubscriberSheetViewTest {
         assertEquals(this.user.getPassword(), password);
     }
 
+    /**
+     * Tests selecting a range of cells in the subscriberSheetView.
+     */
     @Test
     public void testSelectedCells() {
         int[] selectedRows = {0, 1, 2, 3, 4};
@@ -70,6 +83,9 @@ public class SubscriberSheetViewTest {
         assertEquals(this.subscriberSheetView.selectedCells.getEndRow(), 4);
     }
 
+    /**
+     * Tests changing the formula text field in the subscriberSheetView.
+     */
     @Test
     public void testChangeFormulaTextField() {
         String rawData1 = "hello";
@@ -78,6 +94,9 @@ public class SubscriberSheetViewTest {
         assertEquals("hello", this.subscriberSheetView.formulaTextField.getText());
     }
 
+    /**
+     * Tests highlighting a cell in the subscriberSheetView.
+     */
     @Test
     public void testHighlightCell() {
         int row = 0;
@@ -98,6 +117,9 @@ public class SubscriberSheetViewTest {
         }
     }
 
+    /**
+     * Tests converting column numbers to Excel column names in the subscriberSheetView.
+     */
     @Test
     public void testExcelColumnName() {
         int colNum = 1;
@@ -113,6 +135,9 @@ public class SubscriberSheetViewTest {
         assertEquals("AA", col);
     }
 
+    /**
+     * Tests getting the table from the subscriberSheetView.
+     */
     @Test
     public void testGetTable() {
         JTable testTable = new JTable();
@@ -121,11 +146,17 @@ public class SubscriberSheetViewTest {
         assertEquals(testTable, this.subscriberSheetView.getTable());
     }
 
+    /**
+     * Tests getting the controller from the subscriberSheetView.
+     */
     @Test
     public void testGetController() {
         assertEquals(this.controller, this.subscriberSheetView.getController());
     }
-
+    
+    /**
+     * Tests zooming the table in the subscriberSheetView.
+     */
     @Test
     public void testZoomTable() {
         JTable testTable = new JTable();

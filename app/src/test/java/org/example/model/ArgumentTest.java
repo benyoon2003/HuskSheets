@@ -3,8 +3,14 @@ package org.example.model;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Tests the methods within the Argument class.
+ */
 public class ArgumentTest {
 
+    /**
+     * Tests the constructor and getter methods of the Argument class.
+     */
     @Test
     public void testConstructorAndGetters() {
         String publisher = "TestPublisher";
@@ -21,7 +27,10 @@ public class ArgumentTest {
 
         assertEquals("Argument{publisher=TestPublisher, sheet=TestSheet, id=TestID, payload='TestPayload'}", argument.toString());
     }
-
+    
+    /**
+     * Tests the setter methods of the Argument class.
+     */
     @Test
     public void testSetters() {
         Argument argument = new Argument();
