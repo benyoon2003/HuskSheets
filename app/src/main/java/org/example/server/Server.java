@@ -32,11 +32,11 @@ public class Server {
      */
     private static String[] decodeBasicAuth(String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Basic ")) {
-            return null;
+            return null; // Return null if the authHeader is null or does not start with "Basic "
         }
-        byte[] decodedBytes = Base64.getDecoder().decode(authHeader.substring(6));
-        String decodedString = new String(decodedBytes);
-        return decodedString.split(":", 2);
+        byte[] decodedBytes = Base64.getDecoder().decode(authHeader.substring(6)); // Decode the Base64 encoded credentials
+        String decodedString = new String(decodedBytes); // Convert the decoded bytes to a string
+        return decodedString.split(":", 2); // Split the decoded string into username and password
     }
 
     /**
@@ -48,7 +48,7 @@ public class Server {
     private void validateCredentials(String[] credentials) {
         if (credentials == null || credentials.length != 2
                 || credentials[0].isEmpty() || credentials[1].isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");  // Throw an exception if credentials are invalid
         }
     }
 
@@ -61,12 +61,12 @@ public class Server {
      * @author Tony
      */
     private boolean hasSheet(String sheet, String publisher) {
-        for (IAppUser user : availUsers) {
+        for (IAppUser user : availUsers) { // Iterate through all available users
             if (user.getUsername().equals(publisher) && user.doesSheetExist(sheet)) {
-                return true;
+                return true; // Return true if the user exists and the sheet exists for the publisher
             }
         }
-        return false;
+        return false; // Return false if the sheet does not exist for the publisher
     }
 
     /**
@@ -77,12 +77,12 @@ public class Server {
      * @author Ben
      */
     private IAppUser findUser(String username) {
-        for (IAppUser user : this.availUsers) {
+        for (IAppUser user : this.availUsers) { // Iterate through all available users
             if (user.getUsername().equals(username)) {
-                return user;
+                return user; // Return the user if the username matches
             }
         }
-        return null;
+        return null; // Return null if no user is found with the given username
     }
 
     /**
@@ -94,12 +94,12 @@ public class Server {
      * @author Ben
      */
     public boolean existingUser(String username, String password) {
-        for (IAppUser user : availUsers) {
+        for (IAppUser user : availUsers) { // Iterate through all available users
             if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
-                return true;
+                return true; // Return true if the username and password match an existing user
             }
         }
-        return false;
+        return false; // Return false if no matching user is found
     }
 
     /**
@@ -110,12 +110,12 @@ public class Server {
      * @author Tony
      */
     private boolean findByUsername(String username) {
-        for (IAppUser user : availUsers) {
+        for (IAppUser user : availUsers) { // Iterate through all available users
             if (user.getUsername().equals(username)) {
-                return true;
+                return true; // Return true if the username matches an existing user
             }
         }
-        return false;
+        return false; // Return false if no matching user is found
     }
 
 
@@ -128,25 +128,25 @@ public class Server {
      */
     @GetMapping("/getPublishers")
     public ResponseEntity<?> getPublishers(@RequestHeader("Authorization") String authHeader) {
-        String[] credentials = decodeBasicAuth(authHeader);
+        String[] credentials = decodeBasicAuth(authHeader); // Decode the Basic Auth header
         try {
-            validateCredentials(credentials);
+            validateCredentials(credentials); // Validate the credentials
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(401).body(new Result(
-                    false, e.getMessage(), new ArrayList<>()));
+                    false, e.getMessage(), new ArrayList<>())); // Return 401 status if credentials are invalid
         }
-        String username = credentials[0];
-        IAppUser user = findUser(username);
+        String username = credentials[0]; // Get the username from credentials
+        IAppUser user = findUser(username); // Find the user by username
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
-                    false, "User not found", new ArrayList<>()));
+                    false, "User not found", new ArrayList<>())); // Return 404 status if user is not found
         }
         List<Argument> listOfArgument = new ArrayList<>();
-        for (IAppUser appUser : availUsers) {
-            listOfArgument.add(new Argument(appUser.getUsername(), null, null, null));
+        for (IAppUser appUser : availUsers) { // Iterate through all available users
+            listOfArgument.add(new Argument(appUser.getUsername(), null, null, null)); // Add each user to the list of arguments
         }
         return ResponseEntity.ok(new Result(
-                true, null, listOfArgument));
+                true, null, listOfArgument)); // Return 200 status with the list of publishers
     }
 
     /**
@@ -160,35 +160,35 @@ public class Server {
     @PostMapping("/createSheet")
     public ResponseEntity<Result> createSheet(@RequestHeader("Authorization") String authHeader,
                                               @RequestBody Argument argument) {
-        String[] credentials = decodeBasicAuth(authHeader);
+        String[] credentials = decodeBasicAuth(authHeader); // Decode the Basic Auth header
         try {
-            validateCredentials(credentials);
+            validateCredentials(credentials); // Validate the credentials
         } catch (Exception e) {
             e.printStackTrace(); // Log the full stack trace for debugging
             return ResponseEntity.status(401).body(new Result(
-                    false, e.getMessage(), new ArrayList<>()));
+                    false, e.getMessage(), new ArrayList<>())); // Return 401 status if credentials are invalid
         }
-        String username = credentials[0];
-        String publisher = argument.getPublisher();
-        String sheet = argument.getSheet();
+        String username = credentials[0]; // Get the username from credentials
+        String publisher = argument.getPublisher(); // Get the publisher from the argument
+        String sheet = argument.getSheet(); // Get the sheet name from the argument
         if (!publisher.equals(username)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
-                    false, "Unauthorized: sender is not owner of sheet", new ArrayList<>()));
+                    false, "Unauthorized: sender is not owner of sheet", new ArrayList<>())); // Return 401 status if sender is not the owner of the sheet
         } else if (sheet.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Result(
-                    false, "Sheet name cannot be blank", new ArrayList<>()));
+                    false, "Sheet name cannot be blank", new ArrayList<>())); // Return 400 status if sheet name is blank
         } else if (hasSheet(sheet, publisher)) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new Result(
-                    false, "Sheet already exists: " + sheet, new ArrayList<>()));
+                    false, "Sheet already exists: " + sheet, new ArrayList<>())); // Return 409 status if sheet already exists
         } else {
-            IAppUser user = findUser(username);
+            IAppUser user = findUser(username); // Find the user by username
             if (user == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
-                        false, "User not found", new ArrayList<>()));
+                        false, "User not found", new ArrayList<>())); // Return 404 status if user is not found
             }
-            user.addSheet(sheet);
+            user.addSheet(sheet); // Add the sheet to the user
             return ResponseEntity.status(HttpStatus.CREATED).body(new Result(
-                    true, "Sheet created successfully", new ArrayList<>()));
+                    true, "Sheet created successfully", new ArrayList<>())); // Return 201 status if sheet is created successfully
         }
     }
 
@@ -200,33 +200,33 @@ public class Server {
      * @return a ResponseEntity containing the result of the sheet creation.
      * @author Ben
      */
-    @PostMapping("/deleteSheet")
+    @PostMapping("/deleteSheet") // Mapping for POST requests to /deleteSheet
     public ResponseEntity<Result> deleteSheet(@RequestHeader("Authorization") String authHeader,
                                               @RequestBody Argument argument) {
-        String[] credentials = decodeBasicAuth(authHeader);
+        String[] credentials = decodeBasicAuth(authHeader); // Decode the Basic Auth header
         try {
-            validateCredentials(credentials);
+            validateCredentials(credentials); // Validate the credentials
         } catch (Exception e) {
             return ResponseEntity.status(401).body(new Result(
-                    false, e.getMessage(), new ArrayList<>()));
+                    false, e.getMessage(), new ArrayList<>())); // Return 401 status if credentials are invalid
         }
-        String username = credentials[0];
-        String publisher = argument.getPublisher();
-        String sheet = argument.getSheet();
-        IAppUser user = findUser(username);
+        String username = credentials[0]; // Get the username from credentials
+        String publisher = argument.getPublisher(); // Get the publisher from the argument
+        String sheet = argument.getSheet(); // Get the sheet name from the argument
+        IAppUser user = findUser(username); // Find the user by username
         if (!publisher.equals(username)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
-                    false, "Unauthorized: sender is not owner of sheet", new ArrayList<>()));
+                    false, "Unauthorized: sender is not owner of sheet", new ArrayList<>())); // Return 401 status if sender is not the owner of the sheet
         } else if (sheet.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Result(
-                    false, "Sheet name cannot be blank", new ArrayList<>()));
+                    false, "Sheet name cannot be blank", new ArrayList<>())); // Return 400 status if sheet name is blank
         } else if (!user.doesSheetExist(sheet)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Result(
-                    false, "Sheet does not exist: " + sheet, new ArrayList<>()));
+                    false, "Sheet does not exist: " + sheet, new ArrayList<>())); // Return 400 status if sheet does not exist
         } else {
             user.removeSheet(sheet);
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(new Result(
-                    true, "Sheet deleted successfully", new ArrayList<>()));
+                    true, "Sheet deleted successfully", new ArrayList<>())); // Return 202 status if sheet is deleted successfully
         }
     }
 
@@ -238,29 +238,28 @@ public class Server {
      * @return a ResponseEntity containing the result of the sheets retrieval.
      * @author Tony
      */
-    @PostMapping("/getSheets")
+    @PostMapping("/getSheets") // Mapping for POST requests to /getSheets
     public ResponseEntity<Result> getSheets(@RequestHeader("Authorization") String authHeader,
                                             @RequestBody Argument argument) {
         // Decode the Basic Auth header
-        String[] credentials = decodeBasicAuth(authHeader);
+        String[] credentials = decodeBasicAuth(authHeader); // Decode the Basic Auth header
         try {
-            validateCredentials(credentials);
+            validateCredentials(credentials); // Validate the credentials
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
-                    false, e.getMessage(), new ArrayList<>()));
+                    false, e.getMessage(), new ArrayList<>())); // Return 401 status if credentials are invalid
         }
-        List<Argument> sheets = new ArrayList<>();
-        ;
-        String publisher = argument.getPublisher();
-        IAppUser user = findUser(publisher);
+        List<Argument> sheets = new ArrayList<>(); // Initialize the list of sheets
+        String publisher = argument.getPublisher(); // Get the publisher from the argument
+        IAppUser user = findUser(publisher); // Find the user by publisher name
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
-                    false, "User not found", new ArrayList<>()));
+                    false, "User not found", new ArrayList<>())); // Return 404 status if user is not found
         }
-        for (ISpreadsheet sheet : user.getSheets()) {
-            sheets.add(new Argument(publisher, sheet.getName(), null, null));
+        for (ISpreadsheet sheet : user.getSheets()) { // Iterate through the user's sheets
+            sheets.add(new Argument(publisher, sheet.getName(), null, null)); // Add each sheet to the list of arguments
         }
-        return ResponseEntity.ok(new Result(true, "Sheets retrieved successfully", sheets));
+        return ResponseEntity.ok(new Result(true, "Sheets retrieved successfully", sheets)); // Return 200 status with the list of sheets
     }
 
     /**
@@ -271,40 +270,40 @@ public class Server {
      * @return a ResponseEntity containing the result of the sheet update.
      * @author Tony
      */
-    @PostMapping("/updatePublished")
+    @PostMapping("/updatePublished") // Mapping for POST requests to /updatePublished
     public ResponseEntity<Result> updatePublished(@RequestHeader("Authorization") String authHeader,
                                                   @RequestBody Argument argument) {
-        String[] credentials = decodeBasicAuth(authHeader);
+        String[] credentials = decodeBasicAuth(authHeader); // Decode the Basic Auth header
         try {
-            validateCredentials(credentials);
+            validateCredentials(credentials); // Validate the credentials
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Log the full stack trace for debugging
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
-                    false, e.getMessage(), new ArrayList<>()));
+                    false, e.getMessage(), new ArrayList<>())); // Return 401 status if credentials are invalid
         }
-        String publisher = argument.getPublisher();
-        String sheet = argument.getSheet();
-        String payload = argument.getPayload();
-        IAppUser user = findUser(publisher);
+        String publisher = argument.getPublisher(); // Get the publisher from the argument
+        String sheet = argument.getSheet(); // Get the sheet name from the argument
+        String payload = argument.getPayload(); // Get the payload from the argument
+        IAppUser user = findUser(publisher); // Find the user by publisher name
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
-                    false, "User not found", new ArrayList<>()));
+                    false, "User not found", new ArrayList<>())); // Return 404 status if user is not found
         }
         // New updated sheet must not mutate old version and must be initialized with empty grid
         // to account for empty spaces or deletions in the update
-        for (ISpreadsheet existingSheet : user.getSheets()) {
+        for (ISpreadsheet existingSheet : user.getSheets()) { // Iterate through the user's sheets
             if (existingSheet.getName().equals(sheet)) {
-                List<List<String>> data = Home.convertStringTo2DArray(payload);
-                List<List<Cell>> updatedGrid = initializeEmptyGrid(existingSheet.getRows(), existingSheet.getCols());
-                populateUpdatedGrid(updatedGrid, data);
-                existingSheet.setGrid(updatedGrid);
-                ISpreadsheet updatedVersion = createUpdatedVersion(existingSheet);
-                existingSheet.addPublished(updatedVersion);
-                return ResponseEntity.ok(new Result(true, "Sheet updated successfully", new ArrayList<>()));
+                List<List<String>> data = Home.convertStringTo2DArray(payload); // Convert the payload to a 2D array
+                List<List<Cell>> updatedGrid = initializeEmptyGrid(existingSheet.getRows(), existingSheet.getCols()); // Initialize an empty grid
+                populateUpdatedGrid(updatedGrid, data); // Populate the updated grid with the data
+                existingSheet.setGrid(updatedGrid); // Set the updated grid in the existing sheet
+                ISpreadsheet updatedVersion = createUpdatedVersion(existingSheet); // Create an updated version of the sheet
+                existingSheet.addPublished(updatedVersion);  // Add the updated version to the list of published versions
+                return ResponseEntity.ok(new Result(true, "Sheet updated successfully", new ArrayList<>())); // Return 200 status if sheet is updated successfully
             }
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
-                false, "Sheet not found", new ArrayList<>()));
+                false, "Sheet not found", new ArrayList<>())); // Return 404 status if sheet is not found
     }
 
 
@@ -317,15 +316,15 @@ public class Server {
      * @author Ben
      */
     private List<List<Cell>> initializeEmptyGrid(int rows, int cols) {
-        List<List<Cell>> grid = new ArrayList<>();
+        List<List<Cell>> grid = new ArrayList<>(); // Initialize the grid
         for (int i = 0; i < rows; i++) {
-            ArrayList<Cell> row = new ArrayList<>();
+            ArrayList<Cell> row = new ArrayList<>(); // Initialize a new row
             for (int j = 0; j < cols; j++) {
-                row.add(new Cell(""));
+                row.add(new Cell("")); // Add a new empty cell to the row
             }
-            grid.add(row);
+            grid.add(row); // Add the row to the grid
         }
-        return grid;
+        return grid; // Return the grid
     }
 
     /**
@@ -336,12 +335,12 @@ public class Server {
      * @author Ben
      */
     private void populateUpdatedGrid(List<List<Cell>> grid, List<List<String>> data) {
-        for (List<String> ls : data) {
-            int row = Integer.parseInt(ls.get(0));
-            int col = Integer.parseInt(ls.get(1));
-            String value = ls.get(2);
-            grid.get(row).get(col).setValue(value);
-            grid.get(row).get(col).setRawData(value);
+        for (List<String> ls : data) { // Iterate through the data
+            int row = Integer.parseInt(ls.get(0)); // Get the row index from the data
+            int col = Integer.parseInt(ls.get(1)); // Get the column index from the data
+            String value = ls.get(2); // Get the cell value from the data
+            grid.get(row).get(col).setValue(value); // Set the cell value in the grid
+            grid.get(row).get(col).setRawData(value); // Set the raw data in the grid
         }
     }
 
@@ -353,15 +352,15 @@ public class Server {
      * @author Ben
      */
     private ISpreadsheet createUpdatedVersion(ISpreadsheet existingSheet) {
-        ISpreadsheet updatedVersion = new Spreadsheet(existingSheet.getName());
-        List<List<Cell>> grid = existingSheet.getCells();
+        ISpreadsheet updatedVersion = new Spreadsheet(existingSheet.getName()); // Create a new spreadsheet with the same name
+        List<List<Cell>> grid = existingSheet.getCells(); // Get the grid from the existing sheet
         for (int i = 0; i < grid.size(); i++) {
             for (int j = 0; j < grid.get(i).size(); j++) {
-                updatedVersion.setCellValue(i, j, grid.get(i).get(j).getValue());
-                updatedVersion.setCellRawdata(i, j, grid.get(i).get(j).getRawdata());
+                updatedVersion.setCellValue(i, j, grid.get(i).get(j).getValue()); // Set the cell value in the updated version
+                updatedVersion.setCellRawdata(i, j, grid.get(i).get(j).getRawdata()); // Set the raw data in the updated version
             }
         }
-        return updatedVersion;
+        return updatedVersion; // Return the updated version
     }
 
     /**
@@ -375,37 +374,36 @@ public class Server {
     @PostMapping("/updateSubscription")
     public ResponseEntity<Result> updateSubscription(@RequestHeader("Authorization") String authHeader,
                                                      @RequestBody Argument argument) {
-        // Decode the Basic Auth header
-        String[] credentials = decodeBasicAuth(authHeader);
+        String[] credentials = decodeBasicAuth(authHeader); // Decode the Basic Auth header
         try {
-            validateCredentials(credentials);
+            validateCredentials(credentials); // Validate the credentials
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
-                    false, e.getMessage(), new ArrayList<>()));
+                    false, e.getMessage(), new ArrayList<>())); // Return 401 status if credentials are invalid
         }
-        String publisher = argument.getPublisher();
-        String sheet = argument.getSheet();
-        String payload = argument.getPayload();
-        IAppUser user = findUser(publisher);
+        String publisher = argument.getPublisher(); // Get the publisher from the argument
+        String sheet = argument.getSheet(); // Get the sheet name from the argument
+        String payload = argument.getPayload(); // Get the payload from the argument
+        IAppUser user = findUser(publisher); // Find the user by publisher name
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
-                    false, "User not found", new ArrayList<>()));
+                    false, "User not found", new ArrayList<>())); // Return 404 status if user is not found
         }
         // New updated sheet must not mutate old version and must be initialized with empty grid
         // to account for empty spaces or deletions in the update
-        for (ISpreadsheet existingSheet : user.getSheets()) {
+        for (ISpreadsheet existingSheet : user.getSheets()) { // Iterate through the user's sheets
             if (existingSheet.getName().equals(sheet)) {
-                List<List<String>> data = Home.convertStringTo2DArray(payload);
-                List<List<Cell>> updatedGrid = initializeEmptyGrid(existingSheet.getRows(), existingSheet.getCols());
-                populateUpdatedGrid(updatedGrid, data);
-                existingSheet.setGrid(updatedGrid);
-                ISpreadsheet updatedVersion = createUpdatedVersion(existingSheet);
-                existingSheet.addSubscribed(updatedVersion);
-                return ResponseEntity.ok(new Result(true, "Sheet updated successfully", new ArrayList<>()));
+                List<List<String>> data = Home.convertStringTo2DArray(payload); // Convert the payload to a 2D array
+                List<List<Cell>> updatedGrid = initializeEmptyGrid(existingSheet.getRows(), existingSheet.getCols()); // Initialize an empty grid
+                populateUpdatedGrid(updatedGrid, data); // Populate the updated grid with the data
+                existingSheet.setGrid(updatedGrid); // Set the updated grid in the existing sheet
+                ISpreadsheet updatedVersion = createUpdatedVersion(existingSheet); // Create an updated version of the sheet
+                existingSheet.addSubscribed(updatedVersion); // Add the updated version to the list of subscribed versions
+                return ResponseEntity.ok(new Result(true, "Sheet updated successfully", new ArrayList<>())); // Return 200 status if sheet is updated successfully
             }
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
-                false, "Sheet not found", new ArrayList<>()));
+                false, "Sheet not found", new ArrayList<>())); // Return 404 status if sheet is not found
     }
 
     /**
@@ -415,25 +413,25 @@ public class Server {
      * @return a ResponseEntity containing the result of the registration.
      * @author Tony
      */
-    @GetMapping("/register")
+    @GetMapping("/register") // Mapping for GET requests to /register
     public ResponseEntity<Result> register(@RequestHeader("Authorization") String authHeader) {
-        String[] credentials = decodeBasicAuth(authHeader);
+        String[] credentials = decodeBasicAuth(authHeader); // Decode the Basic Auth header
         try {
-            validateCredentials(credentials);
+            validateCredentials(credentials); // Validate the credentials
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
-                    false, e.getMessage(), new ArrayList<>()));
+                    false, e.getMessage(), new ArrayList<>())); // Return 401 status if credentials are invalid
         }
-        String username = credentials[0];
-        String password = credentials[1];
+        String username = credentials[0]; // Get the username from credentials
+        String password = credentials[1]; // Get the password from credentials
         if (findByUsername(username)) {
             return ResponseEntity.status(401).body(new Result(
-                    false, "User already exists", new ArrayList<>()));
+                    false, "User already exists", new ArrayList<>())); // Return 401 status if user already exists
         }
-        AppUser newUser = new AppUser(username, password);
-        availUsers.add(newUser);
+        AppUser newUser = new AppUser(username, password); // Create a new user
+        availUsers.add(newUser); // Add the new user to the list of available users
         return ResponseEntity.ok(new Result(
-                true, "Publisher registered successfully", new ArrayList<>()));
+                true, "Publisher registered successfully", new ArrayList<>())); // Return 200 status if user is registered successfully
     }
 
     /**
@@ -445,21 +443,21 @@ public class Server {
      */
     @GetMapping("/login")
     public ResponseEntity<Result> login(@RequestHeader("Authorization") String authHeader) {
-        String[] credentials = decodeBasicAuth(authHeader);
+        String[] credentials = decodeBasicAuth(authHeader); // Decode the Basic Auth header
         try {
-            validateCredentials(credentials);
+            validateCredentials(credentials); // Validate the credentials
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
-                    false, e.getMessage(), new ArrayList<>()));
+                    false, e.getMessage(), new ArrayList<>())); // Return 401 status if credentials are invalid
         }
-        String username = credentials[0];
-        String password = credentials[1];
+        String username = credentials[0]; // Get the username from credentials
+        String password = credentials[1]; // Get the password from credentials
         if (existingUser(username, password)) {
             return ResponseEntity.ok(new Result(
-                    true, "Publisher logged in successfully", new ArrayList<>()));
+                    true, "Publisher logged in successfully", new ArrayList<>())); // Return 200 status if user is logged in successfully
         } else {
             return ResponseEntity.status(401).body(new Result(
-                    false, "Wrong username or password", new ArrayList<>()));
+                    false, "Wrong username or password", new ArrayList<>())); // Return 401 status if username or password is incorrect
         }
     }
 
@@ -472,39 +470,38 @@ public class Server {
      * @return a ResponseEntity containing the result of the updates retrieval.
      * @author Tony
      */
-    @PostMapping("/getUpdatesForSubscription")
+    @PostMapping("/getUpdatesForSubscription") // Mapping for POST requests to /getUpdatesForSubscription
     public ResponseEntity<?> getUpdatesForSubscription(@RequestHeader("Authorization") String authHeader,
                                                        @RequestBody Argument argument) {
-        String[] credentials = decodeBasicAuth(authHeader);
+        String[] credentials = decodeBasicAuth(authHeader); // Decode the Basic Auth header
         try {
-            validateCredentials(credentials);
+            validateCredentials(credentials); // Validate the credentials
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
-                    false, e.getMessage(), new ArrayList<>()));
+                    false, e.getMessage(), new ArrayList<>())); // Return 401 status if credentials are invalid
         }
-        String publisher = argument.getPublisher();
-        String sheet = argument.getSheet();
-        String id = argument.getId();
-        IAppUser user = findUser(publisher);
+        String publisher = argument.getPublisher(); // Get the publisher from the argument
+        String sheet = argument.getSheet(); // Get the sheet name from the argument
+        String id = argument.getId(); // Get the id from the argument
+        IAppUser user = findUser(publisher); // Find the user by publisher name
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
-                    false, "User not found", new ArrayList<>()));
+                    false, "User not found", new ArrayList<>()));  // Return 404 status if user is not found
         }
-        // Must return all versions in the list of arguments of the Result
-        List<Argument> arguments = new ArrayList<>();
-        for (ISpreadsheet existingSheet : user.getSheets()) {
+        List<Argument> arguments = new ArrayList<>(); // Initialize the list of arguments
+        for (ISpreadsheet existingSheet : user.getSheets()) { // Iterate through the user's sheets
             if (existingSheet.getName().equals(sheet)) {
-                List<ISpreadsheet> versions = existingSheet.getPublishedVersions();
-                for (int i = Integer.parseInt(id); i < versions.size(); i++) {
-                    String payload = Spreadsheet.convertSheetToPayload(versions.get(i));
-                    Argument arg = new Argument(publisher, sheet, String.valueOf(i), payload);
-                    arguments.add(arg);
+                List<ISpreadsheet> versions = existingSheet.getPublishedVersions(); // Get the list of published versions
+                for (int i = Integer.parseInt(id); i < versions.size(); i++) { // Iterate through the versions starting from the given id
+                    String payload = Spreadsheet.convertSheetToPayload(versions.get(i)); // Convert the sheet to a payload
+                    Argument arg = new Argument(publisher, sheet, String.valueOf(i), payload); // Create a new argument with the payload
+                    arguments.add(arg); // Add the argument to the list
                 }
-                return ResponseEntity.ok(new Result(true, "Updates received", arguments));
+                return ResponseEntity.ok(new Result(true, "Updates received", arguments)); // Return 200 status with the list of updates
             }
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
-                false, "Sheet not found", new ArrayList<>()));
+                false, "Sheet not found", new ArrayList<>()));  // Return 404 status if sheet is not found
     }
 
     /**
@@ -516,39 +513,38 @@ public class Server {
      * @return a ResponseEntity containing the result of the updates retrieval.
      * @author Tony
      */
-    @PostMapping("/getUpdatesForPublished")
+    @PostMapping("/getUpdatesForPublished") // Mapping for POST requests to /getUpdatesForPublished
     public ResponseEntity<?> getUpdatesForPublished(@RequestHeader("Authorization") String authHeader,
                                                     @RequestBody Argument argument) {
-        // Decode the Basic Auth header
-        String[] credentials = decodeBasicAuth(authHeader);
+        String[] credentials = decodeBasicAuth(authHeader); // Decode the Basic Auth header
         try {
-            validateCredentials(credentials);
+            validateCredentials(credentials); // Validate the credentials
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
-                    false, e.getMessage(), new ArrayList<>()));
+                    false, e.getMessage(), new ArrayList<>())); // Return 401 status if credentials are invalid
         }
-        String publisher = argument.getPublisher();
-        String sheet = argument.getSheet();
-        String id = argument.getId();
-        IAppUser user = findUser(publisher);
+        String publisher = argument.getPublisher(); // Get the publisher from the argument
+        String sheet = argument.getSheet(); // Get the sheet name from the argument
+        String id = argument.getId();  // Get the id from the argument
+        IAppUser user = findUser(publisher); // Find the user by publisher name
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
-                    false, "User not found", new ArrayList<>()));
+                    false, "User not found", new ArrayList<>())); // Return 404 status if user is not found
         }
-        // Must return all versions in the list of arguments of the Result
-        List<Argument> arguments = new ArrayList<>();
-        for (ISpreadsheet existingSheet : user.getSheets()) {
+        List<Argument> arguments = new ArrayList<>(); // Initialize the list of arguments
+        for (ISpreadsheet existingSheet : user.getSheets()) { // Iterate through the user's sheets
             if (existingSheet.getName().equals(sheet)) {
-                List<ISpreadsheet> versions = existingSheet.getSubscribedVersions();
-                for (int i = Integer.parseInt(id); i < versions.size(); i++) {
-                    String payload = Spreadsheet.convertSheetToPayload(versions.get(i));
-                    Argument arg = new Argument(publisher, sheet, String.valueOf(i), payload);
-                    arguments.add(arg);
+                List<ISpreadsheet> versions = existingSheet.getSubscribedVersions(); // Get the list of subscribed versions
+                for (int i = Integer.parseInt(id); i < versions.size(); i++) { // Iterate through the versions starting from the given id
+                    String payload = Spreadsheet.convertSheetToPayload(versions.get(i)); // Convert the sheet to a payload
+                    Argument arg = new Argument(publisher, sheet, String.valueOf(i), payload); // Create a new argument with the payload
+                    arguments.add(arg); // Add the argument to the list
                 }
-                return ResponseEntity.ok(new Result(true, "Updates received", arguments));
+                return ResponseEntity.ok(new Result(true, "Updates received", arguments)); // Return 200 status with the list of updates
+
             }
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
-                false, "Sheet not found", new ArrayList<>()));
+                false, "Sheet not found", new ArrayList<>())); // Return 404 status if sheet is not found
     }
 }
