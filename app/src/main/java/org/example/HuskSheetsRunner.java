@@ -5,6 +5,7 @@ import org.example.view.LoginView;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 /**
  * The HuskSheetsRunner class serves as the entry point for running the Husk Sheets application.
@@ -20,7 +21,7 @@ public class HuskSheetsRunner {
      * @param args command line arguments passed to the application.
      */
   public static void main(String[] args) {
-      if (args.length > 0) {
+      if (args.length == 5) {
           // Map to store the command-line arguments and their values
           Map<String, String> arguments = new HashMap<>();
 
@@ -44,9 +45,12 @@ public class HuskSheetsRunner {
           String sheet = arguments.get("sheet");
           new UserController(url, name, password, publisher, sheet);
       }
+      else if (args.length == 1) {
+          String url = args[0];
+          new UserController(new LoginView(), url);
+      }
       else {
           new UserController(new LoginView());
       }
-
   }
 }
