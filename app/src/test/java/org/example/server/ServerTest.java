@@ -702,7 +702,7 @@ class ServerTests {
 
     /**
      * Tests when the publisher tries to get updates from subscribers when the basic auth is invalid.
-     * @throws Exception
+     * @throws Exception irrelevant to the actual test
      */
     @Test
     void testUnauthorizedBasicAuthGetUpdatesPublisher() throws Exception {
@@ -718,7 +718,7 @@ class ServerTests {
     /**
      * Tests when the publisher tries to get updates from subscribers when the publisher's sheet
      * does not exist.
-     * @throws Exception
+     * @throws Exception irrelevant to the actual test
      */
     @Test
     void testSheetNotFoundGetUpdatesPublisher() throws Exception {
