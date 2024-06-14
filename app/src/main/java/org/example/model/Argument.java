@@ -17,10 +17,10 @@ public class Argument {
      * @param payload   the payload associated with the argument
      */
     public Argument(String publisher, String sheet, String id, String payload) {
-        this.publisher = publisher;
-        this.sheet = sheet;
-        this.id = id;
-        this.payload = payload;
+        this.publisher = publisher; // Initialize publisher
+        this.sheet = sheet; // Initialize sheet
+        this.id = id; // Initialize id
+        this.payload = payload; // Initialize payload
     }
 
     /**
@@ -28,6 +28,7 @@ public class Argument {
      * Initializes an empty Argument instance.
      */
     public Argument() {
+        // Empty constructor for creating an empty Argument object
     }
 
     /**
@@ -37,7 +38,7 @@ public class Argument {
      * @author Theo
      */
     public String getPublisher() {
-        return this.publisher;
+        return this.publisher; // Return the publisher
     }
 
     /**
@@ -47,7 +48,7 @@ public class Argument {
      * @author Theo
      */
     public String getSheet() {
-        return this.sheet;
+        return this.sheet; // Return the sheet
     }
 
     /**
@@ -57,7 +58,7 @@ public class Argument {
      * @author Tony
      */
     public String getId() {
-        return this.id;
+        return this.id; // Return the ID
     }
 
     /**
@@ -67,7 +68,7 @@ public class Argument {
      * @author Ben
      */
     public String getPayload() {
-        return this.payload;
+        return this.payload; // Return the payload
     }
 
     /**
@@ -77,7 +78,7 @@ public class Argument {
      * @author Theo
      */
     public void setPublisher(String publisher) {
-        this.publisher = publisher;
+        this.publisher = publisher; // Set the publisher
     }
 
     /**
@@ -87,7 +88,7 @@ public class Argument {
      * @author Theo
      */
     public void setSheet(String sheet) {
-        this.sheet = sheet;
+        this.sheet = sheet; // Set the sheet
     }
 
     /**
@@ -97,7 +98,7 @@ public class Argument {
      * @author Tony
      */
     public void setId(String id) {
-        this.id = id;
+        this.id = id; // Set the ID
     }
 
     /**
@@ -107,7 +108,7 @@ public class Argument {
      * @author ben
      */
     public void setPayload(String payload) {
-        this.payload = payload;
+        this.payload = payload; // Set the payload
     }
 
     /**
@@ -116,6 +117,7 @@ public class Argument {
      * @author Theo
      */
     public String toString() {
+        // Return a string representation of the Argument object
         return "Argument{publisher=" + publisher + ", sheet=" + sheet + ", id=" + id + ", payload='" + payload + "'}";
     }
 }
