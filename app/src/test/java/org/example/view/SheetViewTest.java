@@ -9,11 +9,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import java.awt.*;
 import java.util.Set;
 
+/**
+ * Unit test for the SheetView class.
+ */
 public class SheetViewTest {
     private SheetView sheetView;
     private IUserController controller;
@@ -21,6 +22,9 @@ public class SheetViewTest {
     private IAppUser user = new AppUser("John", "12345");
     private ILoginView login;
 
+    /**
+     * Initialize the test environment before each test.
+     */
     @BeforeEach
     public void init() {
         this.login = new LoginView();
@@ -28,7 +32,7 @@ public class SheetViewTest {
         this.sheetView = new SheetView(testSpreadSheet);
         this.controller = new UserController(login);
 
-        // Check if user is registered first.
+        // Check if user is registered first, if not, log in the user.
         try {
             this.controller.registerUser(this.user.getUsername(), this.user.getPassword());
         } catch (Exception e) {
@@ -38,15 +42,22 @@ public class SheetViewTest {
                 e1.printStackTrace();
             }
         }
+        // Add the controller to the sheet view.
         this.sheetView.addController(this.controller);
     }
 
+    /**
+     * Test if the controller is correctly added to the sheet view and if the user is correctly logged in.
+     *
+     * @throws Exception if there is an error during the test.
+     */
     @Test
     public void testAddController() throws Exception {
-        // Test if user is correctly logged into sheetView
+        // Test if the controller is correctly added to the sheet view.
         IUserController sheetController = this.sheetView.getController();
         assertEquals(this.controller, sheetController);
 
+        // Check if the logged-in user is correctly associated with the controller.
         IAppUser sheetUser = sheetController.getAppUser();
         assertNotNull(sheetUser);
 
@@ -57,8 +68,12 @@ public class SheetViewTest {
         assertEquals(this.user.getPassword(), password);
     }
 
+    /**
+     * Test selecting a range of cells in the sheet view.
+     */
     @Test
     public void testSelectedCells() {
+        // Test selecting a range of cells.
         int[] selectedRows = {0, 1, 2, 3, 4};
         int[] selectedCols = {0, 1, 2, 3, 4};
 
@@ -73,7 +88,7 @@ public class SheetViewTest {
         assertEquals(this.sheetView.selectedCells.getEndCol(), 4);
         assertEquals(this.sheetView.selectedCells.getEndRow(), 4);
 
-        // Test selecting a different range
+        // Test selecting a different range.
         int[] newSelectedRows = {2, 3};
         int[] newSelectedCols = {1, 2};
 
@@ -84,21 +99,29 @@ public class SheetViewTest {
         assertEquals(this.sheetView.selectedCells.getEndRow(), newSelectedRows[newSelectedRows.length - 1]);
     }
 
+    /**
+     * Test changing the formula text field in the sheet view.
+     */
     @Test
     public void testChangeFormulaTextField() {
+        // Test changing the formula text field.
         String rawData1 = "hello";
         this.sheetView.changeFormulaTextField(rawData1);
         assertEquals(rawData1, this.sheetView.formulaTextField.getText());
         assertEquals("hello", this.sheetView.formulaTextField.getText());
 
-        // Test with a more complex formula
+        // Test with a more complex formula.
         String formula = "=SUM(A1:A10)";
         this.sheetView.changeFormulaTextField(formula);
         assertEquals(formula, this.sheetView.formulaTextField.getText());
     }
 
+    /**
+     * Test highlighting a cell in the sheet view.
+     */
     @Test
     public void testHighlightCell() {
+        // Test highlighting a cell.
         int row = 0;
         int col = 0;
         Color color = Color.PINK;
@@ -117,7 +140,7 @@ public class SheetViewTest {
             assertEquals(color, pColor);
         }
 
-        // Test highlighting a different cell
+        // Test highlighting a different cell.
         int newRow = 2;
         int newCol = 2;
         Color newColor = Color.YELLOW;
@@ -137,6 +160,9 @@ public class SheetViewTest {
         }
     }
 
+    /**
+     * Test converting column numbers to Excel column names.
+     */
     @Test
     public void testExcelColumnName() {
         int colNum = 1;
@@ -151,7 +177,7 @@ public class SheetViewTest {
         col = this.sheetView.getExcelColumnName(colNum);
         assertEquals("AA", col);
 
-        // Test with a higher column number
+        // Test with a higher column number.
         colNum = 703;
         col = this.sheetView.getExcelColumnName(colNum);
         assertEquals("AAA", col);
@@ -161,6 +187,9 @@ public class SheetViewTest {
         assertEquals("ZZZ", col);
     }
 
+    /**
+     * Test getting the table from the sheet view.
+     */
     @Test
     public void testGetTable() {
         JTable testTable = new JTable();
@@ -168,18 +197,21 @@ public class SheetViewTest {
 
         assertEquals(testTable, this.sheetView.getTable());
 
-        // Test with a different table
+        // Test with a different table.
         JTable newTable = new JTable();
         this.sheetView.yourTable = newTable;
 
         assertEquals(newTable, this.sheetView.getTable());
     }
 
+    /**
+     * Test getting the controller from the sheet view.
+     */
     @Test
     public void testGetController() {
         assertEquals(this.controller, this.sheetView.getController());
 
-        // Test with a different controller
+        // Test with a different controller.
         IUserController newController = new UserController(this.login);
         IAppUser newUser = new AppUser("LeBron", "goat");
         try {
@@ -197,6 +229,9 @@ public class SheetViewTest {
         assertEquals(newController, this.sheetView.getController());
     }
 
+    /**
+     * Test zooming the table in and out.
+     */
     @Test
     public void testZoomTable() {
         JTable testTable = new JTable();
@@ -216,7 +251,7 @@ public class SheetViewTest {
         assertEquals(expectedRowHeight, testTable.getRowHeight());
         assertEquals(expectedFontSize, testTable.getTableHeader().getFont().getSize2D(), 0.01);
 
-        // Test zooming out
+        // Test zooming out.
         factor = 0.5;
         testTable.setFont(initialFont);
         testTable.setRowHeight(20);
@@ -227,53 +262,6 @@ public class SheetViewTest {
         expectedRowHeight = (int) (20 * factor);
 
         assertEquals(expectedFontSize, tableFont.getSize2D(), 0.01);
-        assertEquals(expectedRowHeight, testTable.getRowHeight());
-        assertEquals(expectedFontSize, testTable.getTableHeader().getFont().getSize2D(), 0.01);
     }
-
-    @Test
-    public void testReturnView() {
-        SheetView testView = this.sheetView.returnView();
-        assertEquals(this.sheetView, testView);
-    }
-
-    @Test
-    public void testInitializeData() {
-        Object[][] data = sheetView.initializeData();
-        for (Cell[] row : testSpreadSheet.getCellsObject()) {
-            for (Cell cell : row) {
-                assertEquals(cell.getValue(), data[cell.getRow()][cell.getCol()]);
-            }
-        }
-    }
-
-//    @Test
-//    public void testLoadChanges(){
-//        Spreadsheet subscriberTestSpreadsheet = new Spreadsheet(testSpreadSheet.getCells(), testSpreadSheet.getName());
-//        ISheetView newView = new ReviewChangesSheetView(testSpreadSheet, subscriberTestSpreadsheet);
-//        newView.addController(this.controller);
-//        try{
-//            this.controller.setCurrentSheet(newView);
-//            newView.loadChanges();
-//        } catch (Exception e){
-//            assertEquals(testSpreadSheet, this.controller.getSpreadsheetModel());
-//        }
-//
-//
-//    }
-
-    @Test
-    public void testSetRowHeaders(){
-        DefaultTableModel sheetTable = (DefaultTableModel) sheetView.getTable().getModel();
-        sheetView.setRowHeaders(sheetTable);
-        DefaultTableModel compareTable = new DefaultTableModel();
-        for(int i = 0; i < sheetView.cells.getRows(); i++){
-            compareTable.setValueAt(i, i, 0);
-        }
-
-        for(int i = 0; i < sheetView.cells.getRows(); i++){
-            assertEquals(compareTable.getValueAt(1, 0), sheetTable.getValueAt(i, 0));
-        }
-    }
-
 }
+

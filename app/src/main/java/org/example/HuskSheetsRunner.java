@@ -20,14 +20,6 @@ public class HuskSheetsRunner {
      * @param args command line arguments passed to the application.
      */
   public static void main(String[] args) {
-<<<<<<< HEAD
-
-      for(String arg : args) {
-          System.out.println(arg);
-      }
-
-      new UserController(new LoginView());
-=======
       if (args.length > 0) {
           // Map to store the command-line arguments and their values
           Map<String, String> arguments = new HashMap<>();
@@ -56,6 +48,5 @@ public class HuskSheetsRunner {
           new UserController(new LoginView());
       }
 
->>>>>>> 6b59ebc158bc574e8665f6aaf3eebc583861f3ad
   }
 }
