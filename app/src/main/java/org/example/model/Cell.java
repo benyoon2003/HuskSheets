@@ -4,19 +4,19 @@ package org.example.model;
  * Represents a cell in a spreadsheet.
  */
 public class Cell {
-    private String value;
-    private String formula;
-    private String rawdata;
-    private int row;
-    private int col;
-
+    private String value; // Stores the cell's value
+    private String formula; // Stores the cell's formula
+    private String rawdata; // Stores the cell's raw data
+    private int row; // Stores the cell's row index
+    private int col; // Stores the cell's column index
+ 
     /**
      * Default constructor that initializes a cell with empty values.
      */
     public Cell() {
-        this.value = "";
-        this.rawdata = "";
-        this.formula = "";
+        this.value = ""; // Initialize value to an empty string
+        this.rawdata = ""; // Initialize raw data to an empty string
+        this.formula = ""; // Initialize formula to an empty string
     }
 
     /**
@@ -26,10 +26,10 @@ public class Cell {
      * @author Vinay
      */
     public Cell(String value) {
-        this();
-        this.value = value;
-        if (value.startsWith("=")) {
-            this.formula = value;
+        this(); // Call the default constructor to initialize empty values
+        this.value = value; // Set the cell's value to the specified value
+        if (value.startsWith("=")) { // Check if the value starts with "=" indicating a formula
+            this.formula = value; // Set the formula if the value starts with "="
         }
     }
 
@@ -40,7 +40,7 @@ public class Cell {
      * @author Ben
      */
     public void setRawData(String rawdata) {
-        this.rawdata = rawdata;
+        this.rawdata = rawdata; // Set the raw data for the cell
     }
 
     /**
@@ -50,7 +50,7 @@ public class Cell {
      * @author Tony
      */
     public String getValue() {
-        return this.value;
+        return this.value; // Return the cell's value
     }
 
     /**
@@ -60,7 +60,7 @@ public class Cell {
      * @author Ben
      */
     public String getRawdata() {
-        return this.rawdata;
+        return this.rawdata; // Return the cell's raw data
     }
 
     /**
@@ -70,11 +70,11 @@ public class Cell {
      * @author Vinay
      */
     public void setValue(String value) {
-        this.value = value;
-        if (value.startsWith("=")) {
-            this.formula = value;
+        this.value = value; // Set the cell's value to the specified value
+        if (value.startsWith("=")) { // Check if the value starts with "=" indicating a formula
+            this.formula = value; // Set the formula if the value starts with "="
         } else {
-            this.formula = "";
+            this.formula = ""; // Clear the formula if the value does not start with "="
         }
     }
 
@@ -85,7 +85,7 @@ public class Cell {
      * @author Tony
      */
     public int getRow() {
-        return this.row;
+        return this.row; // Return the cell's row index
     }
 
     /**
@@ -95,7 +95,7 @@ public class Cell {
      * @author Theo
      */
     public void setRow(int row) {
-        this.row = row;
+        this.row = row; // Set the cell's row index to the specified value
     }
 
     /**
@@ -105,7 +105,7 @@ public class Cell {
      * @author Tony
      */
     public int getCol() {
-        return this.col;
+        return this.col; // Return the cell's column index
     }
 
     /**
@@ -115,7 +115,7 @@ public class Cell {
      * @author Theo
      */
     public void setCol(int col) {
-        this.col = col;
+        this.col = col; // Set the cell's column index to the specified value
     }
 
     /**
@@ -125,7 +125,7 @@ public class Cell {
      * @author Vinay
      */
     public String getFormula() {
-        return this.formula;
+        return this.formula; // Return the cell's formula
     }
 
     /**
@@ -135,7 +135,7 @@ public class Cell {
      * @author Vinay
      */
     public void setFormula(String formula) {
-        this.formula = formula;
+        this.formula = formula; // Set the cell's formula to the specified value
     }
 
     /**
@@ -145,6 +145,6 @@ public class Cell {
      * @author Vinay
      */
     public boolean isFormula() {
-        return this.value.startsWith("=");
+        return this.value.startsWith("="); // Return true if the cell's value starts with "="
     }
 }
