@@ -42,6 +42,22 @@ public class UserController implements IUserController {
     }
 
     /**
+     * Constructs a UserController with the given login view and url.
+     *
+     * @param loginView the login view to be used for user authentication.
+     * @param url the server url
+     */
+    public UserController(ILoginView loginView, String url) {
+        this.loginPage = loginView;
+        loginView.addController(this);
+        this.home = new Home();
+        this.serverEndpoint = new ServerEndpoint(url);
+        this.clipboardContent = "";
+        this.isCutOperation = false;
+        this.currentSubscribedPublisher = "";
+    }
+
+    /**
      * Constructs a UserController and starts the program through the given inputs. This is
      * mainly utilized to handle command line args for testing.
      *
