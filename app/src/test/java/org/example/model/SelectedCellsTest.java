@@ -16,6 +16,7 @@ public class SelectedCellsTest {
     public void testGetters() {
         ISelectedCells cells = new SelectedCells(1, 1,1, 1);
 
+        // selected cells are the ones we expect
         assertEquals(0, cells.getStartRow());
         assertEquals(0, cells.getStartCol());
         assertEquals(0, cells.getEndRow());
