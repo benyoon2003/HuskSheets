@@ -29,9 +29,9 @@ public class Spreadsheet implements ISpreadsheet {
     // used to retrieve version for GetUpdatesPublished
     private List<ISpreadsheet> subscribeVersions;
 
-    private String[] functions = new String[] { "IF", "SUM", "MIN", "MAX", "AVG", "CONCAT", "DEBUG", "STDDEV", "SORT" };
-    private String[] arith = new String[] { "+", "-", "*", "/" };
-    private String[] operations = new String[] { "<>", "<", ">", "=", "&", "|", ":" };
+    private String[] functions = new String[]{"IF", "SUM", "MIN", "MAX", "AVG", "CONCAT", "DEBUG", "STDDEV", "SORT"};
+    private String[] arith = new String[]{"+", "-", "*", "/"};
+    private String[] operations = new String[]{"<>", "<", ">", "=", "&", "|", ":"};
 
     /**
      * Constructs a new Spreadsheet with the specified name.
@@ -60,7 +60,7 @@ public class Spreadsheet implements ISpreadsheet {
      * @param grid the grid of cells.
      * @param name the name of the spreadsheet.
      */
-    public Spreadsheet(ArrayList<ArrayList<Cell>> grid, String name) {
+    public Spreadsheet(List<List<Cell>> grid, String name) {
         this(name);
         for (int i = 0; i < 100; i++) {
             List<Cell> row = grid.get(i);
@@ -77,7 +77,7 @@ public class Spreadsheet implements ISpreadsheet {
      * Converts the given IReadOnlySpreadSheet into a valid String payload for
      * transmission
      * as part of JSON
-     * 
+     *
      * @param sheet the sheet to convert
      * @return a payload (e.g $A1 4\n)
      */
@@ -97,7 +97,7 @@ public class Spreadsheet implements ISpreadsheet {
 
     /**
      * Gets the column label using the given column number.
-     * 
+     *
      * @param columnNumber a number that corresponds to a column in the spreadsheet
      * @return a column label (e.g A, D, F, G)
      */
@@ -111,33 +111,22 @@ public class Spreadsheet implements ISpreadsheet {
         return columnName.toString();
     }
 
+    @Override
     public int getRows() {
         return this.grid.size();
     }
 
-    /**
-     * Gets the number of columns in the spreadsheet.
-     *
-     * @return the number of columns.
-     */
+    @Override
     public int getCols() {
         return this.grid.get(0).size();
     }
 
-    /**
-     * Gets the grid of cells in the spreadsheet.
-     *
-     * @return the grid of cells.
-     */
+    @Override
     public List<List<Cell>> getCells() {
         return this.grid;
     }
 
-    /**
-     * Gets the grid of cells as a 2D array of Cell objects.
-     *
-     * @return the 2D array of Cell objects.
-     */
+    @Override
     public Cell[][] getCellsObject() {
         Cell[][] retObject = new Cell[this.getRows()][this.getCols()];
         for (int r = 0; r < this.getRows(); r++) {
@@ -149,11 +138,7 @@ public class Spreadsheet implements ISpreadsheet {
         return retObject;
     }
 
-    /**
-     * Gets the grid of cell values as a 2D array of strings.
-     *
-     * @return the 2D array of cell values.
-     */
+    @Override
     public String[][] getCellStringsObject() {
         String[][] retObject = new String[this.getRows()][this.getCols()];
         for (int r = 0; r < this.getRows(); r++) {
@@ -165,13 +150,7 @@ public class Spreadsheet implements ISpreadsheet {
         return retObject;
     }
 
-    /**
-     * Gets the row index from the cell reference.
-     *
-     * @param cell the cell reference.
-     * @return the row index.
-     * @author Theo
-     */
+    @Override
     public int getRow(String cell) {
         try {
             return Integer.parseInt(cell.replaceAll("[^0-9]", "")) - 1;
@@ -180,13 +159,7 @@ public class Spreadsheet implements ISpreadsheet {
         }
     }
 
-    /**
-     * Gets the column index from the cell reference.
-     *
-     * @param cell the cell reference.
-     * @return the column index.
-     * @author Vinay
-     */
+    @Override
     public int getColumn(String cell) {
         String col = cell.replaceAll("[^A-Z]", "").toUpperCase();
         int column = 0;
@@ -196,39 +169,23 @@ public class Spreadsheet implements ISpreadsheet {
         return column - 1;
     }
 
-    /**
-     * Adds a published version of the spreadsheet.
-     *
-     * @param sheet the published version of the spreadsheet.
-     */
+    @Override
     public void addPublished(ISpreadsheet sheet) {
         this.publishVersions.add(sheet);
         this.id_version++;
     }
 
-    /**
-     * Adds a subscribed version of the spreadsheet.
-     *
-     * @param sheet the subscribed version of the spreadsheet.
-     */
+    @Override
     public void addSubscribed(ISpreadsheet sheet) {
         this.subscribeVersions.add(sheet);
     }
 
-    /**
-     * Gets the list of published versions of the spreadsheet.
-     *
-     * @return the list of published versions.
-     */
+    @Override
     public List<ISpreadsheet> getPublishedVersions() {
         return this.publishVersions;
     }
 
-    /**
-     * Gets the list of subscribed modified versions of the spreadsheet
-     * 
-     * @return a list of subscribed modified versions of the spreadsheet
-     */
+    @Override
     public List<ISpreadsheet> getSubscribedVersions() {
         return this.subscribeVersions;
     }
@@ -238,84 +195,41 @@ public class Spreadsheet implements ISpreadsheet {
         this.grid = updatedGrid;
     }
 
+    @Override
     public List<List<Cell>> getGrid() {
         return this.grid;
     }
-    
 
-    /**
-     * Gets the name of the spreadsheet.
-     *
-     * @return the name of the spreadsheet.
-     */
     @Override
     public String getName() {
         return this.name;
     }
 
-    /**
-     * Get the id of current sheet
-     * 
-     * @return the id of the sheet
-     */
+    @Override
     public int getId_version() {
         return this.id_version;
     }
 
-    /**
-     * Sets the value of the cell at the specified row and column.
-     *
-     * @param row   the row index of the cell.
-     * @param col   the column index of the cell.
-     * @param value the value to set.
-     */
     @Override
     public void setCellValue(int row, int col, String value) {
         this.grid.get(row).get(col).setValue(evaluateFormula(value));
     }
 
-    /**
-     * Gets the value of the cell at the specified row and column.
-     *
-     * @param row the row index of the cell.
-     * @param col the column index of the cell.
-     * @return the value of the cell.
-     */
     @Override
     public String getCellValue(int row, int col) {
         return this.grid.get(row).get(col).getValue();
     }
 
-    /**
-     * Sets the raw data of the cell at the specified row and column.
-     *
-     * @param row the row index of the cell.
-     * @param col the column index of the cell.
-     * @param val the raw data to set.
-     */
     @Override
     public void setCellRawdata(int row, int col, String val) {
         this.grid.get(row).get(col).setRawData(val);
     }
 
-    /**
-     * Gets the raw data of the cell at the specified row and column.
-     *
-     * @param row the row index of the cell.
-     * @param col the column index of the cell.
-     * @return the raw data of the cell.
-     */
     @Override
     public String getCellRawdata(int row, int col) {
         return this.grid.get(row).get(col).getRawdata();
     }
 
-    /**
-     * Evaluates the given formula and returns the result.
-     *
-     * @param formula the formula to evaluate.
-     * @return the result of evaluating the formula.
-     */
     @Override
     public String evaluateFormula(String formula) {
         System.out.println(formula);
@@ -852,7 +766,7 @@ public class Spreadsheet implements ISpreadsheet {
     /**
      * Evaluates the STDDEV function with the given parameter.
      *
-     * @param parameter the parameter for the STDDEV function.
+     * @param parameters the parameter for the STDDEV function.
      * @return the result of the STDDEV function.
      * @author Theo
      */
@@ -886,7 +800,7 @@ public class Spreadsheet implements ISpreadsheet {
     /**
      * Evaluates the SORT function with the given parameter.
      *
-     * @param parameter the parameter for the SORT function.
+     * @param parameters the parameter for the SORT function.
      * @return the result of the SORT function.
      * @author Theo
      */
@@ -925,8 +839,8 @@ public class Spreadsheet implements ISpreadsheet {
     /**
      * Parses and evaluated any nested functions within the formula parameters.
      *
-     * @param func the nested function within the given part.
-     * @param part the section of the parameters being evaluated
+     * @param func       the nested function within the given part.
+     * @param part       the section of the parameters being evaluated
      * @param parameters the entire parameter.
      * @return the result of the nested function, or an empty string for the ends of functions.
      * @author Theo
@@ -945,10 +859,10 @@ public class Spreadsheet implements ISpreadsheet {
             func += nestedParameters;
             part = parseOperations(func);
             return part;
-        // for the ends of already evaluated functions
+            // for the ends of already evaluated functions
         } else if (!part.contains("(") && part.contains(")")) {
             return "";
-        // for parts that don't need evaluation
+            // for parts that don't need evaluation
         } else {
             return part;
         }

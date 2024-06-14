@@ -290,6 +290,8 @@ public class Server {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
                     false, "User not found", new ArrayList<>()));
         }
+        // New updated sheet must not mutate old version and must be initialized with empty grid
+        // to account for empty spaces or deletions in the update
         for (ISpreadsheet existingSheet : user.getSheets()) {
             if (existingSheet.getName().equals(sheet)) {
                 List<List<String>> data = Home.convertStringTo2DArray(payload);
@@ -389,6 +391,8 @@ public class Server {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
                     false, "User not found", new ArrayList<>()));
         }
+        // New updated sheet must not mutate old version and must be initialized with empty grid
+        // to account for empty spaces or deletions in the update
         for (ISpreadsheet existingSheet : user.getSheets()) {
             if (existingSheet.getName().equals(sheet)) {
                 List<List<String>> data = Home.convertStringTo2DArray(payload);
@@ -486,6 +490,7 @@ public class Server {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
                     false, "User not found", new ArrayList<>()));
         }
+        // Must return all versions in the list of arguments of the Result
         List<Argument> arguments = new ArrayList<>();
         for (ISpreadsheet existingSheet : user.getSheets()) {
             if (existingSheet.getName().equals(sheet)) {
@@ -530,6 +535,7 @@ public class Server {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
                     false, "User not found", new ArrayList<>()));
         }
+        // Must return all versions in the list of arguments of the Result
         List<Argument> arguments = new ArrayList<>();
         for (ISpreadsheet existingSheet : user.getSheets()) {
             if (existingSheet.getName().equals(sheet)) {

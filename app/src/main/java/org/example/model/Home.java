@@ -19,12 +19,6 @@ import org.w3c.dom.*;
  */
 public class Home implements IHome {
 
-    /**
-     * Reads a spreadsheet from an XML file.
-     *
-     * @param path the path of the XML file
-     * @return a Spreadsheet object representing the data in the XML file
-     */
     public ISpreadsheet readXML(String path) {
         try {
             File xmlFile = new File(path);
@@ -54,17 +48,18 @@ public class Home implements IHome {
 
     /**
      * Generates a spreadsheet using the given NodeList, max rows, cols, and path.
+     *
      * @param cellNodes NodeList from XML
-     * @param maxRow num rows
-     * @param maxCol num columns
-     * @param path a path
+     * @param maxRow    num rows
+     * @param maxCol    num columns
+     * @param path      a path
      * @return a ISpreadsheet
      * @author Ben
      */
     private ISpreadsheet generateSpreadsheet(NodeList cellNodes, int maxRow,
                                              int maxCol, String path) {
         // Create 2D cell array
-        ArrayList<ArrayList<Cell>> cellArray = new ArrayList<>();
+        List<List<Cell>> cellArray = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             ArrayList<Cell> row = new ArrayList<>();
             for (int j = 0; j < 100; j++) {
@@ -87,12 +82,6 @@ public class Home implements IHome {
         return new Spreadsheet(cellArray, trimEnds(path));
     }
 
-    /**
-     * Reads the payload of a sheet from the server.
-     * @param payload payload to be parsed.
-     * @param sheetName name of sheet
-     * @return a ISpreadSheet
-     */
     public ISpreadsheet readPayload(String payload, String sheetName) {
         List<List<String>> data = convertStringTo2DArray(payload);
         ISpreadsheet spreadsheet = new Spreadsheet(sheetName);
@@ -103,12 +92,6 @@ public class Home implements IHome {
         return spreadsheet;
     }
 
-    /**
-     * Writes the spreadsheet data to an XML file.
-     *
-     * @param sheet the spreadsheet data to write
-     * @param path  the path of the XML file to write to
-     */
     @Override
     public void writeXML(IReadOnlySpreadSheet sheet, String path) {
         try {
@@ -124,6 +107,7 @@ public class Home implements IHome {
 
     /**
      * Creates a new document.
+     *
      * @return a Document
      * @throws Exception
      * @author Theo
@@ -136,7 +120,8 @@ public class Home implements IHome {
 
     /**
      * Creates a root element for the XML.
-     * @param dom a Document
+     *
+     * @param dom  a Document
      * @param path a path
      * @return an Element
      * @author Theo
@@ -151,8 +136,9 @@ public class Home implements IHome {
 
     /**
      * Places sheet data within the XML.
-     * @param dom a Document
-     * @param root an Element in the XML
+     *
+     * @param dom   a Document
+     * @param root  an Element in the XML
      * @param sheet a IReadOnlySpreadSheet
      * @author Theo
      */
@@ -170,9 +156,10 @@ public class Home implements IHome {
 
     /**
      * Creates a cell Element for the XML.
-     * @param dom a Document
-     * @param row a row index
-     * @param col a column index
+     *
+     * @param dom   a Document
+     * @param row   a row index
+     * @param col   a column index
      * @param value the Cell content
      * @return an XML Element
      * @author Theo
@@ -187,10 +174,11 @@ public class Home implements IHome {
 
     /**
      * Writes the Document to a XML file.
-     * @param dom a Document
+     *
+     * @param dom  a Document
      * @param path a path
      * @throws Exception a FileNotFoundException, SecurityException or
-     * TransformerConfigurationException
+     *                   TransformerConfigurationException
      * @author Theo
      */
     private void writeDocumentToFile(Document dom, String path) throws Exception {
@@ -273,7 +261,7 @@ public class Home implements IHome {
             i++;
         }
 
-        return new int[] { row - 1, col - 1 }; // Convert to 0-based index
+        return new int[]{row - 1, col - 1}; // Convert to 0-based index
     }
 
     /**

@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * The UserController class is responsible for managing user interactions and the flow of data
- * between the view and the model. It handles user authentication, sheet operations, and 
+ * between the view and the model. It handles user authentication, sheet operations, and
  * server communication.
  */
 public class UserController implements IUserController {
@@ -41,17 +41,67 @@ public class UserController implements IUserController {
         this.currentSubscribedPublisher = "";
     }
 
-    public IAppUser getAppUser(){
+    /**
+     * Constructs a UserController and starts the program through the given inputs. This is
+     * mainly utilized to handle command line args for testing.
+     *
+     * @param url       a URL
+     * @param username  a username
+     * @param password  a password
+     * @param publisher a publisher
+     * @param sheetname a sheet name
+     */
+    public UserController(String url, String username, String password, String publisher, String sheetname) {
+        this.serverEndpoint = new ServerEndpoint(url);
+        this.loginPage = new LoginView();
+        this.loginPage.disposeLoginPage();
+        this.home = new Home();
+        this.homeView = new HomeView();
+        handleCommandLine(username, password, sheetname, publisher);
+    }
+
+    /**
+     * Takes the given inputs and opens the publisher's sheet.
+     *
+     * @param username  a username
+     * @param password  a pasword
+     * @param sheetname a sheet name
+     * @param publisher a publisher
+     */
+    private void handleCommandLine(String username, String password,
+                                   String sheetname, String publisher) {
+        try {
+            registerUser(username, password);
+        } catch (Exception registerError) {
+            if (registerError.getMessage().equals("User already exists")) {
+                try {
+                    loginUser(username, password);
+                } catch (Exception loginError) {
+                    this.homeView.displayErrorBox(loginError.getMessage());
+                }
+            }
+            this.homeView.displayErrorBox(registerError.getMessage());
+            System.out.println(registerError.getMessage());
+        }
+        openSubscriberSheet(sheetname, publisher);
+    }
+
+    @Override
+    public IAppUser getAppUser() {
         return appUser;
     }
 
-    public String getClipboardContent() {
-        return clipboardContent;
-    }
-    
+    @Override
     public boolean isCutOperation() {
         return isCutOperation;
     }
+
+    @Override
+    public String getClipboardContent() {
+        return clipboardContent;
+    }
+
+    @Override
     public void registerUser(String username, String password) throws Exception {
         try {
             if (validateInput(username, password)) {
@@ -61,19 +111,14 @@ public class UserController implements IUserController {
                     this.loginPage.disposeLoginPage();
                     this.appUser = newUser;
                     openHomeView();
-                }
-                else {
+                } else {
                     throw new Exception(result.getMessage());
-                    //this.loginPage.displayErrorBox(result.getMessage());
                 }
-            }
-            else {
+            } else {
                 this.loginPage.displayErrorBox("Empty credentials");
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new Exception(e.getMessage());
-            //this.loginPage.displayErrorBox(e.getMessage());
         }
     }
 
@@ -87,19 +132,14 @@ public class UserController implements IUserController {
                     this.loginPage.disposeLoginPage();
                     this.appUser = newUser;
                     openHomeView();
-                }
-                else {
+                } else {
                     throw new Exception(result.getMessage());
-                    //this.loginPage.displayErrorBox(result.getMessage());
                 }
-            }
-            else {
+            } else {
                 this.loginPage.displayErrorBox("Empty credentials");
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new Exception(e.getMessage());
-            //this.loginPage.displayErrorBox(e.getMessage());
         }
     }
 
@@ -116,13 +156,11 @@ public class UserController implements IUserController {
                 }
                 // The list should exclude the current user
                 listOfUsernames.remove(appUser.getUsername());
-            }
-            else {
+            } else {
                 homeView.displayErrorBox(result.getMessage());
             }
             return listOfUsernames;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             this.homeView.displayErrorBox(e.getMessage());
         }
         return new ArrayList<>();
@@ -135,10 +173,15 @@ public class UserController implements IUserController {
         this.sheetView.makeVisible();
     }
 
-    public ISpreadsheet getSpreadsheetModel() {
+    /**
+     * Gets the current ISpreadsheet model.
+     *
+     * @return a ISpreadsheet
+     */
+    ISpreadsheet getSpreadsheetModel() {
         return spreadsheetModel;
     }
-    
+
 
     @Override
     public void createNewServerSheet(String name) {
@@ -178,6 +221,7 @@ public class UserController implements IUserController {
         }
     }
 
+    @Override
     public void updateSelectedCells(String value) {
         int startRow = selectedCells.getStartRow();
         int endRow = selectedCells.getEndRow();
@@ -195,6 +239,7 @@ public class UserController implements IUserController {
         }
     }
 
+    @Override
     public void updateSubscribedSheet(String publisher, IReadOnlySpreadSheet sheet, String name) {
         try {
             String payload = Spreadsheet.convertSheetToPayload(sheet);
@@ -249,6 +294,7 @@ public class UserController implements IUserController {
 
     /**
      * Determines if a single cell has been selected.
+     *
      * @param selectedCells an ISelectedCells object
      * @return boolean
      * @author Vinay
@@ -299,14 +345,13 @@ public class UserController implements IUserController {
             String fullPayload = "";
             if (result.getSuccess()) {
                 try {
-                     fullPayload = result.getValue().getLast().getPayload();
+                    fullPayload = result.getValue().getLast().getPayload();
                 } catch (Exception e) {
                     //payload is empty
                 }
                 this.spreadsheetModel = this.home.readPayload(fullPayload, selectedSheet);
                 setCurrentSheet(new SheetView(spreadsheetModel));
-            }
-            else {
+            } else {
                 homeView.displayErrorBox(result.getMessage());
             }
         } catch (Exception e) {
@@ -324,8 +369,7 @@ public class UserController implements IUserController {
                     sheets.add(argument.getSheet());
                 }
                 return sheets;
-            }
-            else {
+            } else {
                 homeView.displayErrorBox(result.getMessage());
             }
         } catch (Exception e) {
@@ -343,8 +387,7 @@ public class UserController implements IUserController {
                 String fullPayload = result.getValue().getLast().getPayload();
                 this.spreadsheetModel = this.home.readPayload(fullPayload, selectedSheet);
                 this.setCurrentSheet(new SubscriberSheetView(publisher, spreadsheetModel));
-            }
-            else {
+            } else {
                 homeView.displayErrorBox(result.getMessage());
             }
         } catch (Exception e) {
@@ -361,8 +404,7 @@ public class UserController implements IUserController {
                 ISpreadsheet changes = this.home.readPayload(fullPayload, sheet);
                 this.setCurrentSheet(new ReviewChangesSheetView(changes, this.spreadsheetModel));
                 this.sheetView.loadChanges();
-            }
-            else {
+            } else {
                 sheetView.displayMessage(result.getMessage());
             }
         } catch (Exception e) {

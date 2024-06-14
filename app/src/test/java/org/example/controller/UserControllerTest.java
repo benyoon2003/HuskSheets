@@ -23,6 +23,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+/**
+ * Tests the methods within the user controller.
+ */
 public class UserControllerTest {
 
     @Mock
@@ -43,6 +46,10 @@ public class UserControllerTest {
     @InjectMocks
     private UserController userController;
 
+    /**
+     * Sets up the mock UserController.
+     * @throws Exception irrelevant to actual tests
+     */
     @BeforeEach
     public void setUp() throws Exception {
         MockitoAnnotations.openMocks(this);

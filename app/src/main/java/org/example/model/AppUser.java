@@ -15,6 +15,7 @@ public class AppUser implements IAppUser {
 
     /**
      * Default constructor for AppUser.
+     *
      * @param username a username
      * @param password a password
      */
@@ -24,18 +25,22 @@ public class AppUser implements IAppUser {
         this.password = password;
     }
 
+    @Override
     public String getUsername() {
         return this.username;
     }
 
+    @Override
     public String getPassword() {
         return password;
     }
 
+    @Override
     public void addSheet(String sheetName) {
         this.sheets.add(new Spreadsheet(sheetName));
     }
 
+    @Override
     public void removeSheet(String sheetName) {
         for (ISpreadsheet sheet : this.sheets) {
             if (sheet.getName().equals(sheetName)) {
@@ -45,6 +50,7 @@ public class AppUser implements IAppUser {
         }
     }
 
+    @Override
     public boolean doesSheetExist(String name) {
         for (ISpreadsheet sheet : this.sheets) {
             if (sheet.getName().equals(name)) {
@@ -55,6 +61,7 @@ public class AppUser implements IAppUser {
         return false;
     }
 
+    @Override
     public List<ISpreadsheet> getSheets() {
         return this.sheets;
     }
