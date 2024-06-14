@@ -173,12 +173,8 @@ public class UserController implements IUserController {
         this.sheetView.makeVisible();
     }
 
-    /**
-     * Gets the current ISpreadsheet model.
-     *
-     * @return a ISpreadsheet
-     */
-    ISpreadsheet getSpreadsheetModel() {
+    @Override
+    public ISpreadsheet getSpreadsheetModel() {
         return spreadsheetModel;
     }
 
