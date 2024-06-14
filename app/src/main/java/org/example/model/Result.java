@@ -26,9 +26,9 @@ public class Result {
      * @author Ben
      */
     public Result(boolean success, String message, List<Argument> value) {
-        this.success = success;
-        this.message = message;
-        this.value = value != null ? value : new ArrayList<>();
+        this.success = success; // Initialize the success field with the provided value
+        this.message = message; // Initialize the message field with the provided value
+        this.value = value != null ? value : new ArrayList<>(); // Initialize the value field with the provided list or an empty list if null
     }
 
     /**
@@ -39,15 +39,15 @@ public class Result {
      * @author Ben
      */
     public Result(String jsonString) throws JSONException {
-        JSONObject jsonObject = new JSONObject(jsonString);
-        this.success = jsonObject.getBoolean("success");
-        this.message = jsonObject.optString("message", null);
-        this.value = new ArrayList<>();
-        JSONArray jsonArray = jsonObject.optJSONArray("value");
-        if (jsonArray != null) {
+        JSONObject jsonObject = new JSONObject(jsonString); // Parse the JSON string to create a JSONObject
+        this.success = jsonObject.getBoolean("success"); // Extract the success field from the JSON object
+        this.message = jsonObject.optString("message", null); // Extract the message field from the JSON object, default to null if not present
+        this.value = new ArrayList<>(); // Initialize the value field as an empty list
+        JSONArray jsonArray = jsonObject.optJSONArray("value"); // Extract the value array from the JSON object
+        if (jsonArray != null) { // If the value array is not null, iterate through it
             for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject entry = jsonArray.optJSONObject(i);
-                if (entry != null) {
+                JSONObject entry = jsonArray.optJSONObject(i); // Get each entry in the array as a JSONObject
+                if (entry != null) { // If the entry is not null, create an Argument object and add it to the value list
                     Argument argument = new Argument();
                     argument.setPublisher(entry.optString("publisher", ""));
                     argument.setSheet(entry.optString("sheet", ""));
@@ -66,7 +66,7 @@ public class Result {
      * @author Ben
      */
     public boolean getSuccess() {
-        return this.success;
+        return this.success; // Return the success status
     }
 
     /**
@@ -76,7 +76,7 @@ public class Result {
      * @author Tony
      */
     public String getMessage() {
-        return this.message;
+        return this.message; // Return the message associated with the result
     }
 
     /**
@@ -86,7 +86,7 @@ public class Result {
      * @author Tony
      */
     public List<Argument> getValue() {
-        return this.value;
+        return this.value; // Return the list of Argument objects
     }
 
     /**
@@ -97,10 +97,12 @@ public class Result {
      */
     @Override
     public String toString() {
+        // Convert the value list to a string
         String valueString = value.stream()
                 .map(Argument::toString)
                 .collect(Collectors.joining(", ", "[", "]"));
 
+        // Return the string representation of the Result object
         return "Result{" +
                 "success=" + success +
                 ", message='" + message + '\'' +
