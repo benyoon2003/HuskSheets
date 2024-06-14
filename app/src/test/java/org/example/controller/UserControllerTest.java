@@ -233,6 +233,10 @@ public class UserControllerTest {
         verify(homeView).displayErrorBox("Error");
     }
 
+    /**
+     * Tests the saveSheetLocally method of UserController.
+     * Ensures that a sheet is correctly saved to a local file with the expected content.
+     */
     @Test
     public void testSaveSheetLocally() {
         Spreadsheet sheet = new Spreadsheet("Test");
@@ -257,7 +261,11 @@ public class UserControllerTest {
             e.printStackTrace();
         }
     }
-
+    
+    /**
+     * Tests the openSheetLocally method of UserController.
+     * Ensures that a sheet is correctly opened from a local file and the content matches the expected values.
+     */
     @Test
     public void testOpenSheetLocally() {
         File file = new File("..\\sheets\\readTestSheet.xml");
@@ -276,6 +284,10 @@ public class UserControllerTest {
         assertEquals("", sheet.getCellValue(0, 1));
     }
 
+    /**
+     * Tests the getSavedSheetsLocally method of UserController.
+     * Ensures that the list of saved sheets locally is not empty and contains the expected sheet name.
+     */
     @Test
     public void testGetSavedSheetsLocally() {
         List<String> sheets = this.userController.getSavedSheetsLocally();
@@ -290,6 +302,12 @@ public class UserControllerTest {
         });
     }
 
+    /**
+     * Tests the updateSelectedCells method of UserController.
+     * Ensures that the selected cells are updated with the specified value.
+     * 
+     * @throws Exception if there is an error during the test.
+     */
     @Test
     public void testUpdateSelectedCells() throws Exception {
         when(selectedCells.getStartRow()).thenReturn(0);
@@ -408,6 +426,10 @@ public class UserControllerTest {
         verify(sheetView).updateTable();
     }
 
+    /**
+     * Tests the updateSubscribedSheet method of UserController.
+     * Ensures that the subscribed sheet is correctly updated with the provided values.
+     */
     @Test
     public void testUpdateSubscribedSheet() {
         this.spreadsheetModel.setCellValue(0, 0, "00");
@@ -419,6 +441,12 @@ public class UserControllerTest {
         // "");
     }
 
+    /**
+     * Tests the openServerSheet method of UserController.
+     * Ensures that the server sheet is correctly opened and updates are applied to the local spreadsheet model.
+     * 
+     * @throws Exception if there is an error during the test.
+     */
     @Test
     public void testOpenServerSheet() throws Exception {
         String payload = "$A1 00\\n$B1 01\\n$A2 10\\n$B2 11\\n";
