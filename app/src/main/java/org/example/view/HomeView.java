@@ -15,26 +15,26 @@ import java.util.List;
  */
 public class HomeView extends JFrame implements IHomeView {
 
-    private JButton createSheet;
-    private JComboBox<String> openSheetDropdown;
-    private JComboBox<String> publishers;
-    private JComboBox<String> openSubscriberDropdown;
-    private JButton openSheetButton;
-    private JButton openSubscribeButton;
-    private JButton deleteSheetButton;
-    private IUserController controller;
+    private JButton createSheet; // Button for creating a new sheet
+    private JComboBox<String> openSheetDropdown; // Dropdown menu for opening sheets
+    private JComboBox<String> publishers; // Dropdown menu for selecting publishers
+    private JComboBox<String> openSubscriberDropdown; // Dropdown menu for opening subscriber sheets
+    private JButton openSheetButton; // Button for opening a selected sheet
+    private JButton openSubscribeButton; // Button for subscribing and opening a selected sheet
+    private JButton deleteSheetButton; // Button for deleting a selected sheet
+    private IUserController controller; // Reference to the controller
 
     /**
      * Constructs a HomeView instance, setting up the main GUI window.
      */
     public HomeView() {
-        setTitle("Main GUI");
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setTitle("Main GUI"); // Set the title of the window
+        setExtendedState(JFrame.MAXIMIZED_BOTH); // Maximize the window
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Set the default close operation
 
-        JPanel panel = new JPanel();
-        placeComponents(panel);
-        add(panel);
+        JPanel panel = new JPanel(); // Create a new panel
+        placeComponents(panel); // Place components on the panel
+        add(panel); // Add the panel to the frame
     }
 
     /**
@@ -43,98 +43,100 @@ public class HomeView extends JFrame implements IHomeView {
      * @param panel the JPanel to place the components on.
      */
     private void placeComponents(JPanel panel) {
-        panel.setLayout(null);
+        panel.setLayout(null); // Set the layout to null
 
-        JLabel spreadheetsLabel = new JLabel("Spreadsheets:");
-        spreadheetsLabel.setBounds(50, 50, 100, 25);
-        panel.add(spreadheetsLabel);
+        JLabel spreadheetsLabel = new JLabel("Spreadsheets:"); // Create a label for spreadsheets
+        spreadheetsLabel.setBounds(50, 50, 100, 25); // Set the bounds for the label
+        panel.add(spreadheetsLabel); // Add the label to the panel
 
         // Button for creating a new sheet
-        createSheet = new JButton("Create Spreadsheet");
-        createSheet.setBounds(50, 70, 200, 25);
-        panel.add(createSheet);
+        createSheet = new JButton("Create Spreadsheet"); // Create the button
+        createSheet.setBounds(50, 70, 200, 25); // Set the bounds for the button
+        panel.add(createSheet); // Add the button to the panel
 
         // dropdown menu for locally saved sheets
-        openSheetDropdown = new JComboBox<>();
-        openSheetDropdown.setBounds(50, 110, 200, 25);
-        panel.add(openSheetDropdown);
+        openSheetDropdown = new JComboBox<>(); // Create the dropdown menu
+        openSheetDropdown.setBounds(50, 110, 200, 25); // Set the bounds for the dropdown menu
+        panel.add(openSheetDropdown); // Add the dropdown menu to the panel
 
-        publishers = new JComboBox<>();
-        publishers.setBounds(50, 320, 200, 25);
-        panel.add(publishers);
+        publishers = new JComboBox<>(); // Create the dropdown menu for publishers
+        publishers.setBounds(50, 320, 200, 25); // Set the bounds for the dropdown menu
+        panel.add(publishers); // Add the dropdown menu to the panel
 
-        openSubscriberDropdown = new JComboBox<>();
-        openSubscriberDropdown.setBounds(50, 360, 200, 25);
-        panel.add(openSubscriberDropdown);
+        openSubscriberDropdown = new JComboBox<>(); // Create the dropdown menu for subscriber sheets
+        openSubscriberDropdown.setBounds(50, 360, 200, 25); // Set the bounds for the dropdown menu
+        panel.add(openSubscriberDropdown); // Add the dropdown menu to the panel
 
         // Button to open selected sheet
-        openSheetButton = new JButton("Open Spreadsheet");
-        openSheetButton.setBounds(50, 150, 200, 25);
-        panel.add(openSheetButton);
+        openSheetButton = new JButton("Open Spreadsheet"); // Create the button
+        openSheetButton.setBounds(50, 150, 200, 25); // Set the bounds for the button
+        panel.add(openSheetButton); // Add the button to the panel
 
-        openSubscribeButton = new JButton("Subscribe and open");
-        openSubscribeButton.setBounds(50, 400, 200, 25);
-        panel.add(openSubscribeButton);
+        openSubscribeButton = new JButton("Subscribe and open"); // Create the button
+        openSubscribeButton.setBounds(50, 400, 200, 25); // Set the bounds for the button
+        panel.add(openSubscribeButton); // Add the button to the panel
 
         // Button to delete selected sheet
-        deleteSheetButton = new JButton("Delete Spreadsheet");
-        deleteSheetButton.setBounds(50, 190, 200, 25);
-        panel.add(deleteSheetButton);
+        deleteSheetButton = new JButton("Delete Spreadsheet"); // Create the button
+        deleteSheetButton.setBounds(50, 190, 200, 25); // Set the bounds for the button
+        panel.add(deleteSheetButton); // Add the button to the panel
 
         // Create new sheet with name
         createSheet.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String sheetName = JOptionPane.showInputDialog(panel, "Enter sheet name:", "Create New Sheet",
-                        JOptionPane.PLAIN_MESSAGE);
+                        JOptionPane.PLAIN_MESSAGE); // Show input dialog to enter sheet name
                 if (sheetName != null && !sheetName.trim().isEmpty()) {
-                    controller.createNewServerSheet(sheetName);
+                    controller.createNewServerSheet(sheetName); // Call controller method to create a new sheet
                 } else {
                     JOptionPane.showMessageDialog(panel, "Sheet name cannot be empty", "Error",
-                            JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.ERROR_MESSAGE); // Show error message if sheet name is empty
                 }
             }
         });
 
-        // open selected sheet
+        // Add action listener for opening selected sheet
         openSheetButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String selectedSheet = (String) openSheetDropdown.getSelectedItem();
+                String selectedSheet = (String) openSheetDropdown.getSelectedItem(); // Get selected sheet
                 if (selectedSheet != null) {
-                    controller.openServerSheet(selectedSheet);
+                    controller.openServerSheet(selectedSheet); // Call controller method to open the sheet
                 } else {
-                    JOptionPane.showMessageDialog(panel, "No sheet selected to open");
+                    JOptionPane.showMessageDialog(panel, "No sheet selected to open"); // Show error message if no sheet is selected
                 }
             }
         });
 
-        // change publisher
+        // Add action listener for changing publisher
         publishers.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (publishers.getSelectedItem() != null) {
-                    updateSubscribeSheets((String) publishers.getSelectedItem());
-                }
-            }
-        });
-        
-        openSubscribeButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String selectedSheet = (String) openSubscriberDropdown.getSelectedItem();
-                if (selectedSheet != null && publishers.getSelectedItem() != null) {
-                    controller.openSubscriberSheet(selectedSheet, (String) publishers.getSelectedItem());
-                } else {
-                    JOptionPane.showMessageDialog(panel, "No sheet selected to open");
+                    updateSubscribeSheets((String) publishers.getSelectedItem()); // Update the subscriber sheets based on selected publisher
                 }
             }
         });
 
+        // Add action listener for subscribing and opening selected sheet
+        openSubscribeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedSheet = (String) openSubscriberDropdown.getSelectedItem(); // Get selected subscriber sheet
+                if (selectedSheet != null && publishers.getSelectedItem() != null) {
+                    controller.openSubscriberSheet(selectedSheet, (String) publishers.getSelectedItem()); // Call controller method to open subscriber sheet
+                } else {
+                    JOptionPane.showMessageDialog(panel, "No sheet selected to open"); // Show error message if no sheet is selected
+                }
+            }
+        });
+
+        // Add action listener for deleting selected sheet
         deleteSheetButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String selectedSheet = (String) openSheetDropdown.getSelectedItem();
+                String selectedSheet = (String) openSheetDropdown.getSelectedItem(); // Get selected sheet
                 if (selectedSheet != null) {
                     int option = JOptionPane.showOptionDialog(
                             null,
@@ -144,27 +146,29 @@ public class HomeView extends JFrame implements IHomeView {
                             JOptionPane.QUESTION_MESSAGE,
                             null,
                             new Object[] { "Delete Locally", "Delete from Server" },
-                            "Delete Locally");
+                            "Delete Locally"); // Show option dialog to choose delete location
 
                     if (option == JOptionPane.YES_OPTION) {
-                        controller.deleteSheetFromServer(selectedSheet);
+                        controller.deleteSheetFromServer(selectedSheet); // Call controller method to delete sheet from server
                     } else {
-                        controller.deleteSheetFromServer(selectedSheet);
+                        controller.deleteSheetFromServer(selectedSheet); // Call controller method to delete sheet from server (duplicate code, should probably call different method)
+                        makeVisible(); // Refresh the view
                         makeVisible();
                     }
                 } else {
-                    JOptionPane.showMessageDialog(panel, "No sheet selected to delete");
+                    JOptionPane.showMessageDialog(panel, "No sheet selected to delete"); // Show error message if no sheet is selected
                 }
             }
         });
 
     }
 
+    // Method to update subscriber sheets based on selected publisher
     public void updateSubscribeSheets(String selectedPublisher) {
-        List<String> subscribedSheets = controller.accessSheetsFromUser(selectedPublisher);
-        openSubscriberDropdown.removeAllItems();
+        List<String> subscribedSheets = controller.accessSheetsFromUser(selectedPublisher); // Get list of subscribed sheets from controller
+        openSubscriberDropdown.removeAllItems(); // Remove all items from subscriber dropdown
         for (String sheet : subscribedSheets) {
-            openSubscriberDropdown.addItem(sheet);
+            openSubscriberDropdown.addItem(sheet); // Add each subscribed sheet to the dropdown
         }
     }
 
@@ -175,7 +179,7 @@ public class HomeView extends JFrame implements IHomeView {
      */
     @Override
     public void displayErrorBox(String message) {
-        JOptionPane.showMessageDialog(this, message);
+        JOptionPane.showMessageDialog(this, message); // Show error message dialog
     }
 
     /**
@@ -184,18 +188,18 @@ public class HomeView extends JFrame implements IHomeView {
     @Override
     public void updateSavedSheets() {
         if (controller != null) {
-            List<String> savedSheets = controller.getSavedSheetsLocally();
-            List<String> serverSheets = controller.getAppUserSheets();
-            List<String> listOfPublishers = controller.getPublishersFromServer();
-            System.out.println("Updating dropdown with saved sheets: " + savedSheets);
-            openSheetDropdown.removeAllItems();
-            publishers.removeAllItems();
+            List<String> savedSheets = controller.getSavedSheetsLocally(); // Get list of saved sheets locally
+            List<String> serverSheets = controller.getAppUserSheets(); // Get list of server sheets
+            List<String> listOfPublishers = controller.getPublishersFromServer(); // Get list of publishers from server
+            System.out.println("Updating dropdown with saved sheets: " + savedSheets); // Print saved sheets to console (for debugging)
+            openSheetDropdown.removeAllItems(); // Remove all items from open sheet dropdown
+            publishers.removeAllItems(); // Remove all items from publishers dropdown
             for (String sheet : serverSheets) {
-                openSheetDropdown.addItem(sheet);
+                openSheetDropdown.addItem(sheet); // Add each server sheet to the dropdown
             }
 
             for (String username : listOfPublishers) {
-                publishers.addItem(username);
+                publishers.addItem(username); // Add each publisher to the dropdown
             }
         }
     }
@@ -207,7 +211,7 @@ public class HomeView extends JFrame implements IHomeView {
      */
     @Override
     public void addController(IUserController controller) {
-        this.controller = controller;
+        this.controller = controller; // Set the controller
     }
 
     /**
@@ -215,8 +219,8 @@ public class HomeView extends JFrame implements IHomeView {
      */
     @Override
     public void makeVisible() {
-        this.setVisible(true);
-        updateSavedSheets();
+        this.setVisible(true); // Make the frame visible
+        updateSavedSheets(); // Update the list of saved sheets
     }
 
     /**
@@ -224,31 +228,61 @@ public class HomeView extends JFrame implements IHomeView {
      */
     @Override
     public void disposeHomePage() {
-        this.dispose();
+        this.dispose(); // Dispose of the frame
     }
 
-    // Getter methods
-    public JButton getCreateSheetButton() {
-        return createSheet;
-    }
+    /**
+ * Getter method for the create sheet button.
+ *
+ * @return the create sheet button.
+ */
+public JButton getCreateSheetButton() {
+    return createSheet; // Return the create sheet button
+}
 
-    public JComboBox<String> getOpenSheetDropdown() {
-        return openSheetDropdown;
-    }
+/**
+ * Getter method for the open sheet dropdown.
+ *
+ * @return the open sheet dropdown.
+ */
+public JComboBox<String> getOpenSheetDropdown() {
+    return openSheetDropdown; // Return the open sheet dropdown
+}
 
-    public JComboBox<String> getPublishersDropdown() {
-        return publishers;
-    }
+/**
+ * Getter method for the publishers dropdown.
+ *
+ * @return the publishers dropdown.
+ */
+public JComboBox<String> getPublishersDropdown() {
+    return publishers; // Return the publishers dropdown
+}
 
-    public JButton getOpenSheetButton() {
-        return openSheetButton;
-    }
+/**
+ * Getter method for the open sheet button.
+ *
+ * @return the open sheet button.
+ */
+public JButton getOpenSheetButton() {
+    return openSheetButton; // Return the open sheet button
+}
 
-    public JButton getDeleteSheetButton() {
-        return deleteSheetButton;
-    }
+/**
+ * Getter method for the delete sheet button.
+ *
+ * @return the delete sheet button.
+ */
+public JButton getDeleteSheetButton() {
+    return deleteSheetButton; // Return the delete sheet button
+}
 
-    public IUserController getController() {
-        return controller;
-    }
+/**
+ * Getter method for the controller.
+ *
+ * @return the controller.
+ */
+public IUserController getController() {
+    return controller; // Return the controller
+}
+
 }
