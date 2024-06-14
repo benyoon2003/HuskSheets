@@ -16,7 +16,7 @@ public class AppUserTest {
      */
     @BeforeEach
     public void init() {
-        this.user = new AppUser("testUser", "testPassword");
+        this.user = new AppUser("testUser", "testPassword"); // Initializes the AppUser with test data.
     }
 
     /**
@@ -24,8 +24,8 @@ public class AppUserTest {
      */
     @Test
     public void testConstructorAndGetterSetter() {
-        assertEquals("testUser", this.user.getUsername());
-        assertEquals("testPassword", this.user.getPassword());
+        assertEquals("testUser", this.user.getUsername()); // Checks if the username is set correctly.
+        assertEquals("testPassword", this.user.getPassword()); // Checks if the password is set correctly.
     }
 
     /**
@@ -33,12 +33,12 @@ public class AppUserTest {
      */
     @Test
     public void testAddSheet() {
-        assertEquals(0, this.user.getSheets().size());
+        assertEquals(0, this.user.getSheets().size()); // Verifies that the sheets list is initially empty.
     
-        this.user.addSheet("Sheet1");
+        this.user.addSheet("Sheet1"); // Adds a sheet named "Sheet1".
 
-        assertEquals(1, this.user.getSheets().size());
-        assertEquals("Sheet1", this.user.getSheets().get(0).getName());
+        assertEquals(1, this.user.getSheets().size()); // Checks if the sheet was added.
+        assertEquals("Sheet1", this.user.getSheets().get(0).getName()); // Verifies the name of the added sheet.
     }
 
     /**
@@ -46,15 +46,15 @@ public class AppUserTest {
      */
     @Test
     public void testRemoveSheet() {
-        this.user.addSheet("Sheet1");
-        this.user.addSheet("Sheet2");
-        assertEquals(2, this.user.getSheets().size());
-        assertEquals("Sheet1", this.user.getSheets().get(0).getName());
+        this.user.addSheet("Sheet1"); // Adds a sheet named "Sheet1".
+        this.user.addSheet("Sheet2"); // Adds a second sheet named "Sheet2".
+        assertEquals(2, this.user.getSheets().size()); // Checks if both sheets were added.
+        assertEquals("Sheet1", this.user.getSheets().get(0).getName()); // Verifies the name of the first sheet.
 
-        this.user.removeSheet("Sheet1");
-        assertEquals(1, this.user.getSheets().size());
-        this.user.removeSheet("Sheet2");
-        assertEquals(0, this.user.getSheets().size());
+        this.user.removeSheet("Sheet1"); // Removes the first sheet.
+        assertEquals(1, this.user.getSheets().size()); // Checks if the sheet was removed.
+        this.user.removeSheet("Sheet2"); // Removes the second sheet.
+        assertEquals(0, this.user.getSheets().size()); // Verifies that all sheets are removed.
     }
 
     /**
@@ -62,14 +62,14 @@ public class AppUserTest {
      */
     @Test
     public void testRemoveNonExistentSheet() {
-        this.user.addSheet("Sheet1");
-        this.user.addSheet("Sheet2");
-        assertEquals(2, this.user.getSheets().size());
+        this.user.addSheet("Sheet1"); // Adds a sheet named "Sheet1".
+        this.user.addSheet("Sheet2"); // Adds a second sheet named "Sheet2".
+        assertEquals(2, this.user.getSheets().size()); // Checks if both sheets were added.
 
-        this.user.removeSheet("Sheet3");
-        assertEquals(2, this.user.getSheets().size());
-        assertEquals("Sheet1", this.user.getSheets().get(0).getName());
-        assertEquals("Sheet2", this.user.getSheets().get(1).getName());
+        this.user.removeSheet("Sheet3"); // Attempts to remove a non-existent sheet named "Sheet3".
+        assertEquals(2, this.user.getSheets().size()); // Verifies that no sheets were removed.
+        assertEquals("Sheet1", this.user.getSheets().get(0).getName()); // Verifies the name of the first sheet.
+        assertEquals("Sheet2", this.user.getSheets().get(1).getName()); // Verifies the name of the second sheet.
     }
 
     /**
@@ -77,10 +77,10 @@ public class AppUserTest {
      */
     @Test
     public void testRemoveSheetFromEmptyList() {
-        assertEquals(0, this.user.getSheets().size());
+        assertEquals(0, this.user.getSheets().size()); // Verifies that the sheets list is initially empty.
 
-        this.user.removeSheet("Sheet1");
-        assertEquals(0, this.user.getSheets().size());
+        this.user.removeSheet("Sheet1"); // Attempts to remove a sheet from an empty list.
+        assertEquals(0, this.user.getSheets().size()); // Verifies that the list remains empty.
     }
 
     /**
@@ -88,17 +88,17 @@ public class AppUserTest {
      */
     @Test
     public void testRemoveAllSheetsOneByOne() {
-        this.user.addSheet("Sheet1");
-        this.user.addSheet("Sheet2");
-        this.user.addSheet("Sheet3");
-        assertEquals(3, this.user.getSheets().size());
+        this.user.addSheet("Sheet1"); // Adds a sheet named "Sheet1".
+        this.user.addSheet("Sheet2"); // Adds a second sheet named "Sheet2".
+        this.user.addSheet("Sheet3"); // Adds a third sheet named "Sheet3".
+        assertEquals(3, this.user.getSheets().size()); // Checks if all sheets were added.
 
-        this.user.removeSheet("Sheet1");
-        assertEquals(2, this.user.getSheets().size());
-        this.user.removeSheet("Sheet2");
-        assertEquals(1, this.user.getSheets().size());
-        this.user.removeSheet("Sheet3");
-        assertEquals(0, this.user.getSheets().size());
+        this.user.removeSheet("Sheet1"); // Removes the first sheet.
+        assertEquals(2, this.user.getSheets().size()); // Verifies that one sheet was removed.
+        this.user.removeSheet("Sheet2"); // Removes the second sheet.
+        assertEquals(1, this.user.getSheets().size()); // Verifies that another sheet was removed.
+        this.user.removeSheet("Sheet3"); // Removes the third sheet.
+        assertEquals(0, this.user.getSheets().size()); // Verifies that all sheets are removed.
     }
     
     /**
@@ -106,11 +106,11 @@ public class AppUserTest {
      */
     @Test
     public void testDoesSheetExist() {
-        assertFalse(this.user.doesSheetExist("Sheet1"));
+        assertFalse(this.user.doesSheetExist("Sheet1")); // Checks if the sheet "Sheet1" does not exist initially.
 
-        this.user.addSheet("Sheet1");
+        this.user.addSheet("Sheet1"); // Adds a sheet named "Sheet1".
 
-        assertTrue(this.user.doesSheetExist("Sheet1"));
-        assertFalse(this.user.doesSheetExist("Sheet2"));
+        assertTrue(this.user.doesSheetExist("Sheet1")); // Verifies that the sheet "Sheet1" now exists.
+        assertFalse(this.user.doesSheetExist("Sheet2")); // Checks that a non-existent sheet "Sheet2" is not found.
     }
 }
