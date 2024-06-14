@@ -36,6 +36,7 @@ class ServerTests {
         // Inject availUsers into the server
         server = new Server();
         server.availUsers = availUsers;
+        // Registers the testuser
         mockMvc.perform(get("/api/v1/register")
                 .header("Authorization", createBasicAuthHeader(
                         "testuser", "password")));
@@ -154,11 +155,13 @@ class ServerTests {
     @Test
     void testSheetNameExistsCreateSheet() throws Exception {
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"sheet\"}";
+        // Creates a sheet
         mockMvc.perform(post("/api/v1/createSheet")
                 .header("Authorization", createBasicAuthHeader(
                         "testuser", "password")) // This should be properly Base64 encoded
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json));
+        // Tries to create sheet with same name
         json = "{\"publisher\":\"testuser\", \"sheet\":\"sheet\"}";
         mockMvc.perform(post("/api/v1/createSheet")
                         .header("Authorization", createBasicAuthHeader(
@@ -328,10 +331,12 @@ class ServerTests {
     @Test
     void testGetSheetsSuccess() throws Exception {
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"sheet\"}";
+        // Creates a sheet
         mockMvc.perform(post("/api/v1/createSheet")
                 .header("Authorization", createBasicAuthHeader("testuser", "password"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json));
+        // Tests to see if that sheet is found as the sheet that was created second by the user
         json = "{\"publisher\":\"testuser\"}";
         mockMvc.perform(post("/api/v1/getSheets")
                         .header("Authorization", createBasicAuthHeader("testuser", "password"))
@@ -461,10 +466,12 @@ class ServerTests {
     @Test
     void testUpdatePublishedSuccess() throws Exception {
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"sheet1\"}";
+        // Creates the sheet
         mockMvc.perform(post("/api/v1/createSheet")
                 .header("Authorization", createBasicAuthHeader("testuser", "password"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json));
+        // Tests if the update publush request went through
         json = "{\"publisher\":\"testuser\", \"sheet\":\"sheet1\", \"payload\":\"$A1 2\\n\"}";
         mockMvc.perform(post("/api/v1/updatePublished")
                         .header("Authorization", createBasicAuthHeader("testuser", "password"))
@@ -513,9 +520,11 @@ class ServerTests {
      */
     @Test
     void testUpdateSubscriptionSuccess() throws Exception {
+        // Registers a different user
         mockMvc.perform(get("/api/v1/register")
                 .header("Authorization", createBasicAuthHeader(
                         "subscriber", "password")));
+        // Uses the newly registered user to subscribe to the existing user's sheet
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"sheet1\", \"payload\":\"$A1 3\\n\"}";
         mockMvc.perform(post("/api/v1/updateSubscription")
                         .header("Authorization", createBasicAuthHeader("subscriber", "password"))
@@ -581,16 +590,19 @@ class ServerTests {
      */
     @Test
     void testGetUpdatesSubscriptionSuccess() throws Exception {
+        // Creates a new sheet
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"sheet2\"}";
         mockMvc.perform(post("/api/v1/createSheet")
                 .header("Authorization", createBasicAuthHeader("testuser", "password"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json));
+        // Updates the newly created sheet with contents
         json = "{\"publisher\":\"testuser\", \"sheet\":\"sheet2\", \"payload\":\"$A1 2\\n\"}";
         mockMvc.perform(post("/api/v1/updatePublished")
                 .header("Authorization", createBasicAuthHeader("testuser", "password"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json));
+        // Subscriber gets the contents of the publisher's sheet
         json = String.format("{\"publisher\":\"testuser\", \"sheet\":\"sheet2\", \"id\":\"0\"}");
         mockMvc.perform(post("/api/v1/getUpdatesForSubscription")
                         .header("Authorization", createBasicAuthHeader("subscriber", "password"))
@@ -661,16 +673,19 @@ class ServerTests {
      */
     @Test
     void testGetUpdatesPublisherSuccess() throws Exception {
+        // Creates a new sheet
         String json = "{\"publisher\":\"testuser\", \"sheet\":\"sheet4\"}";
         mockMvc.perform(post("/api/v1/createSheet")
                 .header("Authorization", createBasicAuthHeader("testuser", "password"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json));
+        // Updates the new sheet as a subscriber
         json = "{\"publisher\":\"testuser\", \"sheet\":\"sheet4\", \"payload\":\"$A1 Hey\\n\"}";
         mockMvc.perform(post("/api/v1/updateSubscription")
                 .header("Authorization", createBasicAuthHeader("subscriber", "password"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json));
+        // Checks if the publisher is able to pull the changes from the subscriber
         json = String.format("{\"publisher\":\"testuser\", \"sheet\":\"sheet4\", \"id\":\"0\"}");
         mockMvc.perform(post("/api/v1/getUpdatesForPublished")
                         .header("Authorization", createBasicAuthHeader("testuser", "password"))
