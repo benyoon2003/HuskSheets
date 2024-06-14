@@ -48,7 +48,6 @@ public class SheetViewTest {
 
     /**
      * Test if the controller is correctly added to the sheet view and if the user is correctly logged in.
-     *
      * @throws Exception if there is an error during the test.
      */
     @Test
@@ -262,6 +261,29 @@ public class SheetViewTest {
         expectedRowHeight = (int) (20 * factor);
 
         assertEquals(expectedFontSize, tableFont.getSize2D(), 0.01);
+        assertEquals(expectedRowHeight, testTable.getRowHeight());
+        assertEquals(expectedFontSize, testTable.getTableHeader().getFont().getSize2D(), 0.01);
+    }
+
+    /**
+     * Test returning the sheet view.
+     */
+    @Test
+    public void testReturnView() {
+        SheetView testView = this.sheetView.returnView();
+        assertEquals(this.sheetView, testView);
+    }
+
+    /**
+     * Test initializing data in the sheet view.
+     */
+    @Test
+    public void testInitializeData() {
+        Object[][] data = sheetView.initializeData();
+        for (Cell[] row : testSpreadSheet.getCellsObject()) {
+            for (Cell cell : row) {
+                assertEquals(cell.getValue(), data[cell.getRow()][cell.getCol()]);
+            }
+        }
     }
 }
-
