@@ -5,7 +5,6 @@ import org.example.view.LoginView;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 /**
  * The HuskSheetsRunner class serves as the entry point for running the Husk Sheets application.

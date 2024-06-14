@@ -2,7 +2,6 @@ package org.example.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -30,8 +29,9 @@ public class ServerEndpointTest {
         this.user = new AppUser(this.username, "password");
 
         try {
-            result = this.se.login(this.user);
+            result = this.se.login(this.user); // try logging in first
             if (!result.getSuccess()) {
+                // if logging in didn't initially work, register and try again
                 result = this.se.register(this.user);
                 result = this.se.login(this.user);
             }
@@ -50,6 +50,7 @@ public class ServerEndpointTest {
         IAppUser newUser = new AppUser(newUsername, newPassword);
         try {
             result = this.se.register(newUser);
+            // successfully registered, result contains expected information
             assertTrue(result.getSuccess());
             assertEquals("Publisher registered successfully", result.getMessage());
         } catch (Exception e) {
@@ -65,6 +66,7 @@ public class ServerEndpointTest {
     public void testLogin() {
         try {
             result = this.se.login(this.user);
+            // successfully logged in, result contains expected information
             assertTrue(result.getSuccess());
             assertEquals("Publisher logged in successfully", result.getMessage());
         } catch (Exception e) {
@@ -79,7 +81,7 @@ public class ServerEndpointTest {
     public void testGetPublishers() {
         try {
             result = this.se.getPublishers();
-            assertTrue(result.getSuccess());
+            assertTrue(result.getSuccess()); // successful result
 
             // make sure our test publisher is included
             List<Argument> value = result.getValue();
@@ -102,6 +104,7 @@ public class ServerEndpointTest {
     public void testCreateSheet() {
         try {
             result = this.se.createSheet(this.randomString());
+            // sheet was created successfully, result contains expected information
             assertTrue(result.getSuccess());
             assertEquals("Sheet created successfully", result.getMessage());
         } catch (Exception e) {
@@ -117,6 +120,7 @@ public class ServerEndpointTest {
         try {
             result = this.se.getSheets(this.username);
 
+            // list of sheets successfully retrieved, result contains expected information
             assertTrue(result.getSuccess());
             assertEquals("Sheets retrieved successfully", result.getMessage());
             // make sure there is an argument value
@@ -126,33 +130,6 @@ public class ServerEndpointTest {
             System.out.println(e.getMessage());
         }
     }
-
-
-//    @Test
-//    public void testDeleteSheet() {
-//        try {
-//            result = this.se.createSheet("DELETE");
-//            assertTrue(result.getSuccess());
-//
-//            Result sheets = this.se.getSheets(this.username);
-//            assertTrue(sheets.getSuccess());
-//            List<Argument> args = sheets.getValue();
-//            // store how many sheets there are currently
-//            int sizeBefore = args.size();
-//            // make sure the most recent sheet is the one we just created
-//            assertEquals("DELETE", args.getLast().getSheet());
-//
-//            this.se.deleteSheet(this.username, "DELETE");
-//            sheets = this.se.getSheets(this.username);
-//            args = sheets.getValue();
-//            // make sure there is one less sheet
-//            assertEquals(sizeBefore - 1, args.size());
-//            // make sure the most recent sheet is not the DELETE sheet
-//            assertNotEquals("DELETE", args.getLast().getSheet());
-//        } catch (Exception e) {
-//            System.out.println(e.getMessage());
-//        }
-//    }
 
     /**
      * Tests the deleteSheet method of the ServerEndpoint class.
@@ -170,15 +147,14 @@ public class ServerEndpointTest {
             Result sheets = this.se.getSheets(this.username);
             assertTrue(sheets.getSuccess());
             List<Argument> args = sheets.getValue();
-            // store how many sheets there are currently
-            int sizeBefore = args.size();
+
+            int sizeBefore = args.size(); // store how many sheets there are currently
             this.se.deleteSheet(this.username, "DELETE");
+
             sheets = this.se.getSheets(this.username);
             args = sheets.getValue();
-            // make sure there is one less sheet
-            assertEquals(sizeBefore - 1, args.size());
-            // make sure the most recent sheet is not the DELETE sheet
-            assertFalse(args.contains(deleteArg));
+            assertEquals(sizeBefore - 1, args.size()); // make sure there is one less sheet
+            assertFalse(args.contains(deleteArg)); // make sure the DELETE sheet is not in the argument value
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
