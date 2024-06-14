@@ -1,6 +1,5 @@
 package org.example.view.button;
 
-import org.example.model.Spreadsheet;
 import org.example.view.SheetView;
 
 import java.awt.event.ActionEvent;

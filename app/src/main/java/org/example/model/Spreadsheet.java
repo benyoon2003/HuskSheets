@@ -60,7 +60,7 @@ public class Spreadsheet implements ISpreadsheet {
      * @param grid the grid of cells.
      * @param name the name of the spreadsheet.
      */
-    public Spreadsheet(ArrayList<ArrayList<Cell>> grid, String name) {
+    public Spreadsheet(List<List<Cell>> grid, String name) {
         this(name);
         for (int i = 0; i < 100; i++) {
             List<Cell> row = grid.get(i);
