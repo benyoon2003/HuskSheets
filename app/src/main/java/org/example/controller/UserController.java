@@ -178,7 +178,7 @@ public class UserController implements IUserController {
      *
      * @return a ISpreadsheet
      */
-    ISpreadsheet getSpreadsheetModel() {
+    public ISpreadsheet getSpreadsheetModel() {
         return spreadsheetModel;
     }
 
