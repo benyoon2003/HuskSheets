@@ -19,17 +19,17 @@ import javax.swing.*;
  * Tests the methods within the HomeView class.
  */
 public class HomeViewTest {
-    private HomeView homeView;
-    private IUserController mockController;
+    private HomeView homeView; // Instance of HomeView to be tested
+    private IUserController mockController; // Mocked controller to simulate IUserController behavior
 
     /**
      * Initializes the test environment by creating a HomeView instance and mocking the IUserController.
      */
     @BeforeEach
     public void init() {
-        homeView = new HomeView();
-        mockController = mock(IUserController.class);
-        homeView.addController(mockController);
+        homeView = new HomeView(); // Create a new instance of HomeView
+        mockController = mock(IUserController.class); // Mock the IUserController
+        homeView.addController(mockController); // Add the mocked controller to HomeView
     }
 
     /**
@@ -37,7 +37,7 @@ public class HomeViewTest {
      */
     @Test
     public void testAddController() {
-        assertEquals(mockController, homeView.getController());
+        assertEquals(mockController, homeView.getController()); // Verify that the controller was added correctly
     }
 
     /**
@@ -45,55 +45,19 @@ public class HomeViewTest {
      */
     @Test
     public void testCreateSheet() {
-        String sheetName = "TestSheet";
+        String sheetName = "TestSheet"; // Define a test sheet name
 
-        try (MockedStatic<JOptionPane> mocked = mockStatic(JOptionPane.class)) {
+        try (MockedStatic<JOptionPane> mocked = mockStatic(JOptionPane.class)) { // Mock JOptionPane static methods
             mocked.when(() -> JOptionPane.showInputDialog(any(), anyString(), anyString(), anyInt()))
-                  .thenReturn(sheetName);
+                    .thenReturn(sheetName); // Return the test sheet name when showInputDialog is called
 
             // Trigger the action
-            homeView.getCreateSheetButton().doClick();
+            homeView.getCreateSheetButton().doClick(); // Simulate clicking the "create sheet" button
 
             // Verify that the controller's createNewServerSheet method was called with the correct name
-            verify(mockController).createNewServerSheet(sheetName);
+            verify(mockController).createNewServerSheet(sheetName); // Check if the correct method was called on the controller
         }
     }
-
-    // @Test
-    // public void testOpenSelectedSheet() {
-    //     // Setup the dropdown to return a selected sheet
-    //     String selectedSheet = "TestSheet";
-    //     JComboBox<String> comboBox = new JComboBox<>();
-    //     comboBox.addItem(selectedSheet);
-    //     homeView.getOpenSheetDropdown().setSelectedItem(selectedSheet);
-
-    //     // Trigger the action
-    //     homeView.getOpenSheetButton().doClick();
-
-    //     // Verify that the controller's openServerSheet method was called with the correct sheet
-    //     verify(mockController).openServerSheet(selectedSheet);
-    // }
-
-    // @Test
-    // public void testDeleteSheet() {
-    //     // Setup the dropdown to return a selected sheet
-    //     String selectedSheet = "TestSheet";
-    //     JComboBox<String> comboBox = new JComboBox<>();
-    //     comboBox.addItem(selectedSheet);
-    //     homeView.getOpenSheetDropdown().setSelectedItem(selectedSheet);
-
-    //     // Mock the JOptionPane to always select "Delete Locally"
-    //     try (MockedStatic<JOptionPane> mocked = mockStatic(JOptionPane.class)) {
-    //         mocked.when(() -> JOptionPane.showOptionDialog(any(), anyString(), anyString(), anyInt(), anyInt(), any(), any(), any()))
-    //               .thenReturn(JOptionPane.YES_OPTION);
-
-    //         // Trigger the action
-    //         homeView.getDeleteSheetButton().doClick();
-
-    //         // Verify that the controller's deleteSheetFromServer method was called with the correct sheet
-    //         verify(mockController).deleteSheetFromServer(selectedSheet);
-    //     }
-    // }
 
     /**
      * Tests the updateSavedSheets method of the HomeView class.
@@ -101,22 +65,22 @@ public class HomeViewTest {
     @Test
     public void testUpdateSavedSheets() {
         // Mock the controller to return some sheets
-        when(mockController.getSavedSheetsLocally()).thenReturn(List.of("LocalSheet1", "LocalSheet2"));
-        when(mockController.getAppUserSheets()).thenReturn(List.of("ServerSheet1", "ServerSheet2"));
-        when(mockController.getPublishersFromServer()).thenReturn(List.of("Publisher1", "Publisher2"));
+        when(mockController.getSavedSheetsLocally()).thenReturn(List.of("LocalSheet1", "LocalSheet2")); // Mock local sheets
+        when(mockController.getAppUserSheets()).thenReturn(List.of("ServerSheet1", "ServerSheet2")); // Mock server sheets
+        when(mockController.getPublishersFromServer()).thenReturn(List.of("Publisher1", "Publisher2")); // Mock publishers
 
         // Call the method to update saved sheets
-        homeView.updateSavedSheets();
+        homeView.updateSavedSheets(); // Update the saved sheets in the view
 
         // Verify the dropdowns have been populated correctly
-        assertEquals(2, homeView.getOpenSheetDropdown().getItemCount());
-        assertEquals(2, homeView.getPublishersDropdown().getItemCount());
+        assertEquals(2, homeView.getOpenSheetDropdown().getItemCount()); // Check the number of items in the open sheet dropdown
+        assertEquals(2, homeView.getPublishersDropdown().getItemCount()); // Check the number of items in the publishers dropdown
 
-        assertEquals("ServerSheet1", homeView.getOpenSheetDropdown().getItemAt(0));
-        assertEquals("ServerSheet2", homeView.getOpenSheetDropdown().getItemAt(1));
+        assertEquals("ServerSheet1", homeView.getOpenSheetDropdown().getItemAt(0)); // Check the first item in the open sheet dropdown
+        assertEquals("ServerSheet2", homeView.getOpenSheetDropdown().getItemAt(1)); // Check the second item in the open sheet dropdown
 
-        assertEquals("Publisher1", homeView.getPublishersDropdown().getItemAt(0));
-        assertEquals("Publisher2", homeView.getPublishersDropdown().getItemAt(1));
+        assertEquals("Publisher1", homeView.getPublishersDropdown().getItemAt(0)); // Check the first item in the publishers dropdown
+        assertEquals("Publisher2", homeView.getPublishersDropdown().getItemAt(1)); // Check the second item in the publishers dropdown
     }
 
     /**
@@ -124,13 +88,13 @@ public class HomeViewTest {
      */
     @Test
     public void testDisplayErrorBox() {
-        String errorMessage = "Test Error";
+        String errorMessage = "Test Error"; // Define a test error message
 
-        try (MockedStatic<JOptionPane> mocked = mockStatic(JOptionPane.class)) {
-            homeView.displayErrorBox(errorMessage);
+        try (MockedStatic<JOptionPane> mocked = mockStatic(JOptionPane.class)) { // Mock JOptionPane static methods
+            homeView.displayErrorBox(errorMessage); // Call the method to display an error box
 
             // Verify the error message is displayed
-            mocked.verify(() -> JOptionPane.showMessageDialog(homeView, errorMessage));
+            mocked.verify(() -> JOptionPane.showMessageDialog(homeView, errorMessage)); // Check if the error message was shown
         }
     }
 
@@ -139,18 +103,18 @@ public class HomeViewTest {
      */
     @Test
     public void testDisposeHomePage() {
-        homeView.disposeHomePage();
+        homeView.disposeHomePage(); // Call the method to dispose the home page
         // Verify the home page is disposed
-        assertEquals(false, homeView.isDisplayable());
+        assertEquals(false, homeView.isDisplayable()); // Check if the home page is no longer displayable
     }
-    
+
     /**
      * Tests the makeVisible method of the HomeView class.
      */
     @Test
     public void testMakeVisible() {
-        homeView.makeVisible();
+        homeView.makeVisible(); // Call the method to make the home page visible
         // Verify the home page is visible
-        assertEquals(true, homeView.isVisible());
+        assertEquals(true, homeView.isVisible()); // Check if the home page is visible
     }
 }

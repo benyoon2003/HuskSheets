@@ -153,7 +153,7 @@ public class SubscriberSheetViewTest {
     public void testGetController() {
         assertEquals(this.controller, this.subscriberSheetView.getController());
     }
-    
+
     /**
      * Tests zooming the table in the subscriberSheetView.
      */

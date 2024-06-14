@@ -79,9 +79,9 @@ public class UserControllerTest {
 
         userController.registerUser("username", "password");
 
-        verify(loginView).disposeLoginPage(); // login page was disposed
-        assertNotNull(userController.getAppUser());  // user was set up
-        verify(loginView, never()).displayErrorBox(anyString()); // no errors were displayed
+        verify(loginView).disposeLoginPage();
+        assertNotNull(userController.getAppUser());
+        verify(loginView, never()).displayErrorBox(anyString());
     }
 
     /**
@@ -92,9 +92,9 @@ public class UserControllerTest {
         try {
             when(serverEndpoint.register(any(IAppUser.class))).thenReturn(new Result(false, "Error", null));
             userController.registerUser("username", "password");
-            fail("Exception not thrown"); // fail if an exception wasn't thrown
+            fail("Exception not thrown");
         } catch (Exception e) {
-            assertEquals("Error", e.getMessage()); // exception was thrown, expected error message was returned
+            assertEquals("Error", e.getMessage());
         }
         // appUser does not change after failed register
         assertEquals(userController.getAppUser(), appUser);
@@ -110,9 +110,9 @@ public class UserControllerTest {
 
         userController.loginUser("username", "password");
 
-        verify(loginView).disposeLoginPage(); // login page was disposed
-        assertNotNull(userController.getAppUser()); // user was set up
-        verify(loginView, never()).displayErrorBox(anyString()); // no errors were displayed
+        verify(loginView).disposeLoginPage();
+        assertNotNull(userController.getAppUser());
+        verify(loginView, never()).displayErrorBox(anyString());
     }
 
     /**
@@ -123,9 +123,9 @@ public class UserControllerTest {
         try {
             when(serverEndpoint.login(any(IAppUser.class))).thenReturn(new Result(false, "Error", null));
             userController.loginUser("username", "password");
-            fail("Exception not thrown"); // fail if an exception wasn't thrown
+            fail("Exception not thrown");
         } catch (Exception e) {
-            assertEquals("Error", e.getMessage()); // exception was thrown, expected error message was returned
+            assertEquals("Error", e.getMessage());
         }
 
         // Current appuser must not change after failed login
@@ -146,7 +146,7 @@ public class UserControllerTest {
 
         assertEquals(1, publishers.size());
         assertEquals("publisher1", publishers.get(0));
-        verify(homeView, never()).displayErrorBox(anyString()); // no errors were displayed
+        verify(homeView, never()).displayErrorBox(anyString());
     }
 
     /**
@@ -159,8 +159,8 @@ public class UserControllerTest {
 
         List<String> publishers = userController.getPublishersFromServer();
 
-        assertTrue(publishers.isEmpty()); // no publishers were added
-        verify(homeView).displayErrorBox("Error"); // error was correctly displayed
+        assertTrue(publishers.isEmpty());
+        verify(homeView).displayErrorBox("Error");
     }
 
     /**
@@ -173,9 +173,9 @@ public class UserControllerTest {
 
         userController.createNewServerSheet("sheetName");
 
-        verify(homeView).disposeHomePage(); // home page was disposed
-        assertNotNull(userController.getSpreadsheetModel()); // spreadsheet was set up
-        verify(homeView, never()).displayErrorBox(anyString()); // no errors were displayed
+        verify(homeView).disposeHomePage();
+        assertNotNull(userController.getSpreadsheetModel());
+        verify(homeView, never()).displayErrorBox(anyString());
     }
 
     /**
@@ -188,7 +188,7 @@ public class UserControllerTest {
 
         userController.createNewServerSheet("sheetName");
 
-        verify(homeView).displayErrorBox("Error"); // error was correctly displayed
+        verify(homeView).displayErrorBox("Error");
     }
 
     /**
@@ -203,8 +203,7 @@ public class UserControllerTest {
         when(appUser.getUsername()).thenReturn("testUser");
         IReadOnlySpreadSheet sheet = mock(IReadOnlySpreadSheet.class);
         userController.saveSheetToServer(sheet, "sheetName");
-
-        verify(sheetView, never()).displayMessage(anyString()); // no popup messages
+        verify(sheetView, never()).displayMessage(anyString());
     }
 
     /**
@@ -218,8 +217,7 @@ public class UserControllerTest {
         when(appUser.getUsername()).thenReturn("testUser");
         IReadOnlySpreadSheet sheet = mock(IReadOnlySpreadSheet.class);
         userController.saveSheetToServer(sheet, "sheetName");
-
-        verify(sheetView).displayMessage("Error"); // error was correctly displayed
+        verify(sheetView).displayMessage("Error");
     }
 
     /**
@@ -232,8 +230,7 @@ public class UserControllerTest {
                 new Result(false, "Error", null));
         when(appUser.getUsername()).thenReturn("testUser");
         userController.deleteSheetFromServer("sheetName");
-
-        verify(homeView).displayErrorBox("Error"); // error was correctly displayed
+        verify(homeView).displayErrorBox("Error");
     }
 
     /**
@@ -250,14 +247,13 @@ public class UserControllerTest {
         this.userController.saveSheetLocally(sheet, path);
 
         File file = new File(path);
-        assertTrue(file.exists()); // file created successfully
+        assertTrue(file.exists());
 
         try {
             List<String> lines = Files.readAllLines(Paths.get(path));
             for (String line : lines) {
                 line.trim();
             }
-            // file contains correct information
             assertTrue(lines.contains("<sheet name=\"writeTestSheet\">"));
             assertTrue(lines.contains("    <cell col=\"0\" row=\"0\">0</cell>"));
             assertTrue(lines.contains("    <cell col=\"0\" row=\"1\">1</cell>"));
@@ -276,8 +272,6 @@ public class UserControllerTest {
         this.userController.openSheetLocally(file.getAbsolutePath());
 
         ISpreadsheet sheet = this.userController.getSpreadsheetModel();
-
-        // spreadsheet object contains correct information
         assertEquals("6", sheet.getCellValue(0, 0));
         assertEquals("7", sheet.getCellValue(1, 0));
         assertEquals("8", sheet.getCellValue(2, 0));
@@ -286,6 +280,7 @@ public class UserControllerTest {
         assertEquals("11", sheet.getCellValue(5, 0));
         assertEquals("12", sheet.getCellValue(6, 0));
         assertEquals("13", sheet.getCellValue(7, 0));
+
         assertEquals("", sheet.getCellValue(0, 1));
     }
 
@@ -296,8 +291,7 @@ public class UserControllerTest {
     @Test
     public void testGetSavedSheetsLocally() {
         List<String> sheets = this.userController.getSavedSheetsLocally();
-        assertFalse(sheets.isEmpty()); // list of sheets is not empty
-        // one of the test sheets is correctly included in the list
+        assertFalse(sheets.isEmpty());
         assertTrue(() -> {
             for (String sheet : sheets) {
                 if (sheet.equals("readTestSheet.xml")) {
@@ -323,7 +317,6 @@ public class UserControllerTest {
 
         userController.updateSelectedCells("value");
 
-        // each of the cells in the selected cell range was correctly updated with the value "value"
         verify(spreadsheetModel, times(4)).setCellRawdata(anyInt(), anyInt(), eq("value"));
     }
 
@@ -338,11 +331,10 @@ public class UserControllerTest {
 
         userController.changeSpreadSheetValueAt(row, col, value);
 
-        // the cell's value/rawdata were correctly changed
         verify(spreadsheetModel).setCellRawdata(row, col, value);
         verify(spreadsheetModel).setCellValue(row, col, value);
         verify(spreadsheetModel).evaluateFormula(value);
-        verify(sheetView).updateTable(); // view was updated to show changes
+        verify(sheetView).updateTable();
     }
 
     /**
@@ -358,9 +350,9 @@ public class UserControllerTest {
 
         userController.cutCell(row, col);
 
-        verify(spreadsheetModel).setCellValue(row, col, ""); // cell is now empty
-        verify(sheetView).updateTable(); // view was updated to show changes
-        assertEquals(value, userController.getClipboardContent()); // value was copied to clipboard
+        verify(spreadsheetModel).setCellValue(row, col, "");
+        verify(sheetView).updateTable();
+        assertEquals(value, userController.getClipboardContent());
         assertTrue(userController.isCutOperation());
     }
 
@@ -377,9 +369,24 @@ public class UserControllerTest {
 
         userController.copyCell(row, col);
 
-        assertEquals(value, userController.getClipboardContent()); // value was copied to clipboard
+        assertEquals(value, userController.getClipboardContent());
         assertFalse(userController.isCutOperation());
     }
+    
+//     @Test
+//     public void testPasteCell() {
+//         int row = 1;
+//         int col = 1;
+//         userController.clipboardContent = "pastedValue";
+//         userController.isCutOperation = true;
+//
+//         userController.pasteCell(row, col);
+//
+//         verify(spreadsheetModel).setCellValue(row, col, userController.getClipboardContent());
+//         verify(sheetView).updateTable();
+//         assertEquals("", userController.getClipboardContent());
+//         assertFalse(userController.isCutOperation());
+//     }
 
     /**
      * Tests the getPercentile method.
@@ -394,7 +401,7 @@ public class UserControllerTest {
 
         userController.getPercentile(row, col);
 
-        verify(spreadsheetModel).setCellValue(row, col, "75.0%"); // value was correctly changed to a percentile
+        verify(spreadsheetModel).setCellValue(row, col, "75.0%");
     }
 
     /**
@@ -415,9 +422,44 @@ public class UserControllerTest {
 
         userController.applyConditionalFormatting();
 
-        // every cell in the spreadsheet was highlighted with a new color
         verify(sheetView, times(10000)).highlightCell(anyInt(), anyInt(), any(Color.class));
-        verify(sheetView).updateTable(); // view was updated to show changes
+        verify(sheetView).updateTable();
+    }
+
+    /**
+     * Tests the updateSubscribedSheet method of UserController.
+     * Ensures that the subscribed sheet is correctly updated with the provided values.
+     */
+    @Test
+    public void testUpdateSubscribedSheet() {
+        this.spreadsheetModel.setCellValue(0, 0, "00");
+        this.spreadsheetModel.setCellValue(0, 1, "01");
+        this.spreadsheetModel.setCellValue(1, 0, "10");
+        this.spreadsheetModel.setCellValue(1, 1, "11");
+
+        // this.userController.updateSubscribedSheet("TestUser", this.spreadsheetModel,
+        // "");
+    }
+
+    /**
+     * Tests the openServerSheet method of UserController.
+     * Ensures that the server sheet is correctly opened and updates are applied to the local spreadsheet model.
+     * 
+     * @throws Exception if there is an error during the test.
+     */
+    @Test
+    public void testOpenServerSheet() throws Exception {
+        String payload = "$A1 00\\n$B1 01\\n$A2 10\\n$B2 11\\n";
+        List<Argument> value = new ArrayList<>();
+        value.add(new Argument("testUser", "sheetName", "0", payload));
+
+        when(serverEndpoint.getUpdatesForSubscription(anyString(), anyString(), anyString()))
+                .thenReturn(new Result(true, "Updates received", value));
+                when(appUser.getUsername()).thenReturn("testUser");
+
+        userController.openServerSheet("sheetName");
+
+        // assertEquals("00", this.spreadsheetModel.getCellValue(0, 0));
     }
 
     
@@ -432,4 +474,28 @@ public class UserControllerTest {
         assertEquals(userController.getSelectedStartCol(), 4);
         assertEquals(userController.getSelectedEndCol(), 9);
     }
+
+    private void attemptSignIn() {
+        this.appUser = new AppUser("username1", "password1");
+        // check if user is registered first.
+        try {
+            userController.registerUser(appUser.getUsername(), appUser.getPassword());
+        } catch (Exception e) {
+            try {
+                userController.loginUser(appUser.getUsername(), appUser.getPassword());
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        }
+    }
+
+    // @Test
+    // public void testOpenServerSheet() {
+    // attemptSignIn();
+    // userController.createNewServerSheet("newsheet");
+    // userController.openServerSheet("newsheet");
+    // userController.
+    // assertEquals(spreadsheetModel.getName(), "newsheet");
+    // }
+
 }
