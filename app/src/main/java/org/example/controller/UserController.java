@@ -272,7 +272,7 @@ public class UserController implements IUserController {
     @Override
     public List<String> getSavedSheetsLocally() {
         List<String> sheets = new ArrayList<>();
-        File folder = new File("HuskSheets/sheets");
+        File folder = new File("..\\sheets");
         if (!folder.exists()) {
             folder.mkdirs();
         }
