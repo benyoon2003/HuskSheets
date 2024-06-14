@@ -11,6 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.awt.Color;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -49,7 +54,7 @@ public class UserControllerTest {
     public void setUp() throws Exception {
         MockitoAnnotations.openMocks(this);
         userController = new UserController(loginView);
-        
+
         setField(userController, "homeView", homeView);
         setField(userController, "sheetView", sheetView);
         setField(userController, "appUser", appUser);
@@ -91,7 +96,7 @@ public class UserControllerTest {
         } catch (Exception e) {
             assertEquals("Error", e.getMessage());
         }
-        //appUser does not change after failed register
+        // appUser does not change after failed register
         assertEquals(userController.getAppUser(), appUser);
     }
 
@@ -228,10 +233,63 @@ public class UserControllerTest {
         verify(homeView).displayErrorBox("Error");
     }
 
-    /**
-     * Tests the updateSelectedCells method.
-     * @throws Exception if there is an error during the update
-     */
+    @Test
+    public void testSaveSheetLocally() {
+        Spreadsheet sheet = new Spreadsheet("Test");
+        sheet.setCellValue(0, 0, "0");
+        sheet.setCellValue(1, 0, "1");
+
+        String path = "..\\sheets\\writeTestSheet.xml";
+        this.userController.saveSheetLocally(sheet, path);
+
+        File file = new File(path);
+        assertTrue(file.exists());
+
+        try {
+            List<String> lines = Files.readAllLines(Paths.get(path));
+            for (String line : lines) {
+                line.trim();
+            }
+            assertTrue(lines.contains("<sheet name=\"writeTestSheet\">"));
+            assertTrue(lines.contains("    <cell col=\"0\" row=\"0\">0</cell>"));
+            assertTrue(lines.contains("    <cell col=\"0\" row=\"1\">1</cell>"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testOpenSheetLocally() {
+        File file = new File("..\\sheets\\readTestSheet.xml");
+        this.userController.openSheetLocally(file.getAbsolutePath());
+
+        ISpreadsheet sheet = this.userController.getSpreadsheetModel();
+        assertEquals("6", sheet.getCellValue(0, 0));
+        assertEquals("7", sheet.getCellValue(1, 0));
+        assertEquals("8", sheet.getCellValue(2, 0));
+        assertEquals("9", sheet.getCellValue(3, 0));
+        assertEquals("10", sheet.getCellValue(4, 0));
+        assertEquals("11", sheet.getCellValue(5, 0));
+        assertEquals("12", sheet.getCellValue(6, 0));
+        assertEquals("13", sheet.getCellValue(7, 0));
+
+        assertEquals("", sheet.getCellValue(0, 1));
+    }
+
+    @Test
+    public void testGetSavedSheetsLocally() {
+        List<String> sheets = this.userController.getSavedSheetsLocally();
+        assertFalse(sheets.isEmpty());
+        assertTrue(() -> {
+            for (String sheet : sheets) {
+                if (sheet.equals("readTestSheet.xml")) {
+                    return true;
+                }
+            }
+            return false;
+        });
+    }
+
     @Test
     public void testUpdateSelectedCells() throws Exception {
         when(selectedCells.getStartRow()).thenReturn(0);
@@ -252,9 +310,9 @@ public class UserControllerTest {
         int row = 1;
         int col = 1;
         String value = "=SUM(A1:B2)";
-    
+
         userController.changeSpreadSheetValueAt(row, col, value);
-    
+
         verify(spreadsheetModel).setCellRawdata(row, col, value);
         verify(spreadsheetModel).setCellValue(row, col, value);
         verify(spreadsheetModel).evaluateFormula(value);
@@ -269,11 +327,11 @@ public class UserControllerTest {
         int row = 1;
         int col = 1;
         String value = "cutValue";
-    
+
         when(spreadsheetModel.getCellRawdata(row, col)).thenReturn(value);
-    
+
         userController.cutCell(row, col);
-    
+
         verify(spreadsheetModel).setCellValue(row, col, "");
         verify(sheetView).updateTable();
         assertEquals(value, userController.getClipboardContent());
@@ -288,11 +346,11 @@ public class UserControllerTest {
         int row = 1;
         int col = 1;
         String value = "copyValue";
-    
+
         when(spreadsheetModel.getCellRawdata(row, col)).thenReturn(value);
-    
+
         userController.copyCell(row, col);
-    
+
         assertEquals(value, userController.getClipboardContent());
         assertFalse(userController.isCutOperation());
     }
@@ -320,11 +378,11 @@ public class UserControllerTest {
         int row = 1;
         int col = 1;
         String value = "0.75";
-    
+
         when(spreadsheetModel.getCellValue(row, col)).thenReturn(value);
-    
+
         userController.getPercentile(row, col);
-    
+
         verify(spreadsheetModel).setCellValue(row, col, "75.0%");
     }
 
@@ -349,13 +407,40 @@ public class UserControllerTest {
         verify(sheetView, times(10000)).highlightCell(anyInt(), anyInt(), any(Color.class));
         verify(sheetView).updateTable();
     }
+
+    @Test
+    public void testUpdateSubscribedSheet() {
+        this.spreadsheetModel.setCellValue(0, 0, "00");
+        this.spreadsheetModel.setCellValue(0, 1, "01");
+        this.spreadsheetModel.setCellValue(1, 0, "10");
+        this.spreadsheetModel.setCellValue(1, 1, "11");
+
+        // this.userController.updateSubscribedSheet("TestUser", this.spreadsheetModel,
+        // "");
+    }
+
+    @Test
+    public void testOpenServerSheet() throws Exception {
+        String payload = "$A1 00\\n$B1 01\\n$A2 10\\n$B2 11\\n";
+        List<Argument> value = new ArrayList<>();
+        value.add(new Argument("testUser", "sheetName", "0", payload));
+
+        when(serverEndpoint.getUpdatesForSubscription(anyString(), anyString(), anyString()))
+                .thenReturn(new Result(true, "Updates received", value));
+                when(appUser.getUsername()).thenReturn("testUser");
+
+        userController.openServerSheet("sheetName");
+
+        // assertEquals("00", this.spreadsheetModel.getCellValue(0, 0));
+    }
+
     
     /**
      * Tests the setSelectedCells method.
      */
     @Test
     public void testSetSelectedCells() {
-        userController.setSelectedCells(new int[]{1, 3}, new int[]{5, 10});
+        userController.setSelectedCells(new int[] { 1, 3 }, new int[] { 5, 10 });
         assertEquals(userController.getSelectedStartRow(), 1);
         assertEquals(userController.getSelectedEndRow(), 3);
         assertEquals(userController.getSelectedStartCol(), 4);
@@ -364,7 +449,7 @@ public class UserControllerTest {
 
     private void attemptSignIn() {
         this.appUser = new AppUser("username1", "password1");
-        //check if user is registered first.
+        // check if user is registered first.
         try {
             userController.registerUser(appUser.getUsername(), appUser.getPassword());
         } catch (Exception e) {
@@ -376,13 +461,13 @@ public class UserControllerTest {
         }
     }
 
-//    @Test
-//    public void testOpenServerSheet() {
-//        attemptSignIn();
-//        userController.createNewServerSheet("newsheet");
-//        userController.openServerSheet("newsheet");
-//        userController.
-//        assertEquals(spreadsheetModel.getName(), "newsheet");
-//    }
+    // @Test
+    // public void testOpenServerSheet() {
+    // attemptSignIn();
+    // userController.createNewServerSheet("newsheet");
+    // userController.openServerSheet("newsheet");
+    // userController.
+    // assertEquals(spreadsheetModel.getName(), "newsheet");
+    // }
 
 }
