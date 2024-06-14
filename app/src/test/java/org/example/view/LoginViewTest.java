@@ -1,32 +1,32 @@
 package org.example.view;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals; // Import assertion for equality checks
+import static org.junit.jupiter.api.Assertions.assertTrue; // Import assertion for boolean checks
 
-import java.io.StringWriter;
+import java.io.StringWriter; // Import for StringWriter to capture output
 
-import org.example.controller.IUserController;
-import org.example.controller.UserController;
+import org.example.controller.IUserController; // Import interface for user controller
+import org.example.controller.UserController; // Import implementation of user controller
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterEach; // Import for cleanup method after each test
+import org.junit.jupiter.api.Test; // Import for test annotation
 
 /**
  * Tests the methods within the LoginView class.
  */
 public class LoginViewTest {
-    private MockLoginView loginView = new MockLoginView();
-    
+    private MockLoginView loginView = new MockLoginView(); // Create instance of MockLoginView for testing
+
     /**
      * Tests the addController method of the LoginView class.
      */
     @Test
     public void testAddController() {
-        IUserController controller = new UserController(this.loginView);
-        this.loginView.addController(controller);
+        IUserController controller = new UserController(this.loginView); // Create a new UserController with the mock login view
+        this.loginView.addController(controller); // Add the controller to the login view
 
-        assertEquals(controller, this.loginView.getController());
-        assertTrue(this.loginView.toString().contains("Controller added\n"));
+        assertEquals(controller, this.loginView.getController()); // Assert that the controller was added correctly
+        assertTrue(this.loginView.toString().contains("Controller added\n")); // Check if the log contains the correct message
     }
 
     /**
@@ -34,8 +34,8 @@ public class LoginViewTest {
      */
     @Test
     public void testDisplayErrorBox() {
-        this.loginView.displayErrorBox("Could not log in");
-        assertTrue(this.loginView.toString().contains("Error: Could not log in\n"));
+        this.loginView.displayErrorBox("Could not log in"); // Display an error message
+        assertTrue(this.loginView.toString().contains("Error: Could not log in\n")); // Check if the log contains the error message
     }
 
     /**
@@ -43,8 +43,8 @@ public class LoginViewTest {
      */
     @Test
     public void testDisposeLoginPage() {
-        this.loginView.disposeLoginPage();
-        assertTrue(this.loginView.toString().contains("Login page disposed\n"));
+        this.loginView.disposeLoginPage(); // Dispose of the login page
+        assertTrue(this.loginView.toString().contains("Login page disposed\n")); // Check if the log contains the dispose message
     }
 
     /**
@@ -52,21 +52,21 @@ public class LoginViewTest {
      */
     @AfterEach
     public void after() {
-        this.loginView.disposeLoginPage();
+        this.loginView.disposeLoginPage(); // Ensure the login page is disposed after each test
     }
 
     /**
      * A mock class extending LoginView to capture output for testing.
      */
     private class MockLoginView extends LoginView {
-        private StringWriter out;
-        private IUserController controller;
+        private StringWriter out; // StringWriter to capture output
+        private IUserController controller; // Variable to store the controller
 
         /**
          * Initializes the mock login view.
          */
         MockLoginView() {
-            this.out = new StringWriter();
+            this.out = new StringWriter(); // Initialize the StringWriter
         }
 
         /**
@@ -75,17 +75,17 @@ public class LoginViewTest {
          */
         @Override
         public void addController(IUserController controller) {
-            super.addController(controller);
-            this.controller = controller;
-            this.out.append("Controller added\n");
+            super.addController(controller); // Call the superclass method
+            this.controller = controller; // Store the controller
+            this.out.append("Controller added\n"); // Log the action
         }
 
-       /**
+        /**
          * Gets the controller associated with the login view.
          * @return the controller
          */
         public IUserController getController() {
-            return this.controller;
+            return this.controller; // Return the stored controller
         }
 
         /**
@@ -94,8 +94,8 @@ public class LoginViewTest {
          */
         @Override
         public void displayErrorBox(String message) {
-            super.displayErrorBox(message);
-            this.out.append("Error: " + message + "\n");
+            super.displayErrorBox(message); // Call the superclass method
+            this.out.append("Error: " + message + "\n"); // Log the action
         }
 
         /**
@@ -103,17 +103,17 @@ public class LoginViewTest {
          */
         @Override
         public void disposeLoginPage() {
-            super.disposeLoginPage();
-            this.out.append("Login page disposed\n");
+            super.disposeLoginPage(); // Call the superclass method
+            this.out.append("Login page disposed\n"); // Log the action
         }
-        
+
         /**
          * Returns the log of actions performed on the mock login view.
          * @return the log of actions
          */
         @Override
         public String toString() {
-            return this.out.toString();
+            return this.out.toString(); // Return the log as a string
         }
     }
 }
