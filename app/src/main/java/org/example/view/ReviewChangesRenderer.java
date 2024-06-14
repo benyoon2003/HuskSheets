@@ -22,26 +22,27 @@ public class ReviewChangesRenderer extends AbstractCustomTableCellRenderer {
      * @param changes the changes to be reviewed
      */
     public ReviewChangesRenderer(ArrayList<ArrayList<Cell>> originalCells, ISpreadsheet changes) {
-        this.originalCells = originalCells;
-        this.changes = changes;
+        this.originalCells = originalCells; // Initialize original cells
+        this.changes = changes; // Initialize changes
     }
 
     @Override
     protected void configureCellRenderer(Component c, JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         if (column > 0) { // Skip the row header
             int modelColumn = column - 1; // Adjust for row header
-            Cell currentCell = originalCells.get(row).get(modelColumn);
-            Cell changeCell = changes.getCells().get(row).get(modelColumn);
+            Cell currentCell = originalCells.get(row).get(modelColumn); // Get the current cell from original cells
+            Cell changeCell = changes.getCells().get(row).get(modelColumn); // Get the corresponding cell from changes
 
-            if (!currentCell.getRawdata().equals(changeCell.getRawdata())) {
+
+            if (!currentCell.getRawdata().equals(changeCell.getRawdata())) { // Check if the cell has changed
                 c.setBackground(Color.YELLOW); // Highlight changed cells
             } else {
                 c.setBackground(Color.WHITE); // Default color for unchanged cells
             }
         }
 
-        if (isSelected) {
-            c.setBackground(Color.CYAN);
+        if (isSelected) { // Check if the cell is selected
+            c.setBackground(Color.CYAN); // Highlight selected cells
         }
     }
 }

@@ -9,7 +9,7 @@ import java.util.Map;
  */
 public class HighlightedCellRenderer extends AbstractCustomTableCellRenderer {
 
-    private final Map<Point, Color> highlightedCells;
+    private final Map<Point, Color> highlightedCells; // Map to store highlighted cells and their corresponding colors
 
     /**
      * Constructs a HighlightedCellRenderer with the specified highlighted cells.
@@ -17,20 +17,20 @@ public class HighlightedCellRenderer extends AbstractCustomTableCellRenderer {
      * @param highlightedCells the highlighted cells.
      */
     public HighlightedCellRenderer(Map<Point, Color> highlightedCells) {
-        this.highlightedCells = highlightedCells;
+        this.highlightedCells = highlightedCells; // Initialize the highlightedCells map
     }
 
     @Override
     protected void configureCellRenderer(Component c, JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        Point cellLocation = new Point(row, column);
-        Color highlightColor = highlightedCells.get(cellLocation);
+        Point cellLocation = new Point(row, column); // Create a Point object to represent the cell's location
+        Color highlightColor = highlightedCells.get(cellLocation); // Get the highlight color for the cell's location
         if (highlightColor != null) {
-            c.setBackground(highlightColor);
+            c.setBackground(highlightColor); // Set the background color of the cell to the highlight color
         } else {
-            c.setBackground(Color.WHITE);
+            c.setBackground(Color.WHITE); // Set the background color of the cell to white if no highlight color is found
         }
         if (isSelected) {
-            c.setBackground(Color.CYAN);
+            c.setBackground(Color.CYAN); // Set the background color to cyan if the cell is selected
         }
     }
 }
