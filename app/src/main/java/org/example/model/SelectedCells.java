@@ -22,7 +22,7 @@ public class SelectedCells implements ISelectedCells {
      * @param endCol   the ending column of the selection.
      */
     public SelectedCells(int startRow, int endRow, int startCol, int endCol) {
-        this.startRow = startRow;
+        this.startRow = startRow; 
         this.endRow = endRow;
         this.startCol = startCol;
         this.endCol = endCol;
@@ -35,7 +35,7 @@ public class SelectedCells implements ISelectedCells {
      */
     @Override
     public int getStartRow() {
-        return startRow - 1;
+        return startRow - 1; // Return the starting row index adjusted for 0-based indexing
     }
 
     /**
@@ -45,7 +45,7 @@ public class SelectedCells implements ISelectedCells {
      */
     @Override
     public int getEndRow() {
-        return endRow - 1;
+        return endRow - 1; // Return the ending row index adjusted for 0-based indexing
     }
 
     /**
@@ -55,7 +55,7 @@ public class SelectedCells implements ISelectedCells {
      */
     @Override
     public int getStartCol() {
-        return startCol - 1;
+        return startCol - 1; // Return the starting column index adjusted for 0-based indexing
     }
 
     /**
@@ -65,6 +65,6 @@ public class SelectedCells implements ISelectedCells {
      */
     @Override
     public int getEndCol() {
-        return endCol - 1;
+        return endCol - 1; // Return the ending column index adjusted for 0-based indexing
     }
 }

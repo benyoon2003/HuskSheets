@@ -10,12 +10,13 @@ import java.util.Base64;
 public class ServerEndpoint {
     // Base URL for the server endpoints
     private String url = "https://husksheet-cb47d5864e1b.herokuapp.com/api/v1/";
-    private static IAppUser user;
+    private static IAppUser user; // Static variable to hold the current user
 
     /**
      * Default constructor
      */
     public ServerEndpoint() {
+        // Default constructor
     }
 
     /**
@@ -24,7 +25,7 @@ public class ServerEndpoint {
      * @param url
      */
     public ServerEndpoint(String url) {
-        this.url = url;
+        this.url = url; // Set the URL to the provided value
     }
 
     /**
@@ -34,10 +35,10 @@ public class ServerEndpoint {
      * @author Ben
      */
     private String getBasicAuthHeader() {
-        String username = user.getUsername();
-        String password = user.getPassword();
-        String auth = username + ":" + password;
-        return "Basic " + Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
+        String username = user.getUsername(); // Get the username from the user
+        String password = user.getPassword(); // Get the password from the user
+        String auth = username + ":" + password; // Combine username and password
+        return "Basic " + Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8)); // Encode the combined string in Base64 and return as Basic Auth header
     }
 
     /**
@@ -48,11 +49,11 @@ public class ServerEndpoint {
      */
 
     public Result register(IAppUser user) throws Exception {
-        ServerEndpoint.user = user;
-        String url = this.url + "register";
-        HttpResponse<String> response = sendGetRequest(url);
-        System.out.println("Register request: " + response.body());
-        return new Result(response.body());
+        ServerEndpoint.user = user; // Set the static user variable to the provided user
+        String url = this.url + "register"; // Append "register" to the base URL
+        HttpResponse<String> response = sendGetRequest(url); // Send GET request to register endpoint
+        System.out.println("Register request: " + response.body()); // Print the response body
+        return new Result(response.body()); // Create and return a new Result from the response body
     }
 
     /**
@@ -64,11 +65,11 @@ public class ServerEndpoint {
      * @author Ben
      */
     public Result login(IAppUser user) throws Exception {
-        ServerEndpoint.user = user;
-        String url = this.url + "login";
-        HttpResponse<String> response = sendGetRequest(url);
-        System.out.println("Login request: " + response.body());
-        return new Result(response.body());
+        ServerEndpoint.user = user; // Set the static user variable to the provided user
+        String url = this.url + "login"; // Append "login" to the base URL
+        HttpResponse<String> response = sendGetRequest(url); // Send GET request to login endpoint
+        System.out.println("Login request: " + response.body()); // Print the response body
+        return new Result(response.body()); // Create and return a new Result from the response body
     }
 
     /**
@@ -78,10 +79,10 @@ public class ServerEndpoint {
      * @author Tony
      */
     public Result getPublishers() throws Exception {
-        String url = this.url + "getPublishers";
-        HttpResponse<String> response = sendGetRequest(url);
-        System.out.println("Get Publishers Response: " + response.body());
-        return new Result(response.body());
+        String url = this.url + "getPublishers"; // Append "getPublishers" to the base URL
+        HttpResponse<String> response = sendGetRequest(url); // Send GET request to getPublishers endpoint
+        System.out.println("Get Publishers Response: " + response.body()); // Print the response body
+        return new Result(response.body()); // Create and return a new Result from the response body
     }
 
     /**
@@ -92,13 +93,13 @@ public class ServerEndpoint {
      * @author Tony
      */
     public Result createSheet(String sheet) throws Exception {
-        String url = this.url + "createSheet"; // Ensure the endpoint is correct
+        String url = this.url + "createSheet"; // Append "createSheet" to the base URL
+        // Create JSON payload with publisher and sheet names
         String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\"}", user.getUsername(), sheet);
-        HttpResponse<String> response = sendPostRequest(url, json);
-        System.out.println("Create Sheet Response: " + response.body());
-        return new Result(response.body());
+        HttpResponse<String> response = sendPostRequest(url, json); // Send POST request to createSheet endpoint
+        System.out.println("Create Sheet Response: " + response.body()); // Print the response body
+        return new Result(response.body()); // Create and return a new Result from the response body
     }
-
 
     /**
      * Retrieves the list of sheets for a specified publisher from the server.
@@ -108,11 +109,12 @@ public class ServerEndpoint {
      * @author Vinay
      */
     public Result getSheets(String publisher) throws Exception {
-        String url = this.url + "getSheets";
+        String url = this.url + "getSheets"; // Append "getSheets" to the base URL
+        // Create JSON payload with publisher name
         String json = String.format("{\"publisher\":\"%s\"}", publisher);
-        HttpResponse<String> response = sendPostRequest(url, json);
-        System.out.println("Get Sheets Response: " + response.body());
-        return new Result(response.body());
+        HttpResponse<String> response = sendPostRequest(url, json); // Send POST request to getSheets endpoint
+        System.out.println("Get Sheets Response: " + response.body()); // Print the response body
+        return new Result(response.body()); // Create and return a new Result from the response body
     }
 
     /**
@@ -124,11 +126,12 @@ public class ServerEndpoint {
      * @author Tony
      */
     public Result deleteSheet(String publisher, String sheet) throws Exception {
-        String url = this.url + "deleteSheet";
-        String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\"}", publisher, sheet);
-        HttpResponse<String> response = sendPostRequest(url, json);
-        System.out.println("Delete Sheet Response: " + response.body());
-        return new Result(response.body());
+        String url = this.url + "deleteSheet"; // Append "deleteSheet" to the base URL
+        // Create JSON payload with publisher and sheet names
+        String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\"}", publisher, sheet); 
+        HttpResponse<String> response = sendPostRequest(url, json); // Send POST request to deleteSheet endpoint
+        System.out.println("Delete Sheet Response: " + response.body()); // Print the response body
+        return new Result(response.body()); // Create and return a new Result from the response body
     }
 
     /**
@@ -142,11 +145,12 @@ public class ServerEndpoint {
      * @author Tony
      */
     public Result getUpdatesForSubscription(String publisher, String sheet, String id) throws Exception {
-        String url = this.url + "getUpdatesForSubscription";
+        String url = this.url + "getUpdatesForSubscription"; // Append "getUpdatesForSubscription" to the base URL
+        // Create JSON payload with publisher, sheet, and ID
         String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"id\":\"%s\"}", publisher, sheet, id);
-        HttpResponse<String> response = sendPostRequest(url, json);
-        System.out.println("Get Updates For Subscription Response: " + response.body());
-        return new Result(response.body());
+        HttpResponse<String> response = sendPostRequest(url, json); // Send POST request to getUpdatesForSubscription endpoint
+        System.out.println("Get Updates For Subscription Response: " + response.body()); // Print the response body
+        return new Result(response.body()); // Create and return a new Result from the response body
     }
 
     /**
@@ -159,11 +163,12 @@ public class ServerEndpoint {
      * @author Tony
      */
     public Result getUpdatesForPublished(String publisher, String sheet, String id) throws Exception {
-        String url = this.url + "getUpdatesForPublished";
+        String url = this.url + "getUpdatesForPublished"; // Append "getUpdatesForPublished" to the base URL
+        // Create JSON payload with publisher, sheet, and ID
         String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"id\":\"%s\"}", publisher, sheet, id);
-        HttpResponse<String> response = sendPostRequest(url, json);
-        System.out.println("Get Updates For Published Response: " + response.body());
-        return new Result(response.body());
+        HttpResponse<String> response = sendPostRequest(url, json); // Send POST request to getUpdatedForPublished endpoint
+        System.out.println("Get Updates For Published Response: " + response.body()); // Print the response body
+        return new Result(response.body()); // Create and return a new Result from the response body
     }
 
     /**
@@ -177,11 +182,12 @@ public class ServerEndpoint {
      * @author Vinay
      */
     public Result updatePublished(String publisher, String sheet, String payload) throws Exception {
-        String url = this.url + "updatePublished";
+        String url = this.url + "updatePublished"; // Append "updatePublished" to the base URL
+        // Create JSON payload with publisher, sheet, and payload
         String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"payload\":\"%s\"}", publisher, sheet, payload);
-        HttpResponse<String> response = sendPostRequest(url, json);
-        System.out.println("Update Published Response: " + response.body());
-        return new Result(response.body());
+        HttpResponse<String> response = sendPostRequest(url, json); // Send POST request to updatePublished endpoint
+        System.out.println("Update Published Response: " + response.body()); // Print the response body
+        return new Result(response.body()); // Create and return a new Result from the response body
 
     }
 
@@ -195,11 +201,12 @@ public class ServerEndpoint {
      * @author Tony
      */
     public Result updateSubscription(String publisher, String sheet, String payload) throws Exception {
-        String url = this.url + "updateSubscription";
+        String url = this.url + "updateSubscription"; // Append "updateSubscription" to the base URL
+        // Create JSON payload with publisher, sheet, and payload
         String json = String.format("{\"publisher\":\"%s\", \"sheet\":\"%s\", \"payload\":\"%s\"}", publisher, sheet, payload);
-        HttpResponse<String> response = sendPostRequest(url, json);
-        System.out.println("Update Subscription Response: " + response.body());
-        return new Result(response.body());
+        HttpResponse<String> response = sendPostRequest(url, json); // Send POST request to updateSubscription endpoint
+        System.out.println("Update Subscription Response: " + response.body()); // Print the response body
+        return new Result(response.body()); // Create and return a new Result from the response body
     }
 
 
@@ -213,14 +220,15 @@ public class ServerEndpoint {
      * @author Tony
      */
     public HttpResponse<String> sendPostRequest(String url, String json) throws Exception {
-        HttpClient client = HttpClient.newBuilder().build();
+        HttpClient client = HttpClient.newBuilder().build(); // Create a new HttpClient
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI(url))
-                .header("Authorization", getBasicAuthHeader())
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(json))
+                .uri(new URI(url)) // Set the URI for the request
+                .header("Authorization", getBasicAuthHeader()) // Add Basic Auth header
+                .header("Content-Type", "application/json") // Set the content type to JSON
+                .POST(HttpRequest.BodyPublishers.ofString(json)) // Set the request body
                 .build();
 
+        // Send the request and return the response
         return client.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
@@ -233,12 +241,13 @@ public class ServerEndpoint {
      * @author Ben
      */
     public HttpResponse<String> sendGetRequest(String url) throws Exception {
-        HttpClient client = HttpClient.newBuilder().build();
+        HttpClient client = HttpClient.newBuilder().build(); // Create a new HttpClient
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI(url))
-                .header("Authorization", getBasicAuthHeader())
-                .GET()
+                .uri(new URI(url)) // Set the URI for the request
+                .header("Authorization", getBasicAuthHeader()) // Add Basic Auth header
+                .GET() // Set the request method to GET
                 .build();
+        // Send the request and return the response
         return client.send(request, HttpResponse.BodyHandlers.ofString());
     }
 }
