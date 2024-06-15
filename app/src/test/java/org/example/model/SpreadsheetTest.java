@@ -374,6 +374,28 @@ public class SpreadsheetTest {
         result = (String) evaluateIFMethod.invoke(spreadsheet, "1,1,0,1");
         assertEquals("Error", result);
     }
+
+    /**
+     * Tests the evaluateDEBUG method of the Spreadsheet class using reflection.
+     * @throws Exception if there is an error during reflection
+     */
+    @Test
+    public void testEvaluateDEBUG() throws Exception {
+        Method evaluateDEBUGMethod = Spreadsheet.class.getDeclaredMethod("evaluateDEBUG", String.class);
+        evaluateDEBUGMethod.setAccessible(true);
+
+        // Test with leading and trailing spaces
+        String result = (String) evaluateDEBUGMethod.invoke(spreadsheet, "  test  ");
+        assertEquals("test", result, "evaluateDEBUG should trim leading and trailing spaces");
+
+        // Test with no spaces
+        result = (String) evaluateDEBUGMethod.invoke(spreadsheet, "test");
+        assertEquals("test", result, "evaluateDEBUG should return the same string when there are no leading or trailing spaces");
+
+        // Test with only spaces
+        result = (String) evaluateDEBUGMethod.invoke(spreadsheet, "  ");
+        assertEquals("", result, "evaluateDEBUG should return an empty string when the input is only spaces");
+    }
     
     /**
      * Tests the evaluateFormula method of the Spreadsheet class with the SUM function.
