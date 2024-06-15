@@ -46,6 +46,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
      * Constructs a SheetView with the given spreadsheet.
      *
      * @param openSheet the spreadsheet to be displayed.
+     * @author Vinay
      */
     public SheetView(ISpreadsheet openSheet) {
         this.cells = openSheet;
@@ -54,6 +55,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
 
     /**
      * Sets up the components and layout of the SheetView.
+     * @author Theo
      */
     public void setup() {
         setTitle("Spreadsheet"); // Set the title of the window
@@ -81,6 +83,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
      *
      * @param selectedRows    the selected rows.
      * @param selectedColumns the selected columns.
+     * @author Ben
      */
     @Override
     public void selectedCells(int[] selectedRows, int[] selectedColumns) {
@@ -110,6 +113,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
      *
      * @param selectedCells the selected cells.
      * @return true if a single cell is selected, false otherwise.
+     * @author Ben
      */
     private boolean singleCellSelected(SelectedCells selectedCells) {
         return selectedCells.getStartRow() == selectedCells.getEndRow() &&
@@ -118,6 +122,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
 
     /**
      * Creates the toolbar for the SheetView.
+     * @author Tony
      */
     protected void makeToolbar() {
         formulaTextField = new JTextField(20); // Create a text field for formulas
@@ -149,6 +154,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
      * Changes the text in the formula text field.
      *
      * @param rawdata the raw data to set.
+     * @author Ben
      */
     public void changeFormulaTextField(String rawdata) {
         formulaTextField.setText(rawdata); // Set the text of the formula text field to the provided raw data
@@ -160,6 +166,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
      * @param row   the row of the cell.
      * @param col   the column of the cell.
      * @param color the color to highlight.
+     * @author Vinay
      */
     public void highlightCell(int row, int col, Color color) {
         highlightedCells.put(new Point(row, col + 1), color); // Add the cell to the highlighted cells map with the specified color
@@ -171,6 +178,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
      *
      * @param columnNumber the column number.
      * @return the Excel column name.
+     * @author Theo
      */
     public String getExcelColumnName(int columnNumber) {
         StringBuilder columnName = new StringBuilder(); // Create a StringBuilder for the column name
@@ -195,6 +203,8 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
 
     /**
      * Updates the table with the latest data.
+     * 
+     * @author Theo
      */
     public void updateTable() {
         isUpdatingTable = true; // Set the flag to indicate that the table is being updated
@@ -233,6 +243,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
      * Gets the table used in the SheetView.
      *
      * @return the table.
+     * @author Vinay
      */
     protected JTable getTable() {
         return yourTable; // Return the table
@@ -242,6 +253,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
      * Gets the controller associated with the SheetView.
      *
      * @return the controller.
+     * @author Vinay
      */
     public IUserController getController() {
         return this.controller; // Return the controller
@@ -260,6 +272,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
      * Saves the spreadsheet to the specified path.
      *
      * @param path the path to save the spreadsheet.
+     * @author Ben
      */
     public void save(String path) {
         try {
@@ -284,6 +297,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
      * Zooms the table by the specified factor.
      *
      * @param factor the zoom factor.
+     * @author Vinay
      */
     public void zoomTable(double factor) {
         Font tableFont = yourTable.getFont(); // Get the current font of the table
@@ -318,6 +332,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
      * Initializes the data array with cell values.
      *
      * @return the initialized data array.
+     * @author Vinay
      */
     protected Object[][] initializeData(){
         // Initialize data array with cell values
@@ -336,6 +351,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
      * Initializes the column names.
      *
      * @return the initialized column names.
+     * @author Theo
      */
     protected String[] initializeColumnNames(){
         // Initialize column names
@@ -351,6 +367,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
      * Configures the cells for right-click actions.
      *
      * @return the panel for right-click actions.
+     * @author Theo
      */
     protected JPanel configureCells(){
         // Set custom cell renderer
@@ -376,6 +393,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
      * Initializes the table model.
      *
      * @param tableModel the table model to initialize.
+     * @author Theo
      */
     protected void initalizeTableModel(DefaultTableModel tableModel) {
         yourTable = new JTable(tableModel); // Initialize the table with the model
@@ -389,6 +407,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
      * Sets the row headers in the table model.
      *
      * @param tableModel the table model to set the row headers in.
+     * @author Theo
      */
     protected void setRowHeaders(DefaultTableModel tableModel){
         // Set row headers
@@ -401,6 +420,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
      * Adds mouse listener for right-click actions.
      *
      * @param rightClickPanel the panel for right-click actions.
+     * @author Theo
      */
     protected void addMouseListener(JPanel rightClickPanel) {
         yourTable.addMouseListener(new MouseAdapter() {
@@ -424,6 +444,8 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
 
     /**
      * Adds key listener for delete actions.
+     * 
+     * @author Theo
      */
     protected void listenForDelete(){
         // Add key listener for delete and digit keys
@@ -444,6 +466,8 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
 
     /**
      * Adds selection listener for row selection.
+     * 
+     * @author Theo
      */
     protected void listenForSelectionRow(){
         // Add selection listener for row selection
@@ -461,6 +485,8 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
 
     /**
      * Adds selection listener for column selection.
+     * 
+     * @author Theo
      */
     protected void listenForSelectionCol(){
         // Add selection listener for column selection
@@ -478,6 +504,8 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
 
     /**
      * Adds table model listener for data changes.
+     * 
+     * @author Ben
      */
     protected void listenForDataChanges(){
         // Add table model listener for data changes
@@ -514,6 +542,7 @@ public class SheetView extends SheetViewFactory<SheetView> implements ISheetView
      * @param data the data for the table.
      * @param columnNames the column names for the table.
      * @return the created table model.
+     * @author Vinay
      */
     public DefaultTableModel createTableModel(Object[][] data, String[] columnNames){
         // Create table model

@@ -17,6 +17,7 @@ public class SpreadsheetTest {
 
     /**
      * Sets up the test environment by initializing a Spreadsheet instance.
+     * @author Vinay
      */
     @BeforeEach
     public void setUp() {
@@ -25,6 +26,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the constructor of the Spreadsheet class.
+     * @author Vinay
      */
     @Test
     public void testConstructor() {
@@ -35,6 +37,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the getIdVersion method of the Spreadsheet class.
+     * @author Ben
      */
     @Test
     public void testGetIdVersion() {
@@ -48,6 +51,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the setGrid method of the Spreadsheet class.
+     * @author Vinay
      */
     @Test
     public void testSetGrid() {
@@ -70,6 +74,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the constructor of the Spreadsheet class with an existing grid.
+     * @author Theo
      */
     @Test
     public void testConstructorExistingGrid() {
@@ -102,6 +107,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the convertSheetToPayload method of the Spreadsheet class.
+     * @author Tony
      */
     @Test
     public void testConvertSheetToPayload() {
@@ -118,6 +124,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the getRows method of the Spreadsheet class.
+     * @author Ben
      */
     @Test
     public void testGetRows() {
@@ -126,6 +133,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the getCols method of the Spreadsheet class.
+     * @author Ben
      */
     @Test
     public void testGetCols() {
@@ -134,6 +142,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the getCellsObject method of the Spreadsheet class.
+     * @author Tony
      */
     @Test
     public void testGetCellsObject() {
@@ -144,6 +153,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the getCellStringsObject method of the Spreadsheet class.
+     * @author Tony
      */
     @Test
     public void testGetCellStringsObject() {
@@ -154,6 +164,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the getCells method of the Spreadsheet class.
+     * @author Ben
      */
     @Test
     public void testGetCells() {
@@ -168,6 +179,7 @@ public class SpreadsheetTest {
     /**
      * Tests the private getRow method of the Spreadsheet class using reflection.
      * @throws Exception if there is an error during reflection
+     * @author Ben
      */
     @Test
     public void testGetRow() throws Exception {
@@ -181,6 +193,7 @@ public class SpreadsheetTest {
     /**
      * Tests the private getColumn method of the Spreadsheet class using reflection.
      * @throws Exception if there is an error during reflection
+     * @author Ben
      */
     @Test
     public void testGetColumn() throws Exception {
@@ -193,6 +206,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the getColumnName method of the Spreadsheet class.
+     * @author Vinay
      */
     @Test
     public void testGetColumnName() {
@@ -203,6 +217,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the addPublished and addSubscribed methods of the Spreadsheet class.
+     * @author Ben
      */
     @Test
     public void testAddPublishedAndSubscribed() {
@@ -219,6 +234,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the setCellRawdata and getCellRawdata methods of the Spreadsheet class.
+     * @author Ben
      */
     @Test
     public void testSetAndGetCellRawdata() {
@@ -228,6 +244,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the evaluateFormula method of the Spreadsheet class when the input is not a formula.
+     * @author Theo
      */
     @Test
     public void testEvaluateFormulaNotAFormula() {
@@ -237,6 +254,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the evaluateFormula method of the Spreadsheet class with arithmetic operations.
+     * @author Vinay
      */
     @Test
     public void testEvaluateFormulaArithmetic() {
@@ -255,6 +273,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the evaluateFormula method of the Spreadsheet class with comparison operations.
+     * @author Vinay
      */
     @Test
     public void testEvaluateFormulaComparisons() {
@@ -283,6 +302,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the evaluateFormula method of the Spreadsheet class with boolean operations.
+     * @author Theo
      */
     @Test
     public void testEvaluateFormulaBoolean() {
@@ -306,6 +326,7 @@ public class SpreadsheetTest {
     /**
      * Tests the private rangeOperation method of the Spreadsheet class using reflection.
      * @throws Exception if there is an error during reflection
+     * @author Theo
      */
     @Test
     public void testRangeOperation() throws Exception {
@@ -342,6 +363,7 @@ public class SpreadsheetTest {
     /**
      * Tests the private evaluateIF method of the Spreadsheet class using reflection.
      * @throws Exception if there is an error during reflection
+     * @author Vinay
      */
     @Test
     public void testEvaluateIF() throws Exception {
@@ -378,6 +400,7 @@ public class SpreadsheetTest {
     /**
      * Tests the evaluateDEBUG method of the Spreadsheet class using reflection.
      * @throws Exception if there is an error during reflection
+     * @author Theo
      */
     @Test
     public void testEvaluateDEBUG() throws Exception {
@@ -399,6 +422,7 @@ public class SpreadsheetTest {
     
     /**
      * Tests the evaluateFormula method of the Spreadsheet class with the SUM function.
+     * @author Theo
      */
     @Test
     public void testEvaluateFormulaSUM() {
@@ -413,6 +437,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the evaluateFormula method of the Spreadsheet class with the MAX function.
+     * @author Vinay
      */
     @Test
     public void testEvaluateMAX() {
@@ -435,6 +460,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the evaluateFormula method of the Spreadsheet class with the AVG function.
+     * @author Vinay
      */
     @Test
     public void testEvaluateAVG() {
@@ -457,6 +483,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the evaluateFormula method of the Spreadsheet class with the CONCAT function.
+     * @author Theo
      */
     @Test
     public void testEvaluateCONCAT() {
@@ -475,6 +502,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the evaluateFormula method of the Spreadsheet class with the STDDEV function.
+     * @author Theo
      */
     @Test
     public void testEvaluateSTDDEV() {
@@ -500,6 +528,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the evaluateFormula method of the Spreadsheet class with the SORT function.
+     * @author Theo
      */
     @Test
     public void testEvaluateFormulaSORT() {
@@ -514,6 +543,7 @@ public class SpreadsheetTest {
     
     /**
      * Tests the evaluateFormula method of the Spreadsheet class with the SORT function when an error occurs.
+     * @author Theo
      */
     @Test
     public void testEvaluateFormulaSORTError() {
@@ -528,6 +558,7 @@ public class SpreadsheetTest {
 
     /**
      * Tests the evaluateFormula method of the Spreadsheet class with the MIN function.
+     * @author Vinay
      */
     @Test
     public void testEvaluateMIN() {

@@ -16,11 +16,14 @@ public interface ISheetView {
      * Adds a controller to the sheet view.
      *
      * @param controller the IUserController instance to add.
+     * @author Vinay
      */
     void addController(IUserController controller);
 
     /**
      * Makes the sheet view visible.
+     * 
+     * @author Theo
      */
     void makeVisible();
 
@@ -28,11 +31,14 @@ public interface ISheetView {
      * Displays a message in the sheet view.
      *
      * @param s the message to display.
+     * @author Vinay
      */
     void displayMessage(String s);
     
     /**
      * Updates the table in the sheet view.
+     * 
+     * @author Vinay
      */
     void updateTable();
 
@@ -40,6 +46,8 @@ public interface ISheetView {
      * Changes the formula text field to display the given raw data.
      *
      * @param rawdata the raw data to display in the formula text field.
+     * 
+     * @author Ben
      */
     void changeFormulaTextField(String rawdata);
     
@@ -48,6 +56,7 @@ public interface ISheetView {
      *
      * @param columnNumber the column number to convert to an Excel-style column name.
      * @return the Excel-style column name.
+     * @author Vinay
      */
     String getExcelColumnName(int columnNumber);
 
@@ -55,6 +64,7 @@ public interface ISheetView {
      * Loads changes into the SheetView.
      *
      * @throws Exception if an error occurs while loading changes.
+     * @author Theo
      */
     void loadChanges() throws Exception;
 
@@ -64,6 +74,7 @@ public interface ISheetView {
      * @param row the row of the cell.
      * @param col the column of the cell.
      * @param color the color to highlight.
+     * @author Vinay
      */
     void highlightCell(int row, int col, Color color);
     
@@ -72,6 +83,7 @@ public interface ISheetView {
      *
      * @param selectedRows the selected rows.
      * @param selectedColumns the selected columns.
+     * @author Vinay
      */
     void selectedCells(int[] selectedRows, int[] selectedColumns);
 

@@ -10,6 +10,7 @@ public class ArgumentTest {
 
     /**
      * Tests the constructor and getter methods of the Argument class.
+     * @author Theo
      */
     @Test
     public void testConstructorAndGetters() {
@@ -30,6 +31,7 @@ public class ArgumentTest {
     
     /**
      * Tests the setter methods of the Argument class.
+     * @author
      */
     @Test
     public void testSetters() {

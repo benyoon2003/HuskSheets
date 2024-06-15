@@ -13,6 +13,7 @@ public class AppUserTest {
 
     /**
      * Initializes the AppUser instance before each test.
+     * @author Theo
      */
     @BeforeEach
     public void init() {
@@ -21,6 +22,7 @@ public class AppUserTest {
 
     /**
      * Tests the constructor, getters, and setters of the AppUser class.
+     * @author Theo
      */
     @Test
     public void testConstructorAndGetterSetter() {
@@ -30,6 +32,7 @@ public class AppUserTest {
 
     /**
      * Tests the addSheet method of the AppUser class.
+     * @author Tony
      */
     @Test
     public void testAddSheet() {
@@ -43,6 +46,7 @@ public class AppUserTest {
 
     /**
      * Tests the removeSheet method of the AppUser class.
+     * @author Tony
      */
     @Test
     public void testRemoveSheet() {
@@ -59,6 +63,7 @@ public class AppUserTest {
 
     /**
      * Tests the removeSheet method when attempting to remove a non-existent sheet.
+     * @author Tony
      */
     @Test
     public void testRemoveNonExistentSheet() {
@@ -74,6 +79,7 @@ public class AppUserTest {
 
     /**
      * Tests the removeSheet method when the list of sheets is empty.
+     * @author Tony
      */
     @Test
     public void testRemoveSheetFromEmptyList() {
@@ -85,6 +91,7 @@ public class AppUserTest {
 
     /**
      * Tests the removeSheet method by removing all sheets one by one.
+     * @author Tony
      */
     @Test
     public void testRemoveAllSheetsOneByOne() {
@@ -102,7 +109,8 @@ public class AppUserTest {
     }
     
     /**
-     * Tests the doesSheetExist method of the AppUser class.
+     * Tests the doesSheetExist method of the AppUser class
+     * @author Ben
      */
     @Test
     public void testDoesSheetExist() {

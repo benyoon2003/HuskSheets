@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 
 /**
  * The main application class for HuskSheets, a Spring Boot application.
+ * @author Tony
  */
 @SpringBootApplication
 public class HuskSheetsApplication {

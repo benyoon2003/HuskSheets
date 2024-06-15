@@ -15,6 +15,7 @@ import java.util.Map;
 
 /**
  * The SubscriberSheetView class represents a view for a spreadsheet that is subscribed to a publisher's updates.
+ * @author Tony
  */
 public class SubscriberSheetView extends SheetView {
     final IReadOnlySpreadSheet cells;
@@ -25,6 +26,7 @@ public class SubscriberSheetView extends SheetView {
      *
      * @param publisher the publisher of the spreadsheet.
      * @param openSheet the spreadsheet to be displayed.
+     * @author Tony
      */
     public SubscriberSheetView(String publisher, ISpreadsheet openSheet) {
         super(openSheet);
@@ -33,6 +35,7 @@ public class SubscriberSheetView extends SheetView {
     }
     /**
      * Creates and sets up the toolbar with various buttons and their action listeners.
+     * @author Tony
      */
     @Override
     public void makeToolbar() {

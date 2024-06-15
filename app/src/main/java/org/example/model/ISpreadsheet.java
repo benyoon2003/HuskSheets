@@ -29,6 +29,7 @@ public interface ISpreadsheet extends IReadOnlySpreadSheet {
     /**
      * Gets the grid.
      * @return a 2D list of Cell
+     * @author Vinay
      */
     List<List<Cell>> getGrid();
 
@@ -76,6 +77,7 @@ public interface ISpreadsheet extends IReadOnlySpreadSheet {
      * Gets the row in zero index from String input.
      * @param cell a row label
      * @return a row index.
+     * @author Theo
      */
     int getRow(String cell);
 
@@ -83,6 +85,7 @@ public interface ISpreadsheet extends IReadOnlySpreadSheet {
      * Gets the column in zero index from String input.
      * @param cell a column label
      * @return a column index
+     * @author Vinay
      */
     int getColumn(String cell);
 
@@ -122,6 +125,7 @@ public interface ISpreadsheet extends IReadOnlySpreadSheet {
      * Sets a grid
      *
      * @param updatedGrid 2D List of Cell
+     * @author Vinay
      */
     void setGrid(List<List<Cell>> updatedGrid);
 }

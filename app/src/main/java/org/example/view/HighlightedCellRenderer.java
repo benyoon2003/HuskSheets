@@ -6,6 +6,8 @@ import java.util.Map;
 
 /**
  * The HighlightedCellRenderer class customizes the rendering of table cells based on highlighted cells.
+ * 
+ * @author Vinay
  */
 public class HighlightedCellRenderer extends AbstractCustomTableCellRenderer {
 
@@ -15,11 +17,17 @@ public class HighlightedCellRenderer extends AbstractCustomTableCellRenderer {
      * Constructs a HighlightedCellRenderer with the specified highlighted cells.
      *
      * @param highlightedCells the highlighted cells.
+     * @author Vinay
      */
     public HighlightedCellRenderer(Map<Point, Color> highlightedCells) {
         this.highlightedCells = highlightedCells; // Initialize the highlightedCells map
     }
 
+    /**
+     * Configured the Cell renderer and sets the background color of a cell
+     * 
+     * @author Vinay
+     */
     @Override
     protected void configureCellRenderer(Component c, JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         Point cellLocation = new Point(row, column); // Create a Point object to represent the cell's location
