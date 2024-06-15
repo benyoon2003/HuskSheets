@@ -28,6 +28,7 @@ public class ReviewChangesSheetViewTest {
 
     /**
      * Initializes the test environment by setting up the necessary components.
+     * @author Vinay
      */
     @BeforeEach
     public void init() {
@@ -53,6 +54,7 @@ public class ReviewChangesSheetViewTest {
     /**
      * Tests the addController method of the ReviewChangesSheetView class.
      * @throws Exception if there is an error during the test
+     * @author Vinay
      */
     @Test
     public void testAddController() throws Exception {
@@ -70,6 +72,7 @@ public class ReviewChangesSheetViewTest {
 
     /**
      * Tests the selectedCells method of the ReviewChangesSheetView class.
+     * @author Vinay
      */
     @Test
     public void testSelectedCells() {
@@ -90,6 +93,7 @@ public class ReviewChangesSheetViewTest {
 
     /**
      * Tests the changeFormulaTextField method of the ReviewChangesSheetView class.
+     * @author Ben
      */
     @Test
     public void testChangeFormulaTextField() {
@@ -101,6 +105,7 @@ public class ReviewChangesSheetViewTest {
 
     /**
      * Tests the highlightCell method of the ReviewChangesSheetView class.
+     * @author Vinay
      */
     @Test
     public void testHighlightCell() {
@@ -124,6 +129,7 @@ public class ReviewChangesSheetViewTest {
 
     /**
      * Tests the getExcelColumnName method of the ReviewChangesSheetView class.
+     * @author Vinay
      */
     @Test
     public void testExcelColumnName() {
@@ -142,6 +148,7 @@ public class ReviewChangesSheetViewTest {
 
     /**
      * Tests the getTable method of the ReviewChangesSheetView class.
+     * @author Tony
      */
     @Test
     public void testGetTable() {
@@ -153,6 +160,7 @@ public class ReviewChangesSheetViewTest {
 
     /**
      * Tests the getController method of the ReviewChangesSheetView class.
+     * @author Tony
      */
     @Test
     public void testGetController() {
@@ -161,6 +169,7 @@ public class ReviewChangesSheetViewTest {
 
     /**
      * Tests the zoomTable method of the ReviewChangesSheetView class.
+     * @author Vinay
      */
     @Test
     public void testZoomTable() {
@@ -184,6 +193,7 @@ public class ReviewChangesSheetViewTest {
 
     /**
      * Tests the loadChanges method of the ReviewChangesSheetView class when no changes are found.
+     * @author Ben
      */
     @Test
     public void testNoChangesFound() {

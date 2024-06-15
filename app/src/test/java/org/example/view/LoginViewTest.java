@@ -13,12 +13,14 @@ import org.junit.jupiter.api.Test; // Import for test annotation
 
 /**
  * Tests the methods within the LoginView class.
+ * @author Theo
  */
 public class LoginViewTest {
     private MockLoginView loginView = new MockLoginView(); // Create instance of MockLoginView for testing
 
     /**
      * Tests the addController method of the LoginView class.
+     * @author Theo
      */
     @Test
     public void testAddController() {
@@ -31,6 +33,7 @@ public class LoginViewTest {
 
     /**
      * Tests the displayErrorBox method of the LoginView class.
+     * @author Theo
      */
     @Test
     public void testDisplayErrorBox() {
@@ -40,6 +43,7 @@ public class LoginViewTest {
 
     /**
      * Tests the disposeLoginPage method of the LoginView class.
+     * @author Theo
      */
     @Test
     public void testDisposeLoginPage() {
@@ -49,6 +53,7 @@ public class LoginViewTest {
 
     /**
      * Cleans up after each test by disposing of the login page.
+     * @author Theo
      */
     @AfterEach
     public void after() {
@@ -57,6 +62,7 @@ public class LoginViewTest {
 
     /**
      * A mock class extending LoginView to capture output for testing.
+     * @author Theo
      */
     private class MockLoginView extends LoginView {
         private StringWriter out; // StringWriter to capture output
