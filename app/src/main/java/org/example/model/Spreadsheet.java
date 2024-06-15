@@ -534,7 +534,7 @@ public class Spreadsheet implements ISpreadsheet {
     private String rangeOperation(String startCell, String endCell) {
         String func = getFunction(startCell); // Get function from startCell
         if (func != "") {
-            startCell = startCell.substring(startCell.indexOf('(') + 1); // Remove function part from startCell
+            startCell = startCell.substring(startCell.indexOf('(', startCell.indexOf(func)) + 1); // Remove function part from startCell
         }
 
         int startRow = getRow(startCell); // Get start row
@@ -611,9 +611,10 @@ public class Spreadsheet implements ISpreadsheet {
         try {
             for (String part : parts) {
                 String func = getFunction(part); // Get function from part
+                part = replaceCellReferences(part.trim());
                 part = parseNestedOperations(func, part, parameters); // Parse nested operations
                 if (part != "") {
-                    sum += Double.parseDouble(replaceCellReferences(part.trim())); // Add part value to sum
+                    sum += Double.parseDouble(part); // Add part value to sum
                     int index = parameters.indexOf(")"); // Find index of closing parenthesis
                     if (func != "" && index != -1) {
                         parameters = parameters.substring(index + 1); // Update parameters
@@ -639,9 +640,10 @@ public class Spreadsheet implements ISpreadsheet {
         try {
             for (String part : parts) {
                 String func = getFunction(part); // Get function from part
+                part = replaceCellReferences(part.trim());
                 part = parseNestedOperations(func, part, parameters); // Parse nested operations
                 if (part != "") {
-                    double value = Double.parseDouble(replaceCellReferences(part.trim())); // Parse part as double
+                    double value = Double.parseDouble(part); // Parse part as double
                     int index = parameters.indexOf(")"); // Find index of closing parenthesis
                     if (func != "" && index != -1) {
                         parameters = parameters.substring(index + 1); // Update parameters
@@ -670,9 +672,10 @@ public class Spreadsheet implements ISpreadsheet {
         try {
             for (String part : parts) {
                 String func = getFunction(part); // Get function from part
+                part = replaceCellReferences(part.trim());
                 part = parseNestedOperations(func, part, parameters); // Parse nested operations
                 if (part != "") {
-                    double value = Double.parseDouble(replaceCellReferences(part.trim())); // Parse part as double
+                    double value = Double.parseDouble(part); // Parse part as double
                     int index = parameters.indexOf(")"); // Find index of closing parenthesis
                     if (func != "" && index != -1) {
                         parameters = parameters.substring(index + 1); // Update parameters
@@ -702,9 +705,10 @@ public class Spreadsheet implements ISpreadsheet {
         try {
             for (String part : parts) {
                 String func = getFunction(part); // Get function from part
+                part = replaceCellReferences(part.trim());
                 part = parseNestedOperations(func, part, parameters); // Parse nested operations
                 if (part != "") {
-                    sum += Double.parseDouble(replaceCellReferences(part.trim())); // Add part value to sum
+                    sum += Double.parseDouble(part); // Add part value to sum
                     int index = parameters.indexOf(")"); // Find index of closing parenthesis
                     if (func != "" && index != -1) {
                         parameters = parameters.substring(index + 1); // Update parameters
@@ -764,6 +768,7 @@ public class Spreadsheet implements ISpreadsheet {
             double avg = Double.parseDouble(evaluateAVG(parameters)); // Calculate average
             for (String part : parts) {
                 String func = getFunction(part); // Get function from part
+                part = replaceCellReferences(part.trim());
                 part = parseNestedOperations(func, part, parameters); // Parse nested operations
                 if (part != "") {
                     sum += Math.pow(Double.parseDouble(replaceCellReferences(part)) - avg, 2); // Calculate squared difference
@@ -795,9 +800,10 @@ public class Spreadsheet implements ISpreadsheet {
             for (int i = 0; i < nums.length; i++) {
                 String part = parts[i];
                 String func = getFunction(part); // Get function from part
+                part = replaceCellReferences(part.trim());
                 part = parseNestedOperations(func, part, parameters); // Parse nested operations
                 if (part != "") {
-                    nums[i] = Double.parseDouble(replaceCellReferences(part)); // Parse part as double
+                    nums[i] = Double.parseDouble(part); // Parse part as double
                     int index = parameters.indexOf(")"); // Find index of closing parenthesis
                     if (func != "" && index != -1) {
                         parameters = parameters.substring(index + 1); // Update parameters
