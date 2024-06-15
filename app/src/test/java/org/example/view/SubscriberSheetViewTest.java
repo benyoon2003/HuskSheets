@@ -24,6 +24,7 @@ public class SubscriberSheetViewTest {
 
     /**
      * Initializes the test environment before each test.
+     * @author Vinay
      */
     @BeforeEach
     public void init() {
@@ -48,6 +49,7 @@ public class SubscriberSheetViewTest {
     /**
      * Tests if the controller is correctly added to the subscriberSheetView and if the user is correctly logged in.
      * @throws Exception if there is an error during the test.
+     * @author Vinay
      */
     @Test
     public void testAddController() throws Exception {
@@ -65,6 +67,7 @@ public class SubscriberSheetViewTest {
 
     /**
      * Tests selecting a range of cells in the subscriberSheetView.
+     * @author Ben
      */
     @Test
     public void testSelectedCells() {
@@ -85,6 +88,7 @@ public class SubscriberSheetViewTest {
 
     /**
      * Tests changing the formula text field in the subscriberSheetView.
+     * @author Ben
      */
     @Test
     public void testChangeFormulaTextField() {
@@ -96,6 +100,7 @@ public class SubscriberSheetViewTest {
 
     /**
      * Tests highlighting a cell in the subscriberSheetView.
+     * @author Vinay
      */
     @Test
     public void testHighlightCell() {
@@ -119,6 +124,7 @@ public class SubscriberSheetViewTest {
 
     /**
      * Tests converting column numbers to Excel column names in the subscriberSheetView.
+     * @author Vinay
      */
     @Test
     public void testExcelColumnName() {
@@ -137,6 +143,7 @@ public class SubscriberSheetViewTest {
 
     /**
      * Tests getting the table from the subscriberSheetView.
+     * @author Vinay
      */
     @Test
     public void testGetTable() {
@@ -148,6 +155,7 @@ public class SubscriberSheetViewTest {
 
     /**
      * Tests getting the controller from the subscriberSheetView.
+     * @author Vinay
      */
     @Test
     public void testGetController() {
@@ -156,6 +164,7 @@ public class SubscriberSheetViewTest {
 
     /**
      * Tests zooming the table in the subscriberSheetView.
+     * @author Vinay
      */
     @Test
     public void testZoomTable() {

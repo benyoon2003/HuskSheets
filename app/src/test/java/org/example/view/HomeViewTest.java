@@ -24,6 +24,7 @@ public class HomeViewTest {
 
     /**
      * Initializes the test environment by creating a HomeView instance and mocking the IUserController.
+     * @author Vinay
      */
     @BeforeEach
     public void init() {
@@ -34,6 +35,7 @@ public class HomeViewTest {
 
     /**
      * Tests the addController method of the HomeView class.
+     * @author Vinay
      */
     @Test
     public void testAddController() {
@@ -42,6 +44,7 @@ public class HomeViewTest {
 
     /**
      * Tests the createSheet method of the HomeView class.
+     * @author Vinay
      */
     @Test
     public void testCreateSheet() {
@@ -61,6 +64,7 @@ public class HomeViewTest {
 
     /**
      * Tests the updateSavedSheets method of the HomeView class.
+     * @author Vinay
      */
     @Test
     public void testUpdateSavedSheets() {
@@ -85,6 +89,7 @@ public class HomeViewTest {
 
     /**
      * Tests the displayErrorBox method of the HomeView class.
+     * @author Vinay
      */
     @Test
     public void testDisplayErrorBox() {
@@ -100,6 +105,7 @@ public class HomeViewTest {
 
     /**
      * Tests the disposeHomePage method of the HomeView class.
+     * @author Vinay
      */
     @Test
     public void testDisposeHomePage() {
@@ -110,6 +116,7 @@ public class HomeViewTest {
 
     /**
      * Tests the makeVisible method of the HomeView class.
+     * @author Vinay
      */
     @Test
     public void testMakeVisible() {
