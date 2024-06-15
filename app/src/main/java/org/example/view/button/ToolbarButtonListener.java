@@ -1,23 +1,32 @@
 package org.example.view.button;
 
-import org.example.model.Spreadsheet;
 import org.example.view.SheetView;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 
 /**
- * The ToolbarButtonListener class handles toolbar button actions.
+ * The ToolbarButtonListener class handles toolbar button actions in a SheetView.
+ * It implements the ActionListener interface to respond to button clicks.
  */
 public class ToolbarButtonListener implements ActionListener {
     private SheetView view;
 
+    /**
+     * Constructs a ToolbarButtonListener with the specified SheetView.
+     *
+     * @param view the SheetView associated with this listener
+     */
     public ToolbarButtonListener(SheetView view) {
         this.view = view;
     }
 
+    /**
+     * Invoked when a toolbar button action is performed.
+     *
+     * @param e the action event representing the button click
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();

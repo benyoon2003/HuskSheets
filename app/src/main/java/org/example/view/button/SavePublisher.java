@@ -7,13 +7,28 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
-public class SavePublisher extends Button implements ISave{
+/**
+ * The SavePublisher class represents a button that allows saving of a sheet by a publisher.
+ * It extends the Button class and implements the ISave interface.
+ */
+public class SavePublisher extends Button implements ISave {
 
-
+    /**
+     * Constructs a SavePublisher button with the specified SheetView.
+     * When the button is clicked, it triggers the handleSave method to handle the save action.
+     *
+     * @param view the SheetView associated with this button
+     */
     public SavePublisher(SheetView view) {
         super("Save");
 
         this.addActionListener(new ActionListener() {
+            /**
+             * Invoked when the Save button is clicked.
+             * Calls the handleSave method to handle the save action.
+             *
+             * @param e the action event to be processed
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 handleSave(view);
@@ -22,7 +37,9 @@ public class SavePublisher extends Button implements ISave{
     }
 
     /**
-     * Handles the save action.
+     * Handles the save action based on user selection (local or server).
+     *
+     * @param view the SheetView instance associated with this save action
      */
     @Override
     public void handleSave(SheetView view) {

@@ -1,6 +1,5 @@
 package org.example.view.button;
 
-import org.example.model.Spreadsheet;
 import org.example.view.SheetView;
 
 import javax.swing.*;
@@ -8,11 +7,28 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
-public class SaveSubscirber extends Button implements ISave{
+/**
+ * The SaveSubscriber class represents a button that allows saving of a subscribed sheet.
+ * It extends the Button class and implements the ISave interface.
+ */
+public class SaveSubscriber extends Button implements ISave {
 
-    public SaveSubscirber(SheetView view) {
+    /**
+     * Constructs a SaveSubscriber button with the specified SheetView.
+     * When the button is clicked, it triggers the handleSave method to handle the save action.
+     *
+     * @param view the SheetView associated with this button
+     */
+    public SaveSubscriber(SheetView view) {
         super("Save");
+
         this.addActionListener(new ActionListener() {
+            /**
+             * Invoked when the Save button is clicked.
+             * Calls the handleSave method to handle the save action.
+             *
+             * @param e the action event to be processed
+             */
             @Override
             public void actionPerformed(ActionEvent e) {
                 handleSave(view);
@@ -20,7 +36,13 @@ public class SaveSubscirber extends Button implements ISave{
         });
     }
 
-    public void handleSave(SheetView view){
+    /**
+     * Handles the save action based on user selection (local or subscription update).
+     *
+     * @param view the SheetView instance associated with this save action
+     */
+    @Override
+    public void handleSave(SheetView view) {
         int option = JOptionPane.showOptionDialog(
                 null,
                 "Choose where to save the sheet:",
