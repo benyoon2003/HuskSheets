@@ -11,7 +11,7 @@ import java.io.File;
  * The SaveSubscriber class represents a button that allows saving of a subscribed sheet.
  * It extends the Button class and implements the ISave interface.
  */
-public class SaveSubscriber extends Button implements ISave {
+public class saveSubscriber extends Button implements ISave {
 
     /**
      * Constructs a SaveSubscriber button with the specified SheetView.
@@ -19,7 +19,7 @@ public class SaveSubscriber extends Button implements ISave {
      *
      * @param view the SheetView associated with this button
      */
-    public SaveSubscriber(SheetView view) {
+    public saveSubscriber(SheetView view) {
         super("Save");
 
         this.addActionListener(new ActionListener() {
