@@ -43,6 +43,7 @@ public class HomeView extends JFrame implements IHomeView {
      * Places and initializes the components within the specified panel.
      *
      * @param panel the JPanel to place the components on.
+     * @author Theo
      */
     private void placeComponents(JPanel panel) {
         panel.setLayout(null); // Set the layout to null
@@ -257,57 +258,63 @@ public class HomeView extends JFrame implements IHomeView {
     }
 
     /**
- * Getter method for the create sheet button.
- *
- * @return the create sheet button.
- */
-public JButton getCreateSheetButton() {
-    return createSheet; // Return the create sheet button
-}
+     * Getter method for the create sheet button.
+     *
+     * @return the create sheet button.
+     * @author Vinay
+     */
+    public JButton getCreateSheetButton() {
+        return createSheet; // Return the create sheet button
+    }
 
-/**
- * Getter method for the open sheet dropdown.
- *
- * @return the open sheet dropdown.
- */
-public JComboBox<String> getOpenSheetDropdown() {
-    return openSheetDropdown; // Return the open sheet dropdown
-}
+    /**
+     * Getter method for the open sheet dropdown.
+     *
+     * @return the open sheet dropdown.
+     * @author Vinay
+     */
+    public JComboBox<String> getOpenSheetDropdown() {
+        return openSheetDropdown; // Return the open sheet dropdown
+    }
 
-/**
- * Getter method for the publishers dropdown.
- *
- * @return the publishers dropdown.
- */
-public JComboBox<String> getPublishersDropdown() {
-    return publishers; // Return the publishers dropdown
-}
+    /**
+     * Getter method for the publishers dropdown.
+     *
+     * @return the publishers dropdown.
+     * @author Vinay
+     */
+    public JComboBox<String> getPublishersDropdown() {
+        return publishers; // Return the publishers dropdown
+    }
 
-/**
- * Getter method for the open sheet button.
- *
- * @return the open sheet button.
- */
-public JButton getOpenSheetButton() {
-    return openSheetButton; // Return the open sheet button
-}
+    /**
+     * Getter method for the open sheet button.
+     *
+     * @return the open sheet button.
+     * @author Vinay
+     */
+    public JButton getOpenSheetButton() {
+        return openSheetButton; // Return the open sheet button
+    }
 
-/**
- * Getter method for the delete sheet button.
- *
- * @return the delete sheet button.
- */
-public JButton getDeleteSheetButton() {
-    return deleteSheetButton; // Return the delete sheet button
-}
+    /**
+     * Getter method for the delete sheet button.
+     *
+     * @return the delete sheet button.
+     * @author Vinay
+     */
+    public JButton getDeleteSheetButton() {
+        return deleteSheetButton; // Return the delete sheet button
+    }
 
-/**
- * Getter method for the controller.
- *
- * @return the controller.
- */
-public IUserController getController() {
-    return controller; // Return the controller
-}
+    /**
+     * Getter method for the controller.
+     *
+     * @return the controller.
+     * @author Vinay
+     */
+    public IUserController getController() {
+        return controller; // Return the controller
+    }
 
 }

@@ -31,6 +31,7 @@ public class HomeTest {
     /**
      * Tests the readXML method with a valid XML file.
      * @throws IOException if there is an I/O error
+     * @author Theo
      */
     @Test
     public void testReadXML() throws IOException {
@@ -50,6 +51,7 @@ public class HomeTest {
 
     /**
      * Tests the readXML method with a bad file path.
+     * @author Theo
      */
     @Test
     public void testReadXMLBadFilepath() {
@@ -59,6 +61,7 @@ public class HomeTest {
 
     /**
      * Tests the readPayload method with a valid payload.
+     * @author Vinay
      */
     @Test
     public void testReadPayload() {
@@ -76,6 +79,7 @@ public class HomeTest {
 
     /**
      * Tests the writeXML method with a valid sheet and path.
+     * @author Theo
      */
     @Test
     public void testWriteXML() {
@@ -104,6 +108,7 @@ public class HomeTest {
 
     /**
      * Tests the writeXML method with a trimmed path.
+     * @author Theo
      */
     @Test
     public void testWriteXMLPathTrim() {
@@ -132,6 +137,7 @@ public class HomeTest {
 
     /**
      * Tests the writeXML method with a path that has a different extension.
+     * @author Theo
      */
     @Test
     public void testWriteXMLWithDifferentExtension() {
@@ -160,6 +166,7 @@ public class HomeTest {
 
     /**
      * Tests the convertStringTo2DArray method with a valid input string.
+     * @author Vinay
      */
     @Test
     public void testConvertStringTo2DArray() {
@@ -186,6 +193,7 @@ public class HomeTest {
 
     /**
      * Tests the convertStringTo2DArray method with a null input string.
+     * @author Vinay
      */
     @Test
     public void testConvertStringTo2DArrayWithNullInput() {
@@ -196,6 +204,7 @@ public class HomeTest {
 
     /**
      * Tests the convertStringTo2DArray method with an empty input string.
+     * @author Theo
      */
     @Test
     public void testConvertStringTo2DArrayWithEmptyInput() {
@@ -206,6 +215,7 @@ public class HomeTest {
 
     /**
      * Tests the convertStringTo2DArray method with an input string containing an empty line.
+     * @author Vinay
      */
     @Test
     public void testConvertStringTo2DArrayWithEmptyLine() {
@@ -232,6 +242,7 @@ public class HomeTest {
 
     /**
      * Tests the convertStringTo2DArray method with an input string containing an invalid parts length.
+     * @author Vinay
      */
     @Test
     public void testConvertStringTo2DArrayWithInvalidPartsLength() {
@@ -255,6 +266,7 @@ public class HomeTest {
     /**
      * Tests the private trimEnds method using reflection.
      * @throws Exception if there is an error during reflection
+     * @author Theo
      */
     @Test
     public void testTrimEnds() throws Exception {
@@ -276,6 +288,7 @@ public class HomeTest {
     /**
      * Tests the private trimEnds method without an extension using reflection.
      * @throws Exception if there is an error during reflection
+     * @author Theo
      */
     @Test
     public void testTrimEndsWithoutExtension() throws Exception {
@@ -297,6 +310,7 @@ public class HomeTest {
     /**
      * Tests the private convertRefToRowCol method using reflection.
      * @throws Exception if there is an error during reflection
+     * @author Vinay
      */
     @Test
     public void testConvertRefToRowCol() throws Exception {
@@ -319,6 +333,7 @@ public class HomeTest {
     /**
      * Tests the private convertRefToRowCol method with an invalid reference using reflection.
      * @throws Exception if there is an error during reflection
+     * @author Vinay
      */
     @Test
     public void testConvertRefToRowColInvalidRef() throws Exception {
@@ -336,6 +351,7 @@ public class HomeTest {
     
     /**
      * Tests the writeXML method with an invalid path.
+     * @author Theo
      */
     @Test
     public void testWriteXMLWithInvalidPath() {

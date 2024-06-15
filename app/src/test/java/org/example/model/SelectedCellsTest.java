@@ -11,6 +11,7 @@ public class SelectedCellsTest {
     
     /**
      * Tests the getter methods of the SelectedCells class.
+     * @author Theo
      */
     @Test
     public void testGetters() {

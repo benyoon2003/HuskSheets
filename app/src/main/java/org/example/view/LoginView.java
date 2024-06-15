@@ -49,6 +49,7 @@ public class LoginView extends JFrame implements ILoginView {
      * Adds a controller to the login view.
      *
      * @param controller the IUserController instance to add.
+     * @author Vinay
      */
     public void addController(IUserController controller) {
         this.controller = controller; // Set the controller
@@ -58,6 +59,7 @@ public class LoginView extends JFrame implements ILoginView {
      * Displays an error message in a dialog box.
      *
      * @param message the error message to display.
+     * @author Vinay
      */
     @Override
     public void displayErrorBox(String message) {
@@ -68,6 +70,7 @@ public class LoginView extends JFrame implements ILoginView {
      * Places the components on the login panel.
      *
      * @param panel the JPanel to place components on.
+     * @author Vinay
      */
     private void placeComponents(JPanel panel) {
         panel.setLayout(null); // Set the layout to null

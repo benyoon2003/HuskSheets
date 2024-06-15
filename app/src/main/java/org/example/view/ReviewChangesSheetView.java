@@ -20,6 +20,7 @@ public class ReviewChangesSheetView extends SheetView {
      *
      * @param changes the changes to be reviewed
      * @param current the current spreadsheet
+     * @author Tony
      */
     public ReviewChangesSheetView(ISpreadsheet changes, ISpreadsheet current) {
         super(current);
@@ -31,6 +32,8 @@ public class ReviewChangesSheetView extends SheetView {
 
     /**
      * Creates the toolbar with various components and buttons.
+     * 
+     * @author Vinay
      */
     public void makeToolbar() {
         // Create toolbar
@@ -45,7 +48,7 @@ public class ReviewChangesSheetView extends SheetView {
                 .addComponent(new Deny(this)) // Add Deny button to the toolbar
                 .addComponent(new ZoomI(this)) // Add Zoom In button to the toolbar
                 .addComponent(new ZoomO(this)) // Add Zoom Out button to the toolbar
-                .addComponent(new SaveSubscirber(this)) // Add Save Subscriber button to the toolbar
+                .addComponent(new SaveSubscriber(this)) // Add Save Subscriber button to the toolbar
                 .addComponent(new AddConditionalFormat(this)) // Add Add Conditional Format button to the toolbar
                 .addComponent(new Back(this));  // Add Back button to the toolbar
         formulaTextField.addActionListener(new ActionListener() { // Add action listener to the formula text field
@@ -61,6 +64,7 @@ public class ReviewChangesSheetView extends SheetView {
      * Loads the changes and updates the current spreadsheet accordingly.
      *
      * @throws Exception if no changes are found
+     * @author Tony
      */
     public void loadChanges() throws Exception {
         java.util.List<java.util.List<Cell>> changedCells = this.changes.getCells(); // Get the changed cells
@@ -97,6 +101,8 @@ public class ReviewChangesSheetView extends SheetView {
 
     /**
      * Applies the custom cell renderer to the table.
+     * 
+     * @author Vinay
      */
     private void applyCustomCellRenderer() {
         JTable table = getTable(); // Get the table

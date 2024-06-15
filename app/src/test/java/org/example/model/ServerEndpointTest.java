@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Tests the methods within the ServerEndpoint class.
+ * @author Theo
  */
 public class ServerEndpointTest {
     private ServerEndpoint se;
@@ -22,6 +23,7 @@ public class ServerEndpointTest {
 
     /**
      * Initializes the fields and logs in the user before each test.
+     * @author Theo
      */
     @BeforeEach
     public void init() {
@@ -42,6 +44,7 @@ public class ServerEndpointTest {
 
     /**
      * Tests the register method of the ServerEndpoint class.
+     * @author Theo
      */
     @Test
     public void testRegister() {
@@ -60,6 +63,7 @@ public class ServerEndpointTest {
 
     /**
      * Tests the login method of the ServerEndpoint class.
+     * @author Theo
      */
     @Test
     // make sure we logged in successfully
@@ -76,6 +80,7 @@ public class ServerEndpointTest {
 
     /**
      * Tests the getPublishers method of the ServerEndpoint class.
+     * @author Theo
      */
     @Test
     public void testGetPublishers() {
@@ -99,6 +104,7 @@ public class ServerEndpointTest {
 
     /**
      * Tests the createSheet method of the ServerEndpoint class.
+     * @author Theo
      */
     @Test
     public void testCreateSheet() {
@@ -114,6 +120,7 @@ public class ServerEndpointTest {
 
     /**
      * Tests the getSheets method of the ServerEndpoint class.
+     * @author Theo
      */
     @Test
     public void testGetSheets() {
@@ -133,6 +140,7 @@ public class ServerEndpointTest {
 
     /**
      * Tests the deleteSheet method of the ServerEndpoint class.
+     * @author Theo
      */
     @Test
     public void testDeleteSheet() {
@@ -162,6 +170,7 @@ public class ServerEndpointTest {
 
     /**
      * Tests the updateSubscription and getUpdatesForSubscription methods of the ServerEndpoint class.
+     * @author Theo
      */
     @Test
     public void testUpdateSubscriptionAndGetUpdatesForSubscription() {
@@ -188,6 +197,7 @@ public class ServerEndpointTest {
 
     /**
      * Tests the updatePublished and getUpdatesForPublished methods of the ServerEndpoint class.
+     * @author Theo
      */
     @Test
     public void testUpdatePublishedAndGetUpdatesForPublished() {
@@ -215,6 +225,7 @@ public class ServerEndpointTest {
     /**
      * Generates a random string for testing purposes.
      * @return a random string
+     * @author Theo
      */
     private String randomString() {
         String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";

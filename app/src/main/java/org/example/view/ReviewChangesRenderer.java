@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 /**
  * The ReviewChangesRenderer class customizes the rendering of table cells for review changes view.
+ * 
  */
 public class ReviewChangesRenderer extends AbstractCustomTableCellRenderer {
 
@@ -20,12 +21,18 @@ public class ReviewChangesRenderer extends AbstractCustomTableCellRenderer {
      *
      * @param originalCells the original cells
      * @param changes the changes to be reviewed
+     * @author Tony
      */
     public ReviewChangesRenderer(ArrayList<ArrayList<Cell>> originalCells, ISpreadsheet changes) {
         this.originalCells = originalCells; // Initialize original cells
         this.changes = changes; // Initialize changes
     }
 
+    /**
+     * Calls configure Cell Renderer class for Conditional Formatting 
+     * 
+     * @author Vinay
+     */
     @Override
     protected void configureCellRenderer(Component c, JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         if (column > 0) { // Skip the row header

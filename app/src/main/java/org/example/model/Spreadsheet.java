@@ -80,6 +80,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param sheet the sheet to convert
      * @return a payload (e.g $A1 4\n)
+     * @author Theo
      */
     public static String convertSheetToPayload(IReadOnlySpreadSheet sheet) {
         StringBuilder payload = new StringBuilder(); // Initialize a StringBuilder for the payload
@@ -100,6 +101,7 @@ public class Spreadsheet implements ISpreadsheet {
      *
      * @param columnNumber a number that corresponds to a column in the spreadsheet
      * @return a column label (e.g A, D, F, G)
+     * @author Theo
      */
     public static String getColumnName(int columnNumber) {
         StringBuilder columnName = new StringBuilder(); // Initialize a StringBuilder for the column name

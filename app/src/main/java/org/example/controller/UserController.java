@@ -83,6 +83,7 @@ public class UserController implements IUserController {
      * @param password  a pasword
      * @param sheetname a sheet name
      * @param publisher a publisher
+     * @author Ben
      */
     private void handleCommandLine(String username, String password,
                                    String sheetname, String publisher) {

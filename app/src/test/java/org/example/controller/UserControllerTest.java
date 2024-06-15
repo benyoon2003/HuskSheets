@@ -49,6 +49,7 @@ public class UserControllerTest {
     /**
      * Sets up the mock UserController.
      * @throws Exception irrelevant to actual tests
+     * @author Vinay
      */
     @BeforeEach
     public void setUp() throws Exception {
@@ -72,6 +73,7 @@ public class UserControllerTest {
     /**
      * Tests the registerUser method for a successful registration.
      * @throws Exception if there is an error during registration
+     * @author Ben
      */
     @Test
     public void testRegisterUser_Success() throws Exception {
@@ -86,6 +88,7 @@ public class UserControllerTest {
 
     /**
      * Tests the registerUser method for a failed registration.
+     * @author Ben
      */
     @Test
     public void testRegisterUser_Failure() {
@@ -103,6 +106,7 @@ public class UserControllerTest {
     /**
      * Tests the loginUser method for a successful login.
      * @throws Exception if there is an error during login
+     * @author Ben
      */
     @Test
     public void testLoginUser_Success() throws Exception {
@@ -117,6 +121,7 @@ public class UserControllerTest {
 
     /**
      * Tests the loginUser method for a failed login.
+     * @author Ben
      */
     @Test
     public void testLoginUser_Failure() {
@@ -135,6 +140,7 @@ public class UserControllerTest {
     /**
      * Tests the getPublishersFromServer method for a successful response.
      * @throws Exception if there is an error during the request
+     * @author Tony
      */
     @Test
     public void testGetPublishersFromServer_Success() throws Exception {
@@ -152,6 +158,7 @@ public class UserControllerTest {
     /**
      * Tests the getPublishersFromServer method for a failed response.
      * @throws Exception if there is an error during the request
+     * @author Tony
      */
     @Test
     public void testGetPublishersFromServer_Failure() throws Exception {
@@ -166,6 +173,7 @@ public class UserControllerTest {
     /**
      * Tests the createNewServerSheet method for a successful sheet creation.
      * @throws Exception if there is an error during the request
+     * @author Tony
      */
     @Test
     public void testCreateNewServerSheet_Success() throws Exception {
@@ -181,6 +189,7 @@ public class UserControllerTest {
     /**
      * Tests the createNewServerSheet method for a failed sheet creation.
      * @throws Exception if there is an error during the request
+     * @author Tony
      */
     @Test
     public void testCreateNewServerSheet_Failure() throws Exception {
@@ -194,6 +203,7 @@ public class UserControllerTest {
     /**
      * Tests the saveSheetToServer method for a successful save.
      * @throws Exception if there is an error during the request
+     * @author Tony
      */
     @Test
     public void testSaveSheetToServer_Success() throws Exception {
@@ -209,6 +219,7 @@ public class UserControllerTest {
     /**
      * Tests the saveSheetToServer method for a failed save.
      * @throws Exception if there is an error during the request
+     * @author Tony
      */
     @Test
     public void testSaveSheetToServer_Failure() throws Exception {
@@ -223,6 +234,7 @@ public class UserControllerTest {
     /**
      * Tests the deleteSheetFromServer method for a failed deletion.
      * @throws Exception if there is an error during the request
+     * @author Theo
      */
     @Test
     public void testDeleteSheetFromServer_Failure() throws Exception {
@@ -236,6 +248,7 @@ public class UserControllerTest {
     /**
      * Tests the saveSheetLocally method of UserController.
      * Ensures that a sheet is correctly saved to a local file with the expected content.
+     * @author Theo
      */
     @Test
     public void testSaveSheetLocally() {
@@ -265,6 +278,7 @@ public class UserControllerTest {
     /**
      * Tests the openSheetLocally method of UserController.
      * Ensures that a sheet is correctly opened from a local file and the content matches the expected values.
+     * @author Theo
      */
     @Test
     public void testOpenSheetLocally() {
@@ -287,6 +301,7 @@ public class UserControllerTest {
     /**
      * Tests the getSavedSheetsLocally method of UserController.
      * Ensures that the list of saved sheets locally is not empty and contains the expected sheet name.
+     * @author Theo
      */
     @Test
     public void testGetSavedSheetsLocally() {
@@ -307,6 +322,7 @@ public class UserControllerTest {
      * Ensures that the selected cells are updated with the specified value.
      * 
      * @throws Exception if there is an error during the test.
+     * @author Vinay
      */
     @Test
     public void testUpdateSelectedCells() throws Exception {
@@ -322,6 +338,7 @@ public class UserControllerTest {
 
     /**
      * Tests the changeSpreadSheetValueAt method.
+     * @author Ben
      */
     @Test
     public void testChangeSpreadSheetValueAt() {
@@ -339,6 +356,7 @@ public class UserControllerTest {
 
     /**
      * Tests the cutCell method.
+     * @author Vinay
      */
     @Test
     public void testCutCell() {
@@ -358,6 +376,7 @@ public class UserControllerTest {
 
     /**
      * Tests the copyCell method.
+     * @author Vinay
      */
     @Test
     public void testCopyCell() {
@@ -375,6 +394,7 @@ public class UserControllerTest {
 
     /**
      * Tests the getPercentile method.
+     * @author Theo
      */
     @Test
     public void testGetPercentile() {
@@ -392,6 +412,7 @@ public class UserControllerTest {
     /**
      * Tests the applyConditionalFormatting method.
      * @throws Exception if there is an error during the application
+     * @author Vinay
      */
     @Test
     public void testApplyConditionalFormatting() throws Exception {
@@ -413,6 +434,7 @@ public class UserControllerTest {
 
     /**
      * Tests the setSelectedCells method.
+     * @author Vinay
      */
     @Test
     public void testSetSelectedCells() {

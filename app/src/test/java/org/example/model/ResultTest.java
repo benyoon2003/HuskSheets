@@ -10,6 +10,7 @@ import java.util.List;
 
 /**
  * Tests the methods within the Result class.
+ * @author Theo
  */
 public class ResultTest {
     private Result result;
@@ -17,6 +18,7 @@ public class ResultTest {
 
     /**
      * Sets up the initial conditions before each test.
+     * @author Theo
      */
     @BeforeEach
     public void setUp() {
@@ -27,6 +29,7 @@ public class ResultTest {
 
     /**
      * Tests the constructor and getter methods of the Result class.
+     * @author Theo
      */
     @Test
     public void testConstructorAndGetters() {
@@ -39,6 +42,7 @@ public class ResultTest {
 
     /**
      * Tests the constructor with a null value.
+     * @author Theo
      */
     @Test
     public void testConstructorWithNullValue() {
@@ -52,6 +56,7 @@ public class ResultTest {
 
     /**
      * Tests the constructor that initializes a Result object from a JSON string.
+     * @author Theo
      */
     @Test
     public void testConstructorFromJSONString() {
@@ -74,6 +79,7 @@ public class ResultTest {
     /**
      * Tests the constructor that initializes a Result object from a JSON string
      * with an empty value.
+     * @author Theo
      */
     @Test
     public void testConstructorFromJSONStringWithEmptyValue() {
@@ -91,6 +97,7 @@ public class ResultTest {
     /**
      * Tests the constructor that initializes a Result object from a JSON string
      * with a null value.
+     * @author Theo
      */
     @Test
     public void testConstructorFromJSONStringWithNullValue() {
@@ -109,6 +116,7 @@ public class ResultTest {
     /**
      * Tests the constructor that initializes a Result object from a malformed JSON
      * string.
+     * @author Theo
      */
     @Test
     public void testConstructorFromJSONStringWithMalformedJSON() {
@@ -121,6 +129,7 @@ public class ResultTest {
     /**
      * Tests the constructor that initializes a Result object from an invalid JSON
      * string.
+     * @author Theo
      */
     @Test
     public void testConstructorFromJSONStringWithInvalidJSON() {
@@ -131,6 +140,7 @@ public class ResultTest {
 
     /**
      * Tests the toString method of the Result class.
+     * @author Theo
      */
     @Test
     public void testToString() {
@@ -140,6 +150,7 @@ public class ResultTest {
 
     /**
      * Tests the toString method of the Result class with an empty value.
+     * @author Theo
      */
     @Test
     public void testToStringWithEmptyValue() {
@@ -150,6 +161,7 @@ public class ResultTest {
 
     /**
      * Tests the toString method of the Result class with a null message.
+     * @author Theo
      */
     @Test
     public void testToStringWithNullMessage() {

@@ -32,6 +32,7 @@ public class SelectedCells implements ISelectedCells {
      * Gets the starting row of the selection.
      *
      * @return the starting row.
+     * @author Ben
      */
     @Override
     public int getStartRow() {
@@ -42,6 +43,7 @@ public class SelectedCells implements ISelectedCells {
      * Gets the ending row of the selection.
      *
      * @return the ending row.
+     * @author Ben
      */
     @Override
     public int getEndRow() {
@@ -52,6 +54,7 @@ public class SelectedCells implements ISelectedCells {
      * Gets the starting column of the selection.
      *
      * @return the starting column.
+     * @author Ben
      */
     @Override
     public int getStartCol() {
@@ -62,6 +65,7 @@ public class SelectedCells implements ISelectedCells {
      * Gets the ending column of the selection.
      *
      * @return the ending column.
+     * @author Ben
      */
     @Override
     public int getEndCol() {

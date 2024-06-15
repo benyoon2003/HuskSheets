@@ -105,7 +105,7 @@ public class Argument {
      * Sets the payload associated with this argument.
      *
      * @param payload the payload to set
-     * @author ben
+     * @author Ben
      */
     public void setPayload(String payload) {
         this.payload = payload; // Set the payload
