@@ -46,7 +46,7 @@ public class SubscriberSheetView extends SheetView {
                 .addComponent(new ZoomI(this))
                 .addComponent(new ZoomO(this))
                 .addComponent(new GetUpdatesFromPublisher(this))
-                .addComponent(new SaveSubscirber(this))
+                .addComponent(new SaveSubscriber(this))
                 .addComponent(new AddConditionalFormat(this))
                 .addComponent(new Back(this));
         formulaTextField.addActionListener(new ActionListener() {

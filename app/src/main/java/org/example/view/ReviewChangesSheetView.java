@@ -45,7 +45,7 @@ public class ReviewChangesSheetView extends SheetView {
                 .addComponent(new Deny(this)) // Add Deny button to the toolbar
                 .addComponent(new ZoomI(this)) // Add Zoom In button to the toolbar
                 .addComponent(new ZoomO(this)) // Add Zoom Out button to the toolbar
-                .addComponent(new SaveSubscirber(this)) // Add Save Subscriber button to the toolbar
+                .addComponent(new SaveSubscriber(this)) // Add Save Subscriber button to the toolbar
                 .addComponent(new AddConditionalFormat(this)) // Add Add Conditional Format button to the toolbar
                 .addComponent(new Back(this));  // Add Back button to the toolbar
         formulaTextField.addActionListener(new ActionListener() { // Add action listener to the formula text field

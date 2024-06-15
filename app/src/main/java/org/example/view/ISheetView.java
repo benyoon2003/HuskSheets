@@ -10,7 +10,7 @@ import org.example.controller.IUserController;
  */
 public interface ISheetView {
 
-    public void setup();
+    void setup();
 
     /**
      * Adds a controller to the sheet view.
@@ -56,7 +56,7 @@ public interface ISheetView {
      *
      * @throws Exception if an error occurs while loading changes.
      */
-    public void loadChanges() throws Exception;
+    void loadChanges() throws Exception;
 
     /**
      * Highlights a cell with the specified color.
@@ -65,7 +65,7 @@ public interface ISheetView {
      * @param col the column of the cell.
      * @param color the color to highlight.
      */
-    public void highlightCell(int row, int col, Color color);
+    void highlightCell(int row, int col, Color color);
     
     /**
      * Handles the selection of cells in the table.
