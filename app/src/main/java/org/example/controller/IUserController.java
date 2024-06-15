@@ -27,7 +27,8 @@ public interface IUserController {
 
     /**
      * Gets the current spreadsheet model.
-     * @return
+     * @return ISpreadsheet
+     * @author Ben
      */
     ISpreadsheet getSpreadsheetModel();
 

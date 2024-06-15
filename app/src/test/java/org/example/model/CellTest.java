@@ -10,6 +10,7 @@ public class CellTest {
 
     /**
      * Tests the default constructor of the Cell class.
+     * @author Theo
      */
     @Test
     public void testDefaultConstructor() {
@@ -19,6 +20,7 @@ public class CellTest {
 
     /**
      * Tests the constructor that takes a value as a parameter.
+     * @author Theo
      */
     @Test
     public void testConstructorWithValue() {
@@ -34,6 +36,7 @@ public class CellTest {
 
     /**
      * Tests the constructor that takes a formula as a parameter.
+     * @author Theo
      */
     @Test
     public void testConstructorWithFormula() {
@@ -45,6 +48,7 @@ public class CellTest {
 
     /**
      * Tests the setValue method of the Cell class.
+     * @author Theo
      */
     @Test
     public void testSetValue() {
@@ -62,6 +66,7 @@ public class CellTest {
 
     /**
      * Tests the getValue method of the Cell class.
+     * @author Theo
      */
     @Test
     public void testGetValue() {
@@ -72,6 +77,7 @@ public class CellTest {
 
     /**
      * Tests the setRow and getRow methods of the Cell class.
+     * @author Theo
      */
     @Test
     public void testSetAndGetRow() {
@@ -82,6 +88,7 @@ public class CellTest {
 
     /**
      * Tests the setCol and getCol methods of the Cell class.
+     * @author Theo
      */
     @Test
     public void testSetAndGetCol() {
@@ -92,6 +99,7 @@ public class CellTest {
 
     /**
      * Tests the setRawData and getRawdata methods of the Cell class.
+     * @author Theo
      */
     @Test
     public void testSetAndGetRawData() {
@@ -103,6 +111,7 @@ public class CellTest {
 
     /**
      * Tests the setRow, setCol, getRow, and getCol methods of the Cell class.
+     * @author Theo
      */
     @Test
     public void testGetAndSetPositions() {
@@ -116,6 +125,7 @@ public class CellTest {
 
     /**
      * Tests the isFormula method of the Cell class.
+     * @author Theo
      */
     @Test
     public void testIsFormula() {
@@ -128,6 +138,7 @@ public class CellTest {
     
     /**
      * Tests the setFormula and getFormula methods of the Cell class.
+     * @author Theo
      */
     @Test
     public void testSetFormula() {

@@ -6,6 +6,8 @@ import java.awt.*;
 
 /**
  * The AbstractCustomTableCellRenderer class provides a base implementation for custom table cell rendering.
+ * 
+ * @author Vinay
  */
 public abstract class AbstractCustomTableCellRenderer extends DefaultTableCellRenderer {
 
@@ -26,6 +28,7 @@ public abstract class AbstractCustomTableCellRenderer extends DefaultTableCellRe
      * @param hasFocus whether the cell has focus
      * @param row the row of the cell
      * @param column the column of the cell
+     * @author Vinay
      */
     protected abstract void configureCellRenderer(Component c, JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column); // Abstract method to be implemented by subclasses to provide custom cell rendering logic
 }
