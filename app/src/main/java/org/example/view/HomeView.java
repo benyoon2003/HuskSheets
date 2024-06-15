@@ -5,6 +5,7 @@ import org.example.controller.IUserController;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.List;
 
 /**
@@ -17,6 +18,7 @@ public class HomeView extends JFrame implements IHomeView {
 
     private JButton createSheet; // Button for creating a new sheet
     private JComboBox<String> openSheetDropdown; // Dropdown menu for opening sheets
+    private JButton openLocalButton; // JButton for opening locally saved sheet
     private JComboBox<String> publishers; // Dropdown menu for selecting publishers
     private JComboBox<String> openSubscriberDropdown; // Dropdown menu for opening subscriber sheets
     private JButton openSheetButton; // Button for opening a selected sheet
@@ -45,16 +47,27 @@ public class HomeView extends JFrame implements IHomeView {
     private void placeComponents(JPanel panel) {
         panel.setLayout(null); // Set the layout to null
 
-        JLabel spreadheetsLabel = new JLabel("Spreadsheets:"); // Create a label for spreadsheets
-        spreadheetsLabel.setBounds(50, 50, 100, 25); // Set the bounds for the label
-        panel.add(spreadheetsLabel); // Add the label to the panel
+        JLabel publisherLabel = new JLabel("Publisher Spreadsheets:"); // Create a label for spreadsheets
+        publisherLabel.setBounds(50, 50, 200, 25); // Set the bounds for the label
+        panel.add(publisherLabel); // Add the label to the panel
+
+        JLabel subscriberLabel = new JLabel("Subscriber Spreadsheets:"); // Create a label for spreadsheets
+        subscriberLabel.setBounds(50, 300, 200, 25); // Set the bounds for the label
+        panel.add(subscriberLabel); // Add the label to the panel
+
+        JLabel locallabel = new JLabel("Local Spreadsheets:"); // Create a label for spreadsheets
+        locallabel.setBounds(50, 550, 200, 25); // Set the bounds for the label
+        panel.add(locallabel); // Add the label to the panel
+
+        openLocalButton = new JButton("Open locally"); // Create the button
+        openLocalButton.setBounds(50, 590,200, 25); // Set bounds for the button
+        panel.add(openLocalButton); // Add button to the panel
 
         // Button for creating a new sheet
         createSheet = new JButton("Create Spreadsheet"); // Create the button
         createSheet.setBounds(50, 70, 200, 25); // Set the bounds for the button
         panel.add(createSheet); // Add the button to the panel
 
-        // dropdown menu for locally saved sheets
         openSheetDropdown = new JComboBox<>(); // Create the dropdown menu
         openSheetDropdown.setBounds(50, 110, 200, 25); // Set the bounds for the dropdown menu
         panel.add(openSheetDropdown); // Add the dropdown menu to the panel
@@ -80,6 +93,18 @@ public class HomeView extends JFrame implements IHomeView {
         deleteSheetButton = new JButton("Delete Spreadsheet"); // Create the button
         deleteSheetButton.setBounds(50, 190, 200, 25); // Set the bounds for the button
         panel.add(deleteSheetButton); // Add the button to the panel
+
+        openLocalButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFileChooser fileChooser = new JFileChooser();
+                int returnValue = fileChooser.showOpenDialog(null); // Change to showOpenDialog to select files
+                if (returnValue == JFileChooser.APPROVE_OPTION) {
+                    File selectedFile = fileChooser.getSelectedFile();
+                    controller.openSheetLocally(selectedFile.getAbsolutePath());
+                }
+            }
+        });
 
         // Create new sheet with name
         createSheet.addActionListener(new ActionListener() {

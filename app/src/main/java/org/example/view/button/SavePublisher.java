@@ -41,7 +41,7 @@ public class SavePublisher extends Button implements ISave{
             int returnValue = fileChooser.showSaveDialog(null);
             if (returnValue == JFileChooser.APPROVE_OPTION) {
                 File selectedFile = fileChooser.getSelectedFile();
-                view.getController().saveSheetToServer(view.cells, selectedFile.getAbsolutePath());
+                view.getController().saveSheetLocally(view.cells, selectedFile.getAbsolutePath());
             }
         } else if (option == JOptionPane.NO_OPTION) {
             view.getController().saveSheetToServer(view.cells, view.cells.getName());
