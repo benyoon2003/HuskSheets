@@ -28,22 +28,22 @@ public class SubscriberSheetViewTest {
      */
     @BeforeEach
     public void init() {
-        this.login = new LoginView();
-        this.testSpreadSheet = new Spreadsheet("test");
-        this.subscriberSheetView = new SubscriberSheetView("Publisher", testSpreadSheet);
-        this.controller = new UserController(login);
+        this.login = new LoginView(); // Initialize a new LoginView instance
+        this.testSpreadSheet = new Spreadsheet("test"); // Initialize a new Spreadsheet instance with the name test
+        this.subscriberSheetView = new SubscriberSheetView("Publisher", testSpreadSheet); // Initialize a new SubscriberSheetView with Publisher and test spreadsheet
+        this.controller = new UserController(login); // Initialize a new UserController with the login view
 
         // Check if user is registered first
         try {
-            this.controller.registerUser(this.user.getUsername(), this.user.getPassword());
+            this.controller.registerUser(this.user.getUsername(), this.user.getPassword()); // Attempt to register the user
         } catch (Exception e) {
             try {
-                this.controller.loginUser(this.user.getUsername(), this.user.getPassword());
+                this.controller.loginUser(this.user.getUsername(), this.user.getPassword()); // If registration fails, attempt to log in the user
             } catch (Exception e1) {
-                e1.printStackTrace();
+                e1.printStackTrace(); // Print stack trace if login fails
             }
         }
-        this.subscriberSheetView.addController(this.controller);
+        this.subscriberSheetView.addController(this.controller); // Add the controller to the subscriberSheetView
     }
 
     /**
@@ -54,15 +54,15 @@ public class SubscriberSheetViewTest {
     @Test
     public void testAddController() throws Exception {
         // Test if user is correctly logged into subscriberSheetView
-        IUserController sheetController = this.subscriberSheetView.getController();
-        assertEquals(this.controller, sheetController);
+        IUserController sheetController = this.subscriberSheetView.getController(); // Get the controller from the subscriberSheetView
+        assertEquals(this.controller, sheetController); // Assert that the controller is correctly added
 
-        IAppUser sheetUser = sheetController.getAppUser();
-        String username = sheetUser.getUsername();
-        assertEquals(this.user.getUsername(), username);
+        IAppUser sheetUser = sheetController.getAppUser(); // Get the app user from the controller
+        String username = sheetUser.getUsername(); // Get the username of the app user
+        assertEquals(this.user.getUsername(), username); // Assert that the username matches the expected value
 
-        String password = sheetUser.getPassword();
-        assertEquals(this.user.getPassword(), password);
+        String password = sheetUser.getPassword(); // Get the password of the app user
+        assertEquals(this.user.getPassword(), password); // Assert that the password matches the expected value
     }
 
     /**
@@ -104,21 +104,21 @@ public class SubscriberSheetViewTest {
      */
     @Test
     public void testHighlightCell() {
-        int row = 0;
-        int col = 0;
-        Color color = Color.PINK;
-        this.subscriberSheetView.highlightCell(row, col, color);
+        int row = 0; // Row to highlight
+        int col = 0; // Column to highlight
+        Color color = Color.PINK; // Color to highlight the cell
+        this.subscriberSheetView.highlightCell(row, col, color); // Highlight the cell at (0,0) with pink color
 
-        Set<Point> points = this.subscriberSheetView.highlightedCells.keySet();
+        Set<Point> points = this.subscriberSheetView.highlightedCells.keySet(); // Get all highlighted cell points
 
-        for (Point point : points) {
-            int pRow = point.x;
-            int pCol = point.y - 1;
-            Color pColor = this.subscriberSheetView.highlightedCells.get(point);
+        for (Point point : points) { // Iterate over all highlighted cell points
+            int pRow = point.x; // Get the row of the highlighted cell
+            int pCol = point.y - 1; // Get the column of the highlighted cell (adjusting for 1-based index)
+            Color pColor = this.subscriberSheetView.highlightedCells.get(point); // Get the color of the highlighted cell
 
-            assertEquals(row, pRow);
-            assertEquals(col, pCol);
-            assertEquals(color, pColor);
+            assertEquals(row, pRow); // Assert that the row matches the expected row
+            assertEquals(col, pCol); // Assert that the column matches the expected column
+            assertEquals(color, pColor); // Assert that the color matches the expected color
         }
     }
 
@@ -128,17 +128,17 @@ public class SubscriberSheetViewTest {
      */
     @Test
     public void testExcelColumnName() {
-        int colNum = 1;
-        String col = this.subscriberSheetView.getExcelColumnName(colNum);
-        assertEquals("A", col);
+        int colNum = 1; // Column number to convert
+        String col = this.subscriberSheetView.getExcelColumnName(colNum); // Get the Excel column name for column 1
+        assertEquals("A", col); // Assert that the column name is "A"
 
-        colNum = 4;
-        col = this.subscriberSheetView.getExcelColumnName(colNum);
-        assertEquals("D", col);
+        colNum = 4; // Column number to convert
+        col = this.subscriberSheetView.getExcelColumnName(colNum); // Get the Excel column name for column 4
+        assertEquals("D", col); // Assert that the column name is "D"
 
-        colNum = 27;
-        col = this.subscriberSheetView.getExcelColumnName(colNum);
-        assertEquals("AA", col);
+        colNum = 27; // Column number to convert
+        col = this.subscriberSheetView.getExcelColumnName(colNum); // Get the Excel column name for column 27
+        assertEquals("AA", col); // Assert that the column name is "AA"
     }
 
     /**
@@ -147,10 +147,10 @@ public class SubscriberSheetViewTest {
      */
     @Test
     public void testGetTable() {
-        JTable testTable = new JTable();
-        this.subscriberSheetView.yourTable = testTable;
+        JTable testTable = new JTable(); // Create a new JTable instance
+        this.subscriberSheetView.yourTable = testTable; // Set the subscriberSheetView's table to the test table
 
-        assertEquals(testTable, this.subscriberSheetView.getTable());
+        assertEquals(testTable, this.subscriberSheetView.getTable()); // Assert that the getTable method returns the correct table
     }
 
     /**
@@ -159,7 +159,7 @@ public class SubscriberSheetViewTest {
      */
     @Test
     public void testGetController() {
-        assertEquals(this.controller, this.subscriberSheetView.getController());
+        assertEquals(this.controller, this.subscriberSheetView.getController()); // Assert that the getController method returns the correct controller
     }
 
     /**
@@ -168,21 +168,21 @@ public class SubscriberSheetViewTest {
      */
     @Test
     public void testZoomTable() {
-        JTable testTable = new JTable();
-        Font initialFont = new Font("Arial", Font.PLAIN, 12);
-        testTable.setFont(initialFont);
-        testTable.setRowHeight(20);
-        testTable.getTableHeader().setFont(initialFont);
-        double factor = 1.5;
-        this.subscriberSheetView.yourTable = testTable;
-        this.subscriberSheetView.zoomTable(factor);
+        JTable testTable = new JTable(); // Create a new JTable instance
+        Font initialFont = new Font("Arial", Font.PLAIN, 12); // Create an initial font
+        testTable.setFont(initialFont); // Set the table's font to the initial font
+        testTable.setRowHeight(20); // Set the table's row height
+        testTable.getTableHeader().setFont(initialFont); // Set the table header's font to the initial font
+        double factor = 1.5; // Zoom factor
+        this.subscriberSheetView.yourTable = testTable; // Set the subscriberSheetView's table to the test table
+        this.subscriberSheetView.zoomTable(factor); // Zoom the table by the factor
 
-        Font tableFont = testTable.getFont();
-        float expectedFontSize = 12 * (float) factor;
-        int expectedRowHeight = (int) (20 * factor);
+        Font tableFont = testTable.getFont(); // Get the table's font after zooming
+        float expectedFontSize = 12 * (float) factor; // Calculate the expected font size
+        int expectedRowHeight = (int) (20 * factor); // Calculate the expected row height
 
-        assertEquals(expectedFontSize, tableFont.getSize2D(), 0.01);
-        assertEquals(expectedRowHeight, testTable.getRowHeight());
-        assertEquals(expectedFontSize, testTable.getTableHeader().getFont().getSize2D(), 0.01);
+        assertEquals(expectedFontSize, tableFont.getSize2D(), 0.01); // Assert that the font size matches the expected font size
+        assertEquals(expectedRowHeight, testTable.getRowHeight()); // Assert that the row height matches the expected row height
+        assertEquals(expectedFontSize, testTable.getTableHeader().getFont().getSize2D(), 0.01); // Assert that the table header font size matches the expected font size
     }
 }
