@@ -36,7 +36,7 @@ public class SaveSubscirber extends Button implements ISave{
             int returnValue = fileChooser.showSaveDialog(null);
             if (returnValue == JFileChooser.APPROVE_OPTION) {
                 File selectedFile = fileChooser.getSelectedFile();
-                view.save(selectedFile.getAbsolutePath());
+                view.getController().saveSheetLocally(view.cells, selectedFile.getAbsolutePath());
             }
         } else if (option == JOptionPane.NO_OPTION) {
             if (view.getController() == null) {

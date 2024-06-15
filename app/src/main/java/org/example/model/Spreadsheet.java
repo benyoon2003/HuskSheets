@@ -271,7 +271,7 @@ public class Spreadsheet implements ISpreadsheet {
     private String parseOperations(String formula) {
         String operation = getOperation(formula); // Get the operation in the formula
         if (operation != "") {
-            String[] parts = formula.replaceAll(" ", "").split(operation);  // Split the formula into parts
+            String[] parts = formula.replaceAll(" ",  "").split(operation);  // Split the formula into parts
 
             if (formula.contains("<>")) {
                 return compareNotEqual(parts[0].trim(), parts[1].trim()); // Compare not equal
