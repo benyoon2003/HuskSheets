@@ -372,21 +372,6 @@ public class UserControllerTest {
         assertEquals(value, userController.getClipboardContent());
         assertFalse(userController.isCutOperation());
     }
-    
-//     @Test
-//     public void testPasteCell() {
-//         int row = 1;
-//         int col = 1;
-//         userController.clipboardContent = "pastedValue";
-//         userController.isCutOperation = true;
-//
-//         userController.pasteCell(row, col);
-//
-//         verify(spreadsheetModel).setCellValue(row, col, userController.getClipboardContent());
-//         verify(sheetView).updateTable();
-//         assertEquals("", userController.getClipboardContent());
-//         assertFalse(userController.isCutOperation());
-//     }
 
     /**
      * Tests the getPercentile method.
@@ -427,43 +412,6 @@ public class UserControllerTest {
     }
 
     /**
-     * Tests the updateSubscribedSheet method of UserController.
-     * Ensures that the subscribed sheet is correctly updated with the provided values.
-     */
-    @Test
-    public void testUpdateSubscribedSheet() {
-        this.spreadsheetModel.setCellValue(0, 0, "00");
-        this.spreadsheetModel.setCellValue(0, 1, "01");
-        this.spreadsheetModel.setCellValue(1, 0, "10");
-        this.spreadsheetModel.setCellValue(1, 1, "11");
-
-        // this.userController.updateSubscribedSheet("TestUser", this.spreadsheetModel,
-        // "");
-    }
-
-    /**
-     * Tests the openServerSheet method of UserController.
-     * Ensures that the server sheet is correctly opened and updates are applied to the local spreadsheet model.
-     * 
-     * @throws Exception if there is an error during the test.
-     */
-    @Test
-    public void testOpenServerSheet() throws Exception {
-        String payload = "$A1 00\\n$B1 01\\n$A2 10\\n$B2 11\\n";
-        List<Argument> value = new ArrayList<>();
-        value.add(new Argument("testUser", "sheetName", "0", payload));
-
-        when(serverEndpoint.getUpdatesForSubscription(anyString(), anyString(), anyString()))
-                .thenReturn(new Result(true, "Updates received", value));
-                when(appUser.getUsername()).thenReturn("testUser");
-
-        userController.openServerSheet("sheetName");
-
-        // assertEquals("00", this.spreadsheetModel.getCellValue(0, 0));
-    }
-
-    
-    /**
      * Tests the setSelectedCells method.
      */
     @Test
@@ -474,28 +422,4 @@ public class UserControllerTest {
         assertEquals(userController.getSelectedStartCol(), 4);
         assertEquals(userController.getSelectedEndCol(), 9);
     }
-
-    private void attemptSignIn() {
-        this.appUser = new AppUser("username1", "password1");
-        // check if user is registered first.
-        try {
-            userController.registerUser(appUser.getUsername(), appUser.getPassword());
-        } catch (Exception e) {
-            try {
-                userController.loginUser(appUser.getUsername(), appUser.getPassword());
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-        }
-    }
-
-    // @Test
-    // public void testOpenServerSheet() {
-    // attemptSignIn();
-    // userController.createNewServerSheet("newsheet");
-    // userController.openServerSheet("newsheet");
-    // userController.
-    // assertEquals(spreadsheetModel.getName(), "newsheet");
-    // }
-
 }

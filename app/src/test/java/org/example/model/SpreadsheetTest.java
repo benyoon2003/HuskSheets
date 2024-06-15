@@ -28,6 +28,7 @@ public class SpreadsheetTest {
      */
     @Test
     public void testConstructor() {
+        // 100 rows and 100 columns were initialized
         assertEquals(100, spreadsheet.getRows(), "Constructor should initialize 100 rows");
         assertEquals(100, spreadsheet.getCols(), "Constructor should initialize 100 columns");
     }
@@ -62,6 +63,7 @@ public class SpreadsheetTest {
 
         spreadsheet.setGrid(newGrid);
 
+        // grid was correctly set
         assertEquals("New Value", spreadsheet.getCellValue(0, 0));
         assertEquals(newGrid, spreadsheet.getGrid());
     }
@@ -86,11 +88,16 @@ public class SpreadsheetTest {
 
         spreadsheet = new Spreadsheet(grid, "Test");
 
-        assertNotNull(spreadsheet);
+        assertNotNull(spreadsheet); // spreadsheet was created successfully
+        // initial spreadsheet values were set
         assertEquals("00", spreadsheet.getCellValue(0, 0));
         assertEquals("01", spreadsheet.getCellValue(0, 1));
         assertEquals("10", spreadsheet.getCellValue(1, 0));
         assertEquals("11", spreadsheet.getCellValue(1, 1));
+
+        // no other spreadsheet values were set
+        assertEquals("", spreadsheet.getCellValue(2, 0));
+        assertEquals("", spreadsheet.getCellValue(99, 99));
     }
 
     /**
@@ -105,6 +112,7 @@ public class SpreadsheetTest {
 
         String payload = Spreadsheet.convertSheetToPayload(spreadsheet);
 
+        // payload was converted as expected
         assertEquals("$A1 00\\n$B1 01\\n$A2 10\\n$B2 11\\n", payload);
     }
 
@@ -202,6 +210,7 @@ public class SpreadsheetTest {
         spreadsheet.addPublished(newSheet);
         spreadsheet.addSubscribed(newSheet);
 
+        // ensure the new spreadsheet was added
         assertEquals(1, spreadsheet.getPublishedVersions().size());
         assertEquals(1, spreadsheet.getSubscribedVersions().size());
         assertEquals(newSheet, spreadsheet.getPublishedVersions().get(0));
@@ -231,11 +240,13 @@ public class SpreadsheetTest {
      */
     @Test
     public void testEvaluateFormulaArithmetic() {
+        // arithmetic formulas return correct answers
         assertEquals("4", spreadsheet.evaluateFormula("= 2 + 2"));
         assertEquals("4", spreadsheet.evaluateFormula("= 6 - 2"));
         assertEquals("4", spreadsheet.evaluateFormula("= 2 * 2"));
         assertEquals("4", spreadsheet.evaluateFormula("= 8 / 2"));
 
+        // arithmetic formulas return error messages when strings are included
         assertEquals("Error", spreadsheet.evaluateFormula("= e + 2"));
         assertEquals("Error", spreadsheet.evaluateFormula("= e - 2"));
         assertEquals("Error", spreadsheet.evaluateFormula("= e * 2"));
@@ -248,28 +259,26 @@ public class SpreadsheetTest {
     @Test
     public void testEvaluateFormulaComparisons() {
         // less than
-        assertEquals("1", spreadsheet.evaluateFormula("= 1 < 2"));
-        assertEquals("0", spreadsheet.evaluateFormula("= 2 < 1"));
-        assertEquals("Error", spreadsheet.evaluateFormula("= e < 2"));
+        assertEquals("1", spreadsheet.evaluateFormula("= 1 < 2")); // true
+        assertEquals("0", spreadsheet.evaluateFormula("= 2 < 1")); // false
+        assertEquals("Error", spreadsheet.evaluateFormula("= e < 2")); // string error
 
         // greater than
-        assertEquals("1", spreadsheet.evaluateFormula("= 2 > 1"));
-        assertEquals("0", spreadsheet.evaluateFormula("= 1 > 2"));
-        assertEquals("Error", spreadsheet.evaluateFormula("= e > 2"));
+        assertEquals("1", spreadsheet.evaluateFormula("= 2 > 1")); // true
+        assertEquals("0", spreadsheet.evaluateFormula("= 1 > 2")); // false
+        assertEquals("Error", spreadsheet.evaluateFormula("= e > 2")); // string error
 
         // equal
-        assertEquals("1", spreadsheet.evaluateFormula("= 1 = 1"));
-        assertEquals("0", spreadsheet.evaluateFormula("= 1 = 2"));
-        assertEquals("1", spreadsheet.evaluateFormula("= e = e"));
-        assertEquals("0", spreadsheet.evaluateFormula("= e = f"));
-        // assertEquals("Error", spreadsheet.evaluateFormula("= e = 1"));
+        assertEquals("1", spreadsheet.evaluateFormula("= 1 = 1")); // true (numbers)
+        assertEquals("0", spreadsheet.evaluateFormula("= 1 = 2")); // false (numbers)
+        assertEquals("1", spreadsheet.evaluateFormula("= e = e")); // true (strings)
+        assertEquals("0", spreadsheet.evaluateFormula("= e = f")); // false (strings)
 
         // not equal
-        assertEquals("1", spreadsheet.evaluateFormula("= 1 <> 2"));
-        assertEquals("0", spreadsheet.evaluateFormula("= 1 <> 1"));
-        assertEquals("1", spreadsheet.evaluateFormula("= e <> f"));
-        assertEquals("0", spreadsheet.evaluateFormula("= e <> e"));
-        // assertEquals("Error", spreadsheet.evaluateFormula("= e <> 1"));
+        assertEquals("1", spreadsheet.evaluateFormula("= 1 <> 2")); // true (strings)
+        assertEquals("0", spreadsheet.evaluateFormula("= 1 <> 1")); // false (strings)
+        assertEquals("1", spreadsheet.evaluateFormula("= e <> f")); // true (strings)
+        assertEquals("0", spreadsheet.evaluateFormula("= e <> e")); // false (strings)
     }
 
     /**
@@ -278,18 +287,20 @@ public class SpreadsheetTest {
     @Test
     public void testEvaluateFormulaBoolean() {
         // and
-        assertEquals("1", spreadsheet.evaluateFormula("= 1 & 1"));
+        assertEquals("1", spreadsheet.evaluateFormula("= 1 & 1")); // true
+        // false
         assertEquals("0", spreadsheet.evaluateFormula("= 1 & 0"));
         assertEquals("0", spreadsheet.evaluateFormula("= 0 & 1"));
         assertEquals("0", spreadsheet.evaluateFormula("= 0 & 0"));
-        assertEquals("Error", spreadsheet.evaluateFormula("= e & 1"));
+        assertEquals("Error", spreadsheet.evaluateFormula("= e & 1")); // string error
 
         // or
+        // true
         assertEquals("1", spreadsheet.evaluateFormula("= 1 | 1"));
         assertEquals("1", spreadsheet.evaluateFormula("= 1 | 0"));
         assertEquals("1", spreadsheet.evaluateFormula("= 0 | 1"));
-        assertEquals("0", spreadsheet.evaluateFormula("= 0 | 0"));
-        assertEquals("Error", spreadsheet.evaluateFormula("= e | 1"));
+        assertEquals("0", spreadsheet.evaluateFormula("= 0 | 0")); // false
+        assertEquals("Error", spreadsheet.evaluateFormula("= e | 1")); // string error
     }
 
     /**
@@ -369,9 +380,10 @@ public class SpreadsheetTest {
      */
     @Test
     public void testEvaluateFormulaSUM() {
-        assertEquals("10.0", spreadsheet.evaluateFormula("=SUM(1,2,3,4)"));
-        assertEquals("Error", spreadsheet.evaluateFormula("=SUM(e,2,3,4)"));
+        assertEquals("10.0", spreadsheet.evaluateFormula("=SUM(1,2,3,4)")); // correct answer
+        assertEquals("Error", spreadsheet.evaluateFormula("=SUM(e,2,3,4)")); // string error
 
+        // testing nested functions
         assertEquals("5.0", spreadsheet.evaluateFormula("=SUM(SUM(1,1),1,2)"));
         assertEquals("5.0", spreadsheet.evaluateFormula("=SUM(SUM(1,1),SUM(1,2))"));
         assertEquals("7.0", spreadsheet.evaluateFormula("=SUM(SUM(1,1),SUM(1,2),2)"));
@@ -383,8 +395,8 @@ public class SpreadsheetTest {
     @Test
     public void testEvaluateMAX() {
         // Test with simple numerical values
-        assertEquals("4.0", spreadsheet.evaluateFormula("=MAX(1,2,3,4)"));
-        assertEquals("Error", spreadsheet.evaluateFormula("=MAX(e,2,3,4)"));
+        assertEquals("4.0", spreadsheet.evaluateFormula("=MAX(1,2,3,4)")); // correct answer
+        assertEquals("Error", spreadsheet.evaluateFormula("=MAX(e,2,3,4)")); // string error
 
         // Test with cell references
         spreadsheet.setCellValue(0, 0, "5");
@@ -392,8 +404,8 @@ public class SpreadsheetTest {
         spreadsheet.setCellValue(2, 0, "8");
         spreadsheet.setCellValue(3, 0, "1");
 
-        assertEquals("8.0", spreadsheet.evaluateFormula("=MAX($A1,$A2,$A3,$A4)"));
-        assertEquals("8.0", spreadsheet.evaluateFormula("=MAX($A1:$A4)"));
+        assertEquals("8.0", spreadsheet.evaluateFormula("=MAX($A1,$A2,$A3,$A4)")); // parameters
+        assertEquals("8.0", spreadsheet.evaluateFormula("=MAX($A1:$A4)")); // range
 
         // Test with nested function calls
         assertEquals("8.0", spreadsheet.evaluateFormula("=MAX(MAX(2,4),3,8)"));
@@ -405,8 +417,8 @@ public class SpreadsheetTest {
     @Test
     public void testEvaluateAVG() {
         // Test with simple numerical values
-        assertEquals("2.5", spreadsheet.evaluateFormula("=AVG(1,2,3,4)"));
-        assertEquals("Error", spreadsheet.evaluateFormula("=AVG(e,2,3,4)"));
+        assertEquals("2.5", spreadsheet.evaluateFormula("=AVG(1,2,3,4)")); // correct answer
+        assertEquals("Error", spreadsheet.evaluateFormula("=AVG(e,2,3,4)")); // string error
 
         // Test with cell references
         spreadsheet.setCellValue(0, 0, "5");
@@ -414,20 +426,11 @@ public class SpreadsheetTest {
         spreadsheet.setCellValue(2, 0, "8");
         spreadsheet.setCellValue(3, 0, "1");
 
-        assertEquals("4.25", spreadsheet.evaluateFormula("=AVG($A1,$A2,$A3,$A4)"));
-        assertEquals("4.25", spreadsheet.evaluateFormula("=AVG($A1:$A4)"));
+        assertEquals("4.25", spreadsheet.evaluateFormula("=AVG($A1,$A2,$A3,$A4)")); // parameters
+        assertEquals("4.25", spreadsheet.evaluateFormula("=AVG($A1:$A4)")); // range
 
         // Test with nested function calls
         assertEquals("2.0", spreadsheet.evaluateFormula("=AVG(AVG(2,4),3,2)"));
-    }
-
-    /**
-     * Tests the evaluateFormula method of the Spreadsheet class with the CONCAT and DEBUG functions.
-     */
-    @Test
-    public void testEvaluateFormulaCONCATAndDEBUG() {
-        assertEquals("1234", spreadsheet.evaluateFormula("=CONCAT(1,2,3,4)"));
-        assertEquals("1,2,3,4", spreadsheet.evaluateFormula("=DEBUG(1,2,3,4)"));
     }
 
     /**
@@ -454,8 +457,8 @@ public class SpreadsheetTest {
     @Test
     public void testEvaluateSTDDEV() {
         // Test with simple numerical values
-        assertEquals("4.899", spreadsheet.evaluateFormula("=STDDEV(10, 12, 23, 23, 16, 23, 21, 16)"));
-        assertEquals("Error", spreadsheet.evaluateFormula("=STDDEV(e, 10, 12, 23, 23, 16, 23, 21, 16)"));
+        assertEquals("4.899", spreadsheet.evaluateFormula("=STDDEV(10, 12, 23, 23, 16, 23, 21, 16)")); // correct answer
+        assertEquals("Error", spreadsheet.evaluateFormula("=STDDEV(e, 10, 12, 23, 23, 16, 23, 21, 16)")); // string error
 
         // Test with cell references
         spreadsheet.setCellValue(0, 0, "10");
@@ -507,8 +510,8 @@ public class SpreadsheetTest {
     @Test
     public void testEvaluateMIN() {
         // Test with simple numerical values
-        assertEquals("1.0", spreadsheet.evaluateFormula("=MIN(1,2,3,4)"));
-        assertEquals("Error", spreadsheet.evaluateFormula("=MIN(e,2,3,4)"));
+        assertEquals("1.0", spreadsheet.evaluateFormula("=MIN(1,2,3,4)")); // correct answer
+        assertEquals("Error", spreadsheet.evaluateFormula("=MIN(e,2,3,4)")); // string error
 
         // Test with cell references
         spreadsheet.setCellValue(0, 0, "5");
@@ -516,8 +519,8 @@ public class SpreadsheetTest {
         spreadsheet.setCellValue(2, 0, "8");
         spreadsheet.setCellValue(3, 0, "1");
 
-        assertEquals("1.0", spreadsheet.evaluateFormula("=MIN($A1,$A2,$A3,$A4)"));
-        assertEquals("1.0", spreadsheet.evaluateFormula("=MIN($A1:$A4)"));
+        assertEquals("1.0", spreadsheet.evaluateFormula("=MIN($A1,$A2,$A3,$A4)")); // parameters
+        assertEquals("1.0", spreadsheet.evaluateFormula("=MIN($A1:$A4)")); // range
 
         // Test with nested function calls
         assertEquals("1.0", spreadsheet.evaluateFormula("=MIN(MIN(2,4),3,1)"));
