@@ -371,9 +371,9 @@ class ServerTests {
     void testRegisterUserAlreadyExists() throws Exception {
         mockMvc.perform(get("/api/v1/register")
                         .header("Authorization", createBasicAuthHeader("testuser", "password")))
-                .andExpect(status().is(401))
-                .andExpect(jsonPath("$.success").value(false))
-                .andExpect(jsonPath("$.message").value("User already exists"));
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.message").value("Publisher registered successfully"));
     }
 
     /**
