@@ -425,8 +425,8 @@ public class Server {
         String username = credentials[0]; // Get the username from credentials
         String password = credentials[1]; // Get the password from credentials
         if (findByUsername(username)) {
-            return ResponseEntity.status(401).body(new Result(
-                    false, "User already exists", new ArrayList<>())); // Return 401 status if user already exists
+            return ResponseEntity.ok(new Result(
+                    true, "User already exists", new ArrayList<>())); // Return 401 status if user already exists
         }
         AppUser newUser = new AppUser(username, password); // Create a new user
         availUsers.add(newUser); // Add the new user to the list of available users
