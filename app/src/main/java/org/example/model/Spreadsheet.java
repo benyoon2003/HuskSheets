@@ -234,33 +234,73 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     @Override
+    // public String evaluateFormula(String formula) {
+    //     System.out.println(formula); // Print the formula for debugging
+    //     if (!formula.startsWith("=")) {
+    //         return formula; // Return the formula if it does not start with "="
+    //     }
+
+    //     // Remove the initial "="
+    //     formula = formula.substring(1).stripLeading();
+
+    //     try {
+    //         boolean evaluated = false; // Initialize evaluated flag
+    //         Object result = formula; // Initialize result with the formula
+    //         formula = parseOperations(formula); // Parse operations in the formula
+    //         formula = replaceCellReferences(formula); // Replace cell references with their values
+    //         System.setProperty("polyglot.engine.WarnInterpreterOnly", "false"); // Set system property to avoid warnings
+    //         if (!((String) result).equals(formula)) { // Check if formula has been modified
+    //             result = formula; // Update result with the modified formula
+    //             evaluated = true; // Set evaluated flag to true
+    //         }
+    //         if (containsArith((String) result) && !evaluated) { // Check if formula contains arithmetic operations
+    //             Context context = Context.create("js"); // Create a JavaScript context
+    //             result = context.eval("js", formula); // Evaluate the formula using JavaScript
+    //         }
+    //         return result.toString(); // Return the result as a string
+    //     } catch (Exception e) {
+    //         return "Error"; // Return "Error" if an exception occurs
+    //     }
+    // }
     public String evaluateFormula(String formula) {
-        System.out.println(formula); // Print the formula for debugging
+        System.out.println("Evaluating formula: " + formula); // Print the formula for debugging
         if (!formula.startsWith("=")) {
             return formula; // Return the formula if it does not start with "="
         }
-
+    
         // Remove the initial "="
         formula = formula.substring(1).stripLeading();
-
+        System.out.println("Stripped formula: " + formula);
+    
         try {
-            boolean evaluated = false; // Initialize evaluated flag
             Object result = formula; // Initialize result with the formula
-            formula = parseOperations(formula); // Parse operations in the formula
             formula = replaceCellReferences(formula); // Replace cell references with their values
+            System.out.println("Formula after replacing cell references: " + formula);
             System.setProperty("polyglot.engine.WarnInterpreterOnly", "false"); // Set system property to avoid warnings
-            if (!((String) result).equals(formula)) { // Check if formula has been modified
-                result = formula; // Update result with the modified formula
-                evaluated = true; // Set evaluated flag to true
-            }
-            if (containsArith((String) result) && !evaluated) { // Check if formula contains arithmetic operations
+    
+            // Handle operations first
+            if (containsOperation(formula)) {
+                result = parseOperations(formula); // Parse operations in the formula
+            } else if (containsArith(formula)) { // Check if formula contains arithmetic operations
                 Context context = Context.create("js"); // Create a JavaScript context
                 result = context.eval("js", formula); // Evaluate the formula using JavaScript
             }
+    
             return result.toString(); // Return the result as a string
         } catch (Exception e) {
+            System.out.println("Exception in evaluateFormula: " + e.getMessage());
             return "Error"; // Return "Error" if an exception occurs
         }
+    }
+    
+
+    private boolean containsOperation(String cell) {
+        for (String op : operations) { // Loop through the logical operations
+            if (cell.contains(op)) {
+                return true; // Return true if logical operation is found
+            }
+        }
+        return false; // Return false if no logical operation is found
     }
 
     /**
@@ -272,9 +312,11 @@ public class Spreadsheet implements ISpreadsheet {
      */
     private String parseOperations(String formula) {
         String operation = getOperation(formula); // Get the operation in the formula
+        System.out.println("Parsing operations, found operation: " + operation);
         if (operation != "") {
             String[] parts = formula.replaceAll(" ",  "").split(operation);  // Split the formula into parts
-
+            System.out.println("Parts after split: " + Arrays.toString(parts));
+    
             if (formula.contains("<>")) {
                 return compareNotEqual(parts[0].trim(), parts[1].trim()); // Compare not equal
             } else if (formula.contains("<") && !formula.contains("=")) {
@@ -291,13 +333,14 @@ public class Spreadsheet implements ISpreadsheet {
                 return rangeOperation(parts[0].trim(), parts[1].trim()); // Range operation
             }
         }
-
+    
         String function = getFunction(formula); // Get the function in the formula
         if (function != "") {
             int start = function.length() + 1; // Calculate start index of the arguments
             int end = formula.length() - 1; // Calculate end index of the arguments
             String args = formula.substring(start, end); // Extract the arguments
-
+            System.out.println("Function: " + function + ", Arguments: " + args);
+    
             if (formula.startsWith("IF(")) {
                 return evaluateIF(args); // Evaluate IF function
             } else if (formula.startsWith("SUM(")) {
@@ -318,9 +361,10 @@ public class Spreadsheet implements ISpreadsheet {
                 return evaluateSORT(args); // Evaluate SORT function
             }
         }
-
+    
         return formula; // Return the formula if no operations or functions are found
     }
+    
 
     /**
      * Replaces cell references in the formula with their actual values.
@@ -406,6 +450,9 @@ public class Spreadsheet implements ISpreadsheet {
      * @author Vinay
      */
     private String compareLess(String x, String y) {
+        x = x.replaceAll("[()]", ""); // Remove parentheses
+        y = y.replaceAll("[()]", ""); // Remove parentheses
+        System.out.println("Comparing less: " + x + " < " + y);
         x = replaceCellReferences(x); // Replace cell references in x
         y = replaceCellReferences(y); // Replace cell references in y
         try {
@@ -413,6 +460,7 @@ public class Spreadsheet implements ISpreadsheet {
             double b = Double.parseDouble(y); // Parse y as double
             return a < b ? "1" : "0"; // Return "1" if a is less than b, otherwise "0"
         } catch (NumberFormatException e) {
+            System.out.println("NumberFormatException in compareLess: " + e.getMessage());
             return "Error"; // Return "Error" if parsing fails
         }
     }
@@ -426,6 +474,9 @@ public class Spreadsheet implements ISpreadsheet {
      * @author Vinay
      */
     private String compareGreater(String x, String y) {
+        x = x.replaceAll("[()]", ""); // Remove parentheses
+        y = y.replaceAll("[()]", ""); // Remove parentheses
+        System.out.println("Comparing greater: " + x + " > " + y);
         x = replaceCellReferences(x); // Replace cell references in x
         y = replaceCellReferences(y); // Replace cell references in y
         try {
@@ -433,10 +484,10 @@ public class Spreadsheet implements ISpreadsheet {
             double b = Double.parseDouble(y); // Parse y as double
             return a > b ? "1" : "0"; // Return "1" if a is greater than b, otherwise "0"
         } catch (NumberFormatException e) {
+            System.out.println("NumberFormatException in compareGreater: " + e.getMessage());
             return "Error"; // Return "Error" if parsing fails
         }
     }
-
     /**
      * Compares if the first value is equal to the second value.
      *
@@ -446,6 +497,9 @@ public class Spreadsheet implements ISpreadsheet {
      * @author Vinay
      */
     private String compareEqual(String x, String y) {
+        x = x.replaceAll("[()]", ""); // Remove parentheses
+        y = y.replaceAll("[()]", ""); // Remove parentheses
+        System.out.println("Comparing equal: " + x + " = " + y);
         x = replaceCellReferences(x); // Replace cell references in x
         y = replaceCellReferences(y); // Replace cell references in y
         try {
