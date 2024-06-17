@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Persistent REST API Server for handling requests from HuskSheet application
@@ -491,18 +494,64 @@ public class Server {
         List<Argument> arguments = new ArrayList<>(); // Initialize the list of arguments
         for (ISpreadsheet existingSheet : user.getSheets()) { // Iterate through the user's sheets
             if (existingSheet.getName().equals(sheet)) {
+                List<String> listOfPayload = new ArrayList<>();
                 List<ISpreadsheet> versions = existingSheet.getPublishedVersions(); // Get the list of published versions
                 for (int i = Integer.parseInt(id); i < versions.size(); i++) { // Iterate through the versions starting from the given id
                     String payload = Spreadsheet.convertSheetToPayload(versions.get(i)); // Convert the sheet to a payload
                     payload = payload.replace("\\n", "\n");
-                    Argument arg = new Argument(publisher, sheet, String.valueOf(i), payload); // Create a new argument with the payload
-                    arguments.add(arg); // Add the argument to the list
+                    System.out.println(payload);
+                    listOfPayload.add(payload);
                 }
+                String payload = trackDifferences(listOfPayload);
+                arguments.add(new Argument(publisher, sheet, String.valueOf(versions.size()), payload));
                 return ResponseEntity.ok(new Result(true, "Updates received", arguments)); // Return 200 status with the list of updates
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                 false, "Sheet not found", new ArrayList<>()));  // Return 404 status if sheet is not found
+    }
+
+    public static String trackDifferences(List<String> strings) {
+        StringBuilder output = new StringBuilder();
+        Map<String, String> previousValues = new LinkedHashMap<>();
+
+        for (String str : strings) {
+            Map<String, String> currentValues = parseCurrentValues(str);
+
+            // Append new or updated entries
+            for (Map.Entry<String, String> entry : currentValues.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                // If it's new or changed, append it
+                if (!previousValues.containsKey(key) || !value.equals(previousValues.get(key))) {
+                    output.append(key).append(" ").append(value).append("\n");
+                }
+            }
+
+            // Check for missing entries from the previous set
+            for (String key : previousValues.keySet()) {
+                if (!currentValues.containsKey(key)) {
+                    output.append(key).append("\n");
+                }
+            }
+
+            // Update the previous values
+            previousValues = new HashMap<>(currentValues);
+        }
+
+        return output.toString();
+    }
+
+    private static Map<String, String> parseCurrentValues(String str) {
+        Map<String, String> values = new LinkedHashMap<>();
+        String[] lines = str.split("\n");
+        for (String line : lines) {
+            if (line.trim().isEmpty()) continue;
+            String[] parts = line.split(" ", 2);
+            if (parts.length < 2) continue;
+            values.put(parts[0].trim(), parts[1].trim());
+        }
+        return values;
     }
 
     /**
@@ -534,16 +583,19 @@ public class Server {
         }
         List<Argument> arguments = new ArrayList<>(); // Initialize the list of arguments
         for (ISpreadsheet existingSheet : user.getSheets()) { // Iterate through the user's sheets
+
             if (existingSheet.getName().equals(sheet)) {
+                List<String> listOfPayload = new ArrayList<>();
                 List<ISpreadsheet> versions = existingSheet.getSubscribedVersions(); // Get the list of subscribed versions
                 for (int i = Integer.parseInt(id); i < versions.size(); i++) { // Iterate through the versions starting from the given id
                     String payload = Spreadsheet.convertSheetToPayload(versions.get(i)); // Convert the sheet to a payload
                     payload = payload.replace("\\n", "\n");
-                    Argument arg = new Argument(publisher, sheet, String.valueOf(i), payload); // Create a new argument with the payload
-                    arguments.add(arg); // Add the argument to the list
+                    System.out.println(payload);
+                    listOfPayload.add(payload);
                 }
+                String payload = trackDifferences(listOfPayload);
+                arguments.add(new Argument(publisher, sheet, String.valueOf(versions.size()), payload));
                 return ResponseEntity.ok(new Result(true, "Updates received", arguments)); // Return 200 status with the list of updates
-
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
