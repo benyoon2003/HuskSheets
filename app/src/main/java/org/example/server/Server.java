@@ -426,7 +426,7 @@ public class Server {
         String password = credentials[1]; // Get the password from credentials
         if (findByUsername(username)) {
             return ResponseEntity.ok(new Result(
-                    true, "Publisher registered successfully", new ArrayList<>())); // Return 200 status if user is registered successfully
+                    true, "User already exists", new ArrayList<>())); // Return 401 status if user already exists
         }
         AppUser newUser = new AppUser(username, password); // Create a new user
         availUsers.add(newUser); // Add the new user to the list of available users
@@ -494,6 +494,7 @@ public class Server {
                 List<ISpreadsheet> versions = existingSheet.getPublishedVersions(); // Get the list of published versions
                 for (int i = Integer.parseInt(id); i < versions.size(); i++) { // Iterate through the versions starting from the given id
                     String payload = Spreadsheet.convertSheetToPayload(versions.get(i)); // Convert the sheet to a payload
+                    payload = payload.replace("\\n", "\n");
                     Argument arg = new Argument(publisher, sheet, String.valueOf(i), payload); // Create a new argument with the payload
                     arguments.add(arg); // Add the argument to the list
                 }
@@ -537,6 +538,7 @@ public class Server {
                 List<ISpreadsheet> versions = existingSheet.getSubscribedVersions(); // Get the list of subscribed versions
                 for (int i = Integer.parseInt(id); i < versions.size(); i++) { // Iterate through the versions starting from the given id
                     String payload = Spreadsheet.convertSheetToPayload(versions.get(i)); // Convert the sheet to a payload
+                    payload = payload.replace("\\n", "\n");
                     Argument arg = new Argument(publisher, sheet, String.valueOf(i), payload); // Create a new argument with the payload
                     arguments.add(arg); // Add the argument to the list
                 }
