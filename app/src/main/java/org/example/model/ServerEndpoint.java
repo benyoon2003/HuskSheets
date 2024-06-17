@@ -12,7 +12,7 @@ import java.util.Base64;
 
 public class ServerEndpoint {
     // Base URL for the server endpoints
-    private String url = "https://localhost:8080/api/v1/"; //"https://husksheet-cb47d5864e1b.herokuapp.com/api/v1/";
+    private String url = "https://husksheets.fly.dev/api/v1/";//"https://localhost:8080/api/v1/"; //"https://husksheet-cb47d5864e1b.herokuapp.com/api/v1/";
     private static IAppUser user; // Static variable to hold the current user
 
     /**
@@ -222,7 +222,7 @@ public class ServerEndpoint {
      * @throws Exception
      */
     public HttpResponse<String> sendPostRequest(String url, String json) throws Exception {
-        HttpClient client = createHttpClient(); // Create a new HttpClient with SSL context
+        HttpClient client = HttpClient.newBuilder().build(); // Create a new HttpClient
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(url)) // Set the URI for the request
                 .header("Authorization", getBasicAuthHeader()) // Add Basic Auth header
@@ -242,7 +242,7 @@ public class ServerEndpoint {
      * @throws Exception
      */
     public HttpResponse<String> sendGetRequest(String url) throws Exception {
-        HttpClient client = createHttpClient(); // Create a new HttpClient with SSL context
+        HttpClient client = HttpClient.newBuilder().build(); // Create a new HttpClient
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(url)) // Set the URI for the request
                 .header("Authorization", getBasicAuthHeader()) // Add Basic Auth header
@@ -250,32 +250,5 @@ public class ServerEndpoint {
                 .build();
         // Send the request and return the response
         return client.send(request, HttpResponse.BodyHandlers.ofString());
-    }
-
-    /**
-     * Create an HttpClient with SSL context that trusts the self-signed certificate.
-     *
-     * @return HttpClient instance
-     * @throws Exception if an error occurs during the creation of the SSL context
-     */
-    private HttpClient createHttpClient() throws Exception {
-        // Load the trust store containing the self-signed certificate
-        KeyStore keyStore = KeyStore.getInstance("PKCS12");
-        try (var keyStoreStream = getClass().getResourceAsStream("/localhost.p12")) {
-            keyStore.load(keyStoreStream, "team2key".toCharArray());
-        }
-
-        // Initialize the TrustManager with the trust store
-        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        trustManagerFactory.init(keyStore);
-
-        // Create SSL context with the trust store
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-        sslContext.init(null, trustManagerFactory.getTrustManagers(), null);
-
-        // Create HttpClient with the custom SSL context
-        return HttpClient.newBuilder()
-                .sslContext(sslContext)
-                .build();
     }
 }
