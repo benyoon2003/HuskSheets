@@ -138,7 +138,7 @@ public class Server {
         String username = credentials[0]; // Get the username from credentials
         IAppUser user = findUser(username); // Find the user by username
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                     false, "User not found", new ArrayList<>())); // Return 404 status if user is not found
         }
         List<Argument> listOfArgument = new ArrayList<>();
@@ -175,19 +175,19 @@ public class Server {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                     false, "Unauthorized: sender is not owner of sheet", new ArrayList<>())); // Return 401 status if sender is not the owner of the sheet
         } else if (sheet.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Result(
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                     false, "Sheet name cannot be blank", new ArrayList<>())); // Return 400 status if sheet name is blank
         } else if (hasSheet(sheet, publisher)) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new Result(
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                     false, "Sheet already exists: " + sheet, new ArrayList<>())); // Return 409 status if sheet already exists
         } else {
             IAppUser user = findUser(username); // Find the user by username
             if (user == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                         false, "User not found", new ArrayList<>())); // Return 404 status if user is not found
             }
             user.addSheet(sheet); // Add the sheet to the user
-            return ResponseEntity.status(HttpStatus.CREATED).body(new Result(
+            return ResponseEntity.ok(new Result(
                     true, "Sheet created successfully", new ArrayList<>())); // Return 201 status if sheet is created successfully
         }
     }
@@ -218,14 +218,14 @@ public class Server {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                     false, "Unauthorized: sender is not owner of sheet", new ArrayList<>())); // Return 401 status if sender is not the owner of the sheet
         } else if (sheet.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Result(
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                     false, "Sheet name cannot be blank", new ArrayList<>())); // Return 400 status if sheet name is blank
         } else if (!user.doesSheetExist(sheet)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Result(
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                     false, "Sheet does not exist: " + sheet, new ArrayList<>())); // Return 400 status if sheet does not exist
         } else {
             user.removeSheet(sheet);
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body(new Result(
+            return ResponseEntity.ok(new Result(
                     true, "Sheet deleted successfully", new ArrayList<>())); // Return 202 status if sheet is deleted successfully
         }
     }
@@ -253,7 +253,7 @@ public class Server {
         String publisher = argument.getPublisher(); // Get the publisher from the argument
         IAppUser user = findUser(publisher); // Find the user by publisher name
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                     false, "User not found", new ArrayList<>())); // Return 404 status if user is not found
         }
         for (ISpreadsheet sheet : user.getSheets()) { // Iterate through the user's sheets
@@ -286,7 +286,7 @@ public class Server {
         String payload = argument.getPayload(); // Get the payload from the argument
         IAppUser user = findUser(publisher); // Find the user by publisher name
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                     false, "User not found", new ArrayList<>())); // Return 404 status if user is not found
         }
         // New updated sheet must not mutate old version and must be initialized with empty grid
@@ -302,7 +302,7 @@ public class Server {
                 return ResponseEntity.ok(new Result(true, "Sheet updated successfully", new ArrayList<>())); // Return 200 status if sheet is updated successfully
             }
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                 false, "Sheet not found", new ArrayList<>())); // Return 404 status if sheet is not found
     }
 
@@ -386,7 +386,7 @@ public class Server {
         String payload = argument.getPayload(); // Get the payload from the argument
         IAppUser user = findUser(publisher); // Find the user by publisher name
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                     false, "User not found", new ArrayList<>())); // Return 404 status if user is not found
         }
         // New updated sheet must not mutate old version and must be initialized with empty grid
@@ -402,7 +402,7 @@ public class Server {
                 return ResponseEntity.ok(new Result(true, "Sheet updated successfully", new ArrayList<>())); // Return 200 status if sheet is updated successfully
             }
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                 false, "Sheet not found", new ArrayList<>())); // Return 404 status if sheet is not found
     }
 
@@ -485,7 +485,7 @@ public class Server {
         String id = argument.getId(); // Get the id from the argument
         IAppUser user = findUser(publisher); // Find the user by publisher name
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                     false, "User not found", new ArrayList<>()));  // Return 404 status if user is not found
         }
         List<Argument> arguments = new ArrayList<>(); // Initialize the list of arguments
@@ -494,13 +494,14 @@ public class Server {
                 List<ISpreadsheet> versions = existingSheet.getPublishedVersions(); // Get the list of published versions
                 for (int i = Integer.parseInt(id); i < versions.size(); i++) { // Iterate through the versions starting from the given id
                     String payload = Spreadsheet.convertSheetToPayload(versions.get(i)); // Convert the sheet to a payload
+                    payload = payload.replace("\\n", "\n");
                     Argument arg = new Argument(publisher, sheet, String.valueOf(i), payload); // Create a new argument with the payload
                     arguments.add(arg); // Add the argument to the list
                 }
                 return ResponseEntity.ok(new Result(true, "Updates received", arguments)); // Return 200 status with the list of updates
             }
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                 false, "Sheet not found", new ArrayList<>()));  // Return 404 status if sheet is not found
     }
 
@@ -528,7 +529,7 @@ public class Server {
         String id = argument.getId();  // Get the id from the argument
         IAppUser user = findUser(publisher); // Find the user by publisher name
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                     false, "User not found", new ArrayList<>())); // Return 404 status if user is not found
         }
         List<Argument> arguments = new ArrayList<>(); // Initialize the list of arguments
@@ -537,6 +538,7 @@ public class Server {
                 List<ISpreadsheet> versions = existingSheet.getSubscribedVersions(); // Get the list of subscribed versions
                 for (int i = Integer.parseInt(id); i < versions.size(); i++) { // Iterate through the versions starting from the given id
                     String payload = Spreadsheet.convertSheetToPayload(versions.get(i)); // Convert the sheet to a payload
+                    payload = payload.replace("\\n", "\n");
                     Argument arg = new Argument(publisher, sheet, String.valueOf(i), payload); // Create a new argument with the payload
                     arguments.add(arg); // Add the argument to the list
                 }
@@ -544,7 +546,7 @@ public class Server {
 
             }
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Result(
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new Result(
                 false, "Sheet not found", new ArrayList<>())); // Return 404 status if sheet is not found
     }
 }
