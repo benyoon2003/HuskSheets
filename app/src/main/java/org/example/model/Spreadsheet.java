@@ -234,34 +234,6 @@ public class Spreadsheet implements ISpreadsheet {
     }
 
     @Override
-    // public String evaluateFormula(String formula) {
-    //     System.out.println(formula); // Print the formula for debugging
-    //     if (!formula.startsWith("=")) {
-    //         return formula; // Return the formula if it does not start with "="
-    //     }
-
-    //     // Remove the initial "="
-    //     formula = formula.substring(1).stripLeading();
-
-    //     try {
-    //         boolean evaluated = false; // Initialize evaluated flag
-    //         Object result = formula; // Initialize result with the formula
-    //         formula = parseOperations(formula); // Parse operations in the formula
-    //         formula = replaceCellReferences(formula); // Replace cell references with their values
-    //         System.setProperty("polyglot.engine.WarnInterpreterOnly", "false"); // Set system property to avoid warnings
-    //         if (!((String) result).equals(formula)) { // Check if formula has been modified
-    //             result = formula; // Update result with the modified formula
-    //             evaluated = true; // Set evaluated flag to true
-    //         }
-    //         if (containsArith((String) result) && !evaluated) { // Check if formula contains arithmetic operations
-    //             Context context = Context.create("js"); // Create a JavaScript context
-    //             result = context.eval("js", formula); // Evaluate the formula using JavaScript
-    //         }
-    //         return result.toString(); // Return the result as a string
-    //     } catch (Exception e) {
-    //         return "Error"; // Return "Error" if an exception occurs
-    //     }
-    // }
     public String evaluateFormula(String formula) {
         System.out.println("Evaluating formula: " + formula); // Print the formula for debugging
         if (!formula.startsWith("=")) {
@@ -311,12 +283,33 @@ public class Spreadsheet implements ISpreadsheet {
      * @author Vinay
      */
     private String parseOperations(String formula) {
+        System.out.println("Parsing operations, initial formula: " + formula);
+        
+        // First, handle logical operations
+        if (formula.contains("&") || formula.contains("|")) {
+            String[] logicalParts = formula.split("&|\\|");
+            String logicalResult = "";
+            
+            for (String part : logicalParts) {
+                part = part.trim();
+                logicalResult += evaluateLogical(part);
+            }
+            
+            // Combine results for logical operations
+            if (formula.contains("&")) {
+                return logicalResult.contains("0") ? "0" : "1"; // AND operation
+            } else if (formula.contains("|")) {
+                return logicalResult.contains("1") ? "1" : "0"; // OR operation
+            }
+        }
+    
         String operation = getOperation(formula); // Get the operation in the formula
         System.out.println("Parsing operations, found operation: " + operation);
+        
         if (operation != "") {
-            String[] parts = formula.replaceAll(" ",  "").split(operation);  // Split the formula into parts
+            String[] parts = formula.replaceAll(" ", "").split(operation); // Split the formula into parts
             System.out.println("Parts after split: " + Arrays.toString(parts));
-    
+            
             if (formula.contains("<>")) {
                 return compareNotEqual(parts[0].trim(), parts[1].trim()); // Compare not equal
             } else if (formula.contains("<") && !formula.contains("=")) {
@@ -325,12 +318,6 @@ public class Spreadsheet implements ISpreadsheet {
                 return compareGreater(parts[0].trim(), parts[1].trim()); // Compare greater than
             } else if (formula.contains("=") && !formula.contains("<") && !formula.contains(">")) {
                 return compareEqual(parts[0].trim(), parts[1].trim()); // Compare equal
-            } else if (formula.contains("&")) {
-                return andOperation(parts[0].trim(), parts[1].trim());  // AND operation
-            } else if (formula.contains("|")) {
-                return orOperation(parts[0].trim(), parts[2].trim()); // OR operation
-            } else if (formula.contains(":")) {
-                return rangeOperation(parts[0].trim(), parts[1].trim()); // Range operation
             }
         }
     
@@ -340,7 +327,7 @@ public class Spreadsheet implements ISpreadsheet {
             int end = formula.length() - 1; // Calculate end index of the arguments
             String args = formula.substring(start, end); // Extract the arguments
             System.out.println("Function: " + function + ", Arguments: " + args);
-    
+            
             if (formula.startsWith("IF(")) {
                 return evaluateIF(args); // Evaluate IF function
             } else if (formula.startsWith("SUM(")) {
@@ -365,6 +352,23 @@ public class Spreadsheet implements ISpreadsheet {
         return formula; // Return the formula if no operations or functions are found
     }
     
+    private String evaluateLogical(String formula) {
+        String operation = getOperation(formula);
+        if (!operation.isEmpty()) {
+            String[] parts = formula.split(operation);
+            switch (operation) {
+                case "<>":
+                    return compareNotEqual(parts[0].trim(), parts[1].trim());
+                case "<":
+                    return compareLess(parts[0].trim(), parts[1].trim());
+                case ">":
+                    return compareGreater(parts[0].trim(), parts[1].trim());
+                case "=":
+                    return compareEqual(parts[0].trim(), parts[1].trim());
+            }
+        }
+        return "Error";
+    }
 
     /**
      * Replaces cell references in the formula with their actual values.
@@ -548,13 +552,14 @@ public class Spreadsheet implements ISpreadsheet {
      * @author Vinay
      */
     private String andOperation(String x, String y) {
-        x = replaceCellReferences(x); // Replace cell references in x
-        y = replaceCellReferences(y); // Replace cell references in y
+        x = replaceCellReferences(x.replaceAll("[()]", "")); // Remove parentheses and replace cell references in x
+        y = replaceCellReferences(y.replaceAll("[()]", "")); // Remove parentheses and replace cell references in y
         try {
             double a = Double.parseDouble(x); // Parse x as double
             double b = Double.parseDouble(y); // Parse y as double
             return (a != 0 && b != 0) ? "1" : "0"; // Return "1" if both a and b are non-zero, otherwise "0"
         } catch (NumberFormatException e) {
+            System.out.println("NumberFormatException in andOperation: " + e.getMessage());
             return "Error"; // Return "Error" if parsing fails
         }
     }
@@ -568,13 +573,14 @@ public class Spreadsheet implements ISpreadsheet {
      * @author Vinay
      */
     private String orOperation(String x, String y) {
-        x = replaceCellReferences(x); // Replace cell references in x
-        y = replaceCellReferences(y); // Replace cell references in y
+        x = replaceCellReferences(x.replaceAll("[()]", "")); // Remove parentheses and replace cell references in x
+        y = replaceCellReferences(y.replaceAll("[()]", "")); // Remove parentheses and replace cell references in y
         try {
             double a = Double.parseDouble(x); // Parse x as double
             double b = Double.parseDouble(y); // Parse y as double
             return (a != 0 || b != 0) ? "1" : "0"; // Return "1" if either a or b is non-zero, otherwise "0"
         } catch (NumberFormatException e) {
+            System.out.println("NumberFormatException in orOperation: " + e.getMessage());
             return "Error"; // Return "Error" if parsing fails
         }
     }
