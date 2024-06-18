@@ -413,33 +413,39 @@ public class Spreadsheet implements ISpreadsheet {
             if (nestedExpr.trim().startsWith("IF")) {
                 System.out.println("Nested expression starts with IF: " + nestedExpr);
                 result = evaluateIF(nestedExpr.trim().substring(2).trim());
+                formula = formula.replace("(" + nestedExpr + ")", result);
+                System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
+                matcher = pattern.matcher(formula);
             } else if (nestedExpr.trim().startsWith("DEBUG")) {
                 System.out.println("Nested expression starts with DEBUG: " + nestedExpr);
                 result = evaluateDEBUG(nestedExpr.trim().substring(5).trim());
+                formula = formula.replace("(" + nestedExpr + ")", result);
+                System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
+                matcher = pattern.matcher(formula);
             }
             else if (nestedExpr.contains(":")) {
                 String[] cellRefs = nestedExpr.split(":");
                 String range = rangeOperation(cellRefs[0].trim(), cellRefs[1].trim());
                 System.out.println("RANGE: " + range);
-                String otherRef = "";
-                if (cellRefs[0].contains("$")) {
-                    int index = cellRefs[0].indexOf("$");
-                    otherRef = cellRefs[0].substring(index, index + 2).trim();
-                }
-                else if (cellRefs[1].contains("$")) {
-                    int index = cellRefs[1].indexOf("$");
-                    otherRef = cellRefs[1].substring(index, index + 2).trim();
-                }
-                result = range + "," + replaceCellReferences(otherRef);
-
+                result = range;
+                formula = formula.replace("(" + nestedExpr + ")", result);
+                formula = replaceCellReferences(formula);
+                System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
+                matcher = pattern.matcher(formula);
+            }
+            else if (nestedExpr.trim().startsWith("SUM")) {
+                result = evaluateSUM(nestedExpr.substring(3, nestedExpr.length() - 1));
+                formula = formula.replace("(" + nestedExpr + ")", result);
+                System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
+                matcher = pattern.matcher(formula);
             }
             else {
                 result = parseOperations(nestedExpr); // Evaluate the nested expression
+                formula = formula.replace("(" + nestedExpr + ")", result);
+                System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
+                matcher = pattern.matcher(formula);
             }
 
-            formula = formula.replace("(" + nestedExpr + ")", result);
-            System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
-            matcher = pattern.matcher(formula);
         }
         return formula;
     }
