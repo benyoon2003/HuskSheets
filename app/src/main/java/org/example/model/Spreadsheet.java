@@ -301,6 +301,12 @@ public class Spreadsheet implements ISpreadsheet {
     private String parseOperations(String formula) {
         System.out.println("Parsing operations, initial formula: " + formula);
     
+        // Handle range operations first
+        if (formula.contains(":")) {
+            String[] parts = formula.split(":");
+            formula = rangeOperation(parts[0], parts[1]);
+        }
+
         // Check if the formula is an IF function and handle it specially
         if (formula.startsWith("IF(")) {
             int startIndex = formula.indexOf("(") + 1;
