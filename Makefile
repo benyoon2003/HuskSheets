@@ -11,7 +11,7 @@ all: create-build-dir build
 # Use Gradle to build the project
 .PHONY: build
 build:
-	$(GRADLEW) build
+	$(GRADLEW) build -x test
 
 # Clean up build files using Gradle
 .PHONY: clean

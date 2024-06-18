@@ -38,8 +38,8 @@ dependencies {
 }
 
 application {
-    //mainClass = 'org.example.HuskSheetsRunner'
-    mainClass = 'org.example.HuskSheetsApplication'
+    mainClass = 'org.example.HuskSheetsRunner'
+    // mainClass = 'org.example.HuskSheetsApplication'
 }
 
 java {
