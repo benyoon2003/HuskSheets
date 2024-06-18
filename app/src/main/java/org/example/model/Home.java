@@ -219,11 +219,14 @@ public class Home implements IHome {
                 continue; // Skip empty lines
             }
             String[] parts = line.split(" ", 2); // Split the line into two parts
+            String content;
             if (parts.length < 2) {
-                continue; // Skip lines that do not have two parts
+                content = ""; // Get the cell content
+            }
+            else {
+                content = parts[1]; // Get the cell content
             }
             String ref = parts[0]; // Get the cell reference
-            String content = parts[1]; // Get the cell content
 
             // Extract row and column from the reference
             int[] rowCol = convertRefToRowCol(ref); // Convert the reference to row and column indices
