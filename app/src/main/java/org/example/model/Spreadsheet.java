@@ -256,33 +256,37 @@ public class Spreadsheet implements ISpreadsheet {
             if (formula.startsWith("COPY(")) {
                 return evaluateCOPY(formula.substring(5, formula.length() - 1)); // Evaluate COPY function
             }
+            if (formula.startsWith("SUM(")) {
+                return evaluateSUM(formula.substring(4, formula.length() - 1)); // Evaluate SUM function directly
+            }
             if (!formula.contains(":")) {
                 formula = replaceCellReferences(formula); // Replace cell references with their values
                 System.out.println("Formula after replacing cell references: " + formula);
             }
             formula = evaluateNestedExpressions(formula); // Evaluate nested expressions first
             System.out.println("Formula after evaluating nested expressions: " + formula);
-
+    
             if (formula.startsWith("DEBUG")) { // Check if formula starts with DEBUG
                 return evaluateDEBUG(formula.substring(5).trim());
             }
-
+    
             Object result = formula; // Initialize result with the formula
             System.setProperty("polyglot.engine.WarnInterpreterOnly", "false"); // Set system property to avoid warnings
-
+    
             if (containsOperation(formula)) {
                 result = parseOperations(formula); // Parse operations in the formula
             } else if (containsArith(formula)) { // Check if formula contains arithmetic operations
                 Context context = Context.create("js"); // Create a JavaScript context
                 result = context.eval("js", formula); // Evaluate the formula using JavaScript
             }
-
+    
             return result.toString(); // Return the result as a string
         } catch (Exception e) {
             System.out.println("Exception in evaluateFormula: " + e.getMessage());
             return "Error"; // Return "Error" if an exception occurs
         }
     }
+    
 
     private boolean containsOperation(String cell) {
         for (String op : operations) { // Loop through the logical operations
@@ -400,15 +404,14 @@ public class Spreadsheet implements ISpreadsheet {
         return formula; // Return the formula if no operations or functions are found
     }
 
-
     private String evaluateNestedExpressions(String formula) {
         Pattern pattern = Pattern.compile("\\(([^()]+)\\)"); // Match innermost parentheses
         Matcher matcher = pattern.matcher(formula);
-
+    
         while (matcher.find()) {
             String nestedExpr = matcher.group(1); // Get the content inside parentheses
             System.out.println("Found nested expression: " + nestedExpr);
-
+    
             String result;
             if (nestedExpr.trim().startsWith("IF")) {
                 System.out.println("Nested expression starts with IF: " + nestedExpr);
@@ -422,8 +425,13 @@ public class Spreadsheet implements ISpreadsheet {
                 formula = formula.replace("(" + nestedExpr + ")", result);
                 System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
                 matcher = pattern.matcher(formula);
-            }
-            else if (nestedExpr.contains(":")) {
+            } else if (nestedExpr.trim().startsWith("SUM")) {
+                System.out.println("Nested expression starts with SUM: " + nestedExpr);
+                result = evaluateSUM(nestedExpr.trim().substring(3).trim());
+                formula = formula.replace("(" + nestedExpr + ")", result);
+                System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
+                matcher = pattern.matcher(formula);
+            } else if (nestedExpr.contains(":")) {
                 String[] cellRefs = nestedExpr.split(":");
                 String range = rangeOperation(cellRefs[0].trim(), cellRefs[1].trim());
                 System.out.println("RANGE: " + range);
@@ -432,24 +440,15 @@ public class Spreadsheet implements ISpreadsheet {
                 formula = replaceCellReferences(formula);
                 System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
                 matcher = pattern.matcher(formula);
-            }
-            else if (nestedExpr.trim().startsWith("SUM")) {
-                result = evaluateSUM(nestedExpr.substring(3, nestedExpr.length() - 1));
-                formula = formula.replace("(" + nestedExpr + ")", result);
-                System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
-                matcher = pattern.matcher(formula);
-            }
-            else {
+            } else {
                 result = parseOperations(nestedExpr); // Evaluate the nested expression
                 formula = formula.replace("(" + nestedExpr + ")", result);
                 System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
                 matcher = pattern.matcher(formula);
             }
-
         }
         return formula;
     }
-    
   
     private String evaluateLogical(String formula) {
         System.out.println("Evaluating logical expression: " + formula);
@@ -800,10 +799,6 @@ public class Spreadsheet implements ISpreadsheet {
         return parts;
     }
     
-    
-    
-    
-    
     /**
      * Evaluates the SUM function with the given parameters.
      *
@@ -817,14 +812,15 @@ public class Spreadsheet implements ISpreadsheet {
         double sum = 0;
         try {
             for (String part : parts) {
-                String func = getFunction(part); // Get function from part
-                part = replaceCellReferences(part.trim());
-                part = parseNestedOperations(func, part, parameters); // Parse nested operations
-                if (part != "") {
-                    sum += Double.parseDouble(part); // Add part value to sum
-                    int index = parameters.indexOf(")"); // Find index of closing parenthesis
-                    if (func != "" && index != -1) {
-                        parameters = parameters.substring(index + 1); // Update parameters
+                part = part.trim();
+                if (part.contains(":")) {
+                    part = rangeOperation(part.split(":")[0], part.split(":")[1]);
+                }
+                String[] values = part.split(",");
+                for (String value : values) {
+                    value = replaceCellReferences(value.trim());
+                    if (!value.isEmpty()) {
+                        sum += Double.parseDouble(value); // Add value to sum
                     }
                 }
             }
@@ -833,7 +829,7 @@ public class Spreadsheet implements ISpreadsheet {
             return "Error"; // Return "Error" if parsing fails
         }
     }
-
+    
     /**
      * Evaluates the MIN function with the given parameters.
      *
