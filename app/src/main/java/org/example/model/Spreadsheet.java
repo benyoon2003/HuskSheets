@@ -251,6 +251,10 @@ public class Spreadsheet implements ISpreadsheet {
         System.out.println("Stripped formula: " + formula);
     
         try {
+            if (formula.startsWith("COPY(")) {
+                return evaluateCOPY(formula.substring(5, formula.length() - 1)); // Evaluate COPY function
+            }
+
             formula = replaceCellReferences(formula); // Replace cell references with their values
             System.out.println("Formula after replacing cell references: " + formula);
     
@@ -389,8 +393,6 @@ public class Spreadsheet implements ISpreadsheet {
                 return evaluateSTDDEV(args); // Evaluate STDDEV function
             } else if (formula.startsWith("SORT(")) {
                 return evaluateSORT(args); // Evaluate SORT function
-            } else if (formula.startsWith("COPY(")) {
-                return evaluateCOPY(args); // Evaluate COPY function
             }
         }
         return formula; // Return the formula if no operations or functions are found
@@ -1018,6 +1020,7 @@ public class Spreadsheet implements ISpreadsheet {
         int row = getRow(parts[1]);
         int col = getColumn(parts[1]);
         this.grid.get(row).get(col).setValue(value);
+        this.grid.get(row).get(col).setRawData(value);
         return value;
     }
 
