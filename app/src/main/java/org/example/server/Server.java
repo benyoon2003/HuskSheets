@@ -511,6 +511,12 @@ public class Server {
                 false, "Sheet not found", new ArrayList<>()));  // Return 404 status if sheet is not found
     }
 
+    /**
+     * Tracks the differences between a history of payloads.
+     * @param strings a List of payloads
+     * @return a string representing the updates over the course of time.
+     * @author Ben
+     */
     public static String trackDifferences(List<String> strings) {
         StringBuilder output = new StringBuilder();
         Map<String, String> previousValues = new LinkedHashMap<>();
@@ -542,6 +548,12 @@ public class Server {
         return output.toString();
     }
 
+    /**
+     * Splits up the payload into more manageable data.
+     * @param str a payload
+     * @return a Map<String, String>
+     * @author Ben
+     */
     private static Map<String, String> parseCurrentValues(String str) {
         Map<String, String> values = new LinkedHashMap<>();
         String[] lines = str.split("\n");
