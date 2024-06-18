@@ -828,27 +828,47 @@ private String evaluateLogical(String formula) {
         }
     }
     
-    private List<String> splitByCommaOutsideParentheses(String input) {
-        List<String> parts = new ArrayList<>();
-        int bracketLevel = 0;
-        StringBuilder currentPart = new StringBuilder();
-    
-        for (char c : input.toCharArray()) {
-            if (c == '(') {
-                bracketLevel++;
-            } else if (c == ')') {
-                bracketLevel--;
-            } else if (c == ',' && bracketLevel == 0) {
-                parts.add(currentPart.toString());
-                currentPart.setLength(0); // reset the current part
-                continue;
-            }
-            currentPart.append(c);
+/**
+ * Splits the input string by commas, but only if the commas are outside any parentheses.
+ * 
+ * @param input The input string to be split.
+ * @return A list of substrings split by commas outside parentheses.
+ * @author Vinay
+ */
+private List<String> splitByCommaOutsideParentheses(String input) {
+    // Initialize a list to hold the resulting parts
+    List<String> parts = new ArrayList<>();
+    // Variable to keep track of the current level of nested parentheses
+    int bracketLevel = 0;
+    // StringBuilder to accumulate characters for the current part
+    StringBuilder currentPart = new StringBuilder();
+
+    // Iterate over each character in the input string
+    for (char c : input.toCharArray()) {
+        // If the character is an opening parenthesis, increase the bracket level
+        if (c == '(') {
+            bracketLevel++;
+        // If the character is a closing parenthesis, decrease the bracket level
+        } else if (c == ')') {
+            bracketLevel--;
+        // If the character is a comma and we are not inside parentheses, split here
+        } else if (c == ',' && bracketLevel == 0) {
+            // Add the current part to the list of parts
+            parts.add(currentPart.toString());
+            // Reset the current part for the next segment
+            currentPart.setLength(0);
+            // Skip adding the comma itself to the current part
+            continue;
         }
-        parts.add(currentPart.toString());
-    
-        return parts;
+        // Append the current character to the current part
+        currentPart.append(c);
     }
+    // Add the last accumulated part to the list
+    parts.add(currentPart.toString());
+
+    // Return the list of parts
+    return parts;
+}
     
     /**
      * Evaluates the SUM function with the given parameters.
