@@ -245,36 +245,35 @@ public class Spreadsheet implements ISpreadsheet {
         if (!formula.startsWith("=")) {
             return formula; // Return the formula if it does not start with "="
         }
-
+    
         // Remove the initial "="
         formula = formula.substring(1).stripLeading();
         System.out.println("Stripped formula: " + formula);
-
+    
         try {
-            if (formula.contains("COPY")) {
-                formula = parseOperations(formula);
-            }
             formula = replaceCellReferences(formula); // Replace cell references with their values
             System.out.println("Formula after replacing cell references: " + formula);
+    
             formula = evaluateNestedExpressions(formula); // Evaluate nested expressions first
             System.out.println("Formula after evaluating nested expressions: " + formula);
-
+    
             Object result = formula; // Initialize result with the formula
             System.setProperty("polyglot.engine.WarnInterpreterOnly", "false"); // Set system property to avoid warnings
-
+    
             if (containsOperation(formula)) {
                 result = parseOperations(formula); // Parse operations in the formula
             } else if (containsArith(formula)) { // Check if formula contains arithmetic operations
                 Context context = Context.create("js"); // Create a JavaScript context
                 result = context.eval("js", formula); // Evaluate the formula using JavaScript
             }
-
+    
             return result.toString(); // Return the result as a string
         } catch (Exception e) {
             System.out.println("Exception in evaluateFormula: " + e.getMessage());
             return "Error"; // Return "Error" if an exception occurs
         }
     }
+     
 
     private boolean containsOperation(String cell) {
         for (String op : operations) { // Loop through the logical operations
@@ -294,16 +293,24 @@ public class Spreadsheet implements ISpreadsheet {
      */
     private String parseOperations(String formula) {
         System.out.println("Parsing operations, initial formula: " + formula);
-
+    
+        // Check if the formula is an IF function and handle it specially
+        if (formula.startsWith("IF(")) {
+            int startIndex = formula.indexOf("(") + 1;
+            int endIndex = formula.lastIndexOf(")");
+            String args = formula.substring(startIndex, endIndex);
+            return evaluateIF(args); // Evaluate IF function
+        }
+    
         // Evaluate nested expressions within parentheses first
         formula = evaluateNestedExpressions(formula);
         System.out.println("Formula after evaluating nested expressions: " + formula);
-
-        // First, handle logical operations
+    
+        // Handle logical operations
         if (formula.contains("&") || formula.contains("|")) {
             String[] logicalParts;
             String logicalResult = "";
-
+    
             if (formula.contains("&")) {
                 logicalParts = formula.split("&");
                 logicalResult = "1"; // Initialize to "1" for AND operation
@@ -327,18 +334,17 @@ public class Spreadsheet implements ISpreadsheet {
                     System.out.println("OR operation result so far: " + logicalResult);
                 }
             }
-
+    
             return logicalResult;
         }
-
+    
         String operation = getOperation(formula); // Get the operation in the formula
         System.out.println("Parsing operations, found operation: " + operation);
-
+    
         if (!operation.isEmpty()) {
-            String[] parts = formula.replaceAll(" ", "").split(Pattern.quote(operation)); // Split the formula into
-                                                                                          // parts
+            String[] parts = formula.replaceAll(" ", "").split(Pattern.quote(operation)); // Split the formula into parts
             System.out.println("Parts after split: " + Arrays.toString(parts));
-
+    
             if (formula.contains("<>")) {
                 return compareNotEqual(parts[0].trim(), parts[1].trim()); // Compare not equal
             } else if (formula.contains("<") && !formula.contains("=")) {
@@ -349,14 +355,14 @@ public class Spreadsheet implements ISpreadsheet {
                 return compareEqual(parts[0].trim(), parts[1].trim()); // Compare equal
             }
         }
-
+    
         String function = getFunction(formula); // Get the function in the formula
         if (!function.isEmpty()) {
             int start = function.length() + 1; // Calculate start index of the arguments
             int end = formula.length() - 1; // Calculate end index of the arguments
             String args = formula.substring(start, end); // Extract the arguments
             System.out.println("Function: " + function + ", Arguments: " + args);
-
+    
             if (formula.startsWith("IF(")) {
                 return evaluateIF(args); // Evaluate IF function
             } else if (formula.startsWith("SUM(")) {
@@ -379,22 +385,26 @@ public class Spreadsheet implements ISpreadsheet {
                 return evaluateCOPY(args); // Evaluate COPY function
             }
         }
-
         return formula; // Return the formula if no operations or functions are found
-    }
-
+    }    
+    
     private String evaluateNestedExpressions(String formula) {
-        Pattern pattern = Pattern.compile("\\([^()]+[IF]+\\)");
+        Pattern pattern = Pattern.compile("\\(([^()]+)\\)"); // Match innermost parentheses
         Matcher matcher = pattern.matcher(formula);
+    
         while (matcher.find()) {
-            String nestedExpr = matcher.group();
+            String nestedExpr = matcher.group(1); // Get the content inside parentheses
             System.out.println("Found nested expression: " + nestedExpr);
-            String result = parseOperations(nestedExpr.substring(1, nestedExpr.length() - 1)); // Parse the nested
-                                                                                               // expression without
-                                                                                               // evaluating formula
-            formula = formula.replace(nestedExpr, result);
-            System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result
-                    + ": " + formula);
+    
+            String result;
+            if (nestedExpr.startsWith("IF(")) {
+                result = parseOperations(nestedExpr); // Directly parse operations for IF function
+            } else {
+                result = parseOperations(nestedExpr); // Evaluate the nested expression
+            }
+    
+            formula = formula.replace("(" + nestedExpr + ")", result);
+            System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
             matcher = pattern.matcher(formula);
         }
         return formula;
@@ -709,20 +719,25 @@ public class Spreadsheet implements ISpreadsheet {
         if (parts.length != 3) {
             return "Error"; // Return "Error" if parameter count is not 3
         }
-
+    
         String condition = replaceCellReferences(parts[0].trim()); // Replace cell references in condition
-        String trueResult = replaceCellReferences(parts[1].trim()); // Replace cell references in trueResult
-        String falseResult = replaceCellReferences(parts[2].trim()); // Replace cell references in falseResult
-
+        String trueResult = parts[1].trim(); // Use raw value for trueResult
+        String falseResult = parts[2].trim(); // Use raw value for falseResult
+    
+        // Evaluate the condition by parsing the logical operation
+        condition = parseOperations(condition);
+        System.out.println("Condition after parsing: " + condition);
+    
         try {
-            double conditionValue = Double.parseDouble(condition); // Parse condition as double
-            return conditionValue != 0 ? trueResult : falseResult; // Return trueResult if condition is non-zero,
-                                                                   // otherwise falseResult
+            // Attempt to parse the condition as a double
+            double conditionValue = Double.parseDouble(condition);
+            return conditionValue != 0 ? trueResult : falseResult; // Return trueResult if condition is non-zero, otherwise falseResult
         } catch (NumberFormatException e) {
-            return "Error"; // Return "Error" if parsing fails
+            // If parsing fails, compare strings
+            return condition.equals("0") ? falseResult : trueResult;
         }
     }
-
+    
     /**
      * Evaluates the SUM function with the given parameters.
      *
@@ -876,7 +891,7 @@ public class Spreadsheet implements ISpreadsheet {
      * @author Theo
      */
     private String evaluateDEBUG(String parameter) {
-        return parameter.trim(); // Return trimmed parameter
+        return parseOperations(parameter.trim()); // Return trimmed parameter
     }
 
     /**
