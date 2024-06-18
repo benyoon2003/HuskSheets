@@ -288,7 +288,12 @@ public class Spreadsheet implements ISpreadsheet {
         }
     }
     
-
+    /**
+     * Checks if logical operation is found
+     * @param cell
+     * @return Boolean Value representing whether an operation was found
+     * @author Vinay
+     */
     private boolean containsOperation(String cell) {
         for (String op : operations) { // Loop through the logical operations
             if (cell.contains(op)) {
@@ -405,81 +410,126 @@ public class Spreadsheet implements ISpreadsheet {
         return formula; // Return the formula if no operations or functions are found
     }
 
-    private String evaluateNestedExpressions(String formula) {
-        Pattern pattern = Pattern.compile("\\(([^()]+)\\)"); // Match innermost parentheses
-        Matcher matcher = pattern.matcher(formula);
-    
-        while (matcher.find()) {
-            String nestedExpr = matcher.group(1); // Get the content inside parentheses
-            System.out.println("Found nested expression: " + nestedExpr);
-    
-            String result;
-            if (nestedExpr.trim().startsWith("IF")) {
-                System.out.println("Nested expression starts with IF: " + nestedExpr);
-                result = evaluateIF(nestedExpr.trim().substring(2).trim());
-                formula = formula.replace("(" + nestedExpr + ")", result);
-                System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
-                matcher = pattern.matcher(formula);
-            } else if (nestedExpr.trim().startsWith("DEBUG")) {
-                System.out.println("Nested expression starts with DEBUG: " + nestedExpr);
-                result = evaluateDEBUG(nestedExpr.trim().substring(5).trim());
-                formula = formula.replace("(" + nestedExpr + ")", result);
-                System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
-                matcher = pattern.matcher(formula);
-            } else if (nestedExpr.trim().startsWith("SUM")) {
-                System.out.println("Nested expression starts with SUM: " + nestedExpr);
-                result = evaluateSUM(nestedExpr.trim().substring(3).trim());
-                formula = formula.replace("(" + nestedExpr + ")", result);
-                System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
-                matcher = pattern.matcher(formula);
-            } else if (nestedExpr.contains(":")) {
-                String[] cellRefs = nestedExpr.split(":");
-                String range = rangeOperation(cellRefs[0].trim(), cellRefs[1].trim());
-                System.out.println("RANGE: " + range);
-                result = range;
-                formula = formula.replace("(" + nestedExpr + ")", result);
-                formula = replaceCellReferences(formula);
-                System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
-                matcher = pattern.matcher(formula);
-            } else {
-                result = parseOperations(nestedExpr); // Evaluate the nested expression
-                formula = formula.replace("(" + nestedExpr + ")", result);
-                System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
-                matcher = pattern.matcher(formula);
-            }
+/**
+ * Evaluates nested expressions within the given formula by recursively processing innermost parentheses.
+ * @param formula The input formula containing potential nested expressions.
+ * @return The formula with all nested expressions evaluated.
+ * @author Vinay
+ */
+private String evaluateNestedExpressions(String formula) {
+    // Compile a regex pattern to match the innermost parentheses
+    Pattern pattern = Pattern.compile("\\(([^()]+)\\)");
+    // Create a matcher to find occurrences of the pattern in the formula
+    Matcher matcher = pattern.matcher(formula);
+
+    // Iterate while there are matches in the formula
+    while (matcher.find()) {
+        // Extract the content inside the innermost parentheses
+        String nestedExpr = matcher.group(1);
+        System.out.println("Found nested expression: " + nestedExpr);
+
+        String result;
+        // Check if the nested expression starts with "IF"
+        if (nestedExpr.trim().startsWith("IF")) {
+            System.out.println("Nested expression starts with IF: " + nestedExpr);
+            // Evaluate the IF expression
+            result = evaluateIF(nestedExpr.trim().substring(2).trim());
+            // Replace the nested expression in the formula with its result
+            formula = formula.replace("(" + nestedExpr + ")", result);
+            System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
+            // Update the matcher to reflect changes in the formula
+            matcher = pattern.matcher(formula);
+        // Check if the nested expression starts with "DEBUG"
+        } else if (nestedExpr.trim().startsWith("DEBUG")) {
+            System.out.println("Nested expression starts with DEBUG: " + nestedExpr);
+            // Evaluate the DEBUG expression
+            result = evaluateDEBUG(nestedExpr.trim().substring(5).trim());
+            // Replace the nested expression in the formula with its result
+            formula = formula.replace("(" + nestedExpr + ")", result);
+            System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
+            // Update the matcher to reflect changes in the formula
+            matcher = pattern.matcher(formula);
+        // Check if the nested expression starts with "SUM"
+        } else if (nestedExpr.trim().startsWith("SUM")) {
+            System.out.println("Nested expression starts with SUM: " + nestedExpr);
+            // Evaluate the SUM expression
+            result = evaluateSUM(nestedExpr.trim().substring(3).trim());
+            // Replace the nested expression in the formula with its result
+            formula = formula.replace("(" + nestedExpr + ")", result);
+            System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
+            // Update the matcher to reflect changes in the formula
+            matcher = pattern.matcher(formula);
+        // Check if the nested expression contains a range operation
+        } else if (nestedExpr.contains(":")) {
+            // Split the expression by the colon to get the cell references
+            String[] cellRefs = nestedExpr.split(":");
+            // Perform the range operation
+            String range = rangeOperation(cellRefs[0].trim(), cellRefs[1].trim());
+            System.out.println("RANGE: " + range);
+            result = range;
+            // Replace the nested expression in the formula with its result
+            formula = formula.replace("(" + nestedExpr + ")", result);
+            // Replace cell references within the formula
+            formula = replaceCellReferences(formula);
+            System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
+            // Update the matcher to reflect changes in the formula
+            matcher = pattern.matcher(formula);
+        } else {
+            // Parse and evaluate other types of operations within the nested expression
+            result = parseOperations(nestedExpr);
+            // Replace the nested expression in the formula with its result
+            formula = formula.replace("(" + nestedExpr + ")", result);
+            System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
+            // Update the matcher to reflect changes in the formula
+            matcher = pattern.matcher(formula);
         }
-        return formula;
     }
-  
-    private String evaluateLogical(String formula) {
-        System.out.println("Evaluating logical expression: " + formula);
-        String operation = getOperation(formula);
-        if (!operation.isEmpty()) {
-            String[] parts = formula.split(Pattern.quote(operation));
-            System.out.println("Parts of logical expression: " + Arrays.toString(parts));
-            parts[0] = evaluateNestedExpressions(parts[0].trim());
-            parts[1] = evaluateNestedExpressions(parts[1].trim());
-            System.out.println("Parts after evaluating nested expressions: " + Arrays.toString(parts));
-            switch (operation) {
-                case "<>":
-                    return compareNotEqual(parts[0], parts[1]);
-                case "<":
-                    return compareLess(parts[0], parts[1]);
-                case ">":
-                    return compareGreater(parts[0], parts[1]);
-                case "=":
-                    return compareEqual(parts[0], parts[1]);
-                default:
-                    return "Error";
-            }
-        }
-        try {
-            double value = Double.parseDouble(formula);
-            return value != 0 ? "1" : "0";
-        } catch (NumberFormatException e) {
-            return "0";
+    // Return the fully evaluated formula
+    return formula;
+}
+
+/**
+ * Evaluates logical expressions within the given formula.
+ * @param formula The input formula containing logical expressions.
+ * @return The result of the logical expression evaluation.
+ * @author Vinay
+ */
+private String evaluateLogical(String formula) {
+    System.out.println("Evaluating logical expression: " + formula);
+    // Get the logical operation from the formula
+    String operation = getOperation(formula);
+    if (!operation.isEmpty()) {
+        // Split the formula into parts based on the logical operation
+        String[] parts = formula.split(Pattern.quote(operation));
+        System.out.println("Parts of logical expression: " + Arrays.toString(parts));
+        // Evaluate nested expressions within each part
+        parts[0] = evaluateNestedExpressions(parts[0].trim());
+        parts[1] = evaluateNestedExpressions(parts[1].trim());
+        System.out.println("Parts after evaluating nested expressions: " + Arrays.toString(parts));
+        // Perform the logical comparison based on the operation
+        switch (operation) {
+            case "<>":
+                return compareNotEqual(parts[0], parts[1]);
+            case "<":
+                return compareLess(parts[0], parts[1]);
+            case ">":
+                return compareGreater(parts[0], parts[1]);
+            case "=":
+                return compareEqual(parts[0], parts[1]);
+            default:
+                return "Error";
         }
     }
+    // Attempt to parse the formula as a numeric value
+    try {
+        double value = Double.parseDouble(formula);
+        // Return "1" if the value is non-zero, otherwise "0"
+        return value != 0 ? "1" : "0";
+    } catch (NumberFormatException e) {
+        // Return "0" if parsing fails
+        return "0";
+    }
+}
 
     /**
      * Replaces cell references in the formula with their actual values.
