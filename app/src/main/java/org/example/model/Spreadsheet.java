@@ -11,6 +11,8 @@ import java.util.regex.Pattern;
 
 import org.graalvm.polyglot.Context;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
+
 /**
  * Represents a spreadsheet with various functionalities such as evaluating
  * formulas,
@@ -254,27 +256,27 @@ public class Spreadsheet implements ISpreadsheet {
             if (formula.startsWith("COPY(")) {
                 return evaluateCOPY(formula.substring(5, formula.length() - 1)); // Evaluate COPY function
             }
-
-            formula = replaceCellReferences(formula); // Replace cell references with their values
-            System.out.println("Formula after replacing cell references: " + formula);
-    
+            if (!formula.contains(":")) {
+                formula = replaceCellReferences(formula); // Replace cell references with their values
+                System.out.println("Formula after replacing cell references: " + formula);
+            }
             formula = evaluateNestedExpressions(formula); // Evaluate nested expressions first
             System.out.println("Formula after evaluating nested expressions: " + formula);
-    
+
             if (formula.startsWith("DEBUG")) { // Check if formula starts with DEBUG
                 return evaluateDEBUG(formula.substring(5).trim());
             }
-    
+
             Object result = formula; // Initialize result with the formula
             System.setProperty("polyglot.engine.WarnInterpreterOnly", "false"); // Set system property to avoid warnings
-    
+
             if (containsOperation(formula)) {
                 result = parseOperations(formula); // Parse operations in the formula
             } else if (containsArith(formula)) { // Check if formula contains arithmetic operations
                 Context context = Context.create("js"); // Create a JavaScript context
                 result = context.eval("js", formula); // Evaluate the formula using JavaScript
             }
-    
+
             return result.toString(); // Return the result as a string
         } catch (Exception e) {
             System.out.println("Exception in evaluateFormula: " + e.getMessage());
@@ -300,7 +302,7 @@ public class Spreadsheet implements ISpreadsheet {
      */
     private String parseOperations(String formula) {
         System.out.println("Parsing operations, initial formula: " + formula);
-    
+
         // Check if the formula is an IF function and handle it specially
         if (formula.startsWith("IF(")) {
             int startIndex = formula.indexOf("(") + 1;
@@ -309,20 +311,20 @@ public class Spreadsheet implements ISpreadsheet {
             System.out.println("IF function detected with args: " + args);
             return evaluateIF(args); // Evaluate IF function
         }
-    
+
         // Evaluate nested expressions within parentheses first
         formula = evaluateNestedExpressions(formula);
         System.out.println("Formula after evaluating nested expressions: " + formula);
-    
+
         if (formula.startsWith("DEBUG")) { // Check if formula starts with DEBUG after evaluating nested expressions
             return evaluateDEBUG(formula.substring(5).trim());
         }
-    
+
         // Handle logical operations
         if (formula.contains("&") || formula.contains("|")) {
             String[] logicalParts;
             String logicalResult = "";
-    
+
             if (formula.contains("&")) {
                 logicalParts = formula.split("&");
                 logicalResult = "1"; // Initialize to "1" for AND operation
@@ -346,17 +348,17 @@ public class Spreadsheet implements ISpreadsheet {
                     System.out.println("OR operation result so far: " + logicalResult);
                 }
             }
-    
+
             return logicalResult;
         }
-    
+
         String operation = getOperation(formula); // Get the operation in the formula
         System.out.println("Parsing operations, found operation: " + operation);
-    
+
         if (!operation.isEmpty()) {
             String[] parts = formula.replaceAll(" ", "").split(Pattern.quote(operation)); // Split the formula into parts
             System.out.println("Parts after split: " + Arrays.toString(parts));
-    
+
             if (formula.contains("<>")) {
                 return compareNotEqual(parts[0].trim(), parts[1].trim()); // Compare not equal
             } else if (formula.contains("<") && !formula.contains("=")) {
@@ -367,14 +369,14 @@ public class Spreadsheet implements ISpreadsheet {
                 return compareEqual(parts[0].trim(), parts[1].trim()); // Compare equal
             }
         }
-    
+
         String function = getFunction(formula); // Get the function in the formula
         if (!function.isEmpty()) {
             int start = function.length() + 1; // Calculate start index of the arguments
             int end = formula.length() - 1; // Calculate end index of the arguments
             String args = formula.substring(start, end); // Extract the arguments
             System.out.println("Function: " + function + ", Arguments: " + args);
-    
+
             if (formula.startsWith("IF(")) {
                 return evaluateIF(args); // Evaluate IF function
             } else if (formula.startsWith("SUM(")) {
@@ -397,16 +399,16 @@ public class Spreadsheet implements ISpreadsheet {
         }
         return formula; // Return the formula if no operations or functions are found
     }
-    
-    
+
+
     private String evaluateNestedExpressions(String formula) {
         Pattern pattern = Pattern.compile("\\(([^()]+)\\)"); // Match innermost parentheses
         Matcher matcher = pattern.matcher(formula);
-    
+
         while (matcher.find()) {
             String nestedExpr = matcher.group(1); // Get the content inside parentheses
             System.out.println("Found nested expression: " + nestedExpr);
-    
+
             String result;
             if (nestedExpr.trim().startsWith("IF")) {
                 System.out.println("Nested expression starts with IF: " + nestedExpr);
@@ -414,10 +416,27 @@ public class Spreadsheet implements ISpreadsheet {
             } else if (nestedExpr.trim().startsWith("DEBUG")) {
                 System.out.println("Nested expression starts with DEBUG: " + nestedExpr);
                 result = evaluateDEBUG(nestedExpr.trim().substring(5).trim());
-            } else {
+            }
+            else if (nestedExpr.contains(":")) {
+                String[] cellRefs = nestedExpr.split(":");
+                String range = rangeOperation(cellRefs[0].trim(), cellRefs[1].trim());
+                System.out.println("RANGE: " + range);
+                String otherRef = "";
+                if (cellRefs[0].contains("$")) {
+                    int index = cellRefs[0].indexOf("$");
+                    otherRef = cellRefs[0].substring(index, index + 2).trim();
+                }
+                else if (cellRefs[1].contains("$")) {
+                    int index = cellRefs[1].indexOf("$");
+                    otherRef = cellRefs[1].substring(index, index + 2).trim();
+                }
+                result = range + "," + replaceCellReferences(otherRef);
+
+            }
+            else {
                 result = parseOperations(nestedExpr); // Evaluate the nested expression
             }
-    
+
             formula = formula.replace("(" + nestedExpr + ")", result);
             System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
             matcher = pattern.matcher(formula);
