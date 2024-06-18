@@ -29,9 +29,10 @@ public class Spreadsheet implements ISpreadsheet {
     // used to retrieve version for GetUpdatesPublished
     private List<ISpreadsheet> subscribeVersions;
 
-    private String[] functions = new String[]{"IF", "SUM", "MIN", "MAX", "AVG", "CONCAT", "DEBUG", "STDDEV", "SORT"};
-    private String[] arith = new String[]{"+", "-", "*", "/"};
-    private String[] operations = new String[]{"<>", "<", ">", "=", "&", "|", ":"};
+    private String[] functions = new String[] { "IF", "SUM", "MIN", "MAX", "AVG", "CONCAT", "DEBUG", "STDDEV", "SORT",
+            "COPY" };
+    private String[] arith = new String[] { "+", "-", "*", "/" };
+    private String[] operations = new String[] { "<>", "<", ">", "=", "&", "|", ":" };
 
     /**
      * Constructs a new Spreadsheet with the specified name.
@@ -87,9 +88,13 @@ public class Spreadsheet implements ISpreadsheet {
         Cell[][] values = sheet.getCellsObject(); // Get the cell values as a 2D array
         for (int i = 0; i < sheet.getRows(); i++) { // Loop through the rows
             for (int j = 0; j < sheet.getCols(); j++) { // Loop through the columns
-                if (values[i][j] != null && !values[i][j].getRawdata().isEmpty()) { // Check if the cell is not null and has raw data
+                if (values[i][j] != null && !values[i][j].getRawdata().isEmpty()) { // Check if the cell is not null and
+                                                                                    // has raw data
                     String cellValue = values[i][j].isFormula() ? values[i][j].getFormula() : values[i][j].getRawdata();
-                    payload.append(String.format("$%s%s %s\\n", getColumnName(j + 1), i + 1, cellValue)); // Append the cell data to the payload
+                    payload.append(String.format("$%s%s %s\\n", getColumnName(j + 1), i + 1, cellValue)); // Append the
+                                                                                                          // cell data
+                                                                                                          // to the
+                                                                                                          // payload
                 }
             }
         }
@@ -155,7 +160,8 @@ public class Spreadsheet implements ISpreadsheet {
     @Override
     public int getRow(String cell) {
         try {
-            return Integer.parseInt(cell.replaceAll("[^0-9]", "")) - 1; // Extract the row number from the cell reference
+            return Integer.parseInt(cell.replaceAll("[^0-9]", "")) - 1; // Extract the row number from the cell
+                                                                        // reference
         } catch (NumberFormatException e) {
             return -1; // Return -1 if there is a number format exception
         }
@@ -245,6 +251,9 @@ public class Spreadsheet implements ISpreadsheet {
         System.out.println("Stripped formula: " + formula);
 
         try {
+            if (formula.contains("COPY")) {
+                formula = parseOperations(formula);
+            }
             formula = replaceCellReferences(formula); // Replace cell references with their values
             System.out.println("Formula after replacing cell references: " + formula);
             formula = evaluateNestedExpressions(formula); // Evaluate nested expressions first
@@ -285,16 +294,16 @@ public class Spreadsheet implements ISpreadsheet {
      */
     private String parseOperations(String formula) {
         System.out.println("Parsing operations, initial formula: " + formula);
-    
+
         // Evaluate nested expressions within parentheses first
         formula = evaluateNestedExpressions(formula);
         System.out.println("Formula after evaluating nested expressions: " + formula);
-    
+
         // First, handle logical operations
         if (formula.contains("&") || formula.contains("|")) {
             String[] logicalParts;
             String logicalResult = "";
-    
+
             if (formula.contains("&")) {
                 logicalParts = formula.split("&");
                 logicalResult = "1"; // Initialize to "1" for AND operation
@@ -318,17 +327,18 @@ public class Spreadsheet implements ISpreadsheet {
                     System.out.println("OR operation result so far: " + logicalResult);
                 }
             }
-    
+
             return logicalResult;
         }
-    
+
         String operation = getOperation(formula); // Get the operation in the formula
         System.out.println("Parsing operations, found operation: " + operation);
-    
+
         if (!operation.isEmpty()) {
-            String[] parts = formula.replaceAll(" ", "").split(Pattern.quote(operation)); // Split the formula into parts
+            String[] parts = formula.replaceAll(" ", "").split(Pattern.quote(operation)); // Split the formula into
+                                                                                          // parts
             System.out.println("Parts after split: " + Arrays.toString(parts));
-    
+
             if (formula.contains("<>")) {
                 return compareNotEqual(parts[0].trim(), parts[1].trim()); // Compare not equal
             } else if (formula.contains("<") && !formula.contains("=")) {
@@ -339,14 +349,14 @@ public class Spreadsheet implements ISpreadsheet {
                 return compareEqual(parts[0].trim(), parts[1].trim()); // Compare equal
             }
         }
-    
+
         String function = getFunction(formula); // Get the function in the formula
         if (!function.isEmpty()) {
             int start = function.length() + 1; // Calculate start index of the arguments
             int end = formula.length() - 1; // Calculate end index of the arguments
             String args = formula.substring(start, end); // Extract the arguments
             System.out.println("Function: " + function + ", Arguments: " + args);
-    
+
             if (formula.startsWith("IF(")) {
                 return evaluateIF(args); // Evaluate IF function
             } else if (formula.startsWith("SUM(")) {
@@ -365,27 +375,31 @@ public class Spreadsheet implements ISpreadsheet {
                 return evaluateSTDDEV(args); // Evaluate STDDEV function
             } else if (formula.startsWith("SORT(")) {
                 return evaluateSORT(args); // Evaluate SORT function
+            } else if (formula.startsWith("COPY(")) {
+                return evaluateCOPY(args); // Evaluate COPY function
             }
         }
-    
+
         return formula; // Return the formula if no operations or functions are found
     }
-    
-    
+
     private String evaluateNestedExpressions(String formula) {
-        Pattern pattern = Pattern.compile("\\([^()]+\\)");
+        Pattern pattern = Pattern.compile("\\([^()]+[IF]+\\)");
         Matcher matcher = pattern.matcher(formula);
         while (matcher.find()) {
             String nestedExpr = matcher.group();
             System.out.println("Found nested expression: " + nestedExpr);
-            String result = parseOperations(nestedExpr.substring(1, nestedExpr.length() - 1)); // Parse the nested expression without evaluating formula
+            String result = parseOperations(nestedExpr.substring(1, nestedExpr.length() - 1)); // Parse the nested
+                                                                                               // expression without
+                                                                                               // evaluating formula
             formula = formula.replace(nestedExpr, result);
-            System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result + ": " + formula);
+            System.out.println("Formula after replacing nested expression " + nestedExpr + " with result " + result
+                    + ": " + formula);
             matcher = pattern.matcher(formula);
         }
         return formula;
     }
-    
+
     private String evaluateLogical(String formula) {
         System.out.println("Evaluating logical expression: " + formula);
         String operation = getOperation(formula);
@@ -415,7 +429,6 @@ public class Spreadsheet implements ISpreadsheet {
             return "0";
         }
     }
-
 
     /**
      * Replaces cell references in the formula with their actual values.
@@ -539,6 +552,7 @@ public class Spreadsheet implements ISpreadsheet {
             return "Error"; // Return "Error" if parsing fails
         }
     }
+
     /**
      * Compares if the first value is equal to the second value.
      *
@@ -612,8 +626,7 @@ public class Spreadsheet implements ISpreadsheet {
             return "0"; // Return "0" if parsing fails
         }
     }
-    
-    
+
     /**
      * Performs the OR operation between two values.
      *
@@ -645,7 +658,8 @@ public class Spreadsheet implements ISpreadsheet {
     private String rangeOperation(String startCell, String endCell) {
         String func = getFunction(startCell); // Get function from startCell
         if (func != "") {
-            startCell = startCell.substring(startCell.indexOf('(', startCell.indexOf(func)) + 1); // Remove function part from startCell
+            startCell = startCell.substring(startCell.indexOf('(', startCell.indexOf(func)) + 1); // Remove function
+                                                                                                  // part from startCell
         }
 
         int startRow = getRow(startCell); // Get start row
@@ -702,7 +716,8 @@ public class Spreadsheet implements ISpreadsheet {
 
         try {
             double conditionValue = Double.parseDouble(condition); // Parse condition as double
-            return conditionValue != 0 ? trueResult : falseResult; // Return trueResult if condition is non-zero, otherwise falseResult
+            return conditionValue != 0 ? trueResult : falseResult; // Return trueResult if condition is non-zero,
+                                                                   // otherwise falseResult
         } catch (NumberFormatException e) {
             return "Error"; // Return "Error" if parsing fails
         }
@@ -882,7 +897,8 @@ public class Spreadsheet implements ISpreadsheet {
                 part = replaceCellReferences(part.trim());
                 part = parseNestedOperations(func, part, parameters); // Parse nested operations
                 if (part != "") {
-                    sum += Math.pow(Double.parseDouble(replaceCellReferences(part)) - avg, 2); // Calculate squared difference
+                    sum += Math.pow(Double.parseDouble(replaceCellReferences(part)) - avg, 2); // Calculate squared
+                                                                                               // difference
                     int index = parameters.indexOf(")"); // Find index of closing parenthesis
                     if (func != "" && index != -1) {
                         parameters = parameters.substring(index + 1); // Update parameters
@@ -935,13 +951,24 @@ public class Spreadsheet implements ISpreadsheet {
         return result.substring(0, result.length() - 1); // Return sorted numbers as string
     }
 
+    private String evaluateCOPY(String parameters) {
+        String[] parts = parameters.split(",");
+        String value = replaceCellReferences(parts[0]); // get the value of the first argument
+        // get the position of the second argument
+        int row = getRow(parts[1]);
+        int col = getColumn(parts[1]);
+        this.grid.get(row).get(col).setValue(value);
+        return value;
+    }
+
     /**
      * Parses and evaluated any nested functions within the formula parameters.
      *
      * @param func       the nested function within the given part.
      * @param part       the section of the parameters being evaluated
      * @param parameters the entire parameter.
-     * @return the result of the nested function, or an empty string for the ends of functions.
+     * @return the result of the nested function, or an empty string for the ends of
+     *         functions.
      * @author Theo
      */
     private String parseNestedOperations(String func, String part, String parameters) {
