@@ -358,6 +358,7 @@ public class UserController implements IUserController {
             if (result.getSuccess()) {
                 try {
                     fullPayload = result.getValue().getLast().getPayload(); // Get the payload of the last update.
+                    System.out.println("PAYLOAD:" + fullPayload);
                 } catch (Exception e) {
                     //payload is empty
                 }

@@ -9,7 +9,7 @@ import java.util.Base64;
 
 public class ServerEndpoint {
     // Base URL for the server endpoints
-    private String url = "https://husksheet-cb47d5864e1b.herokuapp.com/api/v1/";
+    private String url = "https://husksheets.fly.dev/api/v1/";//"https://husksheet-cb47d5864e1b.herokuapp.com/api/v1/";
     private static IAppUser user; // Static variable to hold the current user
 
     /**
